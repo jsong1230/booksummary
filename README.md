@@ -130,9 +130,10 @@ booksummary/
 │   │       ├── cover.jpg
 │   │       ├── mood_*.jpg
 │   │       └── book_info.json
-│   ├── urls/            # NotebookLM용 URL 리스트
+│   └── urls/            # NotebookLM용 URL 리스트
+├── data/                # 데이터 파일 (Git에 포함)
 │   └── ildangbaek_books.csv  # 책 목록 관리
-├── output/              # 생성된 영상 파일
+├── output/              # 생성된 영상 파일 (Git에 포함하지 않음)
 ├── scripts/             # 유틸리티 스크립트
 ├── src/                 # 메인 소스 코드
 │   ├── 00_collect_books.py

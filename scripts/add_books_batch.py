@@ -178,6 +178,6 @@ def add_books_to_csv(csv_path: str):
         print(f"  {cat_name}: {count}권")
 
 if __name__ == "__main__":
-    csv_path = "assets/ildangbaek_books.csv"
+    csv_path = "data/ildangbaek_books.csv"
     add_books_to_csv(csv_path)
 

@@ -131,9 +131,9 @@ class ImageDownloader:
             
             # 저장 경로
             if output_dir is None:
-                safe_title = "".join(c for c in book_title if c.isalnum() or c in (' ', '-', '_')).strip()
-                safe_title = safe_title.replace(' ', '_')
-                output_dir = Path("assets/images") / safe_title
+                from utils.file_utils import safe_title
+                safe_title_str = safe_title(book_title)
+                output_dir = Path("assets/images") / safe_title_str
             else:
                 output_dir = Path(output_dir)
             
@@ -189,6 +189,8 @@ class ImageDownloader:
             return []
         
         downloaded = []
+        # 각 키워드에서 가져올 최대 이미지 수 (다양성을 위해 제한)
+        max_per_keyword = max(2, num_images // len(keywords)) if keywords else 2
         
         for keyword in keywords:
             if len(downloaded) >= num_images:
@@ -202,9 +204,11 @@ class ImageDownloader:
                 headers = {
                     "Authorization": f"Client-ID {self.unsplash_access_key}"
                 }
+                # 각 키워드에서 최대 max_per_keyword개만 가져오기
+                remaining = num_images - len(downloaded)
                 params = {
                     "query": keyword,
-                    "per_page": min(10, num_images - len(downloaded)),
+                    "per_page": min(max_per_keyword, remaining, 10),
                     "orientation": "landscape"
                 }
                 
@@ -333,9 +337,9 @@ class ImageDownloader:
         print()
         
         # 출력 디렉토리 설정
-        safe_title = "".join(c for c in book_title if c.isalnum() or c in (' ', '-', '_')).strip()
-        safe_title = safe_title.replace(' ', '_')
-        output_dir = Path("assets/images") / safe_title
+        from utils.file_utils import safe_title
+        safe_title_str = safe_title(book_title)
+        output_dir = Path("assets/images") / safe_title_str
         output_dir.mkdir(parents=True, exist_ok=True)
         
         # 1. 책 표지 다운로드 (선택사항)
@@ -480,17 +484,23 @@ class ImageDownloader:
                 prompt += f"카테고리: {', '.join(book_info['categories'])}\n"
         
         prompt += """
-다음과 같은 유형의 키워드를 포함해주세요:
-1. 책의 배경/장소 (예: 1960s tokyo, university dormitory, tokyo streets)
-2. 책의 감정/분위기 (예: melancholy youth, lost love, grief, sadness, loneliness)
-3. 주요 테마/주제 (예: coming of age, student life, memory, nostalgia)
-4. 책에서 언급되는 구체적인 장소나 물건 (예: norwegian forest, tokyo university, dormitory room)
-5. 시대적 배경 (예: 1960s japan, post-war japan, vintage japan)
-6. 인물/관계 (예: young couple, student friendship, romantic relationship)
+다음과 같은 유형의 키워드를 다양하게 포함해주세요 (각 카테고리에서 3-4개씩):
+1. 책의 배경/장소 (예: 1960s tokyo, university dormitory, tokyo streets, japanese campus)
+2. 책의 감정/분위기 (예: melancholy youth, lost love, grief, sadness, loneliness, nostalgia, longing)
+3. 주요 테마/주제 (예: coming of age, student life, memory, youth, friendship, loss)
+4. 책에서 언급되는 구체적인 장소나 물건 (예: norwegian forest, tokyo university, dormitory room, train station)
+5. 시대적 배경 (예: 1960s japan, post-war japan, vintage japan, retro tokyo)
+6. 인물/관계 (예: young couple, student friendship, romantic relationship, young man alone)
+7. 계절/날씨 (예: autumn leaves, rainy day, winter scene, spring campus) - 책의 배경이 있는 경우
+8. 색감/분위기 (예: muted colors, soft lighting, vintage photo, black and white) - 이미지 스타일 관련
 
-각 키워드는 2-4단어로 구성하고, 실제 이미지 검색에 유용한 구체적인 영어 표현을 사용해주세요.
-키워드만 한 줄에 하나씩 나열해주세요. 설명이나 번호, 불필요한 문자는 포함하지 마세요.
-예시 형식: "melancholy youth", "tokyo university campus", "1960s japan street" """
+중요: 
+- 각 키워드는 2-4단어로 구성하고, 실제 이미지 검색에 유용한 구체적인 영어 표현을 사용해주세요.
+- 너무 일반적인 키워드(예: "book", "reading")는 피하고, 책의 고유한 특성을 반영한 키워드를 우선하세요.
+- 키워드만 한 줄에 하나씩 나열해주세요. 설명이나 번호, 불필요한 문자는 포함하지 마세요.
+- 총 25-30개의 다양한 키워드를 생성해주세요.
+
+예시 형식: "melancholy youth", "tokyo university campus", "1960s japan street", "autumn melancholy" """
 
         try:
             # Claude API 우선 사용
@@ -558,7 +568,8 @@ class ImageDownloader:
                     seen.add(kw_clean)
                     unique_keywords.append(kw_clean)
             
-            return unique_keywords[:20]  # 최대 20개
+            # 키워드 다양성 확보: 최대 30개 반환
+            return unique_keywords[:30]  # 최대 30개
             
         except Exception as e:
             print(f"   ⚠️ AI 키워드 생성 중 오류: {e}")

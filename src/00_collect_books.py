@@ -253,7 +253,7 @@ def main():
     print("=" * 60)
     print()
     
-    csv_path = "assets/ildangbaek_books.csv"
+    csv_path = "data/ildangbaek_books.csv"
     
     # 기존 책 목록 로드
     existing_books = collector.load_books_from_csv(csv_path)

@@ -316,9 +316,9 @@ class YouTubeSearcher:
             저장된 파일 경로
         """
         if output_file is None:
-            safe_title = "".join(c for c in book_title if c.isalnum() or c in (' ', '-', '_')).strip()
-            safe_title = safe_title.replace(' ', '_')
-            output_file = f"assets/urls/{safe_title}_notebooklm.md"
+            from utils.file_utils import safe_title
+            safe_title_str = safe_title(book_title)
+            output_file = f"assets/urls/{safe_title_str}_notebooklm.md"
         
         output_path = Path(output_file)
         

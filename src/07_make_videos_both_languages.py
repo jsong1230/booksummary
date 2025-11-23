@@ -62,15 +62,12 @@ def main():
         return
     
     # 이미지 디렉토리 설정
+    from utils.file_utils import safe_title
+    safe_title_str = safe_title(args.book_title)
     if args.image_dir is None:
-        safe_title = "".join(c for c in args.book_title if c.isalnum() or c in (' ', '-', '_')).strip()
-        safe_title = safe_title.replace(' ', '_')
-        args.image_dir = f"assets/images/{safe_title}"
+        args.image_dir = f"assets/images/{safe_title_str}"
     
     maker = VideoMaker(resolution=(1920, 1080), fps=30)
-    
-    safe_title = "".join(c for c in args.book_title if c.isalnum() or c in (' ', '-', '_')).strip()
-    safe_title = safe_title.replace(' ', '_')
     
     # 한글 영상 제작
     if korean_audio:
@@ -78,7 +75,7 @@ def main():
         print(f"   오디오: {korean_audio.name}")
         print()
         
-        output_path = f"output/{safe_title}_review_ko.mp4"
+        output_path = f"output/{safe_title_str}_review_ko.mp4"
         
         maker.create_video(
             audio_path=str(korean_audio),
@@ -95,7 +92,7 @@ def main():
         print(f"   오디오: {english_audio.name}")
         print()
         
-        output_path = f"output/{safe_title}_review_en.mp4"
+        output_path = f"output/{safe_title_str}_review_en.mp4"
         
         maker.create_video(
             audio_path=str(english_audio),
