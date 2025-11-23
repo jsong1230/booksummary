@@ -1,0 +1,104 @@
+# BookReview-AutoMaker 프로젝트 히스토리
+
+## 2024-11-23
+
+### 초기 프로젝트 설정
+- 프로젝트 디렉토리 구조 생성
+- Phase 1: 자료 수집 자동화 코드 작성
+  - `01_search_urls.py`: 책 관련 URL 수집 스크립트
+    - 위키백과, 온라인 서점, 뉴스 리뷰 타겟 검색
+    - NotebookLM용 텍스트 파일 출력
+    - CSV/JSON 파일로 일괄 처리 지원
+  - `02_get_images.py`: 이미지 다운로드 스크립트
+    - Google Books API로 책 표지 다운로드
+    - Pexels/Unsplash API로 무드 이미지 다운로드 (5~10장)
+    - assets/images/{책제목}/ 폴더에 정리
+
+### 환경 설정
+- requirements.txt 작성
+- .env 파일 설정 (모든 API 키 포함)
+- 가상환경 설정 스크립트 작성
+- 실행 스크립트 작성 (가상환경 자동 활성화)
+
+### API 키 설정
+- GOOGLE_BOOKS_API_KEY: 설정 완료
+- PEXELS_API_KEY: 설정 완료
+- UNSPLASH_ACCESS_KEY: 설정 완료
+- OPENAI_API_KEY: 설정 완료
+- CLAUDE_API_KEY: 설정 완료
+
+### 패키지 설치
+- python-dotenv, requests, beautifulsoup4, lxml
+- googlesearch-python
+- google-api-python-client
+- pexels-api
+- moviepy, pydub (Phase 4용)
+
+### 프로젝트 문서화
+- README.md 작성 (설치 방법, 사용법, API 키 발급 방법)
+- TODO 파일 생성
+- HISTORY 파일 생성
+- RULES 파일 생성 (예정)
+
+### Git 설정
+- .gitignore 설정
+- 자동 커밋/푸시 스크립트 작성
+
+## 2024-11-23 (계속)
+
+### Phase 4: 영상 합성 및 편집 구현 완료
+- `03_make_video.py`: 영상 제작 스크립트 작성
+  - 오디오 로드 및 이미지 시퀀스 생성
+  - Ken Burns 효과 (기본 구현)
+  - 페이드 전환 효과
+  - OpenAI Whisper 자막 지원
+  - 1080p, 30fps MP4 렌더링
+- 첫 번째 영상 생성 성공: "노르웨이의 숲" 리뷰 영상
+
+### YouTube 영상 검색 기능 추가
+- `06_search_youtube.py`: GPT/Claude API를 사용한 YouTube 영상 검색
+  - AI 기반 검색 쿼리 생성
+  - YouTube Data API v3 연동
+  - 관련성 검증 로직 추가
+  - NotebookLM용 마크다운 파일 자동 업데이트
+
+### 이미지 다운로드 기능 구현
+- `02_get_images.py`: 이미지 다운로드 스크립트
+  - Google Books API로 책 표지 다운로드
+  - Unsplash/Pexels API로 무드 이미지 다운로드
+  - 책 정보 JSON 저장
+
+### 프로젝트 문서화
+- README.md 작성 완료
+- rules 파일 생성
+- .gitignore 파일 생성
+- assets 폴더 Git 추가 (다른 머신에서 작업 이어가기 위해)
+
+## 2024-11-23 (계속)
+
+### 이미지 다운로드 개선
+- AI 기반 키워드 생성 기능 추가 (`generate_keywords_with_ai`)
+  - 책 내용/설명을 분석하여 구체적인 이미지 검색 키워드 생성
+  - 배경, 감정, 테마, 장소 등을 반영한 키워드
+  - 예: "melancholy young man", "lost first love", "vintage japanese dormitory"
+- 책과 더 관련성 높은 이미지 검색 가능
+
+### 저작권 관련 개선
+- 책 표지 이미지는 저작권 문제로 영상에 사용하지 않음
+- 저작권 없는 무드 이미지만 사용
+- 썸네일도 무드 이미지 사용
+
+### 한글/영문 영상 제작 지원
+- `07_make_videos_both_languages.py`: 한글/영문 오디오 각각에 대해 영상 제작
+- 파일명에서 언어 자동 감지 (`_ko`, `_en` 접미사)
+- YouTube 업로드 시 언어별 메타데이터 자동 생성
+
+### YouTube 업로드 개선
+- 파일명에서 언어 자동 감지 기능 추가
+- 언어별 제목/설명/태그 자동 생성
+
+## 다음 작업
+- Phase 4 Ken Burns 효과 고도화 (선택사항)
+- 테스트 및 버그 수정
+- 추가 책으로 테스트
+

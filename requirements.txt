@@ -1,0 +1,24 @@
+# Core dependencies
+python-dotenv>=1.0.0
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+
+# Web search
+googlesearch-python>=1.2.3
+
+# Image APIs
+google-api-python-client>=2.100.0
+pexels-api>=1.0.3
+unsplash-python>=1.0.0
+
+# Audio processing (for future use)
+pydub>=0.25.1
+
+# Video processing (for future use)
+moviepy>=1.0.3
+
+# AI APIs
+openai>=1.0.0
+anthropic>=0.18.0
+

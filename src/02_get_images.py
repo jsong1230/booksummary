@@ -1,0 +1,599 @@
+"""
+책 표지 및 무드 이미지 다운로드 스크립트
+- Google Books API로 책 표지 다운로드
+- Unsplash/Pexels API로 무드 이미지 다운로드 (5~10장)
+"""
+
+import os
+import json
+import time
+import requests
+from pathlib import Path
+from typing import List, Dict, Optional
+from dotenv import load_dotenv
+
+try:
+    import openai
+    OPENAI_AVAILABLE = True
+except ImportError:
+    OPENAI_AVAILABLE = False
+
+try:
+    import anthropic
+    ANTHROPIC_AVAILABLE = True
+except ImportError:
+    ANTHROPIC_AVAILABLE = False
+
+try:
+    from googleapiclient.discovery import build
+    GOOGLE_BOOKS_AVAILABLE = True
+except ImportError:
+    GOOGLE_BOOKS_AVAILABLE = False
+
+try:
+    from pexels_api import API as PexelsAPI
+    PEXELS_AVAILABLE = True
+except ImportError:
+    PEXELS_AVAILABLE = False
+
+load_dotenv()
+
+
+class ImageDownloader:
+    """이미지 다운로드 클래스"""
+    
+    def __init__(self):
+        # API 키 로드
+        self.google_books_api_key = os.getenv("GOOGLE_BOOKS_API_KEY")
+        self.pexels_api_key = os.getenv("PEXELS_API_KEY")
+        self.unsplash_access_key = os.getenv("UNSPLASH_ACCESS_KEY")
+        
+        # Google Books API 초기화
+        self.books_service = None
+        if GOOGLE_BOOKS_AVAILABLE and self.google_books_api_key:
+            try:
+                self.books_service = build('books', 'v1', developerKey=self.google_books_api_key)
+            except Exception as e:
+                print(f"⚠️ Google Books API 초기화 실패: {e}")
+        
+        # Pexels API 초기화
+        self.pexels = None
+        if PEXELS_AVAILABLE and self.pexels_api_key:
+            try:
+                self.pexels = PexelsAPI(self.pexels_api_key)
+            except Exception as e:
+                print(f"⚠️ Pexels API 초기화 실패: {e}")
+        
+        # AI API 키 로드
+        self.openai_api_key = os.getenv("OPENAI_API_KEY")
+        self.claude_api_key = os.getenv("CLAUDE_API_KEY")
+    
+    def download_book_cover(self, book_title: str, author: str = None, output_dir: Path = None) -> Optional[str]:
+        """
+        Google Books API로 책 표지 다운로드
+        
+        ⚠️ 주의: 책 표지 이미지는 저작권이 있어 YouTube 등에 사용 시 문제가 될 수 있습니다.
+        표지 이미지는 참고용으로만 다운로드하며, 실제 영상 제작에는 사용하지 않습니다.
+        
+        Args:
+            book_title: 책 제목
+            author: 저자 이름
+            output_dir: 저장 디렉토리
+            
+        Returns:
+            다운로드된 파일 경로
+        """
+        if not self.books_service:
+            print("⚠️ Google Books API가 설정되지 않았습니다.")
+            return None
+        
+        print(f"📚 책 표지 검색 중: {book_title}")
+        if author:
+            print(f"   저자: {author}")
+        
+        try:
+            # 검색 쿼리 구성
+            query = f"{book_title}"
+            if author:
+                query += f" {author}"
+            
+            # Google Books API 검색
+            results = self.books_service.volumes().list(
+                q=query,
+                maxResults=5,
+                langRestrict='ko'
+            ).execute()
+            
+            if not results.get('items'):
+                print("  ⚠️ 검색 결과가 없습니다.")
+                return None
+            
+            # 가장 관련성 높은 결과 선택
+            book = results['items'][0]
+            volume_info = book.get('volumeInfo', {})
+            
+            # 이미지 링크 찾기
+            image_links = volume_info.get('imageLinks', {})
+            if not image_links:
+                print("  ⚠️ 표지 이미지를 찾을 수 없습니다.")
+                return None
+            
+            # 가장 큰 이미지 선택
+            image_url = image_links.get('large') or image_links.get('medium') or image_links.get('small') or image_links.get('thumbnail')
+            
+            if not image_url:
+                print("  ⚠️ 이미지 URL을 찾을 수 없습니다.")
+                return None
+            
+            # 이미지 다운로드
+            response = requests.get(image_url, timeout=10)
+            response.raise_for_status()
+            
+            # 저장 경로
+            if output_dir is None:
+                safe_title = "".join(c for c in book_title if c.isalnum() or c in (' ', '-', '_')).strip()
+                safe_title = safe_title.replace(' ', '_')
+                output_dir = Path("assets/images") / safe_title
+            else:
+                output_dir = Path(output_dir)
+            
+            output_dir.mkdir(parents=True, exist_ok=True)
+            output_path = output_dir / "cover.jpg"
+            
+            # 파일 저장
+            with open(output_path, 'wb') as f:
+                f.write(response.content)
+            
+            print(f"  ✅ 표지 다운로드 완료: {output_path}")
+            
+            # 책 정보 저장
+            book_info = {
+                'title': volume_info.get('title', book_title),
+                'authors': volume_info.get('authors', [author] if author else []),
+                'publisher': volume_info.get('publisher', ''),
+                'publishedDate': volume_info.get('publishedDate', ''),
+                'description': volume_info.get('description', ''),
+                'pageCount': volume_info.get('pageCount', 0),
+                'categories': volume_info.get('categories', []),
+                'language': volume_info.get('language', 'ko'),
+                'google_books_id': book.get('id', ''),
+                'image_url': image_url
+            }
+            
+            book_info_path = output_dir / "book_info.json"
+            with open(book_info_path, 'w', encoding='utf-8') as f:
+                json.dump(book_info, f, ensure_ascii=False, indent=2)
+            
+            print(f"  ✅ 책 정보 저장 완료: {book_info_path}")
+            
+            return str(output_path)
+            
+        except Exception as e:
+            print(f"  ❌ 오류: {e}")
+            return None
+    
+    def download_mood_images_unsplash(self, keywords: List[str], num_images: int = 7, output_dir: Path = None) -> List[str]:
+        """
+        Unsplash API로 무드 이미지 다운로드
+        
+        Args:
+            keywords: 검색 키워드 리스트
+            num_images: 다운로드할 이미지 개수
+            output_dir: 저장 디렉토리
+            
+        Returns:
+            다운로드된 파일 경로 리스트
+        """
+        if not self.unsplash_access_key:
+            print("⚠️ Unsplash API 키가 설정되지 않았습니다.")
+            return []
+        
+        downloaded = []
+        
+        for keyword in keywords:
+            if len(downloaded) >= num_images:
+                break
+            
+            try:
+                print(f"  🔍 검색: {keyword}")
+                
+                # Unsplash API 검색
+                url = "https://api.unsplash.com/search/photos"
+                headers = {
+                    "Authorization": f"Client-ID {self.unsplash_access_key}"
+                }
+                params = {
+                    "query": keyword,
+                    "per_page": min(10, num_images - len(downloaded)),
+                    "orientation": "landscape"
+                }
+                
+                response = requests.get(url, headers=headers, params=params, timeout=10)
+                response.raise_for_status()
+                
+                data = response.json()
+                results = data.get('results', [])
+                
+                if not results:
+                    print(f"    ⚠️ 검색 결과 없음")
+                    continue
+                
+                for photo in results:
+                    if len(downloaded) >= num_images:
+                        break
+                    
+                    # 고화질 이미지 URL
+                    image_url = photo['urls'].get('regular') or photo['urls'].get('full')
+                    
+                    if not image_url:
+                        continue
+                    
+                    # 이미지 다운로드
+                    img_response = requests.get(image_url, timeout=10)
+                    img_response.raise_for_status()
+                    
+                    # 저장
+                    filename = f"mood_{len(downloaded) + 1:02d}_{keyword.replace(' ', '_')}.jpg"
+                    output_path = output_dir / filename
+                    
+                    with open(output_path, 'wb') as f:
+                        f.write(img_response.content)
+                    
+                    downloaded.append(str(output_path))
+                    print(f"    ✅ {filename}")
+                    
+                    time.sleep(0.5)  # API rate limit 방지
+                
+            except Exception as e:
+                print(f"    ❌ 오류: {e}")
+                continue
+        
+        return downloaded
+    
+    def download_mood_images_pexels(self, keywords: List[str], num_images: int = 7, output_dir: Path = None) -> List[str]:
+        """
+        Pexels API로 무드 이미지 다운로드
+        
+        Args:
+            keywords: 검색 키워드 리스트
+            num_images: 다운로드할 이미지 개수
+            output_dir: 저장 디렉토리
+            
+        Returns:
+            다운로드된 파일 경로 리스트
+        """
+        if not self.pexels:
+            print("⚠️ Pexels API가 설정되지 않았습니다.")
+            return []
+        
+        downloaded = []
+        
+        for keyword in keywords:
+            if len(downloaded) >= num_images:
+                break
+            
+            try:
+                print(f"  🔍 검색: {keyword}")
+                
+                # Pexels API 검색
+                search_results = self.pexels.search(keyword, page=1, per_page=min(10, num_images - len(downloaded)))
+                
+                if not search_results.get('photos'):
+                    print(f"    ⚠️ 검색 결과 없음")
+                    continue
+                
+                for photo in search_results['photos']:
+                    if len(downloaded) >= num_images:
+                        break
+                    
+                    # 고화질 이미지 URL
+                    image_url = photo.get('src', {}).get('large') or photo.get('src', {}).get('original')
+                    
+                    if not image_url:
+                        continue
+                    
+                    # 이미지 다운로드
+                    img_response = requests.get(image_url, timeout=10)
+                    img_response.raise_for_status()
+                    
+                    # 저장
+                    filename = f"mood_{len(downloaded) + 1:02d}_{keyword.replace(' ', '_')}.jpg"
+                    output_path = output_dir / filename
+                    
+                    with open(output_path, 'wb') as f:
+                        f.write(img_response.content)
+                    
+                    downloaded.append(str(output_path))
+                    print(f"    ✅ {filename}")
+                    
+                    time.sleep(0.5)  # API rate limit 방지
+                
+            except Exception as e:
+                print(f"    ❌ 오류: {e}")
+                continue
+        
+        return downloaded
+    
+    def download_all(self, book_title: str, author: str = None, keywords: List[str] = None, num_mood_images: int = 7, skip_cover: bool = False) -> Dict:
+        """
+        책 표지와 무드 이미지 모두 다운로드
+        
+        Args:
+            book_title: 책 제목
+            author: 저자 이름
+            keywords: 무드 이미지 검색 키워드 (None이면 자동 생성)
+            num_mood_images: 무드 이미지 개수
+            
+        Returns:
+            다운로드 결과 딕셔너리
+        """
+        print("=" * 60)
+        print("🖼️ 이미지 다운로드 시작")
+        print("=" * 60)
+        print()
+        
+        # 출력 디렉토리 설정
+        safe_title = "".join(c for c in book_title if c.isalnum() or c in (' ', '-', '_')).strip()
+        safe_title = safe_title.replace(' ', '_')
+        output_dir = Path("assets/images") / safe_title
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        # 1. 책 표지 다운로드 (선택사항)
+        # ⚠️ 주의: 책 표지는 저작권이 있어 영상에 사용하지 않습니다.
+        # 표지는 참고용으로만 다운로드하며, 실제 영상에는 저작권 없는 무드 이미지만 사용합니다.
+        cover_path = None
+        if not skip_cover:
+            print("⚠️ 책 표지 이미지는 저작권 문제로 영상에 사용하지 않습니다.")
+            print("   표지는 참고용으로만 다운로드합니다.")
+            cover_path = self.download_book_cover(book_title, author, output_dir)
+            print()
+        
+        # 2. 키워드 생성 (없으면) - AI를 사용하여 책 내용 기반 키워드 생성
+        if keywords is None:
+            print("📝 AI를 사용하여 책 내용 기반 이미지 검색 키워드 생성 중...")
+            keywords = self.generate_keywords_with_ai(book_title, author, output_dir)
+            print(f"   ✅ 생성된 키워드: {', '.join(keywords[:10])}")
+            print()
+        
+        print(f"🎨 무드 이미지 다운로드 중... (키워드: {', '.join(keywords)})")
+        print()
+        
+        # 3. 무드 이미지 다운로드 (Unsplash 우선, 실패하면 Pexels)
+        mood_images = []
+        if self.unsplash_access_key:
+            mood_images = self.download_mood_images_unsplash(keywords, num_mood_images, output_dir)
+        
+        if len(mood_images) < num_mood_images and self.pexels:
+            remaining = num_mood_images - len(mood_images)
+            print(f"  📸 Pexels에서 추가 이미지 다운로드 중... ({remaining}개)")
+            additional = self.download_mood_images_pexels(keywords, remaining, output_dir)
+            mood_images.extend(additional)
+        
+        print()
+        print("=" * 60)
+        print("✅ 다운로드 완료")
+        print("=" * 60)
+        print(f"📁 저장 위치: {output_dir}")
+        print(f"📚 표지: {'✅' if cover_path else '❌'}")
+        print(f"🎨 무드 이미지: {len(mood_images)}개")
+        print()
+        
+        return {
+            'cover_path': cover_path,
+            'mood_images': mood_images,
+            'output_dir': str(output_dir)
+        }
+    
+    def _generate_keywords(self, book_title: str, author: str = None) -> List[str]:
+        """
+        책과 관련된 키워드 생성 (저작권 없는 이미지 검색용)
+        - 관련 영화, 작가, 책 테마 등
+        """
+        keywords = []
+        
+        # 작가 관련 키워드
+        if author:
+            author_lower = author.lower()
+            # 무라카미 하루키 관련
+            if "무라카미" in author or "하루키" in author or "murakami" in author_lower or "haruki" in author_lower:
+                keywords.extend([
+                    "murakami haruki",
+                    "haruki murakami",
+                    "japanese literature",
+                    "japanese author",
+                    "tokyo cityscape",
+                    "japanese culture",
+                    "norwegian wood movie",  # 영화 관련
+                    "norwegian wood film",
+                    "japanese novel",
+                    "murakami books"
+                ])
+            # 다른 작가들도 추가 가능
+            keywords.append(author_lower.replace(" ", ""))
+        
+        # 책 제목 관련 키워드
+        title_lower = book_title.lower()
+        if "노르웨이" in book_title or "norwegian" in title_lower or "상실" in book_title or "loss" in title_lower:
+            keywords.extend([
+                "norway forest",
+                "norwegian landscape",
+                "forest nature",
+                "scandinavian nature",
+                "norwegian wood beatles",  # 비틀즈 노래 관련
+                "1960s japan",  # 시대 배경
+                "tokyo 1960s",
+                "age of loss",  # 상실의 시대
+                "loss and grief",
+                "japanese youth 1960s",
+                "tokyo university",
+                "japanese student life"
+            ])
+        
+        # 일반적인 문학 키워드
+        keywords.extend([
+            "literature",
+            "book reading",
+            "japanese bookstore",
+            "vintage book",
+            "classic novel"
+        ])
+        
+        # 중복 제거 및 최대 10개 반환
+        unique_keywords = []
+        seen = set()
+        for kw in keywords:
+            kw_clean = kw.lower().strip()
+            if kw_clean and kw_clean not in seen:
+                seen.add(kw_clean)
+                unique_keywords.append(kw_clean)
+        
+        return unique_keywords[:10]
+    
+    def generate_keywords_with_ai(self, book_title: str, author: str = None, image_dir: Path = None) -> List[str]:
+        """
+        AI를 사용하여 책 내용 기반 이미지 검색 키워드 생성
+        - 책의 내용, 주제, 배경, 감정, 주요 장면 등을 분석하여 구체적인 키워드 생성
+        """
+        # 책 정보 로드 시도
+        book_info = None
+        if image_dir:
+            book_info_path = image_dir / "book_info.json"
+            if book_info_path.exists():
+                try:
+                    with open(book_info_path, 'r', encoding='utf-8') as f:
+                        book_info = json.load(f)
+                except:
+                    pass
+        
+        # 프롬프트 구성
+        prompt = f"""다음 책에 대한 이미지 검색 키워드를 생성해주세요. 
+책의 내용, 주제, 배경, 감정, 주요 장면 등을 반영하여 Unsplash/Pexels에서 검색할 수 있는 구체적인 영어 키워드를 20개 생성해주세요.
+
+책 제목: {book_title}
+저자: {author or "알 수 없음"}
+"""
+        
+        if book_info:
+            if book_info.get('description'):
+                prompt += f"\n책 설명: {book_info['description'][:500]}\n"
+            if book_info.get('categories'):
+                prompt += f"카테고리: {', '.join(book_info['categories'])}\n"
+        
+        prompt += """
+다음과 같은 유형의 키워드를 포함해주세요:
+1. 책의 배경/장소 (예: 1960s tokyo, university dormitory, tokyo streets)
+2. 책의 감정/분위기 (예: melancholy youth, lost love, grief, sadness, loneliness)
+3. 주요 테마/주제 (예: coming of age, student life, memory, nostalgia)
+4. 책에서 언급되는 구체적인 장소나 물건 (예: norwegian forest, tokyo university, dormitory room)
+5. 시대적 배경 (예: 1960s japan, post-war japan, vintage japan)
+6. 인물/관계 (예: young couple, student friendship, romantic relationship)
+
+각 키워드는 2-4단어로 구성하고, 실제 이미지 검색에 유용한 구체적인 영어 표현을 사용해주세요.
+키워드만 한 줄에 하나씩 나열해주세요. 설명이나 번호, 불필요한 문자는 포함하지 마세요.
+예시 형식: "melancholy youth", "tokyo university campus", "1960s japan street" """
+
+        try:
+            # Claude API 우선 사용
+            if ANTHROPIC_AVAILABLE and self.claude_api_key:
+                client = anthropic.Anthropic(api_key=self.claude_api_key)
+                response = client.messages.create(
+                    model="claude-3-opus-20240229",
+                    max_tokens=1000,
+                    messages=[{
+                        "role": "user",
+                        "content": prompt
+                    }]
+                )
+                keywords_text = response.content[0].text
+            # OpenAI API 사용
+            elif OPENAI_AVAILABLE and self.openai_api_key:
+                openai.api_key = self.openai_api_key
+                response = openai.ChatCompletion.create(
+                    model="gpt-4",
+                    messages=[
+                        {"role": "system", "content": "You are a helpful assistant that generates image search keywords based on book content."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    max_tokens=1000
+                )
+                keywords_text = response.choices[0].message.content
+            else:
+                print("   ⚠️ AI API 키가 없어 기본 키워드를 사용합니다.")
+                return self._generate_keywords(book_title, author)
+            
+            # 키워드 파싱
+            keywords = []
+            for line in keywords_text.strip().split('\n'):
+                line = line.strip()
+                # 번호나 불필요한 문자 제거
+                if line and not line.startswith('#') and not line.startswith('-'):
+                    # 번호 제거 (1. 2. 등)
+                    line = line.lstrip('0123456789. -')
+                    # 따옴표 제거
+                    line = line.strip('"\'')
+                    # 단일 문자나 너무 짧은 키워드 제외
+                    words = line.split()
+                    if words and len(words) >= 1 and len(words) <= 5:
+                        # 각 단어가 최소 2글자 이상이어야 함
+                        if all(len(w) >= 2 for w in words):
+                            keyword = ' '.join(words).lower()
+                            # "s tokyo" 같은 이상한 패턴 필터링 (단일 문자로 시작하는 경우)
+                            if not (len(words) > 1 and len(words[0]) == 1):
+                                keywords.append(keyword)
+            
+            if not keywords:
+                print("   ⚠️ AI 키워드 생성 실패, 기본 키워드 사용")
+                return self._generate_keywords(book_title, author)
+            
+            # 기본 키워드와 병합 (중복 제거)
+            basic_keywords = self._generate_keywords(book_title, author)
+            all_keywords = keywords + basic_keywords
+            
+            # 중복 제거
+            seen = set()
+            unique_keywords = []
+            for kw in all_keywords:
+                kw_clean = kw.lower().strip()
+                if kw_clean and kw_clean not in seen:
+                    seen.add(kw_clean)
+                    unique_keywords.append(kw_clean)
+            
+            return unique_keywords[:20]  # 최대 20개
+            
+        except Exception as e:
+            print(f"   ⚠️ AI 키워드 생성 중 오류: {e}")
+            print("   기본 키워드를 사용합니다.")
+            return self._generate_keywords(book_title, author)
+
+
+def main():
+    """메인 실행 함수"""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='책 표지 및 무드 이미지 다운로드')
+    parser.add_argument('--title', type=str, required=True, help='책 제목')
+    parser.add_argument('--author', type=str, help='저자 이름')
+    parser.add_argument('--keywords', type=str, nargs='+', help='무드 이미지 검색 키워드 (공백으로 구분)')
+    parser.add_argument('--num-mood', type=int, default=10, help='무드 이미지 개수 (기본값: 10)')
+    parser.add_argument('--skip-cover', action='store_true', help='표지 이미지 다운로드 건너뛰기')
+    
+    args = parser.parse_args()
+    
+    downloader = ImageDownloader()
+    result = downloader.download_all(
+        book_title=args.title,
+        author=args.author,
+        keywords=args.keywords,
+        num_mood_images=args.num_mood,
+        skip_cover=args.skip_cover
+    )
+    
+    if result['cover_path']:
+        print(f"✅ 표지: {result['cover_path']}")
+    if result['mood_images']:
+        print(f"✅ 무드 이미지: {len(result['mood_images'])}개")
+
+
+if __name__ == "__main__":
+    main()
+

@@ -1,0 +1,38 @@
+# BookReview-AutoMaker 프로젝트 TODO
+
+## Phase 1: 자료 수집 자동화 ✅
+- [x] 책 제목 입력 (단일/일괄 처리 지원)
+- [x] URL 탐색 (위키백과, 온라인 서점, 뉴스 리뷰 타겟)
+- [x] 텍스트 파일 출력 (NotebookLM용)
+- [x] 표지 이미지 다운로드 (Google Books API)
+- [x] 무드 이미지 다운로드 (Pexels/Unsplash API, 5~10장)
+- [x] 가상환경 설정 및 패키지 설치
+- [x] 실행 스크립트 작성
+
+## Phase 2: [수동] NotebookLM 오디오 생성
+- [ ] 사용자 가이드 작성
+- [ ] NotebookLM 사용법 문서화
+
+## Phase 3: 이미지 자산 확보 ✅
+- [x] 표지 이미지: Google Books API로 고화질 표지 다운로드 (참고용, 영상에는 사용 안 함)
+- [x] 무드 이미지: AI 기반 키워드 생성으로 책 내용 관련 이미지 10~20장 다운로드
+- [x] 저장: assets/images/{책제목}/ 폴더에 정리
+- [x] AI 기반 키워드 생성: 책 내용/설명 분석하여 구체적인 검색 키워드 생성
+
+## Phase 4: 영상 합성 및 편집 ✅
+- [x] 오디오 로드: assets/audio/의 오디오 파일 로드
+- [x] 이미지 시퀀스: 오디오 길이에 맞춰 이미지 배분
+- [x] Ken Burns 효과: 줌인/패닝 효과 구현 (기본 구현 완료)
+- [x] 전환 효과: 이미지 간 페이드 효과
+- [x] 자막 (옵션): OpenAI Whisper로 자막 추출 및 오버레이
+- [x] 렌더링: 1080p, 30fps MP4 출력
+- [x] 한글/영문 오디오 각각 영상 제작 지원 (`07_make_videos_both_languages.py`)
+
+## 프로젝트 관리
+- [x] 프로젝트 문서화 (README, TODO, HISTORY, RULES)
+- [x] Git 자동 커밋/푸시 설정
+- [x] .gitignore 파일 생성
+- [x] assets 폴더 Git 추가
+- [x] 저작권 관련 주의사항 문서화 (표지 이미지 사용 안 함)
+- [ ] CI/CD 파이프라인 (선택사항)
+
