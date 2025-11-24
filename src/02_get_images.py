@@ -172,7 +172,7 @@ class ImageDownloader:
             print(f"  ❌ 오류: {e}")
             return None
     
-    def download_mood_images_unsplash(self, keywords: List[str], num_images: int = 7, output_dir: Path = None) -> List[str]:
+    def download_mood_images_unsplash(self, keywords: List[str], num_images: int = 100, output_dir: Path = None) -> List[str]:
         """
         Unsplash API로 무드 이미지 다운로드
         
@@ -208,7 +208,7 @@ class ImageDownloader:
                 remaining = num_images - len(downloaded)
                 params = {
                     "query": keyword,
-                    "per_page": min(max_per_keyword, remaining, 10),
+                    "per_page": min(max_per_keyword, remaining, 15),  # 더 많은 이미지 수집 (100개 목표)
                     "orientation": "landscape"
                 }
                 
@@ -254,7 +254,7 @@ class ImageDownloader:
         
         return downloaded
     
-    def download_mood_images_pexels(self, keywords: List[str], num_images: int = 7, output_dir: Path = None) -> List[str]:
+    def download_mood_images_pexels(self, keywords: List[str], num_images: int = 100, output_dir: Path = None) -> List[str]:
         """
         Pexels API로 무드 이미지 다운로드
         
@@ -280,7 +280,22 @@ class ImageDownloader:
                 print(f"  🔍 검색: {keyword}")
                 
                 # Pexels API 검색
-                search_results = self.pexels.search(keyword, page=1, per_page=min(10, num_images - len(downloaded)))
+                try:
+                    # Pexels API 호출 (여러 방식 시도)
+                    remaining = num_images - len(downloaded)
+                    try:
+                        # 최신 API 방식
+                        search_results = self.pexels.search(keyword, page=1, results_per_page=min(15, remaining))
+                    except TypeError:
+                        try:
+                            # 구버전 API 호환성
+                            search_results = self.pexels.search(keyword, page=1)
+                        except Exception as e:
+                            print(f"    ❌ Pexels API 오류: {e}")
+                            continue
+                except Exception as e:
+                    print(f"    ❌ Pexels 검색 오류: {e}")
+                    continue
                 
                 if not search_results.get('photos'):
                     print(f"    ⚠️ 검색 결과 없음")
@@ -318,7 +333,7 @@ class ImageDownloader:
         
         return downloaded
     
-    def download_all(self, book_title: str, author: str = None, keywords: List[str] = None, num_mood_images: int = 7, skip_cover: bool = False) -> Dict:
+    def download_all(self, book_title: str, author: str = None, keywords: List[str] = None, num_mood_images: int = 100, skip_cover: bool = False) -> Dict:
         """
         책 표지와 무드 이미지 모두 다운로드
         
@@ -363,15 +378,58 @@ class ImageDownloader:
         print()
         
         # 3. 무드 이미지 다운로드 (Unsplash 우선, 실패하면 Pexels)
+        # 100개 이미지를 확실히 다운로드하기 위해 여러 키워드에서 충분히 수집
         mood_images = []
-        if self.unsplash_access_key:
-            mood_images = self.download_mood_images_unsplash(keywords, num_mood_images, output_dir)
+        target_count = num_mood_images
         
-        if len(mood_images) < num_mood_images and self.pexels:
-            remaining = num_mood_images - len(mood_images)
-            print(f"  📸 Pexels에서 추가 이미지 다운로드 중... ({remaining}개)")
+        # Unsplash에서 다운로드
+        if self.unsplash_access_key:
+            print(f"  📸 Unsplash에서 이미지 다운로드 중... (목표: {target_count}개)")
+            mood_images = self.download_mood_images_unsplash(keywords, target_count, output_dir)
+            print(f"  ✅ Unsplash: {len(mood_images)}개 다운로드 완료")
+        
+        # Pexels에서 추가 다운로드 (목표 개수에 도달할 때까지)
+        if len(mood_images) < target_count and self.pexels:
+            remaining = target_count - len(mood_images)
+            print(f"  📸 Pexels에서 추가 이미지 다운로드 중... (목표: {remaining}개)")
             additional = self.download_mood_images_pexels(keywords, remaining, output_dir)
             mood_images.extend(additional)
+            print(f"  ✅ Pexels: {len(additional)}개 추가 다운로드 완료")
+        
+        # 여전히 부족하면 키워드를 순환하며 추가 다운로드
+        if len(mood_images) < target_count:
+            remaining = target_count - len(mood_images)
+            print(f"  🔄 추가 키워드로 이미지 다운로드 중... (목표: {remaining}개)")
+            # 키워드를 순환하며 추가 다운로드
+            keyword_cycle = 0
+            while len(mood_images) < target_count and keyword_cycle < len(keywords) * 2:
+                for keyword in keywords:
+                    if len(mood_images) >= target_count:
+                        break
+                    remaining = target_count - len(mood_images)
+                    if remaining <= 0:
+                        break
+                    
+                    # Unsplash에서 추가 시도
+                    if self.unsplash_access_key:
+                        try:
+                            additional = self.download_mood_images_unsplash([keyword], min(remaining, 3), output_dir)
+                            mood_images.extend(additional)
+                        except:
+                            pass
+                    
+                    # Pexels에서 추가 시도
+                    if len(mood_images) < target_count and self.pexels:
+                        remaining = target_count - len(mood_images)
+                        try:
+                            additional = self.download_mood_images_pexels([keyword], min(remaining, 3), output_dir)
+                            mood_images.extend(additional)
+                        except:
+                            pass
+                
+                keyword_cycle += 1
+                if len(mood_images) >= target_count:
+                    break
         
         print()
         print("=" * 60)
@@ -469,9 +527,9 @@ class ImageDownloader:
                 except:
                     pass
         
-        # 프롬프트 구성
+        # 프롬프트 구성 - 책 내용, 주제, 작가와 직접 연관된 키워드만 생성
         prompt = f"""다음 책에 대한 이미지 검색 키워드를 생성해주세요. 
-책의 내용, 주제, 배경, 감정, 주요 장면 등을 반영하여 Unsplash/Pexels에서 검색할 수 있는 구체적인 영어 키워드를 20개 생성해주세요.
+책의 내용, 주제, 배경, 감정, 주요 장면, 작가의 스타일 등을 반영하여 Unsplash/Pexels에서 검색할 수 있는 구체적인 영어 키워드를 생성해주세요.
 
 책 제목: {book_title}
 저자: {author or "알 수 없음"}
@@ -479,28 +537,30 @@ class ImageDownloader:
         
         if book_info:
             if book_info.get('description'):
-                prompt += f"\n책 설명: {book_info['description'][:500]}\n"
+                prompt += f"\n책 설명: {book_info['description'][:800]}\n"
             if book_info.get('categories'):
                 prompt += f"카테고리: {', '.join(book_info['categories'])}\n"
         
         prompt += """
-다음과 같은 유형의 키워드를 다양하게 포함해주세요 (각 카테고리에서 3-4개씩):
-1. 책의 배경/장소 (예: 1960s tokyo, university dormitory, tokyo streets, japanese campus)
-2. 책의 감정/분위기 (예: melancholy youth, lost love, grief, sadness, loneliness, nostalgia, longing)
-3. 주요 테마/주제 (예: coming of age, student life, memory, youth, friendship, loss)
-4. 책에서 언급되는 구체적인 장소나 물건 (예: norwegian forest, tokyo university, dormitory room, train station)
-5. 시대적 배경 (예: 1960s japan, post-war japan, vintage japan, retro tokyo)
-6. 인물/관계 (예: young couple, student friendship, romantic relationship, young man alone)
-7. 계절/날씨 (예: autumn leaves, rainy day, winter scene, spring campus) - 책의 배경이 있는 경우
-8. 색감/분위기 (예: muted colors, soft lighting, vintage photo, black and white) - 이미지 스타일 관련
+다음과 같은 유형의 키워드를 다양하게 포함해주세요 (각 카테고리에서 3-5개씩):
+1. 책의 주요 주제/테마 (예: totalitarian government, surveillance state, dystopian society, thought control)
+2. 책의 배경/장소 (예: 1960s tokyo, university dormitory, tokyo streets, japanese campus, london 1984)
+3. 책의 감정/분위기 (예: melancholy youth, lost love, grief, sadness, loneliness, oppression, fear)
+4. 책에서 언급되는 구체적인 장소나 물건 (예: norwegian forest, tokyo university, ministry of truth, room 101, telescreen)
+5. 시대적 배경 (예: 1960s japan, post-war japan, vintage japan, world war ii aftermath, 1984 london)
+6. 작가의 스타일/특징 (예: orwellian world, murakami style, kafkaesque atmosphere)
+7. 주요 인물/관계 (예: young couple, student friendship, romantic relationship, young man alone, winston smith)
+8. 책의 핵심 개념/용어 (예: big brother, thought police, newspeak, doublethink, memory hole)
 
 중요: 
 - 각 키워드는 2-4단어로 구성하고, 실제 이미지 검색에 유용한 구체적인 영어 표현을 사용해주세요.
-- 너무 일반적인 키워드(예: "book", "reading")는 피하고, 책의 고유한 특성을 반영한 키워드를 우선하세요.
+- 반드시 책의 내용, 주제, 작가와 직접 연관된 키워드만 생성하세요.
+- 다음 키워드는 절대 사용하지 마세요: "aesthetic", "beautiful", "nice", "pretty", "art", "design", "style" (단독으로 사용할 때)
+- 너무 일반적인 키워드(예: "book", "reading", "literature", "novel")는 피하고, 책의 고유한 특성을 반영한 키워드를 우선하세요.
 - 키워드만 한 줄에 하나씩 나열해주세요. 설명이나 번호, 불필요한 문자는 포함하지 마세요.
-- 총 25-30개의 다양한 키워드를 생성해주세요.
+- 총 40-50개의 다양한 키워드를 생성해주세요 (100개 이미지를 다운로드하기 위해 충분한 키워드 필요).
 
-예시 형식: "melancholy youth", "tokyo university campus", "1960s japan street", "autumn melancholy" """
+예시 형식: "dystopian society", "totalitarian government", "surveillance state", "orwellian world", "thought police", "big brother watching" """
 
         try:
             # Claude API 우선 사용
@@ -531,8 +591,15 @@ class ImageDownloader:
                 print("   ⚠️ AI API 키가 없어 기본 키워드를 사용합니다.")
                 return self._generate_keywords(book_title, author)
             
-            # 키워드 파싱
+            # 키워드 파싱 및 필터링
             keywords = []
+            # 금지된 일반적인 키워드 목록 (책과 직접 관련 없는 키워드)
+            banned_keywords = {
+                'aesthetic', 'beautiful', 'nice', 'pretty', 'art', 'design', 'style',
+                'book', 'reading', 'literature', 'novel', 'story', 'fiction',
+                'image', 'photo', 'picture', 'illustration', 'graphic', 'visual'
+            }
+            
             for line in keywords_text.strip().split('\n'):
                 line = line.strip()
                 # 번호나 불필요한 문자 제거
@@ -549,7 +616,10 @@ class ImageDownloader:
                             keyword = ' '.join(words).lower()
                             # "s tokyo" 같은 이상한 패턴 필터링 (단일 문자로 시작하는 경우)
                             if not (len(words) > 1 and len(words[0]) == 1):
-                                keywords.append(keyword)
+                                # 금지된 키워드 필터링 (책과 직접 관련 없는 일반적인 키워드 제외)
+                                keyword_words = set(keyword.split())
+                                if not keyword_words.intersection(banned_keywords):
+                                    keywords.append(keyword)
             
             if not keywords:
                 print("   ⚠️ AI 키워드 생성 실패, 기본 키워드 사용")
@@ -559,17 +629,20 @@ class ImageDownloader:
             basic_keywords = self._generate_keywords(book_title, author)
             all_keywords = keywords + basic_keywords
             
-            # 중복 제거
+            # 중복 제거 및 금지 키워드 재필터링
             seen = set()
             unique_keywords = []
             for kw in all_keywords:
                 kw_clean = kw.lower().strip()
-                if kw_clean and kw_clean not in seen:
+                kw_words = set(kw_clean.split())
+                # 금지된 키워드가 포함되어 있지 않은 경우만 추가
+                if kw_clean and kw_clean not in seen and not kw_words.intersection(banned_keywords):
                     seen.add(kw_clean)
                     unique_keywords.append(kw_clean)
             
-            # 키워드 다양성 확보: 최대 30개 반환
-            return unique_keywords[:30]  # 최대 30개
+            print(f"   📝 필터링된 키워드: {len(unique_keywords)}개 (일반적인 키워드 제외)")
+            # 100개 이미지를 다운로드하기 위해 충분한 키워드 반환
+            return unique_keywords[:50]  # 최대 50개 키워드
             
         except Exception as e:
             print(f"   ⚠️ AI 키워드 생성 중 오류: {e}")
@@ -585,7 +658,7 @@ def main():
     parser.add_argument('--title', type=str, required=True, help='책 제목')
     parser.add_argument('--author', type=str, help='저자 이름')
     parser.add_argument('--keywords', type=str, nargs='+', help='무드 이미지 검색 키워드 (공백으로 구분)')
-    parser.add_argument('--num-mood', type=int, default=10, help='무드 이미지 개수 (기본값: 10)')
+    parser.add_argument('--num-mood', type=int, default=100, help='무드 이미지 개수 (기본값: 100)')
     parser.add_argument('--skip-cover', action='store_true', help='표지 이미지 다운로드 건너뛰기')
     
     args = parser.parse_args()

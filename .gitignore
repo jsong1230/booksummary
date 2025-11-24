@@ -52,6 +52,7 @@ ENV/
 *.log
 *.cache
 *.bak
+*TEMP_MPY*
 
 # OS
 .DS_Store
