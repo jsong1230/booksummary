@@ -168,3 +168,46 @@
 - README 업데이트 (새로운 기능 추가)
 - history 파일 업데이트
 - 임시 파일 정리
+
+## 2025-11-25
+
+### 완전 자동화 파이프라인 구축 ✅
+- **통합 파이프라인 스크립트** (`src/13_complete_pipeline.py`)
+  - Summary/Review 오디오 자동 탐지
+  - en/kr 언어별 영상 자동 생성 (summary 포함)
+  - en/kr 언어별 메타데이터 자동 생성 및 저장 (title, description, tags)
+  - en/kr 언어별 썸네일 자동 생성
+  - 한 번의 명령으로 전체 프로세스 자동 실행
+
+- **실행 스크립트** (`run_complete_pipeline.sh`)
+  - 간편한 실행을 위한 쉘 스크립트
+  - 사용법: `./run_complete_pipeline.sh "책 제목" [저자 이름]`
+
+### 1984 영상 완성 및 업로드 ✅
+- **영어 영상** (`1984_review_with_summary_en.mp4`)
+  - 크기: 507.64 MB
+  - 길이: 약 43분 21초
+  - 구성: Summary + Review 오디오 연결
+  - 썸네일: `1984_thumbnail_en.jpg` (206K)
+  - YouTube URL: https://www.youtube.com/watch?v=cRd7BWQV4S8
+
+- **한글 영상** (`1984_review_with_summary_ko.mp4`)
+  - 크기: 232.28 MB
+  - 길이: 약 19분 53초
+  - 구성: Summary + Review 오디오 연결
+  - 썸네일: `1984_thumbnail_ko.jpg` (201K)
+  - YouTube URL: https://www.youtube.com/watch?v=_dhn1O7BWNs
+
+### YouTube 업로드 완료
+- 업로드된 책: 1984
+- 업로드된 영상 수: 2개 (en, ko)
+- 공개 설정: Private (비공개)
+- 메타데이터: 자동 생성 및 저장 완료
+- 썸네일: 자동 업로드 완료
+- CSV 업데이트: `data/ildangbaek_books.csv`에 업로드 정보 반영
+
+### 코드 개선
+- 오디오 파일 자동 탐지 로직 개선 (summary/review, ko/en 구분)
+- 메타데이터 생성 로직 통합
+- 썸네일 경로 자동 연결 개선
+- 전체 프로세스 자동화로 수동 작업 최소화

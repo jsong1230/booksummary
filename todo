@@ -10,21 +10,42 @@
 - [x] 실행 스크립트 작성
 
 ## Phase 2: [수동] NotebookLM 오디오 생성
-- [ ] 사용자 가이드 작성
-- [ ] NotebookLM 사용법 문서화
+- [x] 사용자 가이드 작성 (NOTEBOOKLM_GUIDE.md)
+- [x] NotebookLM 사용법 문서화
 
 ## Phase 3: 이미지 자산 확보 ✅
 - [x] 표지 이미지: Google Books API로 고화질 표지 다운로드
 - [x] 무드 이미지: 키워드 기반으로 5~10장 다운로드
 - [x] 저장: assets/images/{책제목}/ 폴더에 정리
 
-## Phase 4: 영상 합성 및 편집
-- [ ] 오디오 로드: assets/audio/의 오디오 파일 로드
-- [ ] 이미지 시퀀스: 오디오 길이에 맞춰 이미지 배분
-- [ ] Ken Burns 효과: 줌인/패닝 효과 구현
-- [ ] 전환 효과: 이미지 간 페이드 효과
-- [ ] 자막 (옵션): OpenAI Whisper로 자막 추출 및 오버레이
-- [ ] 렌더링: 1080p, 30fps MP4 출력
+## Phase 4: 영상 합성 및 편집 ✅
+- [x] 오디오 로드: assets/audio/의 오디오 파일 로드
+- [x] 이미지 시퀀스: 오디오 길이에 맞춰 이미지 배분
+- [x] Ken Burns 효과: 줌인/패닝 효과 구현
+- [x] 전환 효과: 이미지 간 페이드 효과
+- [x] Summary audio와 Review audio 자동 연결
+- [x] 자막 (옵션): OpenAI Whisper로 자막 추출 및 오버레이
+- [x] 렌더링: 1080p, 30fps MP4 출력
+
+## Phase 5: 메타데이터 및 썸네일 ✅
+- [x] en/kr 언어별 메타데이터 자동 생성 (title, description, tags)
+- [x] 메타데이터 JSON 파일 저장
+- [x] 썸네일 자동 생성 (한글/영문 버전)
+- [x] 썸네일 업로드 기능
+
+## Phase 6: 완전 자동화 파이프라인 ✅
+- [x] Summary/Review 오디오 자동 탐지
+- [x] en/kr 언어별 영상 자동 생성 (summary 포함)
+- [x] en/kr 언어별 메타데이터 자동 생성 및 저장
+- [x] en/kr 언어별 썸네일 자동 생성
+- [x] 통합 파이프라인 스크립트 (13_complete_pipeline.py)
+- [x] 실행 스크립트 (run_complete_pipeline.sh)
+
+## Phase 7: YouTube 업로드 ✅
+- [x] 메타데이터 기반 자동 업로드
+- [x] 썸네일 자동 업로드
+- [x] 업로드 로그 관리 (JSON, CSV, TXT)
+- [x] CSV 파일 자동 업데이트
 
 ## 프로젝트 관리
 - [x] 프로젝트 문서화 (README, TODO, HISTORY, RULES)

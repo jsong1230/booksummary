@@ -173,7 +173,8 @@ booksummary/
 │   ├── 10_create_video_with_summary.py  # 요약 포함 영상 제작
 │   ├── 10_generate_thumbnail.py    # 썸네일 생성
 │   ├── 11_upload_thumbnails.py     # 썸네일 업로드
-│   └── 12_full_pipeline.py          # 전체 파이프라인
+│   ├── 12_full_pipeline.py          # 전체 파이프라인
+│   └── 13_complete_pipeline.py      # 완전 자동화 파이프라인 (권장)
 ├── .env                 # API 키 (git에 포함하지 않음)
 ├── .env.example         # 환경 변수 템플릿
 ├── requirements.txt     # Python 패키지 목록
@@ -184,6 +185,13 @@ booksummary/
 
 ## 주요 스크립트
 
+### 자동화 파이프라인 (권장)
+- `run_complete_pipeline.sh`: 완전 자동화 파이프라인 (영상 생성 + 메타데이터 + 썸네일)
+  ```bash
+  ./run_complete_pipeline.sh "책 제목" [저자 이름]
+  ```
+
+### 개별 스크립트
 - `run_collect_books.sh`: 책 목록 수집
 - `run_images.sh`: 이미지 다운로드
 - `run_make_video.sh`: 영상 제작
