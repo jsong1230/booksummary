@@ -74,13 +74,30 @@ class VideoWithSummaryPipeline:
             생성된 영상 파일 경로
         """
         from utils.file_utils import safe_title
+        from utils.translations import translate_book_title, translate_author_name
+        
+        # 영문 영상 생성 시 영어 제목과 영어 작가 이름 사용
+        if language == "en":
+            en_book_title = translate_book_title(book_title)
+            en_author = translate_author_name(author) if author else None
+            # 요약 생성과 메타데이터 생성을 위해 영어 제목/작가 사용
+            summary_book_title = en_book_title
+            summary_author = en_author
+            display_book_title = f"{book_title} ({en_book_title})"
+            display_author = f"{author} ({en_author})" if author and en_author else (author or "알 수 없음")
+        else:
+            summary_book_title = book_title
+            summary_author = author
+            display_book_title = book_title
+            display_author = author or "알 수 없음"
+        
         safe_title_str = safe_title(book_title)
         
         print("=" * 60)
         print("🎬 요약 포함 영상 제작 파이프라인 시작")
         print("=" * 60)
-        print(f"책 제목: {book_title}")
-        print(f"저자: {author or '알 수 없음'}")
+        print(f"책 제목: {display_book_title}")
+        print(f"저자: {display_author}")
         print(f"언어: {language}")
         print()
         
@@ -94,8 +111,8 @@ class VideoWithSummaryPipeline:
             
             try:
                 summary_text = self.summary_generator.generate_summary(
-                    book_title=book_title,
-                    author=author,
+                    book_title=summary_book_title,
+                    author=summary_author,
                     language=language,
                     duration_minutes=summary_duration_minutes
                 )

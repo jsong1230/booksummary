@@ -42,7 +42,9 @@ NotebookLM 기반 책 리뷰 영상 자동 생성기
 - 자동 썸네일 생성 (책 제목, 작가 정보 포함)
 - 한글/영문 버전 지원
 - DALL-E 배경 이미지 옵션
+- 작가/책 이미지 자동 검색 (Unsplash/Pexels, 저작권 없는 이미지)
 - YouTube 권장 크기 (1280x720)
+- 영어 폰트 깨짐 문제 해결
 
 ### Phase 6: YouTube 업로드 ✅
 - 자동 YouTube 업로드
@@ -133,10 +135,25 @@ python src/10_create_video_with_summary.py \
 
 **썸네일 생성:**
 ```bash
+# 기본 (작가/책 이미지 자동 검색)
 python src/10_generate_thumbnail.py \
   --book-title "책제목" \
   --author "저자명" \
   --lang both
+
+# 작가/책 이미지 사용 안 함
+python src/10_generate_thumbnail.py \
+  --book-title "책제목" \
+  --author "저자명" \
+  --lang both \
+  --no-author-image
+
+# DALL-E 배경 이미지 사용
+python src/10_generate_thumbnail.py \
+  --book-title "책제목" \
+  --author "저자명" \
+  --lang both \
+  --use-dalle
 ```
 
 ### 6. YouTube 업로드

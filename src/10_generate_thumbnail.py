@@ -105,14 +105,41 @@ class ThumbnailGenerator:
                     print(f"   ⚠️ 폰트 로드 실패 ({os.path.basename(path)}): {e}")
                     continue
         
-        # 영어 제목 폰트
-        for path in font_paths['en_title']:
+        # 영어 제목 폰트 (더 많은 폰트 경로 시도)
+        en_font_paths = [
+            '/System/Library/Fonts/Supplemental/Arial Bold.ttf',
+            '/System/Library/Fonts/Supplemental/Arial.ttf',
+            '/System/Library/Fonts/Supplemental/Arial Black.ttf',
+            '/System/Library/Fonts/Helvetica.ttc',
+            '/Library/Fonts/Arial.ttf',
+            '/System/Library/Fonts/Supplemental/Times New Roman Bold.ttf',
+            '/System/Library/Fonts/Supplemental/Times New Roman.ttf',
+        ]
+        
+        for path in en_font_paths:
             if os.path.exists(path):
                 try:
-                    fonts['en_title'] = ImageFont.truetype(path, 80)
-                    fonts['en_subtitle'] = ImageFont.truetype(path, 50)
-                    print(f"   📝 영어 폰트 로드: {os.path.basename(path)}")
-                    break
+                    # TTC 파일인 경우 인덱스 지정
+                    if path.endswith('.ttc'):
+                        fonts['en_title'] = ImageFont.truetype(path, 80, index=0)
+                        fonts['en_subtitle'] = ImageFont.truetype(path, 50, index=0)
+                    else:
+                        fonts['en_title'] = ImageFont.truetype(path, 80)
+                        fonts['en_subtitle'] = ImageFont.truetype(path, 50)
+                    
+                    # 폰트 테스트 (영어 지원 확인)
+                    try:
+                        test_bbox = fonts['en_title'].getbbox('A')
+                        if test_bbox and (test_bbox[2] - test_bbox[0]) > 0:
+                            print(f"   📝 영어 폰트 로드: {os.path.basename(path)}")
+                            break
+                        else:
+                            fonts['en_title'] = None
+                            fonts['en_subtitle'] = None
+                    except:
+                        # getbbox 실패해도 폰트는 사용 가능할 수 있음
+                        print(f"   📝 영어 폰트 로드: {os.path.basename(path)}")
+                        break
                 except Exception as e:
                     continue
         
@@ -277,13 +304,96 @@ clean background with space for text placement.
             print(f"⚠️ DALL-E 이미지 생성 실패: {e}")
             return None
     
+    def _search_author_or_book_image(self, book_title: str, author: str = "", lang: str = "ko") -> Optional[str]:
+        """작가나 책 관련 이미지를 Unsplash/Pexels에서 검색"""
+        try:
+            from utils.translations import translate_book_title, translate_author_name
+            
+            # 항상 영어 키워드로 검색 (Unsplash/Pexels는 영어 검색이 더 잘 됨)
+            en_title = translate_book_title(book_title)
+            en_author = translate_author_name(author) if author else None
+            
+            search_keywords = []
+            # 책 제목 추가 (영어로 변환된 경우)
+            if en_title and en_title != book_title:
+                search_keywords.append(en_title)
+            elif lang == "en":
+                # 이미 영어인 경우
+                search_keywords.append(book_title)
+            else:
+                # 한글인 경우 영어 제목이 없으면 원본 사용
+                search_keywords.append(book_title)
+            
+            # 작가 이름 추가 (영어로 변환된 경우)
+            if en_author and en_author != author:
+                search_keywords.append(en_author)
+            elif author and lang == "en":
+                # 이미 영어인 경우
+                search_keywords.append(author)
+            
+            # 이미지 디렉토리 확인
+            from utils.file_utils import safe_title
+            safe_title_str = safe_title(book_title)
+            image_dir = Path("assets/images") / safe_title_str
+            
+            # 이미지 다운로더 사용
+            import importlib.util
+            images_path = Path(__file__).parent / "02_get_images.py"
+            spec = importlib.util.spec_from_file_location("get_images", images_path)
+            images_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(images_module)
+            downloader = images_module.ImageDownloader()
+            
+            # 작가나 책 관련 이미지 검색 (저작권 없는 이미지)
+            print(f"   🔍 작가/책 이미지 검색 중: {', '.join(search_keywords)}")
+            
+            # 이미지 디렉토리 생성
+            image_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Unsplash에서 검색 시도
+            if downloader.unsplash_access_key:
+                try:
+                    # 작가나 책 제목으로 검색
+                    for keyword in search_keywords:
+                        if not keyword:
+                            continue
+                        print(f"  🔍 검색: {keyword}")
+                        result = downloader.download_mood_images_unsplash([keyword], 1, image_dir)
+                        if result:
+                            print(f"  ✅ 이미지 다운로드 완료: {result[0]}")
+                            return result[0]
+                except Exception as e:
+                    print(f"    ⚠️ 오류: {e}")
+                    pass
+            
+            # Pexels에서 검색 시도
+            if downloader.pexels:
+                try:
+                    for keyword in search_keywords:
+                        if not keyword:
+                            continue
+                        print(f"  🔍 검색: {keyword}")
+                        result = downloader.download_mood_images_pexels([keyword], 1, image_dir)
+                        if result:
+                            print(f"  ✅ 이미지 다운로드 완료: {result[0]}")
+                            return result[0]
+                except Exception as e:
+                    print(f"    ⚠️ 오류: {e}")
+                    pass
+            
+            return None
+        except Exception as e:
+            print(f"   ⚠️ 작가/책 이미지 검색 실패: {e}")
+            return None
+    
     def generate_thumbnail(
         self,
         book_title: str,
         author: str = "",
         lang: str = "ko",
         background_image_path: Optional[str] = None,
-        output_path: Optional[str] = None
+        output_path: Optional[str] = None,
+        use_author_image: bool = True
     ) -> str:
         """
         썸네일 생성
@@ -294,6 +404,7 @@ clean background with space for text placement.
             lang: 언어 ("ko" 또는 "en")
             background_image_path: 배경 이미지 경로 (None이면 그라데이션 사용)
             output_path: 출력 경로 (None이면 자동 생성)
+            use_author_image: 작가/책 이미지 사용 여부 (True면 Unsplash/Pexels에서 검색)
         
         Returns:
             생성된 썸네일 파일 경로
@@ -318,7 +429,21 @@ clean background with space for text placement.
             # 약간 블러 처리
             bg = bg.filter(ImageFilter.GaussianBlur(radius=2))
         
-        # 3순위: 그라데이션 배경 생성
+        # 3순위: 작가/책 이미지 검색 (저작권 없는 이미지)
+        if not bg and use_author_image:
+            author_image_path = self._search_author_or_book_image(book_title, author, lang)
+            if author_image_path and os.path.exists(author_image_path):
+                bg = Image.open(author_image_path)
+                # 썸네일 크기에 맞게 리사이즈 및 크롭
+                bg = self._resize_and_crop(bg, self.THUMBNAIL_SIZE)
+                # 약간 어둡게 (텍스트 가독성 향상)
+                enhancer = ImageEnhance.Brightness(bg)
+                bg = enhancer.enhance(0.7)
+                # 약간 블러 처리
+                bg = bg.filter(ImageFilter.GaussianBlur(radius=2))
+                print("   🎨 작가/책 이미지 사용")
+        
+        # 4순위: 그라데이션 배경 생성
         if not bg:
             if lang == "ko":
                 # 한글 버전: 어두운 파란색 그라데이션
@@ -369,9 +494,12 @@ clean background with space for text placement.
             sub_text = f"작가: {author}" if author else "책 리뷰"
             bottom_text = "일당백 스타일"  # 이모지 제거
         else:
-            # 영어 제목으로 변환 (간단한 변환, 필요시 개선)
-            main_text = book_title  # 실제로는 번역 필요
-            sub_text = f"Author: {author}" if author else "Book Review"
+            # 영어 제목으로 변환
+            from utils.translations import translate_book_title, translate_author_name
+            en_title = translate_book_title(book_title)
+            en_author = translate_author_name(author) if author else None
+            main_text = en_title if en_title and en_title != book_title else book_title
+            sub_text = f"Author: {en_author}" if en_author and en_author != author else (f"Author: {author}" if author else "Book Review")
             bottom_text = "Auto-Generated"  # 이모지 제거
         
         # 제목 텍스트 줄바꿈
@@ -568,6 +696,8 @@ def main():
     parser.add_argument('--background', type=str, help='배경 이미지 경로 (선택사항)')
     parser.add_argument('--output-dir', type=str, default='output', help='출력 디렉토리')
     parser.add_argument('--use-dalle', action='store_true', help='DALL-E를 사용하여 배경 이미지 생성')
+    parser.add_argument('--use-author-image', action='store_true', default=True, help='작가/책 이미지 사용 (Unsplash/Pexels에서 검색, 기본값: True)')
+    parser.add_argument('--no-author-image', dest='use_author_image', action='store_false', help='작가/책 이미지 사용 안 함')
     
     args = parser.parse_args()
     
@@ -585,8 +715,9 @@ def main():
     
     # 배경 이미지 찾기 (무드 이미지 중 하나)
     # DALL-E를 사용하는 경우 배경 이미지를 사용하지 않음
+    # 작가/책 이미지를 사용하는 경우도 무드 이미지를 우선 사용하지 않음
     background_image = args.background
-    if not args.use_dalle and not background_image:
+    if not args.use_dalle and not background_image and not args.use_author_image:
         safe_title_str = safe_title(args.book_title)
         image_dir = Path("assets/images") / safe_title_str
         if image_dir.exists():
@@ -597,6 +728,10 @@ def main():
     
     generator = ThumbnailGenerator(use_dalle=args.use_dalle)
     
+    # 작가/책 이미지를 사용하는 경우 background_image를 None으로 설정
+    if args.use_author_image:
+        background_image = None
+    
     # 썸네일 생성
     if args.lang == "both":
         # 한글 버전
@@ -605,6 +740,7 @@ def main():
             author=args.author,
             lang="ko",
             background_image_path=background_image,
+            use_author_image=args.use_author_image,
             output_path=f"{args.output_dir}/{args.book_title.replace(' ', '_')}_thumbnail_ko.jpg"
         )
         
@@ -624,6 +760,7 @@ def main():
             author=en_author,
             lang="en",
             background_image_path=background_image,
+            use_author_image=args.use_author_image,
             output_path=f"{args.output_dir}/{args.book_title.replace(' ', '_')}_thumbnail_en.jpg"
         )
         
@@ -650,6 +787,7 @@ def main():
             author=author,
             lang=args.lang,
             background_image_path=background_image,
+            use_author_image=args.use_author_image,
             output_path=f"{args.output_dir}/{args.book_title.replace(' ', '_')}_thumbnail_{args.lang}.jpg"
         )
         
