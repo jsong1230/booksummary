@@ -13,6 +13,12 @@ def translate_book_title(book_title: str) -> str:
         "사피엔스": "Sapiens",
         "21세기를 위한 21가지 제언": "21 Lessons for the 21st Century",
         "호모 데우스": "Homo Deus",
+        "데미안": "Demian",
+        "군주론": "The Prince",
+        "그리스인 조르바": "Zorba the Greek",
+        "조르바": "Zorba the Greek",
+        "죄와 벌": "Crime and Punishment",
+        "죄와벌": "Crime and Punishment",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -33,6 +39,14 @@ def translate_author_name(author: str) -> str:
         "어니스트 헤밍웨이": "Ernest Hemingway",
         "윌리엄 셰익스피어": "William Shakespeare",
         "도스토옙스키": "Fyodor Dostoevsky",
+        "헤르만 헤세": "Hermann Hesse",
+        "헤세": "Hermann Hesse",
+        "마키아벨리": "Niccolò Machiavelli",
+        "니콜로 마키아벨리": "Niccolò Machiavelli",
+        "니코스 카잔차키스": "Nikos Kazantzakis",
+        "카잔차키스": "Nikos Kazantzakis",
+        "도스토옙스키": "Fyodor Dostoevsky",
+        "표도르 도스토옙스키": "Fyodor Dostoevsky",
     }
     
     if author in author_map:

@@ -314,22 +314,45 @@ clean background with space for text placement.
             en_author = translate_author_name(author) if author else None
             
             search_keywords = []
-            # 책 제목 추가 (영어로 변환된 경우)
+            
+            # 작가 이름을 먼저 추가 (작가 이미지가 더 관련성이 높을 수 있음)
+            if en_author and en_author != author:
+                # 작가 이름 관련 키워드 우선
+                search_keywords.append(f"{en_author} portrait")  # 작가 초상화 검색 (가장 관련성 높음)
+                search_keywords.append(en_author)
+                search_keywords.append(f"{en_author} author")  # "Hermann Hesse author" 같은 키워드 추가
+                search_keywords.append(f"{en_author} writer")  # "Hermann Hesse writer"
+                search_keywords.append(f"{en_author} novelist")  # "Hermann Hesse novelist"
+                # 성만 사용한 검색도 추가
+                if " " in en_author:
+                    last_name = en_author.split()[-1]  # "Hesse"
+                    search_keywords.append(f"{last_name} author")
+                    search_keywords.append(last_name)
+            elif author and lang == "en":
+                # 이미 영어인 경우
+                search_keywords.append(f"{author} portrait")
+                search_keywords.append(author)
+                search_keywords.append(f"{author} author")
+                search_keywords.append(f"{author} writer")
+                search_keywords.append(f"{author} novelist")
+                if " " in author:
+                    last_name = author.split()[-1]
+                    search_keywords.append(f"{last_name} author")
+                    search_keywords.append(last_name)
+            
+            # 책 제목 추가 (작가 이미지를 찾지 못한 경우를 대비)
             if en_title and en_title != book_title:
-                search_keywords.append(en_title)
+                search_keywords.append(f"{en_title} book")  # "Demian book" 같은 키워드 추가
+                search_keywords.append(f"{en_title} novel")  # "Demian novel"
+                search_keywords.append(en_title)  # 마지막에 일반 제목
             elif lang == "en":
                 # 이미 영어인 경우
+                search_keywords.append(f"{book_title} book")
+                search_keywords.append(f"{book_title} novel")
                 search_keywords.append(book_title)
             else:
                 # 한글인 경우 영어 제목이 없으면 원본 사용
                 search_keywords.append(book_title)
-            
-            # 작가 이름 추가 (영어로 변환된 경우)
-            if en_author and en_author != author:
-                search_keywords.append(en_author)
-            elif author and lang == "en":
-                # 이미 영어인 경우
-                search_keywords.append(author)
             
             # 이미지 디렉토리 확인
             from utils.file_utils import safe_title
@@ -350,14 +373,23 @@ clean background with space for text placement.
             # 이미지 디렉토리 생성
             image_dir.mkdir(parents=True, exist_ok=True)
             
-            # Unsplash에서 검색 시도
+            # 추가 일반적인 키워드 (작가/책 관련 이미지를 찾지 못한 경우)
+            if en_author:
+                search_keywords.extend([
+                    "German literature",
+                    "classic literature",
+                    "vintage book",
+                    "old book"
+                ])
+            
+            # Unsplash에서 검색 시도 - 모든 키워드를 순차적으로 시도
             if downloader.unsplash_access_key:
                 try:
                     # 작가나 책 제목으로 검색
                     for keyword in search_keywords:
                         if not keyword:
                             continue
-                        print(f"  🔍 검색: {keyword}")
+                        print(f"  🔍 Unsplash 검색: {keyword}")
                         result = downloader.download_mood_images_unsplash([keyword], 1, image_dir)
                         if result:
                             print(f"  ✅ 이미지 다운로드 완료: {result[0]}")
@@ -366,13 +398,13 @@ clean background with space for text placement.
                     print(f"    ⚠️ 오류: {e}")
                     pass
             
-            # Pexels에서 검색 시도
+            # Pexels에서 검색 시도 - 모든 키워드를 순차적으로 시도
             if downloader.pexels:
                 try:
                     for keyword in search_keywords:
                         if not keyword:
                             continue
-                        print(f"  🔍 검색: {keyword}")
+                        print(f"  🔍 Pexels 검색: {keyword}")
                         result = downloader.download_mood_images_pexels([keyword], 1, image_dir)
                         if result:
                             print(f"  ✅ 이미지 다운로드 완료: {result[0]}")

@@ -340,6 +340,13 @@ def preview_metadata(title: str, description: str, tags: list, lang: str):
 
 def save_metadata(video_path: Path, title: str, description: str, tags: list, lang: str, book_info: Optional[Dict] = None, thumbnail_path: Optional[str] = None):
     """메타데이터를 JSON 파일로 저장"""
+    # 영문 메타데이터의 경우 book_info의 authors를 영어로 변환
+    if lang == "en" and book_info and book_info.get('authors'):
+        # book_info를 복사해서 수정 (원본 변경 방지)
+        book_info_copy = book_info.copy()
+        book_info_copy['authors'] = [translate_author_name(author) for author in book_info['authors']]
+        book_info = book_info_copy
+    
     metadata = {
         'video_path': str(video_path),
         'title': title,
