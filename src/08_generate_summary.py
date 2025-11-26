@@ -37,7 +37,8 @@ class SummaryGenerator:
         book_title: str,
         author: str = None,
         language: str = "ko",
-        duration_minutes: float = 5.0
+        duration_minutes: float = 5.0,
+        use_engaging_opening: bool = False
     ) -> str:
         """
         책 요약 생성
@@ -68,12 +69,22 @@ class SummaryGenerator:
         target_duration = f"{int(duration_minutes)}분" if duration_minutes >= 1 else f"{int(duration_minutes * 60)}초"
         
         # 언어별 인트로/아웃트로 문구
-        if language == "ko":
-            intro_text = "이제 소설의 내용을 요약하겠습니다."
-            outro_text = "이상으로 마치겠습니다."
+        if use_engaging_opening:
+            # 몰입형 오프닝 사용
+            if language == "ko":
+                intro_text = None  # AI가 생성하도록 함
+                outro_text = "이상으로 마치겠습니다."
+            else:
+                intro_text = None  # AI가 생성하도록 함
+                outro_text = "That concludes the summary."
         else:
-            intro_text = "I will now summarize the novel's content."
-            outro_text = "That concludes the summary."
+            # 기본 인트로/아웃트로
+            if language == "ko":
+                intro_text = "이제 소설의 내용을 요약하겠습니다."
+                outro_text = "이상으로 마치겠습니다."
+            else:
+                intro_text = "I will now summarize the novel's content."
+                outro_text = "That concludes the summary."
         
         prompt = f"""다음 책에 대한 요약을 {lang_name}로 작성해주세요.
 이 요약은 오디오북으로 녹음되어 정확히 약 {target_duration} 정도의 길이가 되도록 충분히 자세하게 작성해주세요.
@@ -82,7 +93,7 @@ class SummaryGenerator:
 **중요: 반드시 {int(duration_minutes * 150)}단어 이상 작성해야 합니다. {int(duration_minutes * 150)}단어 미만이면 너무 짧습니다.**
 
 **요약 형식:**
-- 반드시 "{intro_text}"로 시작하세요
+{f'- 반드시 "{intro_text}"로 시작하세요' if intro_text else '- **몰입형 오프닝으로 시작하세요**: 책의 미스터리, 충격적인 장면, 인물의 비밀, 논쟁적인 질문 등으로 청취자의 호기심을 자극하는 10-20초 분량의 강렬한 오프닝을 작성하세요. 예: "이 책의 주인공은 마지막 장에서...", "이 주인공이 실제로 겪은 고난의 정체는?", "1980년 광주에서 일어난 충격적인 사건은..." 등'}
 - 반드시 "{outro_text}"로 끝나세요
 
 책 제목: {book_title}
@@ -114,16 +125,18 @@ class SummaryGenerator:
         
         prompt += f"""
 요약 작성 가이드 (매우 중요):
-1. **반드시 최소 {int(duration_minutes * 150)}단어 이상 작성하세요. 이것은 필수 요구사항입니다.**
-2. 책의 주요 내용과 줄거리를 매우 상세히 포함하세요 (각 장의 주요 사건들을 하나하나 자세히 설명)
-3. 주요 등장인물과 배경을 매우 자세히 소개하세요 (인물의 성격, 배경, 역할, 심리 상태 등을 구체적으로)
-4. 책의 핵심 주제와 메시지를 매우 깊이 있게 설명하세요 (작가의 의도, 사회적 의미, 철학적 함의 등을 상세히)
-5. 중요한 사건이나 전개를 매우 충분히 요약하세요 (사건의 전후 맥락, 인물의 심리 변화, 배경 설명 등을 포함)
-6. 각 섹션을 확장하고 구체적인 예시와 설명을 추가하세요
-7. 자연스럽게 읽을 수 있는 문체로 작성하세요
-8. **{target_duration} 분량을 채우기 위해 가능한 한 상세하게 작성하세요**
-9. **요약이 너무 짧으면 안 됩니다. {int(duration_minutes * 150)}단어 이상이 되도록 반드시 충분히 길게 작성하세요**
-10. **각 문단을 길게 작성하고, 설명을 반복하거나 다른 각도에서 다시 설명하는 것도 좋습니다**
+{f'1. **몰입형 오프닝 (10-20초 분량)**: 책의 가장 흥미롭고 충격적인 요소(미스터리, 반전, 중요한 장면, 논쟁적 질문 등)로 시작하여 청취자를 즉시 몰입시키세요. 스토리텔링 기반으로 호기심을 자극하세요.' if use_engaging_opening else ''}
+{f'2' if not use_engaging_opening else '2'}. **반드시 최소 {int(duration_minutes * 150)}단어 이상 작성하세요. 이것은 필수 요구사항입니다.**
+{f'3' if not use_engaging_opening else '3'}. 책의 주요 내용과 줄거리를 매우 상세히 포함하세요 (각 장의 주요 사건들을 하나하나 자세히 설명)
+{f'4' if not use_engaging_opening else '4'}. 주요 등장인물과 배경을 매우 자세히 소개하세요 (인물의 성격, 배경, 역할, 심리 상태 등을 구체적으로)
+{f'5' if not use_engaging_opening else '5'}. 책의 핵심 주제와 메시지를 매우 깊이 있게 설명하세요 (작가의 의도, 사회적 의미, 철학적 함의 등을 상세히)
+{f'6' if not use_engaging_opening else '6'}. 중요한 사건이나 전개를 매우 충분히 요약하세요 (사건의 전후 맥락, 인물의 심리 변화, 배경 설명 등을 포함)
+{f'7' if not use_engaging_opening else '7'}. 각 섹션을 확장하고 구체적인 예시와 설명을 추가하세요
+{f'8' if not use_engaging_opening else '8'}. 자연스럽게 읽을 수 있는 문체로 작성하세요
+{f'9' if not use_engaging_opening else '9'}. **{target_duration} 분량을 채우기 위해 가능한 한 상세하게 작성하세요**
+{f'10' if not use_engaging_opening else '10'}. **요약이 너무 짧으면 안 됩니다. {int(duration_minutes * 150)}단어 이상이 되도록 반드시 충분히 길게 작성하세요**
+{f'11' if not use_engaging_opening else '11'}. **각 문단을 길게 작성하고, 설명을 반복하거나 다른 각도에서 다시 설명하는 것도 좋습니다**
+{f'12. **오프닝에서 제기한 호기심을 본문에서 자연스럽게 풀어가며, 몰입형 오프닝과 본문이 자연스럽게 연결되도록 작성하세요.' if use_engaging_opening else ''}
 
 {style_instruction}
 
@@ -151,8 +164,13 @@ class SummaryGenerator:
                         }]
                     )
                     summary = response.content[0].text
-                    # 인트로/아웃트로 확인 및 추가
-                    summary = self._ensure_intro_outro(summary, intro_text, outro_text, language)
+                    # 인트로/아웃트로 확인 및 추가 (몰입형 오프닝인 경우 intro_text가 None일 수 있음)
+                    if intro_text:
+                        summary = self._ensure_intro_outro(summary, intro_text, outro_text, language)
+                    else:
+                        # 몰입형 오프닝인 경우 outro만 확인
+                        if outro_text and outro_text not in summary:
+                            summary = summary.rstrip() + f"\n\n{outro_text}"
                 except Exception as claude_error:
                     print(f"⚠️ Claude API 오류: {claude_error}")
                     print("🔄 OpenAI API로 대체 시도 중...")
@@ -171,8 +189,13 @@ class SummaryGenerator:
                                 max_tokens=4000  # 최대 요약 길이 (약 15-20분 분량 가능)
                             )
                             summary = response.choices[0].message.content
-                            # 인트로/아웃트로 확인 및 추가
-                            summary = self._ensure_intro_outro(summary, intro_text, outro_text, language)
+                            # 인트로/아웃트로 확인 및 추가 (몰입형 오프닝인 경우 intro_text가 None일 수 있음)
+                            if intro_text:
+                                summary = self._ensure_intro_outro(summary, intro_text, outro_text, language)
+                            else:
+                                # 몰입형 오프닝인 경우 outro만 확인
+                                if outro_text and outro_text not in summary:
+                                    summary = summary.rstrip() + f"\n\n{outro_text}"
                         except Exception as openai_error:
                             print(f"❌ OpenAI API 오류: {openai_error}")
                             raise openai_error
@@ -193,8 +216,13 @@ class SummaryGenerator:
                         max_tokens=4000  # 최대 요약 길이 (약 15-20분 분량 가능)
                     )
                     summary = response.choices[0].message.content
-                    # 인트로/아웃트로 확인 및 추가
-                    summary = self._ensure_intro_outro(summary, intro_text, outro_text, language)
+                    # 인트로/아웃트로 확인 및 추가 (몰입형 오프닝인 경우 intro_text가 None일 수 있음)
+                    if intro_text:
+                        summary = self._ensure_intro_outro(summary, intro_text, outro_text, language)
+                    else:
+                        # 몰입형 오프닝인 경우 outro만 확인
+                        if outro_text and outro_text not in summary:
+                            summary = summary.rstrip() + f"\n\n{outro_text}"
                 except Exception as openai_error:
                     print(f"❌ OpenAI API 오류: {openai_error}")
                     raise openai_error
@@ -284,8 +312,8 @@ class SummaryGenerator:
                 new_lines.append(line)
             summary = '\n'.join(new_lines).strip()
         
-        # 인트로가 없으면 추가, 있으면 우리가 지정한 형식인지 확인
-        if not summary.strip().lower().startswith(intro_text.lower()):
+        # 인트로가 없으면 추가, 있으면 우리가 지정한 형식인지 확인 (intro_text가 None이 아닌 경우만)
+        if intro_text and not summary.strip().lower().startswith(intro_text.lower()):
             # 기존 인트로가 우리 형식이 아니면 제거하고 추가
             lines = summary.split('\n')
             new_lines = []
@@ -377,6 +405,7 @@ def main():
     parser.add_argument('--author', type=str, help='저자 이름')
     parser.add_argument('--language', type=str, default='ko', choices=['ko', 'en'], help='언어 (기본값: ko)')
     parser.add_argument('--duration', type=float, default=5.0, help='요약 길이 (분 단위, 기본값: 5.0)')
+    parser.add_argument('--engaging-opening', action='store_true', help='몰입형 오프닝 사용 (호기심을 자극하는 스타일)')
     
     args = parser.parse_args()
     
@@ -396,7 +425,8 @@ def main():
             book_title=args.title,
             author=args.author,
             language=args.language,
-            duration_minutes=args.duration
+            duration_minutes=args.duration,
+            use_engaging_opening=args.engaging_opening
         )
         
         output_path = generator.save_summary(

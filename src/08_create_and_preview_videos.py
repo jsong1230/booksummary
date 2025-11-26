@@ -258,8 +258,57 @@ def _generate_description_en_with_ko(book_info: Optional[Dict] = None, book_titl
 def generate_tags(book_title: str = None, book_info: Optional[Dict] = None, lang: str = "both") -> list:
     """태그 생성 (책 정보 활용, 두 언어 포함)"""
     # 기본 태그
-    ko_base_tags = ['책리뷰', '독서', '북튜버', '책추천', '일당백', '독서법', '책읽기', '리뷰영상']
+    ko_base_tags = [
+        '책리뷰', '독서', '북튜버', '책추천', '일당백', '독서법', '책읽기', '리뷰영상',
+        '필독서', '베스트셀러', '인생책', '추천도서', '올해의책', '독서리스트',
+        '자기계발서', '힐링도서', '성장서적', '명작소설', '감동적인책', '영감을주는책',
+        '교양도서', '인기책', '독서모임추천', '스테디셀러', '시간순삭책', '입문도서', '필수교재'
+    ]
     en_base_tags = ['BookReview', 'Reading', 'BookTube', 'BookRecommendation', 'ReadingTips', 'Books', 'ReviewVideo']
+    
+    # 추천 기관/상/대학 태그 (일반적으로 유용한 태그들)
+    # 책의 특성에 따라 선택적으로 추가될 수 있음
+    institution_tags_ko = []
+    institution_tags_en = []
+    
+    # 노벨문학상 수상작인 경우 (book_info에서 확인 가능)
+    if book_info:
+        # book_info의 description이나 categories에서 노벨상 관련 키워드 확인
+        description = book_info.get('description', '').lower() if book_info.get('description') else ''
+        categories = [cat.lower() for cat in book_info.get('categories', [])] if book_info.get('categories') else []
+        
+        all_text = ' '.join([description] + categories).lower()
+        
+        # 노벨상 관련
+        if 'nobel' in all_text or '노벨' in all_text:
+            institution_tags_en.extend(['NobelPrize', 'NobelLiteraturePrize'])
+            institution_tags_ko.append('노벨문학상')
+        
+        # 맨부커상 관련
+        if 'man booker' in all_text or 'booker prize' in all_text or '맨부커' in all_text:
+            institution_tags_en.extend(['ManBookerPrize', 'BookerPrize'])
+            institution_tags_ko.append('맨부커상')
+        
+        # 퓰리처상 관련
+        if 'pulitzer' in all_text or '퓰리처' in all_text:
+            institution_tags_en.append('PulitzerPrize')
+            institution_tags_ko.append('퓰리처상')
+    
+    # 일반적인 추천 기관 태그 (선택적으로 추가)
+    # 주요 미디어/서점
+    general_institution_tags_en = [
+        'NewYorkTimes', 'Amazon', 'TIMEMagazine', 'CNN', 'Newsweek',
+        'Harvard', 'SeoulNationalUniversity', 'TokyoUniversity'
+    ]
+    general_institution_tags_ko = [
+        '뉴욕타임즈', '아마존', '타임지', '교보문고', '알라딘', 'YES24',
+        '서울대학교', '하버드대학교', '국립중앙도서관'
+    ]
+    
+    # 일반 기관 태그는 일부만 선택적으로 추가 (너무 많으면 태그 제한 초과)
+    # 우선순위가 높은 것들만 선택
+    institution_tags_en.extend(general_institution_tags_en[:3])  # 최대 3개만
+    institution_tags_ko.extend(general_institution_tags_ko[:3])  # 최대 3개만
     
     # 책 제목 기반 태그
     ko_book_tags = []
@@ -317,8 +366,8 @@ def generate_tags(book_title: str = None, book_info: Optional[Dict] = None, lang
                 ko_book_tags.append(category)
     
     # 태그 결합 (중복 제거)
-    ko_tags = list(dict.fromkeys(ko_base_tags + ko_book_tags))  # 순서 유지하며 중복 제거
-    en_tags = list(dict.fromkeys(en_base_tags + en_book_tags))
+    ko_tags = list(dict.fromkeys(ko_base_tags + ko_book_tags + institution_tags_ko))  # 순서 유지하며 중복 제거
+    en_tags = list(dict.fromkeys(en_base_tags + en_book_tags + institution_tags_en))
     
     # YouTube 태그 제한 (최대 500자, 약 30-40개 태그)
     # 각 태그는 보통 10-15자이므로 최대 30개 정도로 제한
