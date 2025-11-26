@@ -82,6 +82,10 @@ class CompletePipeline:
         safe_title_str = safe_title(book_title)
         safe_title_lower = safe_title_str.lower()
         
+        print(f"   [DEBUG] book_title: {book_title}")
+        print(f"   [DEBUG] safe_title_str: {safe_title_str}")
+        print(f"   [DEBUG] safe_title_lower: {safe_title_lower}")
+        
         result = {
             'ko': {'summary': None, 'review': None},
             'en': {'summary': None, 'review': None}
@@ -89,13 +93,29 @@ class CompletePipeline:
         
         # 모든 오디오 파일 찾기
         audio_files = list(audio_path.glob("*.m4a")) + list(audio_path.glob("*.wav")) + list(audio_path.glob("*.mp3"))
+        print(f"   [DEBUG] 총 오디오 파일 수: {len(audio_files)}")
         
         # 1순위: 정확한 패턴 매칭 ({book_title}_{type}_{lang}.{ext})
         for audio_file in audio_files:
             filename = audio_file.stem.lower()
+            stem = audio_file.stem
             
             # 책 제목이 파일명에 포함되어 있는지 확인
-            if safe_title_lower not in filename:
+            title_match = False
+            if safe_title_lower and len(safe_title_lower) > 1:
+                if safe_title_lower in filename or safe_title_lower in stem:
+                    title_match = True
+            # 한글 제목의 경우 원본 제목도 확인
+            if book_title and book_title in stem:
+                title_match = True
+            # 영어 제목의 경우 (Three Kingdoms 등)
+            if book_title and book_title.lower().replace(' ', '_') in filename:
+                title_match = True
+            # 특수 케이스: 삼국지 <-> Three Kingdoms 매칭
+            if book_title == "삼국지" and ("three_kingdoms" in filename or "three_kingdom" in filename):
+                title_match = True
+            
+            if not title_match:
                 continue
             
             # summary 파일 찾기
@@ -104,13 +124,25 @@ class CompletePipeline:
                     result['ko']['summary'] = audio_file
                 elif 'en' in filename:
                     result['en']['summary'] = audio_file
+                continue
             
             # review 파일 찾기
-            elif 'review' in filename:
+            if 'review' in filename:
                 if 'ko' in filename or 'kr' in filename:
                     result['ko']['review'] = audio_file
                 elif 'en' in filename:
                     result['en']['review'] = audio_file
+                continue
+            
+            # review/summary가 없지만 책 제목이 포함된 경우, 언어 감지로 분류
+            # 한글이 파일명에 포함되어 있으면 ko로 간주
+            if any(ord(c) > 127 for c in stem) and not result['ko']['review']:
+                print(f"   [DEBUG] KO review로 매칭: {audio_file.name}")
+                result['ko']['review'] = audio_file
+            # 영어만 있고 한글이 없으면 en으로 간주
+            elif any(c.isalpha() and ord(c) < 128 for c in stem) and not any(ord(c) > 127 for c in stem) and not result['en']['review']:
+                print(f"   [DEBUG] EN review로 매칭: {audio_file.name}")
+                result['en']['review'] = audio_file
         
         # 2순위: 패턴 매칭 (책 제목 없이도 시도)
         for audio_file in audio_files:
@@ -312,6 +344,13 @@ class CompletePipeline:
         # 오디오 파일 찾기
         print("🔍 오디오 파일 찾는 중...")
         audio_files = self.find_audio_files(book_title)
+        
+        # 디버깅: 찾은 파일 출력
+        print(f"   찾은 파일:")
+        print(f"   KO - Review: {audio_files['ko']['review']}")
+        print(f"   KO - Summary: {audio_files['ko']['summary']}")
+        print(f"   EN - Review: {audio_files['en']['review']}")
+        print(f"   EN - Summary: {audio_files['en']['summary']}")
         
         # 처리할 언어 결정
         if languages is None:
