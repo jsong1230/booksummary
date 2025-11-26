@@ -19,8 +19,9 @@ def translate_book_title(book_title: str) -> str:
         "조르바": "Zorba the Greek",
         "죄와 벌": "Crime and Punishment",
         "죄와벌": "Crime and Punishment",
-        "소년이 온다": "The Boy is Coming",
-        "The Boy is Coming": "The Boy is Coming",  # 영어 제목은 그대로 반환
+        "소년이 온다": "Human Acts",
+        "Human Acts": "Human Acts",  # 영어 제목은 그대로 반환
+        "The Boy is Coming": "Human Acts",  # 구버전 호환성
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -44,7 +45,8 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "The Prince": "군주론",
         "Zorba the Greek": "그리스인 조르바",
         "Crime and Punishment": "죄와 벌",
-        "The Boy is Coming": "소년이 온다",
+        "Human Acts": "소년이 온다",
+        "The Boy is Coming": "소년이 온다",  # 구버전 호환성
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
