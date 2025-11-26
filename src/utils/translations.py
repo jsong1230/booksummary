@@ -83,10 +83,35 @@ def translate_author_name(author: str) -> str:
         "카잔차키스": "Nikos Kazantzakis",
         "도스토옙스키": "Fyodor Dostoevsky",
         "표도르 도스토옙스키": "Fyodor Dostoevsky",
+        "한강": "Han Kang",
+        "한강 작가": "Han Kang",
     }
     
     if author in author_map:
         return author_map[author]
+    
+    return author
+
+
+def translate_author_name_to_korean(author: str) -> str:
+    """작가 이름을 한글로 변환 (역방향)"""
+    # 영어 -> 한글 매핑
+    reverse_author_map = {
+        "Murakami Haruki": "무라카미 하루키",
+        "Haruki": "하루키",
+        "Yuval Noah Harari": "유발 하라리",
+        "George Orwell": "조지 오웰",
+        "Ernest Hemingway": "어니스트 헤밍웨이",
+        "William Shakespeare": "윌리엄 셰익스피어",
+        "Fyodor Dostoevsky": "표도르 도스토옙스키",
+        "Hermann Hesse": "헤르만 헤세",
+        "Niccolò Machiavelli": "니콜로 마키아벨리",
+        "Nikos Kazantzakis": "니코스 카잔차키스",
+        "Han Kang": "한강",
+    }
+    
+    if author in reverse_author_map:
+        return reverse_author_map[author]
     
     return author
 

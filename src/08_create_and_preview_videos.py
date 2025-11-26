@@ -34,7 +34,7 @@ spec.loader.exec_module(make_video_module)
 VideoMaker = make_video_module.VideoMaker
 
 # 공통 유틸리티 import
-from utils.translations import translate_book_title, translate_author_name, get_book_alternative_title, translate_book_title_to_korean, is_english_title
+from utils.translations import translate_book_title, translate_author_name, get_book_alternative_title, translate_book_title_to_korean, is_english_title, translate_author_name_to_korean
 from utils.file_utils import safe_title, load_book_info
 
 def generate_title(book_title: str, lang: str = "both") -> str:
@@ -230,7 +230,16 @@ def _generate_description_en_with_ko(book_info: Optional[Dict] = None, book_titl
         if book_info.get('description'):
             ko_desc += f"📖 책 소개:\n{book_info['description'][:500]}...\n\n"
         if book_info.get('authors'):
-            ko_desc += f"✍️ 작가: {', '.join(book_info['authors'])}\n"
+            # 작가 이름이 영어인지 한글인지 판단하여 한글로 변환
+            authors_ko = []
+            for author in book_info['authors']:
+                if is_english_title(author):
+                    # 영어 작가 이름인 경우 한글로 변환
+                    ko_author = translate_author_name_to_korean(author)
+                    authors_ko.append(ko_author)
+                else:
+                    authors_ko.append(author)
+            ko_desc += f"✍️ 작가: {', '.join(authors_ko)}\n"
         if book_info.get('publishedDate'):
             ko_desc += f"📅 출간일: {book_info['publishedDate']}\n"
     

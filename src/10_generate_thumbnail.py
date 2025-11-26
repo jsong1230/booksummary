@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # 공통 유틸리티 import
-from utils.translations import translate_book_title, translate_author_name, translate_book_title_to_korean, is_english_title
+from utils.translations import translate_book_title, translate_author_name, translate_book_title_to_korean, is_english_title, translate_author_name_to_korean
 from utils.file_utils import safe_title, load_book_info
 
 load_dotenv()
@@ -307,7 +307,7 @@ clean background with space for text placement.
     def _search_author_or_book_image(self, book_title: str, author: str = "", lang: str = "ko") -> Optional[str]:
         """작가나 책 관련 이미지를 Unsplash/Pexels에서 검색"""
         try:
-            from utils.translations import translate_book_title, translate_author_name, translate_book_title_to_korean, is_english_title
+            from utils.translations import translate_book_title, translate_author_name, translate_book_title_to_korean, is_english_title, translate_author_name_to_korean
             
             # book_title이 영어인지 한글인지 판단
             if is_english_title(book_title):
@@ -546,8 +546,8 @@ clean background with space for text placement.
             # 작가 이름도 한글인지 확인
             if author:
                 if is_english_title(author):
-                    # 영어 작가 이름인 경우 번역 시도
-                    ko_author = translate_author_name(author) if translate_author_name(author) != author else author
+                    # 영어 작가 이름인 경우 한글로 변환
+                    ko_author = translate_author_name_to_korean(author)
                     sub_text = f"작가: {ko_author}"
                 else:
                     sub_text = f"작가: {author}"
