@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # 공통 유틸리티 import
-from utils.translations import translate_book_title, translate_author_name
+from utils.translations import translate_book_title, translate_author_name, translate_book_title_to_korean, is_english_title
 from utils.file_utils import safe_title, load_book_info
 
 load_dotenv()
@@ -307,10 +307,19 @@ clean background with space for text placement.
     def _search_author_or_book_image(self, book_title: str, author: str = "", lang: str = "ko") -> Optional[str]:
         """작가나 책 관련 이미지를 Unsplash/Pexels에서 검색"""
         try:
-            from utils.translations import translate_book_title, translate_author_name
+            from utils.translations import translate_book_title, translate_author_name, translate_book_title_to_korean, is_english_title
+            
+            # book_title이 영어인지 한글인지 판단
+            if is_english_title(book_title):
+                # 영어 제목이 들어온 경우
+                en_title = book_title
+                ko_title = translate_book_title_to_korean(book_title)
+            else:
+                # 한글 제목이 들어온 경우
+                ko_title = book_title
+                en_title = translate_book_title(book_title)
             
             # 항상 영어 키워드로 검색 (Unsplash/Pexels는 영어 검색이 더 잘 됨)
-            en_title = translate_book_title(book_title)
             en_author = translate_author_name(author) if author else None
             
             search_keywords = []
@@ -521,17 +530,42 @@ clean background with space for text placement.
             raise ValueError("폰트를 로드할 수 없습니다. 시스템 폰트를 확인하세요.")
         
         # 텍스트 준비
+        # book_title이 영어인지 한글인지 판단
+        if is_english_title(book_title):
+            # 영어 제목이 들어온 경우
+            en_title = book_title
+            ko_title = translate_book_title_to_korean(book_title)
+        else:
+            # 한글 제목이 들어온 경우
+            ko_title = book_title
+            en_title = translate_book_title(book_title)
+        
         if lang == "ko":
-            main_text = book_title
-            sub_text = f"작가: {author}" if author else "책 리뷰"
+            # 한글 썸네일: 한글 제목 사용
+            main_text = ko_title if ko_title and not is_english_title(ko_title) else book_title
+            # 작가 이름도 한글인지 확인
+            if author:
+                if is_english_title(author):
+                    # 영어 작가 이름인 경우 번역 시도
+                    ko_author = translate_author_name(author) if translate_author_name(author) != author else author
+                    sub_text = f"작가: {ko_author}"
+                else:
+                    sub_text = f"작가: {author}"
+            else:
+                sub_text = "책 리뷰"
             bottom_text = "일당백 스타일"  # 이모지 제거
         else:
-            # 영어 제목으로 변환
-            from utils.translations import translate_book_title, translate_author_name
-            en_title = translate_book_title(book_title)
-            en_author = translate_author_name(author) if author else None
-            main_text = en_title if en_title and en_title != book_title else book_title
-            sub_text = f"Author: {en_author}" if en_author and en_author != author else (f"Author: {author}" if author else "Book Review")
+            # 영어 썸네일: 영어 제목 사용
+            main_text = en_title if en_title and is_english_title(en_title) else book_title
+            # 작가 이름도 영어로 변환
+            if author:
+                if is_english_title(author):
+                    en_author = author
+                else:
+                    en_author = translate_author_name(author)
+                sub_text = f"Author: {en_author}" if en_author else "Book Review"
+            else:
+                sub_text = "Book Review"
             bottom_text = "Auto-Generated"  # 이모지 제거
         
         # 제목 텍스트 줄바꿈
@@ -777,15 +811,21 @@ def main():
         )
         
         # 영어 버전
-        en_title = translate_book_title(args.book_title)
-        # 영어 작가 이름도 변환 (간단한 매핑)
+        # book_title이 영어인지 한글인지 판단
+        if is_english_title(args.book_title):
+            # 영어 제목이 들어온 경우
+            en_title = args.book_title
+        else:
+            # 한글 제목이 들어온 경우 영어로 변환
+            en_title = translate_book_title(args.book_title)
+        
+        # 영어 작가 이름도 변환
         en_author = args.author
         if args.author:
-            # 무라카미 하루키 -> Haruki Murakami
-            author_translations = {
-                "무라카미 하루키": "Haruki Murakami",
-            }
-            en_author = author_translations.get(args.author, args.author)
+            if is_english_title(args.author):
+                en_author = args.author
+            else:
+                en_author = translate_author_name(args.author)
         
         en_path = generator.generate_thumbnail(
             book_title=en_title,
@@ -806,13 +846,17 @@ def main():
         author = args.author
         
         if args.lang == "en":
-            book_title = translate_book_title(args.book_title)
+            # book_title이 영어인지 한글인지 판단
+            if is_english_title(args.book_title):
+                book_title = args.book_title
+            else:
+                book_title = translate_book_title(args.book_title)
             # 영어 작가 이름도 변환
             if author:
-                author_translations = {
-                    "무라카미 하루키": "Haruki Murakami",
-                }
-                author = author_translations.get(author, author)
+                if is_english_title(author):
+                    author = author
+                else:
+                    author = translate_author_name(author)
         
         path = generator.generate_thumbnail(
             book_title=book_title,

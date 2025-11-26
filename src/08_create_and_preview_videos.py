@@ -34,22 +34,31 @@ spec.loader.exec_module(make_video_module)
 VideoMaker = make_video_module.VideoMaker
 
 # 공통 유틸리티 import
-from utils.translations import translate_book_title, translate_author_name, get_book_alternative_title
+from utils.translations import translate_book_title, translate_author_name, get_book_alternative_title, translate_book_title_to_korean, is_english_title
 from utils.file_utils import safe_title, load_book_info
 
 def generate_title(book_title: str, lang: str = "both") -> str:
     """영상 제목 생성 (두 언어 포함, 언어 표시 포함, 대체 제목 포함)"""
-    en_title = translate_book_title(book_title)
-    alt_titles = get_book_alternative_title(book_title)
+    # book_title이 영어인지 한글인지 판단
+    if is_english_title(book_title):
+        # 영어 제목이 들어온 경우: 한글 제목으로 변환
+        ko_title = translate_book_title_to_korean(book_title)
+        en_title = book_title  # 이미 영어
+    else:
+        # 한글 제목이 들어온 경우: 영어 제목으로 변환
+        ko_title = book_title  # 이미 한글
+        en_title = translate_book_title(book_title)
+    
+    alt_titles = get_book_alternative_title(ko_title)  # 한글 제목 기준으로 대체 제목 찾기
     
     if lang == "ko":
         # 한글 먼저, 영어 나중
         # 한글 부분: [한국어], 영어 부분: [Korean]
         if alt_titles.get("ko"):
             # 대체 제목 포함: "노르웨이의 숲 (상실의 시대)"
-            main_title = f"{book_title} ({alt_titles['ko']})"
+            main_title = f"{ko_title} ({alt_titles['ko']})"
         else:
-            main_title = book_title
+            main_title = ko_title
         return f"[한국어] {main_title} 책 리뷰 | [Korean] {en_title} Book Review | 일당백 스타일"
     elif lang == "en":
         # 영어 먼저, 한글 나중
@@ -62,13 +71,13 @@ def generate_title(book_title: str, lang: str = "both") -> str:
         
         if alt_titles.get("ko"):
             # 한글 부분에도 대체 제목 포함
-            ko_main_title = f"{book_title} ({alt_titles['ko']})"
+            ko_main_title = f"{ko_title} ({alt_titles['ko']})"
         else:
-            ko_main_title = book_title
+            ko_main_title = ko_title
         
         return f"[English] {en_main_title} Book Review | [영어] {ko_main_title} 책 리뷰 | Auto-Generated"
     else:
-        return f"{book_title} 책 리뷰 | {en_title} Book Review | 일당백 스타일"
+        return f"{ko_title} 책 리뷰 | {en_title} Book Review | 일당백 스타일"
 
 def generate_description(book_info: Optional[Dict] = None, lang: str = "both", book_title: str = None) -> str:
     """영상 설명 생성 (두 언어 포함)"""
@@ -248,14 +257,24 @@ def generate_tags(book_title: str = None, book_info: Optional[Dict] = None, lang
     en_book_tags = []
     
     if book_title:
-        # 한글 제목 태그
-        ko_book_tags.append(book_title)
-        ko_book_tags.append(f"{book_title} 리뷰")
-        ko_book_tags.append(f"{book_title} 책")
+        # book_title이 영어인지 한글인지 판단
+        if is_english_title(book_title):
+            # 영어 제목이 들어온 경우
+            en_title = book_title
+            ko_title = translate_book_title_to_korean(book_title)
+        else:
+            # 한글 제목이 들어온 경우
+            ko_title = book_title
+            en_title = translate_book_title(book_title)
         
-        # 영어 제목 태그
-        en_title = translate_book_title(book_title)
-        if en_title and en_title != book_title:
+        # 한글 제목 태그 (한글 제목이 있고 영어 제목과 다른 경우만)
+        if ko_title and ko_title != en_title and not is_english_title(ko_title):
+            ko_book_tags.append(ko_title)
+            ko_book_tags.append(f"{ko_title} 리뷰")
+            ko_book_tags.append(f"{ko_title} 책")
+        
+        # 영어 제목 태그 (영어 제목이 있고 한글 제목과 다른 경우만)
+        if en_title and en_title != ko_title and is_english_title(en_title):
             en_book_tags.append(en_title)
             en_book_tags.append(f"{en_title} Review")
             en_book_tags.append(f"{en_title} Book")
@@ -263,17 +282,30 @@ def generate_tags(book_title: str = None, book_info: Optional[Dict] = None, lang
     # 작가 기반 태그
     if book_info and book_info.get('authors'):
         for author in book_info['authors']:
-            ko_book_tags.append(f"{author} 작가")
-            en_author = translate_author_name(author)
-            if en_author and en_author != author:
+            # 작가 이름이 한글인지 영어인지 판단
+            if is_english_title(author):
+                # 영어 작가 이름인 경우
+                en_author = author
+                ko_author = None  # 한글 작가 이름이 없으면 None
+            else:
+                # 한글 작가 이름인 경우
+                ko_author = author
+                en_author = translate_author_name(author)
+            
+            if ko_author:
+                ko_book_tags.append(f"{ko_author} 작가")
+            if en_author and en_author != ko_author:
                 en_book_tags.append(en_author)
                 en_book_tags.append(f"{en_author} Author")
     
     # 장르/카테고리 태그 (book_info에서 추출 가능한 경우)
     if book_info and book_info.get('categories'):
         for category in book_info['categories'][:3]:  # 최대 3개
-            ko_book_tags.append(category)
-            en_book_tags.append(category)
+            # 카테고리가 한글인지 영어인지 판단
+            if is_english_title(category):
+                en_book_tags.append(category)
+            else:
+                ko_book_tags.append(category)
     
     # 태그 결합 (중복 제거)
     ko_tags = list(dict.fromkeys(ko_base_tags + ko_book_tags))  # 순서 유지하며 중복 제거

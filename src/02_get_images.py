@@ -528,6 +528,9 @@ class ImageDownloader:
                     pass
         
         # 프롬프트 구성 - 책 내용, 주제, 작가와 직접 연관된 키워드만 생성
+        # 한강의 작품인 경우 한국 관련 키워드 포함
+        is_korean_author = author and ("한강" in author or "Han Kang" in author)
+        
         prompt = f"""다음 책에 대한 이미지 검색 키워드를 생성해주세요. 
 책의 내용, 주제, 배경, 감정, 주요 장면, 작가의 스타일 등을 반영하여 Unsplash/Pexels에서 검색할 수 있는 구체적인 영어 키워드를 생성해주세요.
 
@@ -541,16 +544,22 @@ class ImageDownloader:
             if book_info.get('categories'):
                 prompt += f"카테고리: {', '.join(book_info['categories'])}\n"
         
+        if is_korean_author:
+            prompt += """
+중요: 이 책은 한국 작가의 작품입니다. 반드시 한국과 관련된 이미지 키워드를 포함하되, 책의 주제 및 작가의 작품 세계와 직접 연관된 키워드만 사용해주세요.
+예를 들어, "소년이 온다"의 경우 광주 민주화 운동, 한국의 역사적 트라우마, 한국의 전환기 정의, 한국의 민주화, 한국의 현대사 등과 관련된 한국 이미지 키워드를 포함해주세요.
+"""
+        
         prompt += """
 다음과 같은 유형의 키워드를 다양하게 포함해주세요 (각 카테고리에서 3-5개씩):
-1. 책의 주요 주제/테마 (예: totalitarian government, surveillance state, dystopian society, thought control)
-2. 책의 배경/장소 (예: 1960s tokyo, university dormitory, tokyo streets, japanese campus, london 1984)
-3. 책의 감정/분위기 (예: melancholy youth, lost love, grief, sadness, loneliness, oppression, fear)
-4. 책에서 언급되는 구체적인 장소나 물건 (예: norwegian forest, tokyo university, ministry of truth, room 101, telescreen)
-5. 시대적 배경 (예: 1960s japan, post-war japan, vintage japan, world war ii aftermath, 1984 london)
-6. 작가의 스타일/특징 (예: orwellian world, murakami style, kafkaesque atmosphere)
-7. 주요 인물/관계 (예: young couple, student friendship, romantic relationship, young man alone, winston smith)
-8. 책의 핵심 개념/용어 (예: big brother, thought police, newspeak, doublethink, memory hole)
+1. 책의 주요 주제/테마 (예: totalitarian government, surveillance state, dystopian society, thought control, historical trauma, transitional justice)
+2. 책의 배경/장소 (예: 1960s tokyo, university dormitory, tokyo streets, japanese campus, london 1984, gwangju korea, south korean city, korean urban landscape)
+3. 책의 감정/분위기 (예: melancholy youth, lost love, grief, sadness, loneliness, oppression, fear, collective memory, healing)
+4. 책에서 언급되는 구체적인 장소나 물건 (예: norwegian forest, tokyo university, ministry of truth, room 101, telescreen, korean memorial, korean history)
+5. 시대적 배경 (예: 1960s japan, post-war japan, vintage japan, world war ii aftermath, 1984 london, modern korea, contemporary korea, korean democracy)
+6. 작가의 스타일/특징 (예: orwellian world, murakami style, kafkaesque atmosphere, korean literature, han kang style)
+7. 주요 인물/관계 (예: young couple, student friendship, romantic relationship, young man alone, winston smith, korean people, korean youth)
+8. 책의 핵심 개념/용어 (예: big brother, thought police, newspeak, doublethink, memory hole, korean history, korean society, korean memory)
 
 중요: 
 - 각 키워드는 2-4단어로 구성하고, 실제 이미지 검색에 유용한 구체적인 영어 표현을 사용해주세요.
