@@ -67,13 +67,36 @@ class SummaryGenerator:
         lang_name = "한국어" if language == "ko" else "English"
         target_duration = f"{int(duration_minutes)}분" if duration_minutes >= 1 else f"{int(duration_minutes * 60)}초"
         
-        # 언어별 인트로/아웃트로 문구
+        # 템플릿 형식 사용 (인트로/아웃트로 제거)
+        # [HOOK], [SUMMARY], [BRIDGE] 형식으로만 작성
+        intro_text = None
+        outro_text = None
+        
+        # Hook 문구 생성 (언어별)
         if language == "ko":
-            intro_text = "이제 소설의 내용을 요약하겠습니다."
-            outro_text = "이상으로 마치겠습니다."
+            hook_examples = [
+                "만약 당신의 인생을 바꾼 문장이 단 한 줄이라면, 이 책은 그 한 줄을 제공합니다.",
+                "이 책이 전 세계에서 수천만 권 팔린 이유는, 우리가 모두 같은 고민을 하기 때문입니다.",
+                "상상해보세요. 단 5초의 선택이 앞으로 5년을 결정한다면?",
+                "이 이야기는 시작부터 비극입니다. 그런데 모두가 공감합니다."
+            ]
+            bridge_examples = [
+                "지금부터 더 깊은 내용을 살펴보겠습니다.",
+                "이제 이 책의 숨겨진 의미와 작가의 의도를 자세히 분석해보겠습니다.",
+                "앞으로 이 작품이 우리에게 던지는 질문들을 하나씩 살펴보겠습니다."
+            ]
         else:
-            intro_text = "I will now summarize the novel's content."
-            outro_text = "That concludes the summary."
+            hook_examples = [
+                "If there was one sentence that could change your life, this book provides that sentence.",
+                "The reason this book has sold millions of copies worldwide is because we all share the same struggles.",
+                "Imagine if a single 5-second choice could determine the next 5 years of your life?",
+                "This story begins as a tragedy. Yet everyone can relate to it."
+            ]
+            bridge_examples = [
+                "Now let's examine the deeper content.",
+                "Let's analyze the hidden meanings and the author's intentions in detail.",
+                "Let's explore the questions this work poses to us one by one."
+            ]
         
         prompt = f"""다음 책에 대한 요약을 {lang_name}로 작성해주세요.
 이 요약은 오디오북으로 녹음되어 정확히 약 {target_duration} 정도의 길이가 되도록 충분히 자세하게 작성해주세요.
@@ -81,9 +104,24 @@ class SummaryGenerator:
 
 **중요: 반드시 {int(duration_minutes * 150)}단어 이상 작성해야 합니다. {int(duration_minutes * 150)}단어 미만이면 너무 짧습니다.**
 
-**요약 형식:**
-- 반드시 "{intro_text}"로 시작하세요
-- 반드시 "{outro_text}"로 끝나세요
+**요약 형식 (반드시 이 형식을 따라야 합니다):**
+```
+[HOOK]
+(짧고 강렬한 문장 - 시청자가 3초 만에 빠져들게 하는 문장)
+
+[SUMMARY]
+(5분 분량 핵심 요약 - 최소 {int(duration_minutes * 150)}단어 이상)
+
+[BRIDGE]
+(다음 NotebookLM 분석으로 자연스럽게 넘어가는 연결 문장)
+```
+
+**HOOK 작성 가이드:**
+- 첫 3초 안에 시청자의 호기심을 자극해야 함
+- 책의 가장 흥미롭고 충격적인 요소 활용
+- 미스터리, 반전, 중요한 장면, 논쟁적 질문 등 사용
+- 10-20초 분량의 강렬한 오프닝
+- 예시: {hook_examples[0] if language == "ko" else hook_examples[0]}
 
 책 제목: {book_title}
 저자: {author or "알 수 없음"}
@@ -113,7 +151,7 @@ class SummaryGenerator:
 """
         
         prompt += f"""
-요약 작성 가이드 (매우 중요):
+**SUMMARY 작성 가이드 (매우 중요):**
 1. **반드시 최소 {int(duration_minutes * 150)}단어 이상 작성하세요. 이것은 필수 요구사항입니다.**
 2. 책의 주요 내용과 줄거리를 매우 상세히 포함하세요 (각 장의 주요 사건들을 하나하나 자세히 설명)
 3. 주요 등장인물과 배경을 매우 자세히 소개하세요 (인물의 성격, 배경, 역할, 심리 상태 등을 구체적으로)
@@ -124,6 +162,12 @@ class SummaryGenerator:
 8. **{target_duration} 분량을 채우기 위해 가능한 한 상세하게 작성하세요**
 9. **요약이 너무 짧으면 안 됩니다. {int(duration_minutes * 150)}단어 이상이 되도록 반드시 충분히 길게 작성하세요**
 10. **각 문단을 길게 작성하고, 설명을 반복하거나 다른 각도에서 다시 설명하는 것도 좋습니다**
+
+**BRIDGE 작성 가이드:**
+- 다음 NotebookLM 분석으로 자연스럽게 넘어가도록 연결
+- 시청자가 계속 시청하도록 유도
+- 간결하고 명확한 전환 문장
+- 예시: {bridge_examples[0] if language == "ko" else bridge_examples[0]}
 
 {style_instruction}
 
@@ -151,8 +195,12 @@ class SummaryGenerator:
                         }]
                     )
                     summary = response.content[0].text
-                    # 인트로/아웃트로 확인 및 추가
-                    summary = self._ensure_intro_outro(summary, intro_text, outro_text, language)
+                    # 템플릿 형식 사용 시 인트로/아웃트로 추가하지 않음
+                    if intro_text is None and outro_text is None:
+                        # [HOOK], [SUMMARY], [BRIDGE] 형식만 사용
+                        summary = self._clean_template_format(summary, language)
+                    else:
+                        summary = self._ensure_intro_outro(summary, intro_text, outro_text, language)
                 except Exception as claude_error:
                     print(f"⚠️ Claude API 오류: {claude_error}")
                     print("🔄 OpenAI API로 대체 시도 중...")
@@ -171,8 +219,12 @@ class SummaryGenerator:
                                 max_tokens=4000  # 최대 요약 길이 (약 15-20분 분량 가능)
                             )
                             summary = response.choices[0].message.content
-                            # 인트로/아웃트로 확인 및 추가
-                            summary = self._ensure_intro_outro(summary, intro_text, outro_text, language)
+                            # 템플릿 형식 사용 시 인트로/아웃트로 추가하지 않음
+                            if intro_text is None and outro_text is None:
+                                # [HOOK], [SUMMARY], [BRIDGE] 형식만 사용
+                                summary = self._clean_template_format(summary, language)
+                            else:
+                                summary = self._ensure_intro_outro(summary, intro_text, outro_text, language)
                         except Exception as openai_error:
                             print(f"❌ OpenAI API 오류: {openai_error}")
                             raise openai_error
@@ -334,7 +386,95 @@ class SummaryGenerator:
             summary = '\n'.join(new_lines).strip()
             summary = f"{summary}\n\n{outro_text}"
         
-        return summary.strip()
+        return summary
+    
+    def _clean_template_format(self, summary: str, language: str) -> str:
+        """
+        템플릿 형식([HOOK], [SUMMARY], [BRIDGE])에서 불필요한 인트로/아웃트로 제거
+        
+        Args:
+            summary: 요약 텍스트
+            language: 언어
+            
+        Returns:
+            정리된 요약 텍스트
+        """
+        summary = summary.strip()
+        
+        # 언어별 인트로 패턴 제거
+        if language == "ko":
+            intro_patterns = [
+                "이제 소설의 내용을 요약하겠습니다",
+                "요약하겠습니다",
+                "요약하겠다",
+                "요약합니다",
+                "요약을 시작",
+                "요약을 하겠습니다"
+            ]
+            outro_patterns = [
+                "이상으로 마치겠습니다",
+                "마치겠습니다",
+                "마치겠다",
+                "마칩니다",
+                "이상으로",
+                "이상입니다",
+                "마무리하겠습니다"
+            ]
+        else:
+            intro_patterns = [
+                "I will now summarize the novel's content",
+                "I will now summarize",
+                "I will summarize",
+                "summarize the novel",
+                "summary of the novel",
+                "summarizing the novel"
+            ]
+            outro_patterns = [
+                "That concludes the summary",
+                "This concludes the summary",
+                "concludes the summary",
+                "end of the summary",
+                "summary concludes"
+            ]
+        
+        # 첫 부분에서 인트로 제거
+        lines = summary.split('\n')
+        cleaned_lines = []
+        intro_removed = False
+        
+        for i, line in enumerate(lines):
+            # 첫 3줄 내에서 인트로 패턴 찾아서 제거
+            if not intro_removed and i < 3:
+                if any(pattern.lower() in line.lower() for pattern in intro_patterns):
+                    intro_removed = True
+                    continue
+            cleaned_lines.append(line)
+        
+        summary = '\n'.join(cleaned_lines).strip()
+        
+        # 마지막 부분에서 아웃트로 제거 (BRIDGE 이후에 있는 경우)
+        if '[BRIDGE]' in summary.upper() or '[BRIDGE]' in summary:
+            # BRIDGE 이후의 아웃트로만 제거
+            bridge_index = summary.upper().find('[BRIDGE]')
+            if bridge_index != -1:
+                bridge_part = summary[bridge_index:]
+                main_part = summary[:bridge_index]
+                
+                # BRIDGE 부분에서 아웃트로 제거
+                bridge_lines = bridge_part.split('\n')
+                cleaned_bridge = []
+                outro_removed = False
+                
+                for line in bridge_lines:
+                    if not outro_removed:
+                        if any(pattern.lower() in line.lower() for pattern in outro_patterns):
+                            outro_removed = True
+                            continue
+                    cleaned_bridge.append(line)
+                
+                summary = main_part + '\n' + '\n'.join(cleaned_bridge)
+        
+        return summary.strip().strip()
     
     def save_summary(
         self,

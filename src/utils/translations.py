@@ -24,6 +24,8 @@ def translate_book_title(book_title: str) -> str:
         "The Boy is Coming": "Human Acts",  # 구버전 호환성
         "작별인사": "Farewell",
         "Farewell": "Farewell",  # 영어 제목은 그대로 반환
+        "호밀밭의 파수꾼": "The Catcher in the Rye",
+        "The Catcher in the Rye": "The Catcher in the Rye",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -49,6 +51,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Crime and Punishment": "죄와 벌",
         "The Boy is Coming": "소년이 온다",
         "Farewell": "작별인사",
+        "The Catcher in the Rye": "호밀밭의 파수꾼",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -91,6 +94,9 @@ def translate_author_name(author: str) -> str:
         "한강 작가": "Han Kang",
         "김영하": "Youngha Kim",
         "Youngha Kim": "Youngha Kim",  # 영어 이름은 그대로 반환
+        "J.D. Salinger": "J.D. Salinger",
+        "제롬 데이비드 샐린저": "J.D. Salinger",
+        "샐린저": "J.D. Salinger",
     }
     
     if author in author_map:

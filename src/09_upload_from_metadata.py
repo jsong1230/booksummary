@@ -81,6 +81,46 @@ class YouTubeUploader:
         print(f"📤 업로드 중: {title}")
         print(f"   파일 크기: {file_size / (1024*1024):.2f} MB")
         
+        # Description 검증 및 수정
+        # YouTube description 최대 길이: 5000자
+        MAX_DESCRIPTION_LENGTH = 5000
+        if len(description) > MAX_DESCRIPTION_LENGTH:
+            print(f"   ⚠️ Description이 너무 깁니다 ({len(description)}자). {MAX_DESCRIPTION_LENGTH}자로 자릅니다.")
+            description = description[:MAX_DESCRIPTION_LENGTH]
+        
+        # 특수 문자나 문제가 될 수 있는 문자 제거/치환
+        # YouTube API가 문제를 일으킬 수 있는 문자들 처리
+        import re
+        import unicodedata
+        
+        # NULL 문자 제거
+        description = description.replace('\x00', '')
+        
+        # 줄바꿈 정규화
+        description = description.replace('\r\n', '\n')
+        description = description.replace('\r', '\n')
+        
+        # 특수 선 문자(━)를 일반 하이픈으로 치환
+        description = description.replace('━', '-')
+        description = description.replace('─', '-')
+        description = description.replace('━', '-')
+        
+        # 연속된 줄바꿈 정리
+        description = re.sub(r'\n{4,}', '\n\n\n', description)
+        
+        # 앞뒤 공백 제거
+        description = description.strip()
+        
+        # 빈 description 체크
+        if not description or len(description.strip()) == 0:
+            print("   ⚠️ Description이 비어있습니다. 기본 설명을 사용합니다.")
+            description = "책 리뷰 영상입니다."
+        
+        # 디버깅: description 길이와 처음 100자 출력
+        print(f"   📝 Description 길이: {len(description)}자")
+        if len(description) > 0:
+            print(f"   📝 Description 처음 100자: {repr(description[:100])}")
+        
         body = {
             'snippet': {
                 'title': title,
