@@ -258,12 +258,7 @@ def _generate_description_en_with_ko(book_info: Optional[Dict] = None, book_titl
 def generate_tags(book_title: str = None, book_info: Optional[Dict] = None, lang: str = "both") -> list:
     """태그 생성 (책 정보 활용, 두 언어 포함)"""
     # 기본 태그
-    ko_base_tags = [
-        '책리뷰', '독서', '북튜버', '책추천', '일당백', '독서법', '책읽기', '리뷰영상',
-        '필독서', '베스트셀러', '인생책', '추천도서', '올해의책', '독서리스트',
-        '자기계발서', '힐링도서', '성장서적', '명작소설', '감동적인책', '영감을주는책',
-        '교양도서', '인기책', '독서모임추천', '스테디셀러', '시간순삭책', '입문도서', '필수교재'
-    ]
+    ko_base_tags = ['책리뷰', '독서', '북튜버', '책추천', '일당백', '독서법', '책읽기', '리뷰영상']
     en_base_tags = ['BookReview', 'Reading', 'BookTube', 'BookRecommendation', 'ReadingTips', 'Books', 'ReviewVideo']
     
     # 추천 기관/상/대학 태그 (일반적으로 유용한 태그들)
@@ -366,8 +361,8 @@ def generate_tags(book_title: str = None, book_info: Optional[Dict] = None, lang
                 ko_book_tags.append(category)
     
     # 태그 결합 (중복 제거)
-    ko_tags = list(dict.fromkeys(ko_base_tags + ko_book_tags + institution_tags_ko))  # 순서 유지하며 중복 제거
-    en_tags = list(dict.fromkeys(en_base_tags + en_book_tags + institution_tags_en))
+    ko_tags = list(dict.fromkeys(ko_base_tags + ko_book_tags))  # 순서 유지하며 중복 제거
+    en_tags = list(dict.fromkeys(en_base_tags + en_book_tags))
     
     # YouTube 태그 제한 (최대 500자, 약 30-40개 태그)
     # 각 태그는 보통 10-15자이므로 최대 30개 정도로 제한
@@ -466,11 +461,74 @@ def main():
     parser.add_argument('--book-title', type=str, default="노르웨이의 숲", help='책 제목')
     parser.add_argument('--image-dir', type=str, help='이미지 디렉토리')
     parser.add_argument('--skip-video', action='store_true', help='영상 생성 건너뛰기 (메타데이터만 생성)')
+    parser.add_argument('--metadata-only', action='store_true', help='메타데이터만 생성 (영상/오디오 없이)')
     parser.add_argument('--auto-upload', action='store_true', help='자동 업로드 (점검 없이)')
     parser.add_argument('--skip-thumbnail', action='store_true', help='썸네일 생성 건너뛰기')
     parser.add_argument('--use-dalle-thumbnail', action='store_true', help='DALL-E를 사용하여 썸네일 배경 생성')
     
     args = parser.parse_args()
+    
+    # 메타데이터만 생성하는 경우
+    if args.metadata_only:
+        print("=" * 60)
+        print("📋 메타데이터 생성")
+        print("=" * 60)
+        print()
+        
+        # 책 정보 로드
+        book_info = load_book_info(args.book_title)
+        if book_info:
+            print(f"📚 책 정보 로드 완료: {book_info.get('title', args.book_title)}")
+        print()
+        
+        safe_title_str = safe_title(args.book_title)
+        
+        # 한글 메타데이터 생성
+        video_path_ko = Path(f"output/{safe_title_str}_review_with_summary_ko.mp4")
+        thumbnail_path_ko = Path(f"output/{safe_title_str}_thumbnail_ko.jpg")
+        
+        if thumbnail_path_ko.exists():
+            print("📋 한글 메타데이터 생성 중...")
+            title_ko = generate_title(args.book_title, lang='ko')
+            description_ko = generate_description(book_info, lang='ko', book_title=args.book_title)
+            tags_ko = generate_tags(book_title=args.book_title, book_info=book_info, lang='ko')
+            
+            save_metadata(
+                video_path_ko,
+                title_ko,
+                description_ko,
+                tags_ko,
+                'ko',
+                book_info,
+                str(thumbnail_path_ko) if thumbnail_path_ko.exists() else None
+            )
+        else:
+            print(f"⚠️ 한글 썸네일을 찾을 수 없습니다: {thumbnail_path_ko}")
+        
+        # 영문 메타데이터 생성
+        video_path_en = Path(f"output/{safe_title_str}_review_with_summary_en.mp4")
+        thumbnail_path_en = Path(f"output/{safe_title_str}_thumbnail_en.jpg")
+        
+        if thumbnail_path_en.exists():
+            print("\n📋 영문 메타데이터 생성 중...")
+            title_en = generate_title(args.book_title, lang='en')
+            description_en = generate_description(book_info, lang='en', book_title=args.book_title)
+            tags_en = generate_tags(book_title=args.book_title, book_info=book_info, lang='en')
+            
+            save_metadata(
+                video_path_en,
+                title_en,
+                description_en,
+                tags_en,
+                'en',
+                book_info,
+                str(thumbnail_path_en) if thumbnail_path_en.exists() else None
+            )
+        else:
+            print(f"⚠️ 영문 썸네일을 찾을 수 없습니다: {thumbnail_path_en}")
+        
+        print("\n✅ 메타데이터 생성 완료!")
+        return
     
     # 오디오 파일 찾기
     korean_audio, english_audio = find_audio_files()

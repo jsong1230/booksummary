@@ -97,32 +97,18 @@ class VideoMaker:
         print("🔗 오디오 연결 중...")
         audio_clips = []
         
-        # 먼저 모든 오디오를 로드하고 샘플레이트 확인
-        loaded_clips = []
         for i, audio_path in enumerate(audio_paths):
             print(f"   [{i+1}/{len(audio_paths)}] 로드: {Path(audio_path).name}")
             audio_clip = self.load_audio(audio_path)
-            loaded_clips.append(audio_clip)
-        
-        # 모든 오디오의 샘플레이트를 통일 (첫 번째 오디오의 샘플레이트 사용)
-        target_fps = loaded_clips[0].fps if hasattr(loaded_clips[0], 'fps') else 44100
-        print(f"   🎵 타겟 샘플레이트: {target_fps}Hz")
-        
-        for i, audio_clip in enumerate(loaded_clips):
-            # 샘플레이트 통일
-            if hasattr(audio_clip, 'fps') and audio_clip.fps != target_fps:
-                print(f"   🔄 샘플레이트 변환: {audio_clip.fps}Hz → {target_fps}Hz")
-                # 샘플레이트가 다르면 변환 (MoviePy가 자동으로 처리하지만 명시적으로 설정)
-                pass
             
-            # 오디오 클립에 fade 효과 적용
+            # 오디오 클립에 fade 효과 적용 (오디오 전용 메서드 사용)
             if i > 0:
                 # 이전 클립에 fade out
                 if audio_clips:
                     try:
                         from moviepy.audio.fx.all import audio_fadeout
                         audio_clips[-1] = audio_clips[-1].fx(audio_fadeout, fade_duration)
-                    except (ImportError, AttributeError):
+                    except ImportError:
                         # 구버전 호환성 또는 fade 효과 없이 진행
                         pass
                 
@@ -130,22 +116,35 @@ class VideoMaker:
                 if gap_duration > 0:
                     print(f"   ⏸️  {gap_duration}초 간격 추가...")
                     try:
-                        # 무음 오디오 클립 생성 (안정적인 방법)
+                        # 무음 오디오 클립 생성
                         from moviepy.audio.AudioClip import AudioArrayClip
                         import numpy as np
-                        # 무음 배열 생성 (스테레오, 올바른 샘플레이트 사용)
-                        num_samples = int(target_fps * gap_duration)
-                        silence_array = np.zeros((num_samples, 2), dtype=np.float32)
-                        silence = AudioArrayClip(silence_array, fps=target_fps)
+                        # 샘플레이트 가져오기
+                        sample_rate = audio_clip.fps if hasattr(audio_clip, 'fps') else 44100
+                        # 무음 배열 생성 (스테레오)
+                        silence_array = np.zeros((int(sample_rate * gap_duration), 2))
+                        silence = AudioArrayClip(silence_array, fps=sample_rate)
                         audio_clips.append(silence)
                     except Exception as e:
-                        print(f"   ⚠️ 무음 구간 생성 실패: {e}, 간격 없이 연결합니다.")
+                        # AudioArrayClip 실패 시 다른 방법 시도
+                        try:
+                            from moviepy.editor import ColorClip
+                            # 검은색 비디오 클립 생성 (무음 오디오 포함)
+                            silence_video = ColorClip(size=(1, 1), color=(0, 0, 0), duration=gap_duration)
+                            # 무음 오디오 추가
+                            from moviepy.audio.AudioClip import AudioClip
+                            silence_audio = AudioClip(lambda t: [0, 0], duration=gap_duration, fps=44100)
+                            silence_video = silence_video.set_audio(silence_audio)
+                            audio_clips.append(silence_video)
+                        except Exception as e2:
+                            # 간격 추가 실패 시 경고만 출력하고 계속 진행
+                            print(f"   ⚠️ 간격 추가 실패: {e2}, 간격 없이 연결합니다.")
                 
                 # 현재 클립에 fade in
                 try:
                     from moviepy.audio.fx.all import audio_fadein
                     audio_clip = audio_clip.fx(audio_fadein, fade_duration)
-                except (ImportError, AttributeError):
+                except ImportError:
                     # 구버전 호환성 또는 fade 효과 없이 진행
                     pass
             
@@ -156,31 +155,25 @@ class VideoMaker:
             try:
                 from moviepy.audio.fx.all import audio_fadeout
                 audio_clips[-1] = audio_clips[-1].fx(audio_fadeout, fade_duration)
-            except (ImportError, AttributeError):
+            except ImportError:
                 pass
         
         # 오디오 클립들을 연결
         print("   연결 중...")
         try:
             from moviepy.audio.AudioClip import concatenate_audioclips
-            # 모든 클립이 같은 샘플레이트를 가지도록 보장
             final_audio = concatenate_audioclips(audio_clips)
-        except Exception as e:
-            print(f"   ⚠️ concatenate_audioclips 실패: {e}")
-            # 대안: 비디오 클립으로 변환 후 연결
-            try:
-                from moviepy.editor import ColorClip
-                video_clips = []
-                for audio_clip in audio_clips:
-                    # 오디오 길이만큼의 검은색 비디오 클립 생성
-                    video_clip = ColorClip(size=(1, 1), color=(0, 0, 0), duration=audio_clip.duration)
-                    video_clip = video_clip.set_audio(audio_clip)
-                    video_clips.append(video_clip)
-                concatenated = concatenate_videoclips(video_clips, method="compose")
-                final_audio = concatenated.audio
-            except Exception as e2:
-                print(f"   ❌ 오디오 연결 실패: {e2}")
-                raise
+        except ImportError:
+            # 구버전 호환성: 비디오 클립으로 변환 후 연결
+            from moviepy.editor import ColorClip
+            video_clips = []
+            for audio_clip in audio_clips:
+                # 오디오 길이만큼의 검은색 비디오 클립 생성
+                video_clip = ColorClip(size=(1, 1), color=(0, 0, 0), duration=audio_clip.duration)
+                video_clip = video_clip.set_audio(audio_clip)
+                video_clips.append(video_clip)
+            concatenated = concatenate_videoclips(video_clips, method="compose")
+            final_audio = concatenated.audio
         
         print(f"   ✅ 연결 완료: 총 길이 {final_audio.duration:.2f}초")
         

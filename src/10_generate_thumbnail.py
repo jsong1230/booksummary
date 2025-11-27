@@ -33,8 +33,9 @@ except ImportError:
 class ThumbnailGenerator:
     """썸네일 생성 클래스"""
     
-    # YouTube 썸네일 권장 크기
-    THUMBNAIL_SIZE = (1280, 720)  # 16:9 비율
+    # YouTube 썸네일 권장 크기 (최대 해상도)
+    # 옵션: (1280, 720) 기본, (1920, 1080) Full HD, (2560, 1440) 2K, (3840, 2160) 4K
+    THUMBNAIL_SIZE = (3840, 2160)  # 16:9 비율, 4K 해상도
     
     def __init__(self, use_dalle: bool = False):
         self.fonts = self._load_fonts()
@@ -82,11 +83,11 @@ class ThumbnailGenerator:
                 try:
                     # TTC 파일인 경우 인덱스 지정
                     if path.endswith('.ttc'):
-                        fonts['ko_title'] = ImageFont.truetype(path, 80, index=0)
-                        fonts['ko_subtitle'] = ImageFont.truetype(path, 50, index=0)
+                        fonts['ko_title'] = ImageFont.truetype(path, 240, index=0)  # 4K 해상도에 맞춰 폰트 크기 증가
+                        fonts['ko_subtitle'] = ImageFont.truetype(path, 150, index=0)
                     else:
-                        fonts['ko_title'] = ImageFont.truetype(path, 80)
-                        fonts['ko_subtitle'] = ImageFont.truetype(path, 50)
+                        fonts['ko_title'] = ImageFont.truetype(path, 240)  # 4K 해상도에 맞춰 폰트 크기 증가
+                        fonts['ko_subtitle'] = ImageFont.truetype(path, 150)
                     
                     # 폰트 테스트 (한글 지원 확인)
                     try:
@@ -107,13 +108,13 @@ class ThumbnailGenerator:
         
         # 영어 제목 폰트 (더 많은 폰트 경로 시도)
         en_font_paths = [
-            '/System/Library/Fonts/Supplemental/Arial Bold.ttf',
-            '/System/Library/Fonts/Supplemental/Arial.ttf',
+            '/System/Library/Fonts/Supplemental/Arial Bold.ttf',  # 가장 확실한 폰트 우선
             '/System/Library/Fonts/Supplemental/Arial Black.ttf',
-            '/System/Library/Fonts/Helvetica.ttc',
-            '/Library/Fonts/Arial.ttf',
+            '/System/Library/Fonts/Supplemental/Arial.ttf',
             '/System/Library/Fonts/Supplemental/Times New Roman Bold.ttf',
             '/System/Library/Fonts/Supplemental/Times New Roman.ttf',
+            '/Library/Fonts/Arial.ttf',
+            '/System/Library/Fonts/Helvetica.ttc',
         ]
         
         for path in en_font_paths:
@@ -121,25 +122,23 @@ class ThumbnailGenerator:
                 try:
                     # TTC 파일인 경우 인덱스 지정
                     if path.endswith('.ttc'):
-                        fonts['en_title'] = ImageFont.truetype(path, 80, index=0)
-                        fonts['en_subtitle'] = ImageFont.truetype(path, 50, index=0)
+                        test_font = ImageFont.truetype(path, 240, index=0)
                     else:
-                        fonts['en_title'] = ImageFont.truetype(path, 80)
-                        fonts['en_subtitle'] = ImageFont.truetype(path, 50)
+                        test_font = ImageFont.truetype(path, 240)
                     
-                    # 폰트 테스트 (영어 지원 확인)
+                    # 실제 렌더링 테스트로 폰트가 제대로 작동하는지 확인
+                    test_img = Image.new('RGB', (200, 100), 'white')
+                    test_draw = ImageDraw.Draw(test_img)
                     try:
-                        test_bbox = fonts['en_title'].getbbox('A')
-                        if test_bbox and (test_bbox[2] - test_bbox[0]) > 0:
-                            print(f"   📝 영어 폰트 로드: {os.path.basename(path)}")
-                            break
-                        else:
-                            fonts['en_title'] = None
-                            fonts['en_subtitle'] = None
-                    except:
-                        # getbbox 실패해도 폰트는 사용 가능할 수 있음
+                        test_draw.text((10, 10), 'Farewell', font=test_font, fill='black')
+                        # 테스트 성공 - 폰트 사용
+                        fonts['en_title'] = ImageFont.truetype(path, 240, index=0) if path.endswith('.ttc') else ImageFont.truetype(path, 240)
+                        fonts['en_subtitle'] = ImageFont.truetype(path, 150, index=0) if path.endswith('.ttc') else ImageFont.truetype(path, 150)
                         print(f"   📝 영어 폰트 로드: {os.path.basename(path)}")
                         break
+                    except Exception as render_error:
+                        # 렌더링 실패 - 다음 폰트 시도
+                        continue
                 except Exception as e:
                     continue
         
@@ -578,7 +577,7 @@ clean background with space for text placement.
         else:
             # 영어는 단어 단위로 줄바꿈
             if title_font:
-                title_lines = self._wrap_text(main_text, title_font, self.THUMBNAIL_SIZE[0] - 200)
+                title_lines = self._wrap_text(main_text, title_font, self.THUMBNAIL_SIZE[0] - 600)  # 4K 해상도에 맞춰 여백 증가
             else:
                 # 폰트가 없으면 단순 분할
                 words = main_text.split()
@@ -595,7 +594,7 @@ clean background with space for text placement.
                     title_lines.append(' '.join(current_line))
         
         # 텍스트 위치 계산 (중앙 정렬)
-        line_height = 100 if title_font else 80
+        line_height = 300 if title_font else 240  # 4K 해상도에 맞춰 증가
         y_start = self.THUMBNAIL_SIZE[1] // 2 - (len(title_lines) * line_height) // 2
         
         # 제목 그리기
@@ -607,12 +606,12 @@ clean background with space for text placement.
                     text_height = bbox[3] - bbox[1]
                 except:
                     # getbbox 실패 시 대략적인 계산
-                    text_width = len(line) * 60 if lang == "ko" else len(line) * 40
-                    text_height = 80
+                    text_width = len(line) * 180 if lang == "ko" else len(line) * 120  # 4K 해상도에 맞춰 증가
+                    text_height = 240
             else:
                 # 폰트가 없으면 대략적인 너비 계산
-                text_width = len(line) * 50
-                text_height = 80
+                text_width = len(line) * 150  # 4K 해상도에 맞춰 증가
+                text_height = 240
             
             x = (self.THUMBNAIL_SIZE[0] - text_width) // 2
             y = y_start + i * line_height
@@ -621,19 +620,29 @@ clean background with space for text placement.
             if title_font:
                 try:
                     # 직접 텍스트 그리기 (외곽선 포함)
-                    # 외곽선
-                    for adj_x in range(-4, 5):
-                        for adj_y in range(-4, 5):
+                    # 외곽선 (4K 해상도에 맞춰 증가)
+                    for adj_x in range(-8, 9):
+                        for adj_y in range(-8, 9):
                             if adj_x != 0 or adj_y != 0:
                                 try:
                                     draw.text((x + adj_x, y + adj_y), line, font=title_font, fill=(0, 0, 0))
                                 except:
                                     pass
                     # 메인 텍스트
-                    draw.text((x, y), line, font=title_font, fill=(255, 255, 255))
+                    try:
+                        draw.text((x, y), line, font=title_font, fill=(255, 255, 255))
+                    except Exception as text_error:
+                        # 텍스트 렌더링 실패 시 상세 로그
+                        print(f"   ⚠️ 제목 텍스트 렌더링 실패 (텍스트: '{line}', 폰트: {title_font}): {text_error}")
+                        import traceback
+                        traceback.print_exc()
+                        # 폰트 없이 재시도
+                        draw.text((x, y), line, fill=(255, 255, 255))
                 except Exception as e:
                     # 폰트 렌더링 실패 시 기본 텍스트
-                    print(f"   ⚠️ 제목 텍스트 렌더링 실패: {e}")
+                    print(f"   ⚠️ 제목 텍스트 렌더링 실패 (전체): {e}")
+                    import traceback
+                    traceback.print_exc()
                     draw.text((x, y), line, fill=(255, 255, 255))
             else:
                 # 폰트가 없으면 기본 텍스트 그리기
@@ -646,27 +655,39 @@ clean background with space for text placement.
                     bbox = subtitle_font.getbbox(sub_text)
                     text_width = bbox[2] - bbox[0]
                     x = (self.THUMBNAIL_SIZE[0] - text_width) // 2
-                    y = y_start + len(title_lines) * line_height + 30
+                    y = y_start + len(title_lines) * line_height + 90  # 4K 해상도에 맞춰 증가
                     
-                    # 외곽선
-                    for adj_x in range(-2, 3):
-                        for adj_y in range(-2, 3):
+                    # 외곽선 (4K 해상도에 맞춰 증가)
+                    for adj_x in range(-6, 7):
+                        for adj_y in range(-6, 7):
                             if adj_x != 0 or adj_y != 0:
                                 try:
                                     draw.text((x + adj_x, y + adj_y), sub_text, font=subtitle_font, fill=(0, 0, 0))
                                 except:
                                     pass
                     # 메인 텍스트
-                    draw.text((x, y), sub_text, font=subtitle_font, fill=(220, 220, 220))
+                    try:
+                        draw.text((x, y), sub_text, font=subtitle_font, fill=(220, 220, 220))
+                    except Exception as text_error:
+                        # 텍스트 렌더링 실패 시 상세 로그
+                        print(f"   ⚠️ 작가 이름 텍스트 렌더링 실패 (텍스트: '{sub_text}', 폰트: {subtitle_font}): {text_error}")
+                        import traceback
+                        traceback.print_exc()
+                        # 폰트 없이 재시도
+                        x = (self.THUMBNAIL_SIZE[0] - len(sub_text) * 60) // 2
+                        y = y_start + len(title_lines) * line_height + 60
+                        draw.text((x, y), sub_text, fill=(220, 220, 220))
                 except Exception as e:
-                    print(f"   ⚠️ 작가 이름 렌더링 실패: {e}")
-                    x = (self.THUMBNAIL_SIZE[0] - len(sub_text) * 30) // 2
-                    y = y_start + len(title_lines) * line_height + 30
+                    print(f"   ⚠️ 작가 이름 렌더링 실패 (전체): {e}")
+                    import traceback
+                    traceback.print_exc()
+                    x = (self.THUMBNAIL_SIZE[0] - len(sub_text) * 90) // 2  # 4K 해상도에 맞춰 증가
+                    y = y_start + len(title_lines) * line_height + 90  # 4K 해상도에 맞춰 증가
                     draw.text((x, y), sub_text, fill=(220, 220, 220))
             else:
                 # 폰트가 없으면 기본 텍스트
-                x = (self.THUMBNAIL_SIZE[0] - len(sub_text) * 30) // 2
-                y = y_start + len(title_lines) * line_height + 30
+                x = (self.THUMBNAIL_SIZE[0] - len(sub_text) * 60) // 2  # 해상도 2배에 맞춰 증가
+                y = y_start + len(title_lines) * line_height + 60  # 해상도 2배에 맞춰 증가
                 draw.text((x, y), sub_text, fill=(220, 220, 220))
         
         # 하단 텍스트 (작은 크기)
@@ -676,11 +697,11 @@ clean background with space for text placement.
                     bbox = subtitle_font.getbbox(bottom_text)
                     text_width = bbox[2] - bbox[0]
                     x = (self.THUMBNAIL_SIZE[0] - text_width) // 2
-                    y = self.THUMBNAIL_SIZE[1] - 80
+                    y = self.THUMBNAIL_SIZE[1] - 240  # 4K 해상도에 맞춰 증가
                     
-                    # 외곽선
-                    for adj_x in range(-2, 3):
-                        for adj_y in range(-2, 3):
+                    # 외곽선 (4K 해상도에 맞춰 증가)
+                    for adj_x in range(-6, 7):
+                        for adj_y in range(-6, 7):
                             if adj_x != 0 or adj_y != 0:
                                 try:
                                     draw.text((x + adj_x, y + adj_y), bottom_text, font=subtitle_font, fill=(0, 0, 0))
@@ -690,13 +711,13 @@ clean background with space for text placement.
                     draw.text((x, y), bottom_text, font=subtitle_font, fill=(200, 200, 200))
                 except Exception as e:
                     print(f"   ⚠️ 하단 텍스트 렌더링 실패: {e}")
-                    x = (self.THUMBNAIL_SIZE[0] - len(bottom_text) * 25) // 2
-                    y = self.THUMBNAIL_SIZE[1] - 80
+                    x = (self.THUMBNAIL_SIZE[0] - len(bottom_text) * 75) // 2  # 4K 해상도에 맞춰 증가
+                    y = self.THUMBNAIL_SIZE[1] - 240  # 4K 해상도에 맞춰 증가
                     draw.text((x, y), bottom_text, fill=(200, 200, 200))
             else:
                 # 폰트가 없으면 기본 텍스트
-                x = (self.THUMBNAIL_SIZE[0] - len(bottom_text) * 25) // 2
-                y = self.THUMBNAIL_SIZE[1] - 80
+                x = (self.THUMBNAIL_SIZE[0] - len(bottom_text) * 50) // 2  # 해상도 2배에 맞춰 증가
+                y = self.THUMBNAIL_SIZE[1] - 160  # 해상도 2배에 맞춰 증가
                 draw.text((x, y), bottom_text, fill=(200, 200, 200))
         
         # 배경과 오버레이 합성
@@ -712,8 +733,8 @@ clean background with space for text placement.
         output_path = Path(output_path)
         output_path.parent.mkdir(parents=True, exist_ok=True)
         
-        # 저장
-        final.save(output_path, 'JPEG', quality=95)
+        # 저장 (고품질)
+        final.save(output_path, 'JPEG', quality=98, optimize=True)
         print(f"✅ 썸네일 생성 완료: {output_path}")
         
         return str(output_path)

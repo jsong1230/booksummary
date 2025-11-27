@@ -22,10 +22,8 @@ def translate_book_title(book_title: str) -> str:
         "소년이 온다": "Human Acts",
         "Human Acts": "Human Acts",  # 영어 제목은 그대로 반환
         "The Boy is Coming": "Human Acts",  # 구버전 호환성
-        "삼국지": "Three Kingdoms",
-        "삼국지 연의": "Romance of the Three Kingdoms",
-        "삼국지연의": "Romance of the Three Kingdoms",
         "작별인사": "Farewell",
+        "Farewell": "Farewell",  # 영어 제목은 그대로 반환
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -49,10 +47,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "The Prince": "군주론",
         "Zorba the Greek": "그리스인 조르바",
         "Crime and Punishment": "죄와 벌",
-        "Human Acts": "소년이 온다",
-        "The Boy is Coming": "소년이 온다",  # 구버전 호환성
-        "Three Kingdoms": "삼국지",
-        "Romance of the Three Kingdoms": "삼국지 연의",
+        "The Boy is Coming": "소년이 온다",
         "Farewell": "작별인사",
     }
     
@@ -94,10 +89,8 @@ def translate_author_name(author: str) -> str:
         "표도르 도스토옙스키": "Fyodor Dostoevsky",
         "한강": "Han Kang",
         "한강 작가": "Han Kang",
-        "나관중": "Luo Guanzhong",
-        "나관중 작가": "Luo Guanzhong",
-        "김영하": "Kim Young-ha",
-        "김영하 작가": "Kim Young-ha",
+        "김영하": "Youngha Kim",
+        "Youngha Kim": "Youngha Kim",  # 영어 이름은 그대로 반환
     }
     
     if author in author_map:
@@ -121,8 +114,6 @@ def translate_author_name_to_korean(author: str) -> str:
         "Niccolò Machiavelli": "니콜로 마키아벨리",
         "Nikos Kazantzakis": "니코스 카잔차키스",
         "Han Kang": "한강",
-        "Luo Guanzhong": "나관중",
-        "Kim Young-ha": "김영하",
     }
     
     if author in reverse_author_map:

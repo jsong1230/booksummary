@@ -516,6 +516,8 @@ class ImageDownloader:
         AI를 사용하여 책 내용 기반 이미지 검색 키워드 생성
         - 책의 내용, 주제, 배경, 감정, 주요 장면 등을 분석하여 구체적인 키워드 생성
         """
+        from utils.file_utils import safe_title
+        
         # 책 정보 로드 시도
         book_info = None
         if image_dir:
@@ -527,6 +529,24 @@ class ImageDownloader:
                 except:
                     pass
         
+        # Summary 파일 로드 시도 (더 정확한 키워드 생성을 위해)
+        summary_text = None
+        summary_path_ko = Path("assets/summaries") / f"{safe_title(book_title)}_summary_ko.txt"
+        summary_path_en = Path("assets/summaries") / f"{safe_title(book_title)}_summary_en.txt"
+        
+        if summary_path_ko.exists():
+            try:
+                with open(summary_path_ko, 'r', encoding='utf-8') as f:
+                    summary_text = f.read()[:2000]  # 처음 2000자만 사용
+            except:
+                pass
+        elif summary_path_en.exists():
+            try:
+                with open(summary_path_en, 'r', encoding='utf-8') as f:
+                    summary_text = f.read()[:2000]
+            except:
+                pass
+        
         # 프롬프트 구성 - 책 내용, 주제, 작가와 직접 연관된 키워드만 생성
         # 한강의 작품인 경우 한국 관련 키워드 포함
         is_korean_author = author and ("한강" in author or "Han Kang" in author)
@@ -537,6 +557,10 @@ class ImageDownloader:
 책 제목: {book_title}
 저자: {author or "알 수 없음"}
 """
+        
+        # Summary 내용 추가 (가장 중요)
+        if summary_text:
+            prompt += f"\n책 요약 내용:\n{summary_text}\n"
         
         if book_info:
             if book_info.get('description'):

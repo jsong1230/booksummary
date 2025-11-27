@@ -159,69 +159,6 @@ class YouTubeUploader:
             print(f"   상세 오류:\n{traceback.format_exc()}")
             return None
     
-    def update_video_metadata(
-        self,
-        video_id: str,
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        tags: Optional[list] = None,
-        category_id: str = '22'
-    ) -> bool:
-        """이미 업로드된 영상의 메타데이터 업데이트"""
-        try:
-            # 현재 영상 정보 가져오기
-            video_response = self.youtube.videos().list(
-                part='snippet,status',
-                id=video_id
-            ).execute()
-            
-            if not video_response.get('items'):
-                print(f"❌ 영상을 찾을 수 없습니다: {video_id}")
-                return False
-            
-            video = video_response['items'][0]
-            snippet = video['snippet']
-            
-            # 업데이트할 정보 준비
-            updated_snippet = {
-                'title': title if title else snippet.get('title', ''),
-                'description': description if description else snippet.get('description', ''),
-                'tags': tags if tags else snippet.get('tags', []),
-                'categoryId': category_id
-            }
-            
-            # 기존 정보 유지 (채널 ID 등)
-            updated_snippet['channelId'] = snippet.get('channelId')
-            updated_snippet['defaultLanguage'] = snippet.get('defaultLanguage', 'ko')
-            updated_snippet['defaultAudioLanguage'] = snippet.get('defaultAudioLanguage', 'ko')
-            
-            # 업데이트 요청
-            update_request = self.youtube.videos().update(
-                part='snippet',
-                body={
-                    'id': video_id,
-                    'snippet': updated_snippet
-                }
-            )
-            
-            response = update_request.execute()
-            print(f"✅ 영상 메타데이터 업데이트 완료: {response['snippet']['title']}")
-            return True
-            
-        except HttpError as e:
-            error_status = e.resp.status if hasattr(e.resp, 'status') else None
-            print(f"❌ YouTube API 오류: {e}")
-            if error_status == 403:
-                print("   권한이 없습니다. OAuth2 스코프를 확인하세요.")
-            elif error_status == 401:
-                print("   인증이 만료되었습니다. 토큰을 갱신하세요.")
-            return False
-        except Exception as e:
-            print(f"❌ 업데이트 실패: {e}")
-            import traceback
-            print(f"   상세 오류:\n{traceback.format_exc()}")
-            return False
-    
     def _resumable_upload(self, insert_request):
         """재개 가능한 업로드 (개선된 재시도 로직)"""
         import time
