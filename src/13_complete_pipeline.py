@@ -110,23 +110,41 @@ class CompletePipeline:
         print(f"   [DEBUG] 총 오디오 파일 수: {len(audio_files)}")
         
         # 1순위: 정확한 패턴 매칭 ({book_title}_{type}_{lang}.{ext})
+        import unicodedata
+        
+        # 한글 제목 정규화 (NFC)
+        book_title_nfc = unicodedata.normalize('NFC', book_title) if book_title else ""
+        safe_title_nfc = unicodedata.normalize('NFC', safe_title_str) if safe_title_str else ""
+        
         for audio_file in audio_files:
             filename = audio_file.stem.lower()
             stem = audio_file.stem
+            stem_nfc = unicodedata.normalize('NFC', stem)
             
             # 책 제목이 파일명에 포함되어 있는지 확인
             title_match = False
-            if safe_title_lower and len(safe_title_lower) > 1:
+            
+            # 한글 제목의 경우 원본 제목 우선 확인 (NFC 정규화)
+            if book_title_nfc and book_title_nfc in stem_nfc:
+                title_match = True
+            # safe_title로 변환한 제목 확인 (NFC 정규화)
+            elif safe_title_nfc and safe_title_nfc in stem_nfc:
+                title_match = True
+            # 원본 제목 직접 확인 (fallback)
+            elif book_title and book_title in stem:
+                title_match = True
+            # safe_title 직접 확인 (fallback)
+            elif safe_title_str and safe_title_str in stem:
+                title_match = True
+            # 소문자 변환 버전 확인 (영어 제목용)
+            elif safe_title_lower and len(safe_title_lower) > 1:
                 if safe_title_lower in filename or safe_title_lower in stem:
                     title_match = True
-            # 한글 제목의 경우 원본 제목도 확인
-            if book_title and book_title in stem:
-                title_match = True
             # 영어 제목의 경우 (Three Kingdoms 등)
-            if book_title and book_title.lower().replace(' ', '_') in filename:
+            elif book_title and book_title.lower().replace(' ', '_') in filename:
                 title_match = True
             # 특수 케이스: 삼국지 <-> Three Kingdoms 매칭
-            if book_title == "삼국지" and ("three_kingdoms" in filename or "three_kingdom" in filename):
+            elif book_title == "삼국지" and ("three_kingdoms" in filename or "three_kingdom" in filename):
                 title_match = True
             
             if not title_match:
