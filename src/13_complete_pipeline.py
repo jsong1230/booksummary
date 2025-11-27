@@ -50,7 +50,19 @@ ThumbnailUploader = upload_thumbnail_module.ThumbnailUploader
 
 # 공통 유틸리티
 from utils.file_utils import safe_title, load_book_info
-from utils.translations import translate_book_title
+from utils.translations import translate_book_title, translate_author_name
+
+# 08_generate_summary.py (요약 생성용)
+summary_spec = importlib.util.spec_from_file_location("generate_summary", Path(__file__).parent / "08_generate_summary.py")
+summary_module = importlib.util.module_from_spec(summary_spec)
+summary_spec.loader.exec_module(summary_module)
+SummaryGenerator = summary_module.SummaryGenerator
+
+# 09_text_to_speech.py (TTS용)
+tts_spec = importlib.util.spec_from_file_location("text_to_speech", Path(__file__).parent / "09_text_to_speech.py")
+tts_module = importlib.util.module_from_spec(tts_spec)
+tts_spec.loader.exec_module(tts_module)
+TTSEngine = tts_module.TTSEngine
 
 
 class CompletePipeline:
@@ -61,6 +73,8 @@ class CompletePipeline:
         self.author = None
         self.safe_title = None
         self.book_info = None
+        self.summary_generator = SummaryGenerator()
+        self.tts_engine = TTSEngine()
     
     def find_audio_files(self, book_title: str, audio_dir: str = "assets/audio") -> Dict[str, Dict[str, Optional[Path]]]:
         """
@@ -391,6 +405,59 @@ class CompletePipeline:
             if not review_audio:
                 print(f"⚠️ {lang.upper()} review 오디오를 찾을 수 없습니다. 건너뜁니다.")
                 continue
+            
+            # Summary 오디오가 없으면 자동 생성
+            if not summary_audio:
+                print(f"\n📚 {lang.upper()} Summary 오디오가 없습니다. 자동 생성합니다...")
+                try:
+                    # 언어별 책 제목과 저자 설정
+                    if lang == "en":
+                        summary_book_title = translate_book_title(self.book_title)
+                        summary_author = translate_author_name(self.author) if self.author else None
+                    else:
+                        summary_book_title = self.book_title
+                        summary_author = self.author
+                    
+                    # 요약 텍스트 생성 (Hook → Summary → Bridge 구조)
+                    print(f"   📝 요약 텍스트 생성 중...")
+                    summary_text = self.summary_generator.generate_summary(
+                        book_title=summary_book_title,
+                        author=summary_author,
+                        language=lang,
+                        duration_minutes=5.0,
+                        use_engaging_opening=True  # Hook → Summary → Bridge 구조 사용
+                    )
+                    
+                    # 요약 텍스트 저장
+                    summary_text_path = self.summary_generator.save_summary(
+                        summary=summary_text,
+                        book_title=self.book_title,
+                        language=lang
+                    )
+                    
+                    # TTS로 요약 음성 생성
+                    print(f"   🎤 TTS 요약 음성 생성 중...")
+                    lang_suffix = "ko" if lang == "ko" else "en"
+                    summary_audio_path = f"assets/audio/{self.safe_title}_summary_{lang_suffix}.mp3"
+                    
+                    # 한국어는 nova, 영어는 alloy
+                    voice = "nova" if lang == "ko" else "alloy"
+                    
+                    self.tts_engine.generate_speech(
+                        text=summary_text,
+                        output_path=summary_audio_path,
+                        voice=voice,
+                        language=lang,
+                        model="tts-1-hd"
+                    )
+                    
+                    summary_audio = Path(summary_audio_path)
+                    print(f"   ✅ Summary 오디오 생성 완료: {summary_audio.name}")
+                    
+                except Exception as e:
+                    print(f"   ❌ Summary 생성 실패: {e}")
+                    print(f"   ⚠️ Summary 없이 review만 사용하여 영상을 제작합니다.")
+                    summary_audio = None
             
             # 영상 생성
             if not skip_video:

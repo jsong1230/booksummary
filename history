@@ -44,6 +44,38 @@
 - .gitignore 설정
 - 자동 커밋/푸시 스크립트 작성
 
+## 2025-11-27
+
+### Summary 자동 생성 기능 추가
+- **13_complete_pipeline.py 개선**
+  - Summary 오디오가 없으면 자동 생성하는 로직 추가
+  - 요약 텍스트 생성 → TTS 변환 → 영상 생성 순서로 진행
+  - Hook → Summary → Bridge 구조로 요약 생성 (5분 분량)
+
+### 유튜브 롱폼 영상용 요약 템플릿 문서화
+- **docs/SUMMARY_TEMPLATE.md 생성**
+  - Hook → Summary → Bridge 구조 가이드
+  - Hook 스타일 예시 (질문형, 통계, 역설, 감정적 장면)
+  - 요약 작성 가이드 및 Bridge 작성 가이드
+  - README.md에 템플릿 정보 추가
+
+### 영어 썸네일 폰트 문제 수정
+- **src/utils/translations.py 개선**
+  - "삼국지연의" → "Romance of the Three Kingdoms" 매핑 추가
+  - "나관중" → "Luo Guanzhong" 매핑 추가
+  - 영어 썸네일에서 한글이 깨지는 문제 해결
+
+### 코드 개선
+- **src/08_generate_summary.py**
+  - Hook → Summary → Bridge 구조 프롬프트 추가
+  - use_engaging_opening=True 옵션으로 자동 적용
+- **src/10_create_video_with_summary.py**
+  - 요약 생성 시 use_engaging_opening=True 기본값 적용
+
+### 삼국지연의 영상 생성 완료
+- 한글/영어 영상 생성 완료 (Summary 포함)
+- 메타데이터 및 썸네일 생성 완료
+
 ## 다음 작업
 - Phase 4: 영상 합성 및 편집 기능 구현
 - 테스트 및 버그 수정

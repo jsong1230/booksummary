@@ -91,14 +91,26 @@ booksummary/
 │   ├── audio/          # NotebookLM 오디오 및 생성된 요약 오디오
 │   ├── images/         # 책 표지 및 무드 이미지
 │   └── summaries/      # 생성된 요약 텍스트
+├── docs/               # 문서
+│   └── SUMMARY_TEMPLATE.md  # 유튜브 롱폼 영상용 요약 템플릿 (Hook → Summary → Bridge)
 ├── output/             # 생성된 영상 및 썸네일
 ├── src/                # 소스 코드
-│   ├── 08_generate_summary.py      # 요약 텍스트 생성
+│   ├── 08_generate_summary.py      # 요약 텍스트 생성 (Hook → Summary → Bridge 구조)
 │   ├── 09_text_to_speech.py        # TTS 변환
 │   ├── 10_create_video_with_summary.py  # 영상 합성 (요약+리뷰)
 │   └── ...
 └── README.md           # 이 파일
 ```
+
+## 요약 템플릿
+
+유튜브 롱폼 영상용 5분 분량 오프닝 서머리는 다음 구조로 생성됩니다:
+
+- **[HOOK]**: 강력한 첫 문장 (3초 만에 시청자 몰입)
+- **[SUMMARY]**: 5분 분량 핵심 요약 (주제, 주요 아이디어, 예시/일화)
+- **[BRIDGE]**: NotebookLM 상세 분석으로 자연스럽게 연결
+
+자세한 템플릿 가이드는 `docs/SUMMARY_TEMPLATE.md`를 참고하세요.
 
 ## 라이선스
 

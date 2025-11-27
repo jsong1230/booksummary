@@ -24,6 +24,7 @@ def translate_book_title(book_title: str) -> str:
         "The Boy is Coming": "Human Acts",  # 구버전 호환성
         "삼국지": "Three Kingdoms",
         "삼국지 연의": "Romance of the Three Kingdoms",
+        "삼국지연의": "Romance of the Three Kingdoms",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -91,6 +92,8 @@ def translate_author_name(author: str) -> str:
         "표도르 도스토옙스키": "Fyodor Dostoevsky",
         "한강": "Han Kang",
         "한강 작가": "Han Kang",
+        "나관중": "Luo Guanzhong",
+        "나관중 작가": "Luo Guanzhong",
     }
     
     if author in author_map:
@@ -114,6 +117,7 @@ def translate_author_name_to_korean(author: str) -> str:
         "Niccolò Machiavelli": "니콜로 마키아벨리",
         "Nikos Kazantzakis": "니코스 카잔차키스",
         "Han Kang": "한강",
+        "Luo Guanzhong": "나관중",
     }
     
     if author in reverse_author_map:

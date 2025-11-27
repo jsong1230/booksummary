@@ -114,7 +114,8 @@ class VideoWithSummaryPipeline:
                     book_title=summary_book_title,
                     author=summary_author,
                     language=language,
-                    duration_minutes=summary_duration_minutes
+                    duration_minutes=summary_duration_minutes,
+                    use_engaging_opening=True  # Hook → Summary → Bridge 구조 사용
                 )
                 
                 # 요약 텍스트 저장
