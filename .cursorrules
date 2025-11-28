@@ -48,10 +48,18 @@
    - 사용법 변경 시 업데이트
    - 주요 개선사항 반영
 
+4. **ildangbaek_books.csv 업데이트**
+   - 유튜브 채널에 업로드된 책 정보 업데이트
+   - `python src/13_update_csv_from_youtube.py` 실행하여 최신 업로드 정보 반영
+   - `status` 필드를 `uploaded`로 업데이트
+   - `youtube_uploaded` 필드에 업로드 날짜 기록
+   - 업로드된 책의 `video_created` 필드도 함께 업데이트 (없는 경우)
+
 **커밋 전 체크리스트:**
 - [ ] todo 파일 업데이트 완료
 - [ ] history 파일 업데이트 완료 (정확한 날짜 확인: `date +"%Y-%m-%d"`)
 - [ ] README.md 업데이트 완료
+- [ ] ildangbaek_books.csv 업데이트 완료 (유튜브 업로드 정보 반영)
 - [ ] 변경사항 확인 (git status)
 - [ ] 커밋 메시지 작성
 - [ ] **사용자에게 최종 확인 요청** (커밋/푸시 실행 전)

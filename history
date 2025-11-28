@@ -188,3 +188,34 @@
   - URL: https://www.youtube.com/watch?v=Je7tPM-5k-s
 - [2] [한국어] 호밀밭의 파수꾼 책 리뷰 | [Korean] The Catcher in the Rye Book Review | 일당백 스타일
   - URL: https://www.youtube.com/watch?v=kxiAn0TW0_s
+
+### 유튜브 채널에서 CSV 자동 업데이트 기능 추가
+- **새 스크립트**: `src/13_update_csv_from_youtube.py`
+  - 유튜브 채널에 업로드된 책 정보를 자동으로 CSV에 반영
+  - YouTube Data API를 사용하여 채널의 모든 비디오 검색
+  - 비디오 제목과 책 제목 매칭 (별칭 지원: "노르웨이의 숲" = "상실의 시대")
+  - Shorts 비디오 자동 제외
+  - `status`, `youtube_uploaded`, `video_created` 필드 자동 업데이트
+
+### 깊이 있는 URL 수집 기능 추가
+- **새 스크립트**: `src/14_collect_deep_urls_for_notebooklm.py`
+  - 유튜브 롱폼 북튜브를 위한 깊이 있는 자료 수집
+  - YouTube 영상(30분 이상) 우선 수집 (전체의 50% 목표)
+  - PDF 파일, 논문, 학술 사이트 검색 지원
+  - 특정 YouTube 채널 우선순위 검색
+    - 최우선: @1DANG100 (일당백)
+    - 한글 우선순위: @thewinterbookstore, @chaegiljji, @humanitylearning, @mkkimtv
+    - 영어 우선순위: @BTFC, @ClimbtheStacks, @JackEdwards, @arielbissett
+  - 학술 사이트: academia.edu, researchgate.net, jstor.org, dbpia.co.kr, kci.go.kr, riss.kr 등
+  - 결과 저장: `assets/urls/{책제목}_notebooklm.md` (URL만 저장)
+
+### URL 수집 프롬프트 문서 작성
+- **새 문서**: `docs/URL_COLLECTION_PROMPT.md`
+  - GPT/Gemini에게 직접 사용할 수 있는 프롬프트 템플릿
+  - 검색 쿼리, 검증 규칙, 채널 우선순위 등 상세 가이드 포함
+  - 예시 프롬프트 제공
+
+### 프로젝트 규칙 업데이트
+- `.cursorrules`에 CSV 업데이트 규칙 추가
+  - 커밋 전 필수 작업에 `ildangbaek_books.csv` 업데이트 항목 추가
+  - 유튜브 채널 업로드 정보 반영 방법 명시

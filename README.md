@@ -124,6 +124,17 @@ booksummary/
 - AI 기반 키워드 추출로 더 정확한 무드 이미지 수집
 - Unsplash/Pexels API를 통한 고품질 이미지 다운로드
 
+### 유튜브 채널에서 CSV 자동 업데이트
+- 유튜브 채널에 업로드된 책 정보를 자동으로 CSV에 반영
+- `python src/13_update_csv_from_youtube.py` 실행
+- 비디오 제목과 책 제목 자동 매칭 (별칭 지원)
+
+### 깊이 있는 URL 수집
+- 유튜브 롱폼 북튜브를 위한 깊이 있는 자료 수집
+- YouTube 영상(30분 이상), PDF, 논문, 학술 사이트 검색
+- 특정 YouTube 채널 우선순위 검색 (일당백 최우선)
+- `python src/14_collect_deep_urls_for_notebooklm.py --csv` 실행
+
 ## 라이선스
 
 MIT License
