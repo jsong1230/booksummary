@@ -219,3 +219,52 @@
 - `.cursorrules`에 CSV 업데이트 규칙 추가
   - 커밋 전 필수 작업에 `ildangbaek_books.csv` 업데이트 항목 추가
   - 유튜브 채널 업로드 정보 반영 방법 명시
+
+## 2025-11-29
+
+### YouTube 업로드 완료
+- 업로드된 책: Animal_Farm_with_summary_en, 동물농장_with_summary_ko
+- 업로드된 영상 수: 2개
+- [1] [English] 동물농장 Book Review | [영어] 동물농장 책 리뷰 | Auto-Generated
+  - URL: https://www.youtube.com/watch?v=VJevqE1i5eY
+- [2] [한국어] 동물농장 책 리뷰 | [Korean] 동물농장 Book Review | 일당백 스타일
+  - URL: https://www.youtube.com/watch?v=7kKPZNp7Vqc
+
+## 2025-11-30
+
+### YouTube 업로드 완료
+- 업로드된 책: 동물농장_with_summary_ko
+- 업로드된 영상 수: 1개
+- [1] [한국어] 동물농장 책 리뷰 | [Korean] 동물농장 Book Review | 일당백 스타일
+  - URL: https://www.youtube.com/watch?v=v3HWKy3I384
+
+## 2025-11-30
+
+### 동물농장 영상 제작 및 업로드
+- **한글 영상 재생성**: 요약 오디오 포함 버전으로 재생성
+  - 파일: `output/동물농장_review_with_summary_ko.mp4` (219MB, 약 18.7분)
+  - 구성: 요약(3.9분) + 3초 간격 + 리뷰(14.8분)
+  - YouTube 업로드: https://www.youtube.com/watch?v=v3HWKy3I384
+
+### 햄릿 영상 제작 및 업로드
+- **요약 생성**: 한글/영어 요약 텍스트 생성 (MD 파일 기반)
+- **TTS 오디오 생성**: 한글(nova), 영어(alloy) 음성 생성
+- **이미지 다운로드**: 82개 무드 이미지 수집
+- **영상 제작**:
+  - 한글: `output/햄릿_review_with_summary_ko.mp4` (205MB, 약 17.5분)
+  - 영어: `output/Hamlet_review_with_summary_en.mp4` (188MB, 약 16분)
+- **썸네일 생성**: PNG 파일을 썸네일 크기로 리사이즈하여 교체 (2MB 이하로 압축)
+- **YouTube 업로드**: 2개 영상 업로드 완료
+  - [1] [English] Hamlet Book Review: https://www.youtube.com/watch?v=BcNpf_bYNNI
+  - [2] [한국어] 햄릿 책 리뷰: https://www.youtube.com/watch?v=pe4LYzG_2ts
+
+### 태그 생성 기능 개선
+- **추천 기관 태그 추가** (`src/08_create_and_preview_videos.py`, `src/05_auto_upload.py`)
+  - 세계적/국내기관 및 미디어: 뉴욕타임즈, 아마존, 타임지, CNN, 뉴스위크
+  - 주요 서점: 교보문고, 알라딘, YES24
+  - 주요 도서관: 국립중앙도서관, 서울도서관
+  - 정부기관: 문화체육관광부, 한국출판문화산업진흥원
+  - 유명 대학: 서울대학교, 고려대학교, 연세대학교, 하버드대학교, 시카고대학교, 도쿄대학교, 베이징대학교, 미국대학위원회
+  - 문학상: 노벨문학상, 퓰리처상, 맨부커상, 공쿠르상, 르노도상
+  - 기타: 출판저널, 학교도서관저널, 서평지, 독서운동, 환경책선정위원회
+  - 우선순위에 따라 선택적으로 추가 (YouTube 태그 제한 고려)

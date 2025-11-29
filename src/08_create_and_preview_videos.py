@@ -289,21 +289,74 @@ def generate_tags(book_title: str = None, book_info: Optional[Dict] = None, lang
             institution_tags_en.append('PulitzerPrize')
             institution_tags_ko.append('퓰리처상')
     
-    # 일반적인 추천 기관 태그 (선택적으로 추가)
-    # 주요 미디어/서점
-    general_institution_tags_en = [
-        'NewYorkTimes', 'Amazon', 'TIMEMagazine', 'CNN', 'Newsweek',
-        'Harvard', 'SeoulNationalUniversity', 'TokyoUniversity'
+    # 일반적인 추천 기관 태그 (책리뷰 채널에 적합한 기관 목록)
+    # 세계적/국내기관 및 미디어
+    media_institution_tags_en = [
+        'NewYorkTimes', 'Amazon', 'TIMEMagazine', 'CNN', 'Newsweek'
     ]
-    general_institution_tags_ko = [
-        '뉴욕타임즈', '아마존', '타임지', '교보문고', '알라딘', 'YES24',
-        '서울대학교', '하버드대학교', '국립중앙도서관'
+    media_institution_tags_ko = [
+        '뉴욕타임즈', '아마존', '타임지', 'CNN', '뉴스위크'
     ]
     
-    # 일반 기관 태그는 일부만 선택적으로 추가 (너무 많으면 태그 제한 초과)
-    # 우선순위가 높은 것들만 선택
-    institution_tags_en.extend(general_institution_tags_en[:3])  # 최대 3개만
-    institution_tags_ko.extend(general_institution_tags_ko[:3])  # 최대 3개만
+    # 주요 서점
+    bookstore_tags_ko = [
+        '교보문고', '알라딘', 'YES24'
+    ]
+    
+    # 주요 도서관
+    library_tags_ko = [
+        '국립중앙도서관', '서울도서관'
+    ]
+    
+    # 정부기관
+    government_tags_ko = [
+        '문화체육관광부', '한국출판문화산업진흥원'
+    ]
+    
+    # 유명 대학·교육기관
+    university_tags_en = [
+        'Harvard', 'UniversityOfChicago', 'TokyoUniversity', 'PekingUniversity', 'CollegeBoard'
+    ]
+    university_tags_ko = [
+        '서울대학교', '고려대학교', '연세대학교', '하버드대학교', '시카고대학교', 
+        '도쿄대학교', '베이징대학교', '미국대학위원회'
+    ]
+    
+    # 문학상 및 수상기구 (일부는 이미 위에서 조건부로 추가됨)
+    literary_award_tags_en = [
+        'GoncourtPrize', 'RenaudotPrize'
+    ]
+    literary_award_tags_ko = [
+        '공쿠르상', '르노도상'
+    ]
+    
+    # 기타 추천 출판사/단체
+    other_tags_ko = [
+        '출판저널', '학교도서관저널', '서평지', '독서운동', '환경책선정위원회'
+    ]
+    
+    # 모든 기관 태그를 우선순위에 따라 추가
+    # 미디어 기관 (높은 우선순위)
+    institution_tags_en.extend(media_institution_tags_en[:3])  # 최대 3개
+    institution_tags_ko.extend(media_institution_tags_ko[:3])  # 최대 3개
+    
+    # 서점 (중간 우선순위)
+    institution_tags_ko.extend(bookstore_tags_ko[:2])  # 최대 2개
+    
+    # 도서관 (중간 우선순위)
+    institution_tags_ko.extend(library_tags_ko[:1])  # 최대 1개
+    
+    # 대학 (높은 우선순위)
+    institution_tags_en.extend(university_tags_en[:3])  # 최대 3개
+    institution_tags_ko.extend(university_tags_ko[:3])  # 최대 3개
+    
+    # 문학상 (조건부로 이미 추가된 것 외에)
+    institution_tags_en.extend(literary_award_tags_en[:1])  # 최대 1개
+    institution_tags_ko.extend(literary_award_tags_ko[:1])  # 최대 1개
+    
+    # 기타 (낮은 우선순위, 공간이 있을 때만)
+    if len(institution_tags_ko) < 10:  # 공간이 있으면
+        institution_tags_ko.extend(other_tags_ko[:2])  # 최대 2개
     
     # 책 제목 기반 태그
     ko_book_tags = []
@@ -361,8 +414,9 @@ def generate_tags(book_title: str = None, book_info: Optional[Dict] = None, lang
                 ko_book_tags.append(category)
     
     # 태그 결합 (중복 제거)
-    ko_tags = list(dict.fromkeys(ko_base_tags + ko_book_tags))  # 순서 유지하며 중복 제거
-    en_tags = list(dict.fromkeys(en_base_tags + en_book_tags))
+    # 기관 태그를 기본 태그와 책 태그 사이에 추가 (우선순위 고려)
+    ko_tags = list(dict.fromkeys(ko_base_tags + institution_tags_ko + ko_book_tags))  # 순서 유지하며 중복 제거
+    en_tags = list(dict.fromkeys(en_base_tags + institution_tags_en + en_book_tags))
     
     # YouTube 태그 제한 (최대 500자, 약 30-40개 태그)
     # 각 태그는 보통 10-15자이므로 최대 30개 정도로 제한

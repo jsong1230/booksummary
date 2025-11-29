@@ -185,12 +185,39 @@ This video was automatically generated using NotebookLM and AI.
             lang: 언어 설정 ("ko", "en", "both")
         """
         ko_tags = ['책리뷰', '독서', '북튜버', '책추천', '일당백', '독서법', '책읽기']
-        en_tags = ['BookReview', 'Reading', 'BookTube', 'BookRecommendation', 'BookReview', 'ReadingTips', 'Books']
+        en_tags = ['BookReview', 'Reading', 'BookTube', 'BookRecommendation', 'ReadingTips', 'Books']
+        
+        # 추천 기관 태그 추가
+        # 미디어 기관
+        ko_tags.extend(['뉴욕타임즈', '아마존', '타임지', 'CNN', '뉴스위크'])
+        en_tags.extend(['NewYorkTimes', 'Amazon', 'TIMEMagazine', 'CNN', 'Newsweek'])
+        
+        # 주요 서점
+        ko_tags.extend(['교보문고', '알라딘', 'YES24'])
+        
+        # 주요 도서관
+        ko_tags.extend(['국립중앙도서관', '서울도서관'])
+        
+        # 유명 대학
+        ko_tags.extend(['서울대학교', '고려대학교', '연세대학교', '하버드대학교', '시카고대학교', '도쿄대학교', '베이징대학교'])
+        en_tags.extend(['Harvard', 'UniversityOfChicago', 'TokyoUniversity', 'PekingUniversity'])
+        
+        # 문학상
+        ko_tags.extend(['노벨문학상', '퓰리처상', '맨부커상', '공쿠르상', '르노도상'])
+        en_tags.extend(['NobelPrize', 'PulitzerPrize', 'ManBookerPrize', 'GoncourtPrize', 'RenaudotPrize'])
+        
+        # 중복 제거
+        ko_tags = list(dict.fromkeys(ko_tags))
+        en_tags = list(dict.fromkeys(en_tags))
+        
+        # YouTube 태그 제한 고려 (최대 30개)
+        ko_tags = ko_tags[:30]
+        en_tags = en_tags[:30]
         
         if lang == "ko":
-            return ko_tags
+            return ko_tags + en_tags[:10]  # 한글 우선, 영어 일부 추가
         elif lang == "en":
-            return en_tags
+            return en_tags + ko_tags[:10]  # 영어 우선, 한글 일부 추가
         else:  # both
             return ko_tags + en_tags
     
