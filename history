@@ -268,3 +268,35 @@
   - 문학상: 노벨문학상, 퓰리처상, 맨부커상, 공쿠르상, 르노도상
   - 기타: 출판저널, 학교도서관저널, 서평지, 독서운동, 환경책선정위원회
   - 우선순위에 따라 선택적으로 추가 (YouTube 태그 제한 고려)
+
+## 2025-11-30
+
+### 벅아이(Buckeye) 영상 제작 및 업로드 완료
+- **책 정보**: Buckeye (Patrick Ryan 저)
+- **작업 내용**:
+  - 한글 요약 생성 (5분 목표)
+  - 요약 TTS 오디오 생성 (한글/영어)
+  - 이미지 다운로드 (96개 무드 이미지)
+  - 한글/영어 영상 제작 (요약 + 리뷰 오디오)
+  - 썸네일 생성 및 PNG 파일로 교체 (2MB 이하 압축)
+  - 메타데이터 생성 (한글/영어)
+- **YouTube 업로드**:
+  - 업로드된 영상 수: 2개
+  - [1] [English] Buckeye Book Review | [영어] 벅아이 책 리뷰 | Auto-Generated
+    - URL: https://www.youtube.com/watch?v=YTkz7T-r7OU
+    - 파일 크기: 161.26 MB
+  - [2] [한국어] 벅아이 책 리뷰 | [Korean] Buckeye Book Review | 일당백 스타일
+    - URL: https://www.youtube.com/watch?v=0t_VwtyyDN8
+    - 파일 크기: 163.62 MB
+- **CSV 업데이트**: data/ildangbaek_books.csv에 벅아이 정보 추가
+
+### 메타데이터 생성 로직 개선
+- **문제**: 영어 메타데이터의 한글 부분에 영어 제목이 그대로 들어가는 문제
+- **해결**: 
+  - `translate_book_title_to_korean` 함수에 "Buckeye" → "벅아이" 매핑 추가
+  - `translate_book_title` 함수에 "벅아이" → "Buckeye" 매핑 추가
+  - `generate_title` 함수에서 번역 실패 시 발음 변환 매핑 사용
+  - `src/08_create_and_preview_videos.py`와 `src/05_auto_upload.py` 모두 수정
+- **결과**: 
+  - 영어 메타데이터: `[English] Buckeye Book Review | [영어] 벅아이 책 리뷰`
+  - 한글 메타데이터: `[한국어] 벅아이 책 리뷰 | [Korean] Buckeye Book Review`

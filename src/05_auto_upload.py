@@ -95,12 +95,37 @@ class AutoYouTubeUploader:
             book_title: 책 제목
             lang: 언어 설정 ("ko", "en", "both")
         """
+        from utils.translations import translate_book_title, translate_book_title_to_korean, is_english_title
+        
+        # book_title이 영어인지 한글인지 판단
+        if is_english_title(book_title):
+            # 영어 제목이 들어온 경우: 한글 제목으로 변환
+            ko_title = translate_book_title_to_korean(book_title)
+            en_title = book_title  # 이미 영어
+            
+            # ko_title이 여전히 영어인 경우 (번역 실패), 한글 발음으로 변환 시도
+            if is_english_title(ko_title):
+                # 간단한 발음 변환 매핑 (추가 필요시 확장)
+                pronunciation_map = {
+                    "Buckeye": "벅아이",
+                    "Animal Farm": "애니멀 팜",
+                    "Hamlet": "햄릿",
+                }
+                ko_title = pronunciation_map.get(ko_title, ko_title)
+        else:
+            # 한글 제목이 들어온 경우: 영어 제목으로 변환
+            ko_title = book_title  # 이미 한글
+            en_title = translate_book_title(book_title)
+        
         if lang == "ko":
-            return f"{book_title} 책 리뷰 | 일당백 스타일"
+            # 한글 먼저, 영어 나중
+            return f"[한국어] {ko_title} 책 리뷰 | [Korean] {en_title} Book Review | 일당백 스타일"
         elif lang == "en":
-            return f"{book_title} Book Review | Auto-Generated"
+            # 영어 먼저, 한글 나중
+            # 중요: 한글 부분에는 반드시 한글 제목이 들어가야 함
+            return f"[English] {en_title} Book Review | [영어] {ko_title} 책 리뷰 | Auto-Generated"
         else:  # both
-            return f"{book_title} 책 리뷰 | Book Review | 일당백 스타일"
+            return f"{ko_title} 책 리뷰 | {en_title} Book Review | 일당백 스타일"
     
     def generate_description(self, book_info: Optional[Dict] = None, lang: str = "both") -> str:
         """

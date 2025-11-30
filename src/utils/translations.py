@@ -26,6 +26,9 @@ def translate_book_title(book_title: str) -> str:
         "Farewell": "Farewell",  # 영어 제목은 그대로 반환
         "호밀밭의 파수꾼": "The Catcher in the Rye",
         "The Catcher in the Rye": "The Catcher in the Rye",
+        "벅아이": "Buckeye",
+        "동물농장": "Animal Farm",
+        "햄릿": "Hamlet",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -52,6 +55,9 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "The Boy is Coming": "소년이 온다",
         "Farewell": "작별인사",
         "The Catcher in the Rye": "호밀밭의 파수꾼",
+        "Buckeye": "벅아이",
+        "Animal Farm": "동물농장",
+        "Hamlet": "햄릿",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -59,7 +65,17 @@ def translate_book_title_to_korean(book_title: str) -> str:
     if book_title_underscore in reverse_title_map:
         return reverse_title_map[book_title_underscore]
     
-    return reverse_title_map.get(book_title, book_title)
+    # 매핑이 없으면 원본 반환 (이미 한글일 수도 있음)
+    result = reverse_title_map.get(book_title, book_title)
+    
+    # 결과가 여전히 영어인 경우 (한글이 없음), 한글 발음으로 변환 시도
+    if is_english_title(result):
+        # 간단한 발음 변환 (추후 개선 가능)
+        # 예: "Buckeye" -> "벅아이" 같은 매핑이 없으면 원본 반환
+        # 여기서는 매핑에 없으면 원본을 반환하되, generate_title에서 처리
+        pass
+    
+    return result
 
 
 def is_english_title(book_title: str) -> bool:

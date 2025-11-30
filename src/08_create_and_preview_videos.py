@@ -44,6 +44,16 @@ def generate_title(book_title: str, lang: str = "both") -> str:
         # 영어 제목이 들어온 경우: 한글 제목으로 변환
         ko_title = translate_book_title_to_korean(book_title)
         en_title = book_title  # 이미 영어
+        
+        # ko_title이 여전히 영어인 경우 (번역 실패), 한글 발음으로 변환 시도
+        if is_english_title(ko_title):
+            # 간단한 발음 변환 매핑 (추가 필요시 확장)
+            pronunciation_map = {
+                "Buckeye": "벅아이",
+                "Animal Farm": "애니멀 팜",
+                "Hamlet": "햄릿",
+            }
+            ko_title = pronunciation_map.get(ko_title, ko_title)
     else:
         # 한글 제목이 들어온 경우: 영어 제목으로 변환
         ko_title = book_title  # 이미 한글
@@ -63,12 +73,14 @@ def generate_title(book_title: str, lang: str = "both") -> str:
     elif lang == "en":
         # 영어 먼저, 한글 나중
         # 영어 부분: [English], 한글 부분: [영어]
+        # 중요: 한글 부분에는 반드시 한글 제목이 들어가야 함
         if alt_titles.get("en"):
             # 대체 제목 포함: "Norwegian Wood (The Age of Loss)"
             en_main_title = f"{en_title} ({alt_titles['en']})"
         else:
             en_main_title = en_title
         
+        # 한글 부분: ko_title 사용 (이미 한글로 변환됨)
         if alt_titles.get("ko"):
             # 한글 부분에도 대체 제목 포함
             ko_main_title = f"{ko_title} ({alt_titles['ko']})"
