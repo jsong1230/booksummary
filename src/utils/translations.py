@@ -29,6 +29,8 @@ def translate_book_title(book_title: str) -> str:
         "벅아이": "Buckeye",
         "동물농장": "Animal Farm",
         "햄릿": "Hamlet",
+        "선라이즈 온 더 리핑": "Sunrise on the Reaping",
+        "헝거 게임: 선라이즈 온 더 리핑": "Sunrise on the Reaping",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -58,6 +60,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Buckeye": "벅아이",
         "Animal Farm": "동물농장",
         "Hamlet": "햄릿",
+        "Sunrise on the Reaping": "선라이즈 온 더 리핑",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인

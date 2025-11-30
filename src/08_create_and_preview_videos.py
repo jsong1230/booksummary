@@ -52,6 +52,7 @@ def generate_title(book_title: str, lang: str = "both") -> str:
                 "Buckeye": "벅아이",
                 "Animal Farm": "애니멀 팜",
                 "Hamlet": "햄릿",
+                "Sunrise on the Reaping": "선라이즈 온 더 리핑",
             }
             ko_title = pronunciation_map.get(ko_title, ko_title)
     else:

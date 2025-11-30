@@ -300,3 +300,24 @@
 - **결과**: 
   - 영어 메타데이터: `[English] Buckeye Book Review | [영어] 벅아이 책 리뷰`
   - 한글 메타데이터: `[한국어] 벅아이 책 리뷰 | [Korean] Buckeye Book Review`
+
+## 2025-11-30
+
+### 선라이즈 온 더 리핑(Sunrise on the Reaping) 영상 제작 및 업로드 완료
+- **책 정보**: Sunrise on the Reaping (Suzanne Collins 저)
+- **작업 내용**:
+  - 한글/영어 요약 생성 (5분 목표)
+  - 요약 TTS 오디오 생성 (한글/영어)
+  - 이미지 다운로드 (100개 무드 이미지)
+  - 한글/영어 영상 제작 (요약 + 리뷰 오디오)
+  - 썸네일 생성 및 PNG 파일로 교체 (2MB 이하 압축)
+  - 메타데이터 생성 (한글/영어)
+- **YouTube 업로드**:
+  - 업로드된 영상 수: 2개
+  - [1] [English] Sunrise on the Reaping Book Review | [영어] 선라이즈 온 더 리핑 책 리뷰 | Auto-Generated
+    - URL: https://www.youtube.com/watch?v=YifDjwcQKi8
+    - 파일 크기: 194.27 MB
+  - [2] [한국어] 선라이즈 온 더 리핑 책 리뷰 | [Korean] Sunrise on the Reaping Book Review | 일당백 스타일
+    - URL: https://www.youtube.com/watch?v=QcmWjHj93fA
+    - 파일 크기: 174.14 MB
+- **CSV 업데이트**: data/ildangbaek_books.csv에 선라이즈 온 더 리핑 정보 추가
