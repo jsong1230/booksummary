@@ -618,46 +618,117 @@ def main():
             print(f"   📸 썸네일: {Path(thumbnail).name} (메타데이터에서)")
         else:
             # 메타데이터에 없으면 자동으로 찾기
-            book_title = video_path.stem.replace('_review_ko', '').replace('_review_en', '').replace('_review', '')
             video_dir = video_path.parent
+            video_stem = video_path.stem
             
             # 언어 감지
             detected_lang = lang
             if not detected_lang:
-                if '_ko' in video_path.stem or 'review_ko' in video_path.stem:
+                if '_ko' in video_stem or 'review_ko' in video_stem:
                     detected_lang = 'ko'
-                elif '_en' in video_path.stem or 'review_en' in video_path.stem:
+                elif '_en' in video_stem or 'review_en' in video_stem:
                     detected_lang = 'en'
                 else:
                     detected_lang = 'ko'  # 기본값
             
-            # 1순위: 생성된 썸네일 파일 찾기 (책제목_thumbnail_ko.jpg 형식)
-            lang_suffix = "_ko" if detected_lang == "ko" else "_en"
-            thumbnail_path = video_dir / f"{book_title}_thumbnail{lang_suffix}.jpg"
+            # 책 제목 추출 (다양한 패턴 시도)
+            book_title_variants = []
+            # 기본 패턴
+            base_title = video_stem.replace('_review_with_summary_ko', '').replace('_review_with_summary_en', '')
+            base_title = base_title.replace('_review_ko', '').replace('_review_en', '')
+            base_title = base_title.replace('_review', '').replace('_with_summary', '')
+            book_title_variants.append(base_title)
             
-            if thumbnail_path.exists():
-                thumbnail = str(thumbnail_path)
-                print(f"   📸 썸네일: {thumbnail_path.name} (생성된 썸네일)")
+            # 공백 제거 버전
+            book_title_variants.append(base_title.replace('_', '').replace(' ', ''))
+            # 공백을 언더스코어로 변환한 버전
+            book_title_variants.append(base_title.replace(' ', '_'))
+            
+            # 언어 접미사 패턴
+            lang_patterns = []
+            if detected_lang == 'ko':
+                lang_patterns = ['_ko', '_kr', '_korean', 'korean', 'ko', 'kr']
             else:
+                lang_patterns = ['_en', '_english', 'english', 'en']
+            
+            thumbnail_found = False
+            
+            # 1순위: 다양한 책 제목 변형으로 썸네일 검색
+            for title_variant in book_title_variants:
+                for lang_pattern in lang_patterns:
+                    # 패턴 1: {책제목}_thumbnail_{lang}.jpg
+                    thumbnail_path = video_dir / f"{title_variant}_thumbnail{lang_pattern}.jpg"
+                    if thumbnail_path.exists():
+                        thumbnail = str(thumbnail_path)
+                        print(f"   📸 썸네일: {thumbnail_path.name} (패턴: {title_variant}_thumbnail{lang_pattern})")
+                        thumbnail_found = True
+                        break
+                    
+                    # 패턴 2: {책제목}_{lang}_thumbnail.jpg
+                    thumbnail_path = video_dir / f"{title_variant}{lang_pattern}_thumbnail.jpg"
+                    if thumbnail_path.exists():
+                        thumbnail = str(thumbnail_path)
+                        print(f"   📸 썸네일: {thumbnail_path.name} (패턴: {title_variant}{lang_pattern}_thumbnail)")
+                        thumbnail_found = True
+                        break
+                
+                if thumbnail_found:
+                    break
+            
+            if not thumbnail_found:
                 # 2순위: 영상 파일명 기반 썸네일
-                thumbnail_path2 = video_dir / f"{video_path.stem}_thumbnail{lang_suffix}.jpg"
-                if thumbnail_path2.exists():
-                    thumbnail = str(thumbnail_path2)
-                    print(f"   📸 썸네일: {thumbnail_path2.name}")
+                for lang_pattern in lang_patterns:
+                    thumbnail_path = video_dir / f"{video_stem}_thumbnail{lang_pattern}.jpg"
+                    if thumbnail_path.exists():
+                        thumbnail = str(thumbnail_path)
+                        print(f"   📸 썸네일: {thumbnail_path.name} (영상 파일명 기반)")
+                        thumbnail_found = True
+                        break
+            
+            if not thumbnail_found:
+                # 3순위: output 폴더의 모든 썸네일 파일 검색 (언어 구분자 포함)
+                all_thumbnails = list(video_dir.glob("*thumbnail*.jpg"))
+                matching_thumbnails = []
+                
+                for thumb in all_thumbnails:
+                    thumb_name_lower = thumb.name.lower()
+                    # 언어 구분자가 포함된 썸네일만 검색
+                    if any(pattern in thumb_name_lower for pattern in lang_patterns):
+                        # 책 제목과 유사한 이름인지 확인
+                        for title_variant in book_title_variants:
+                            if title_variant.lower().replace('_', '').replace(' ', '') in thumb_name_lower.replace('_', '').replace(' ', ''):
+                                matching_thumbnails.append(thumb)
+                                break
+                
+                if matching_thumbnails:
+                    # 가장 최근에 수정된 파일 선택
+                    thumbnail = str(sorted(matching_thumbnails, key=lambda x: x.stat().st_mtime, reverse=True)[0])
+                    print(f"   📸 썸네일: {Path(thumbnail).name} (유사도 매칭)")
+                    thumbnail_found = True
+            
+            if not thumbnail_found:
+                # 4순위: 언어 구분 없는 썸네일
+                for title_variant in book_title_variants:
+                    thumbnail_path = video_dir / f"{title_variant}_thumbnail.jpg"
+                    if thumbnail_path.exists():
+                        thumbnail = str(thumbnail_path)
+                        print(f"   📸 썸네일: {thumbnail_path.name} (언어 구분 없음)")
+                        thumbnail_found = True
+                        break
+            
+            if not thumbnail_found:
+                # 5순위: 무드 이미지 사용 (기존 방식)
+                book_title_for_assets = book_title_variants[0]  # 첫 번째 변형 사용
+                mood_images = sorted((Path("assets/images") / book_title_for_assets).glob("mood_*.jpg"))
+                if mood_images:
+                    thumbnail = str(mood_images[0])
+                    print(f"   📸 썸네일: {mood_images[0].name} (무드 이미지)")
                 else:
-                    # 3순위: 언어 구분 없는 썸네일
-                    thumbnail_path_alt = video_dir / f"{book_title}_thumbnail.jpg"
-                    if thumbnail_path_alt.exists():
-                        thumbnail = str(thumbnail_path_alt)
-                        print(f"   📸 썸네일: {thumbnail_path_alt.name}")
-                    else:
-                        # 4순위: 무드 이미지 사용 (기존 방식)
-                        mood_images = sorted((Path("assets/images") / book_title).glob("mood_*.jpg"))
-                        if mood_images:
-                            thumbnail = str(mood_images[0])
-                            print(f"   📸 썸네일: {mood_images[0].name} (무드 이미지)")
-                        else:
-                            print(f"   ⚠️ 썸네일을 찾을 수 없습니다.")
+                    print(f"   ⚠️ 썸네일을 찾을 수 없습니다.")
+                    print(f"   💡 썸네일 파일명 패턴 예시:")
+                    print(f"      - {book_title_variants[0]}_thumbnail_ko.jpg")
+                    print(f"      - {book_title_variants[0]}_thumbnail_en.jpg")
+                    print(f"      - {video_stem}_thumbnail_ko.jpg")
         
         print()
         
