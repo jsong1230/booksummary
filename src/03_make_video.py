@@ -16,14 +16,14 @@ from typing import List, Optional, Tuple
 from dotenv import load_dotenv
 
 try:
-    from moviepy.editor import ImageClip, AudioFileClip, CompositeVideoClip, TextClip, ColorClip, concatenate_videoclips
+    from moviepy.editor import ImageClip, AudioFileClip, CompositeVideoClip, TextClip, ColorClip, concatenate_videoclips, VideoFileClip
     from moviepy.video.fx.all import fadein, fadeout
     MOVIEPY_AVAILABLE = True
     MOVIEPY_VERSION_NEW = True
 except ImportError as e:
     try:
         # 구버전 호환성
-        from moviepy import ImageClip, AudioFileClip, CompositeVideoClip, TextClip, ColorClip, concatenate_videoclips
+        from moviepy import ImageClip, AudioFileClip, CompositeVideoClip, TextClip, ColorClip, concatenate_videoclips, VideoFileClip
         from moviepy.video.fx import FadeIn, FadeOut, CrossFadeIn, CrossFadeOut
         MOVIEPY_AVAILABLE = True
         MOVIEPY_VERSION_NEW = False
@@ -561,46 +561,30 @@ class VideoMaker:
         add_subtitles_flag: bool = False,
         language: str = "ko",
         max_duration: Optional[float] = None,
-        summary_audio_path: Optional[str] = None
+        summary_audio_path: Optional[str] = None,
+        notebooklm_video_path: Optional[str] = None,
+        summary_audio_volume: float = 1.2
     ) -> str:
         """
-        최종 영상 생성
+        최종 영상 생성 (Summary → NotebookLM Video → Audio 순서)
         
         Args:
-            audio_path: 오디오 파일 경로
+            audio_path: 리뷰 오디오 파일 경로
             image_dir: 이미지 디렉토리
             output_path: 출력 파일 경로
             add_subtitles_flag: 자막 추가 여부
             language: 자막 언어
+            max_duration: 최대 길이 제한
+            summary_audio_path: 요약 오디오 파일 경로 (있으면 Summary 부분 생성)
+            notebooklm_video_path: NotebookLM 비디오 파일 경로 (있으면 중간에 삽입)
+            summary_audio_volume: Summary 오디오 음량 배율 (기본값: 1.2, 20% 증가)
         """
         print("=" * 60)
         print("🎬 영상 제작 시작")
         print("=" * 60)
         print()
         
-        # 1. 오디오 로드 및 연결 (요약 오디오가 있으면 연결)
-        if summary_audio_path and Path(summary_audio_path).exists():
-            print("📚 요약 오디오와 리뷰 오디오 연결 중...")
-            audio = self.concatenate_audios(
-                audio_paths=[summary_audio_path, audio_path],
-                fade_duration=1.0,
-                gap_duration=3.0  # 3초 간격 추가
-            )
-            print()
-        else:
-            audio = self.load_audio(audio_path)
-        
-        audio_duration = audio.duration
-        
-        # 테스트용: 최대 길이 제한
-        if max_duration and audio_duration > max_duration:
-            print(f"⚠️ 오디오 길이 제한: {audio_duration:.2f}초 → {max_duration}초")
-            audio = audio.subclip(0, max_duration)
-            audio_duration = max_duration
-        
-        print()
-        
-        # 2. 이미지 경로 수집
+        # 이미지 경로 수집
         image_dir_path = Path(image_dir)
         if not image_dir_path.exists():
             raise FileNotFoundError(f"이미지 디렉토리를 찾을 수 없습니다: {image_dir}")
@@ -614,75 +598,185 @@ class VideoMaker:
         image_paths = []
         
         # ⚠️ 표지 이미지는 저작권 문제로 사용하지 않습니다.
-        # 저작권 없는 무드 이미지만 사용합니다.
         if cover_path.exists():
             print(f"⚠️ 표지 이미지 발견: {cover_path.name}")
             print("   → 저작권 문제로 사용하지 않습니다. 무드 이미지만 사용합니다.")
         
         for mood_img in mood_images:
             image_paths.append(str(mood_img))
-            print(f"🎨 무드 이미지 추가: {mood_img.name}")
         
         if not image_paths:
             raise FileNotFoundError(f"이미지를 찾을 수 없습니다: {image_dir}")
         
-        print(f"\n총 {len(image_paths)}개의 이미지 사용")
+        print(f"🎨 무드 이미지: {len(image_paths)}개")
         print()
         
-        # 3. 이미지 시퀀스 생성
-        print("🖼️ 이미지 시퀀스 생성 중...")
-        image_clips = self.create_image_sequence(
+        video_clips = []
+        
+        # 1. Summary 부분: 요약 오디오 + 이미지 슬라이드쇼
+        if summary_audio_path and Path(summary_audio_path).exists():
+            print("📚 1단계: Summary 부분 영상 생성")
+            print("-" * 60)
+            summary_audio = self.load_audio(summary_audio_path)
+            summary_duration = summary_audio.duration
+            
+            # Summary 오디오 음량 조정
+            if summary_audio_volume != 1.0:
+                print(f"   🔊 Summary 오디오 음량 조정: {summary_audio_volume}x")
+                try:
+                    from moviepy.audio.fx.all import volumex
+                    summary_audio = summary_audio.fx(volumex, summary_audio_volume)
+                except ImportError:
+                    try:
+                        # 구버전 호환성
+                        summary_audio = summary_audio.volumex(summary_audio_volume)
+                    except AttributeError:
+                        print("   ⚠️ 음량 조정 실패, 원본 음량 사용")
+            
+            print(f"   요약 오디오 길이: {summary_duration:.2f}초")
+            
+            # Summary 부분 이미지 시퀀스 생성
+            summary_image_clips = self.create_image_sequence(
+                image_paths=image_paths,
+                total_duration=summary_duration,
+                fade_duration=1.5
+            )
+            summary_video = concatenate_videoclips(summary_image_clips, method="compose")
+            summary_video = summary_video.set_audio(summary_audio)
+            
+            video_clips.append(summary_video)
+            print(f"   ✅ Summary 부분 완료 ({summary_duration:.2f}초)")
+            print()
+        else:
+            print("📚 Summary 부분: 요약 오디오가 없어 건너뜁니다.")
+            print()
+        
+        # 2. NotebookLM Video 부분
+        if notebooklm_video_path and Path(notebooklm_video_path).exists():
+            print("🎥 2단계: NotebookLM Video 부분")
+            print("-" * 60)
+            print(f"   비디오 로드 중: {Path(notebooklm_video_path).name}")
+            
+            notebooklm_video = VideoFileClip(notebooklm_video_path)
+            
+            # 해상도 및 프레임레이트 통일
+            if notebooklm_video.size != self.resolution:
+                print(f"   🔄 리사이즈 중: {notebooklm_video.size} -> {self.resolution}")
+                notebooklm_video = notebooklm_video.resize(self.resolution)
+            
+            if notebooklm_video.fps != self.fps:
+                print(f"   🔄 프레임레이트 조정 중: {notebooklm_video.fps}fps -> {self.fps}fps")
+                notebooklm_video = notebooklm_video.set_fps(self.fps)
+            
+            video_clips.append(notebooklm_video)
+            print(f"   ✅ NotebookLM Video 부분 완료 ({notebooklm_video.duration:.2f}초)")
+            print()
+        else:
+            print("🎥 NotebookLM Video 부분: 비디오 파일이 없어 건너뜁니다.")
+            print()
+        
+        # 3. Audio 부분: 리뷰 오디오 + 이미지 슬라이드쇼
+        print("🎵 3단계: Audio 부분 영상 생성")
+        print("-" * 60)
+        review_audio = self.load_audio(audio_path)
+        review_duration = review_audio.duration
+        
+        # 테스트용: 최대 길이 제한
+        if max_duration and review_duration > max_duration:
+            print(f"   ⚠️ 오디오 길이 제한: {review_duration:.2f}초 → {max_duration}초")
+            review_audio = review_audio.subclip(0, max_duration)
+            review_duration = max_duration
+        
+        print(f"   리뷰 오디오 길이: {review_duration:.2f}초")
+        
+        # Audio 부분 이미지 시퀀스 생성
+        review_image_clips = self.create_image_sequence(
             image_paths=image_paths,
-            total_duration=audio_duration,
-            fade_duration=1.5  # 페이드 전환 시간 (1.5초 - fade out/in)
+            total_duration=review_duration,
+            fade_duration=1.5
         )
+        review_video = concatenate_videoclips(review_image_clips, method="compose")
+        review_video = review_video.set_audio(review_audio)
+        
+        video_clips.append(review_video)
+        print(f"   ✅ Audio 부분 완료 ({review_duration:.2f}초)")
         print()
         
-        # 4. 클립 연결
-        print("🔗 클립 연결 중...")
-        # method="compose"를 사용하여 크로스페이드 효과 적용
-        video = concatenate_videoclips(image_clips, method="compose")
-        print("   ✅ 연결 완료")
+        # 4. 세 부분 연결 (각 섹션 사이에 3초 silence 추가)
+        if not video_clips:
+            raise ValueError("생성할 영상 클립이 없습니다.")
+        
+        # 3초 silence 클립 생성 함수
+        def create_silence_clip(duration: float = 3.0):
+            """3초 검은색 무음 비디오 클립 생성"""
+            silence_video = ColorClip(size=self.resolution, color=(0, 0, 0), duration=duration)
+            # 무음 오디오 추가
+            try:
+                from moviepy.audio.AudioClip import AudioArrayClip
+                import numpy as np
+                sample_rate = 44100
+                silence_array = np.zeros((int(sample_rate * duration), 2))
+                silence_audio = AudioArrayClip(silence_array, fps=sample_rate)
+                silence_video = silence_video.set_audio(silence_audio)
+            except Exception as e:
+                # 오디오 추가 실패 시 비디오만 반환
+                pass
+            return silence_video
+        
+        # 섹션 사이에 3초 silence 추가
+        final_clips = []
+        silence_duration = 3.0
+        
+        for i, clip in enumerate(video_clips):
+            final_clips.append(clip)
+            
+            # 마지막 클립이 아니면 3초 silence 추가
+            if i < len(video_clips) - 1:
+                print(f"   ⏸️  {silence_duration}초 silence 추가...")
+                silence_clip = create_silence_clip(silence_duration)
+                final_clips.append(silence_clip)
+        
+        print("🔗 전체 영상 연결 중...")
+        print(f"   총 {len(final_clips)}개 클립 연결 (섹션 {len(video_clips)}개 + silence {len(final_clips) - len(video_clips)}개)")
+        for i, clip in enumerate(final_clips, 1):
+            if i <= len(video_clips):
+                print(f"      [{i}] {clip.duration:.2f}초")
+            else:
+                print(f"      [{i}] {clip.duration:.2f}초 (silence)")
+        
+        # 페이드 효과로 자연스럽게 연결
+        final_video = concatenate_videoclips(final_clips, method="compose")
+        total_duration = final_video.duration
+        print(f"   ✅ 연결 완료: 총 길이 {total_duration:.2f}초 ({total_duration/60:.2f}분)")
         print()
         
-        # 5. 오디오 추가
-        print("🎵 오디오 추가 중...")
-        try:
-            # MoviePy 1.0+ 버전
-            video = video.set_audio(audio)
-        except AttributeError:
-            # 구버전 호환성
-            video = video.with_audio(audio)
-        print("   ✅ 오디오 추가 완료")
-        print()
-        
-        # 6. 자막 추가 (선택사항)
-        subtitles = None
+        # 5. 자막 추가 (선택사항)
         if add_subtitles_flag:
+            print("📝 자막 생성 중...")
             subtitles = self.generate_subtitles(audio_path, language)
             if subtitles:
                 print("📝 자막 오버레이 추가 중...")
-                video = self.add_subtitles(video, subtitles)
+                final_video = self.add_subtitles(final_video, subtitles)
                 print("   ✅ 자막 추가 완료")
                 print()
         
-        # 7. 출력 디렉토리 생성
+        # 6. 출력 디렉토리 생성
         output_path_obj = Path(output_path)
         output_path_obj.parent.mkdir(parents=True, exist_ok=True)
         
-        # 8. 렌더링
+        # 7. 렌더링
         print("🎞️ 영상 렌더링 중...")
         print(f"   해상도: {self.resolution[0]}x{self.resolution[1]}")
         print(f"   프레임레이트: {self.fps}fps")
-        print(f"   길이: {audio_duration:.2f}초")
+        print(f"   총 길이: {total_duration:.2f}초 ({total_duration/60:.2f}분)")
         print()
         
-        video.write_videofile(
+        final_video.write_videofile(
             output_path,
             fps=self.fps,
             codec='libx264',
             audio_codec='aac',
-            bitrate='1500k',  # 페이드 효과만 있는 정적 이미지이므로 매우 낮은 비트레이트로 충분
+            bitrate='1500k',
             preset='medium'
         )
         
@@ -694,8 +788,12 @@ class VideoMaker:
         print()
         
         # 정리
-        audio.close()
-        video.close()
+        review_audio.close()
+        final_video.close()
+        if summary_audio_path and Path(summary_audio_path).exists():
+            summary_audio.close()
+        if notebooklm_video_path and Path(notebooklm_video_path).exists():
+            notebooklm_video.close()
         
         return output_path
 

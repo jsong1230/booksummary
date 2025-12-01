@@ -9,6 +9,7 @@
 import os
 import sys
 from pathlib import Path
+from typing import Optional
 from dotenv import load_dotenv
 
 # 프로젝트 루트를 경로에 추가
@@ -55,10 +56,12 @@ class VideoWithSummaryPipeline:
         summary_duration_minutes: float = 5.0,
         image_dir: str = None,
         output_path: str = None,
-        skip_summary: bool = False
+        skip_summary: bool = False,
+        notebooklm_video_path: Optional[str] = None,
+        summary_audio_volume: float = 1.2
     ) -> str:
         """
-        요약 포함 영상 제작
+        요약 포함 영상 제작 (Summary → NotebookLM Video → Audio 순서)
         
         Args:
             book_title: 책 제목
@@ -69,6 +72,8 @@ class VideoWithSummaryPipeline:
             image_dir: 이미지 디렉토리
             output_path: 출력 영상 경로
             skip_summary: 요약 생성을 건너뛰기 (이미 생성된 경우)
+            notebooklm_video_path: NotebookLM 비디오 파일 경로 (선택사항)
+            summary_audio_volume: Summary 오디오 음량 배율 (기본값: 1.2, 20% 증가)
             
         Returns:
             생성된 영상 파일 경로
@@ -133,6 +138,7 @@ class VideoWithSummaryPipeline:
                 print()
                 
                 lang_suffix = "ko" if language == "ko" else "en"
+                # 표준 네이밍 규칙: {책제목}_summary_{언어}.mp3
                 summary_audio_path = f"assets/audio/{safe_title_str}_summary_{lang_suffix}.mp3"
                 
                 # 한국어는 nova (더 자연스러운 여성 음성), 영어는 alloy 추천
@@ -188,29 +194,25 @@ class VideoWithSummaryPipeline:
                 except (EOFError, KeyboardInterrupt):
                     raise ValueError("영상 생성이 취소되었습니다. 요약 오디오를 준비한 후 다시 시도하세요.")
         
-        # 3. 리뷰 오디오 경로 확인
+        # 3. 리뷰 오디오 경로 확인 (일관된 네이밍 규칙 사용)
         if review_audio_path is None:
-            # 자동으로 리뷰 오디오 찾기
             lang_suffix = "ko" if language == "ko" else "en"
-            # _ko, _kr, _en 등 다양한 패턴 시도
-            possible_names = [
-                f"{safe_title_str}_review_{lang_suffix}",
-                f"{safe_title_str}_review_kr" if language == "ko" else f"{safe_title_str}_review_en",
-                f"{safe_title_str}_review"
-            ]
+            audio_dir = Path("assets/audio")
             
+            if not audio_dir.exists():
+                raise FileNotFoundError(f"오디오 디렉토리를 찾을 수 없습니다: {audio_dir}")
+            
+            # 표준 네이밍 규칙: {책제목}_review_{언어}.{확장자}
             review_audio_path = None
-            for name in possible_names:
-                for ext in ['.m4a', '.mp3', '.wav']:
-                    test_path = f"assets/audio/{name}{ext}"
-                    if Path(test_path).exists():
-                        review_audio_path = test_path
-                        break
-                if review_audio_path:
+            for ext in ['.m4a', '.mp3', '.wav']:
+                test_path = audio_dir / f"{safe_title_str}_review_{lang_suffix}{ext}"
+                if test_path.exists():
+                    review_audio_path = str(test_path)
+                    print(f"🎵 리뷰 오디오 발견: {test_path.name}")
                     break
             
             if not review_audio_path:
-                raise FileNotFoundError(f"리뷰 오디오를 찾을 수 없습니다: assets/audio/{safe_title_str}_review_*")
+                raise FileNotFoundError(f"리뷰 오디오를 찾을 수 없습니다: assets/audio/{safe_title_str}_review_{lang_suffix}.*")
         
         if not Path(review_audio_path).exists():
             raise FileNotFoundError(f"리뷰 오디오를 찾을 수 없습니다: {review_audio_path}")
@@ -222,12 +224,26 @@ class VideoWithSummaryPipeline:
         if not Path(image_dir).exists():
             raise FileNotFoundError(f"이미지 디렉토리를 찾을 수 없습니다: {image_dir}")
         
-        # 5. 출력 경로 설정
+        # 5. NotebookLM 비디오 파일 찾기 (일관된 네이밍 규칙 사용)
+        if notebooklm_video_path is None:
+            lang_suffix = "ko" if language == "ko" else "en"
+            video_dir = Path("assets/video")
+            
+            if video_dir.exists():
+                # 표준 네이밍 규칙: {책제목}_notebooklm_{언어}.{확장자}
+                for ext in ['.mp4', '.mov', '.avi', '.mkv']:
+                    test_path = video_dir / f"{safe_title_str}_notebooklm_{lang_suffix}{ext}"
+                    if test_path.exists():
+                        notebooklm_video_path = str(test_path)
+                        print(f"📹 NotebookLM 비디오 발견: {test_path.name}")
+                        break
+        
+        # 6. 출력 경로 설정
         if output_path is None:
             lang_suffix = "ko" if language == "ko" else "en"
             output_path = f"output/{safe_title_str}_review_with_summary_{lang_suffix}.mp4"
         
-        # 6. 요약 오디오 최종 확인
+        # 7. 요약 오디오 최종 확인
         if summary_audio_path is None:
             print("=" * 60)
             print("❌ 요약 오디오가 없습니다!")
@@ -242,11 +258,15 @@ class VideoWithSummaryPipeline:
             except (EOFError, KeyboardInterrupt):
                 raise ValueError("영상 생성이 취소되었습니다. 요약 오디오를 준비한 후 다시 시도하세요.")
         
-        # 7. 영상 제작
+        # 8. 영상 제작
         print("=" * 60)
         print("🎬 3단계: 영상 제작")
         print("=" * 60)
         print()
+        
+        if notebooklm_video_path:
+            print(f"📹 NotebookLM 비디오 사용: {Path(notebooklm_video_path).name}")
+            print()
         
         final_video_path = self.video_maker.create_video(
             audio_path=review_audio_path,
@@ -254,7 +274,9 @@ class VideoWithSummaryPipeline:
             output_path=output_path,
             add_subtitles_flag=False,
             language=language,
-            summary_audio_path=summary_audio_path
+            summary_audio_path=summary_audio_path,
+            notebooklm_video_path=notebooklm_video_path,
+            summary_audio_volume=summary_audio_volume
         )
         
         print()
@@ -271,7 +293,7 @@ def main():
     """메인 실행 함수"""
     import argparse
     
-    parser = argparse.ArgumentParser(description='요약 포함 영상 제작')
+    parser = argparse.ArgumentParser(description='요약 포함 영상 제작 (Summary → NotebookLM Video → Audio)')
     parser.add_argument('--book-title', type=str, required=True, help='책 제목')
     parser.add_argument('--author', type=str, help='저자 이름')
     parser.add_argument('--review-audio', type=str, help='NotebookLM 리뷰 오디오 경로')
@@ -280,6 +302,8 @@ def main():
     parser.add_argument('--image-dir', type=str, help='이미지 디렉토리')
     parser.add_argument('--output', type=str, help='출력 영상 경로')
     parser.add_argument('--skip-summary', action='store_true', help='요약 생성을 건너뛰기 (이미 생성된 경우)')
+    parser.add_argument('--notebooklm-video', type=str, help='NotebookLM 비디오 파일 경로 (선택사항, 자동 검색도 지원)')
+    parser.add_argument('--summary-audio-volume', type=float, default=1.2, help='Summary 오디오 음량 배율 (기본값: 1.2, 20%% 증가)')
     
     args = parser.parse_args()
     
@@ -294,7 +318,9 @@ def main():
             summary_duration_minutes=args.summary_duration,
             image_dir=args.image_dir,
             output_path=args.output,
-            skip_summary=args.skip_summary
+            skip_summary=args.skip_summary,
+            notebooklm_video_path=args.notebooklm_video,
+            summary_audio_volume=args.summary_audio_volume
         )
         return 0
     except Exception as e:

@@ -47,6 +47,7 @@ class ImageDownloader:
         self.google_books_api_key = os.getenv("GOOGLE_BOOKS_API_KEY")
         self.pexels_api_key = os.getenv("PEXELS_API_KEY")
         self.unsplash_access_key = os.getenv("UNSPLASH_ACCESS_KEY")
+        self.pixabay_api_key = os.getenv("PIXABAY_API_KEY")
         
         # Google Books API 초기화
         self.books_service = None
@@ -92,24 +93,68 @@ class ImageDownloader:
             print(f"   저자: {author}")
         
         try:
-            # 검색 쿼리 구성
-            query = f"{book_title}"
+            # 검색 쿼리 구성 (저자 포함하여 정확도 향상)
+            query = f'intitle:"{book_title}"'
             if author:
-                query += f" {author}"
+                query += f' inauthor:"{author}"'
+            
+            # 언어 감지: 제목에 한글이 있으면 한국어, 없으면 영어로 검색
+            has_korean = any('\uAC00' <= c <= '\uD7A3' for c in book_title)
+            lang_restrict = 'ko' if has_korean else 'en'
+            
+            print(f"   검색 언어: {lang_restrict}")
             
             # Google Books API 검색
             results = self.books_service.volumes().list(
                 q=query,
-                maxResults=5,
-                langRestrict='ko'
+                maxResults=10,  # 더 많은 결과 확인
+                langRestrict=lang_restrict
             ).execute()
+            
+            if not results.get('items'):
+                # 언어 제한 없이 재시도
+                print("  ⚠️ 언어 제한 검색 결과가 없습니다. 언어 제한 없이 재시도...")
+                results = self.books_service.volumes().list(
+                    q=query,
+                    maxResults=10
+                ).execute()
             
             if not results.get('items'):
                 print("  ⚠️ 검색 결과가 없습니다.")
                 return None
             
-            # 가장 관련성 높은 결과 선택
-            book = results['items'][0]
+            # 가장 관련성 높은 결과 선택 (저자명도 확인)
+            best_book = None
+            for book in results['items']:
+                volume_info = book.get('volumeInfo', {})
+                book_authors = volume_info.get('authors', [])
+                book_title_found = volume_info.get('title', '').lower()
+                
+                # 저자명이 일치하는지 확인
+                author_match = False
+                if author:
+                    author_lower = author.lower()
+                    for book_author in book_authors:
+                        if author_lower in book_author.lower() or book_author.lower() in author_lower:
+                            author_match = True
+                            break
+                else:
+                    author_match = True  # 저자 정보가 없으면 모든 결과 허용
+                
+                # 제목도 비슷한지 확인
+                title_match = book_title.lower() in book_title_found or book_title_found in book_title.lower()
+                
+                if author_match and title_match:
+                    best_book = book
+                    print(f"  ✅ 매칭된 책 발견: {volume_info.get('title')} - {', '.join(book_authors)}")
+                    break
+            
+            if not best_book:
+                # 매칭되는 게 없으면 첫 번째 결과 사용
+                print("  ⚠️ 정확한 매칭을 찾지 못했습니다. 첫 번째 결과를 사용합니다.")
+                best_book = results['items'][0]
+            
+            book = best_book
             volume_info = book.get('volumeInfo', {})
             
             # 이미지 링크 찾기
@@ -333,6 +378,84 @@ class ImageDownloader:
         
         return downloaded
     
+    def download_mood_images_pixabay(self, keywords: List[str], num_images: int = 100, output_dir: Path = None) -> List[str]:
+        """
+        Pixabay API로 무드 이미지 다운로드
+        
+        Args:
+            keywords: 검색 키워드 리스트
+            num_images: 다운로드할 이미지 개수
+            output_dir: 저장 디렉토리
+            
+        Returns:
+            다운로드된 파일 경로 리스트
+        """
+        if not self.pixabay_api_key:
+            print("⚠️ Pixabay API 키가 설정되지 않았습니다.")
+            return []
+        
+        downloaded = []
+        base_url = "https://pixabay.com/api/"
+        
+        for keyword in keywords:
+            if len(downloaded) >= num_images:
+                break
+            
+            try:
+                print(f"  🔍 검색: {keyword}")
+                
+                # Pixabay API 검색
+                params = {
+                    'key': self.pixabay_api_key,
+                    'q': keyword,
+                    'image_type': 'photo',
+                    'orientation': 'horizontal',
+                    'safesearch': 'true',
+                    'per_page': min(20, num_images - len(downloaded))
+                }
+                
+                response = requests.get(base_url, params=params, timeout=10)
+                response.raise_for_status()
+                
+                data = response.json()
+                hits = data.get('hits', [])
+                
+                if not hits:
+                    print(f"    ⚠️ 검색 결과 없음")
+                    continue
+                
+                for hit in hits:
+                    if len(downloaded) >= num_images:
+                        break
+                    
+                    # 고화질 이미지 URL (largeImageURL 우선, 없으면 webformatURL)
+                    image_url = hit.get('largeImageURL') or hit.get('webformatURL')
+                    
+                    if not image_url:
+                        continue
+                    
+                    # 이미지 다운로드
+                    img_response = requests.get(image_url, timeout=10)
+                    img_response.raise_for_status()
+                    
+                    # 저장
+                    filename = f"mood_{len(downloaded) + 1:02d}_{keyword.replace(' ', '_')}.jpg"
+                    output_path = output_dir / filename
+                    
+                    with open(output_path, 'wb') as f:
+                        f.write(img_response.content)
+                    
+                    downloaded.append(str(output_path))
+                    print(f"    ✅ {filename}")
+                    
+                    time.sleep(0.3)  # API rate limit 방지
+                
+            except Exception as e:
+                print(f"    ❌ 오류: {e}")
+                continue
+        
+        return downloaded
+    
     def download_all(self, book_title: str, author: str = None, keywords: List[str] = None, num_mood_images: int = 100, skip_cover: bool = False) -> Dict:
         """
         책 표지와 무드 이미지 모두 다운로드
@@ -377,24 +500,32 @@ class ImageDownloader:
         print(f"🎨 무드 이미지 다운로드 중... (키워드: {', '.join(keywords)})")
         print()
         
-        # 3. 무드 이미지 다운로드 (Unsplash 우선, 실패하면 Pexels)
+        # 3. 무드 이미지 다운로드 (Pexels → Pixabay → Unsplash 순서)
         # 100개 이미지를 확실히 다운로드하기 위해 여러 키워드에서 충분히 수집
         mood_images = []
         target_count = num_mood_images
         
-        # Unsplash에서 다운로드
-        if self.unsplash_access_key:
-            print(f"  📸 Unsplash에서 이미지 다운로드 중... (목표: {target_count}개)")
-            mood_images = self.download_mood_images_unsplash(keywords, target_count, output_dir)
-            print(f"  ✅ Unsplash: {len(mood_images)}개 다운로드 완료")
+        # Pexels에서 다운로드 (1순위)
+        if self.pexels:
+            print(f"  📸 Pexels에서 이미지 다운로드 중... (목표: {target_count}개)")
+            mood_images = self.download_mood_images_pexels(keywords, target_count, output_dir)
+            print(f"  ✅ Pexels: {len(mood_images)}개 다운로드 완료")
         
-        # Pexels에서 추가 다운로드 (목표 개수에 도달할 때까지)
-        if len(mood_images) < target_count and self.pexels:
+        # Pixabay에서 추가 다운로드 (2순위)
+        if len(mood_images) < target_count and self.pixabay_api_key:
             remaining = target_count - len(mood_images)
-            print(f"  📸 Pexels에서 추가 이미지 다운로드 중... (목표: {remaining}개)")
-            additional = self.download_mood_images_pexels(keywords, remaining, output_dir)
+            print(f"  📸 Pixabay에서 추가 이미지 다운로드 중... (목표: {remaining}개)")
+            additional = self.download_mood_images_pixabay(keywords, remaining, output_dir)
             mood_images.extend(additional)
-            print(f"  ✅ Pexels: {len(additional)}개 추가 다운로드 완료")
+            print(f"  ✅ Pixabay: {len(additional)}개 추가 다운로드 완료")
+        
+        # Unsplash에서 추가 다운로드 (3순위)
+        if len(mood_images) < target_count and self.unsplash_access_key:
+            remaining = target_count - len(mood_images)
+            print(f"  📸 Unsplash에서 추가 이미지 다운로드 중... (목표: {remaining}개)")
+            additional = self.download_mood_images_unsplash(keywords, remaining, output_dir)
+            mood_images.extend(additional)
+            print(f"  ✅ Unsplash: {len(additional)}개 추가 다운로드 완료")
         
         # 여전히 부족하면 키워드를 순환하며 추가 다운로드
         if len(mood_images) < target_count:
@@ -410,19 +541,29 @@ class ImageDownloader:
                     if remaining <= 0:
                         break
                     
-                    # Unsplash에서 추가 시도
-                    if self.unsplash_access_key:
-                        try:
-                            additional = self.download_mood_images_unsplash([keyword], min(remaining, 3), output_dir)
-                            mood_images.extend(additional)
-                        except:
-                            pass
-                    
-                    # Pexels에서 추가 시도
+                    # Pexels에서 추가 시도 (1순위)
                     if len(mood_images) < target_count and self.pexels:
                         remaining = target_count - len(mood_images)
                         try:
                             additional = self.download_mood_images_pexels([keyword], min(remaining, 3), output_dir)
+                            mood_images.extend(additional)
+                        except:
+                            pass
+                    
+                    # Pixabay에서 추가 시도 (2순위)
+                    if len(mood_images) < target_count and self.pixabay_api_key:
+                        remaining = target_count - len(mood_images)
+                        try:
+                            additional = self.download_mood_images_pixabay([keyword], min(remaining, 3), output_dir)
+                            mood_images.extend(additional)
+                        except:
+                            pass
+                    
+                    # Unsplash에서 추가 시도 (3순위)
+                    if len(mood_images) < target_count and self.unsplash_access_key:
+                        remaining = target_count - len(mood_images)
+                        try:
+                            additional = self.download_mood_images_unsplash([keyword], min(remaining, 3), output_dir)
                             mood_images.extend(additional)
                         except:
                             pass
@@ -491,11 +632,10 @@ class ImageDownloader:
                 "japanese student life"
             ])
         
-        # 일반적인 문학 키워드
+        # 일반적인 문학 키워드 (책과 직접 관련된 것만)
+        # "bookstore", "book reading" 등은 너무 일반적이어서 제외
         keywords.extend([
             "literature",
-            "book reading",
-            "japanese bookstore",
             "vintage book",
             "classic novel"
         ])
@@ -630,7 +770,9 @@ class ImageDownloader:
             banned_keywords = {
                 'aesthetic', 'beautiful', 'nice', 'pretty', 'art', 'design', 'style',
                 'book', 'reading', 'literature', 'novel', 'story', 'fiction',
-                'image', 'photo', 'picture', 'illustration', 'graphic', 'visual'
+                'image', 'photo', 'picture', 'illustration', 'graphic', 'visual',
+                'bookstore', 'bookshop', 'library',  # 책과 직접 관련 없는 일반적인 장소
+                'japanese bookstore', 'japanese bookshop'  # 구체적인 금지 키워드
             }
             
             for line in keywords_text.strip().split('\n'):
@@ -665,13 +807,19 @@ class ImageDownloader:
             # 중복 제거 및 금지 키워드 재필터링
             seen = set()
             unique_keywords = []
+            # 추가 금지 키워드 (전체 키워드 문자열에 포함되어 있으면 제외)
+            additional_banned = ['bookstore', 'bookshop', 'japanese bookstore', 'japanese bookshop']
+            
             for kw in all_keywords:
                 kw_clean = kw.lower().strip()
                 kw_words = set(kw_clean.split())
+                
                 # 금지된 키워드가 포함되어 있지 않은 경우만 추가
                 if kw_clean and kw_clean not in seen and not kw_words.intersection(banned_keywords):
-                    seen.add(kw_clean)
-                    unique_keywords.append(kw_clean)
+                    # 추가 금지 키워드 체크 (전체 문자열에 포함되어 있으면 제외)
+                    if not any(banned in kw_clean for banned in additional_banned):
+                        seen.add(kw_clean)
+                        unique_keywords.append(kw_clean)
             
             print(f"   📝 필터링된 키워드: {len(unique_keywords)}개 (일반적인 키워드 제외)")
             # 100개 이미지를 다운로드하기 위해 충분한 키워드 반환

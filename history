@@ -1,5 +1,25 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2025-12-01
+
+### NotebookLM 비디오 통합 기능 추가
+- **영상 구성 변경**: Summary → NotebookLM Video → Audio 순서로 영상 생성
+  - Summary 부분: 요약 오디오 + 이미지 슬라이드쇼
+  - NotebookLM Video 부분: NotebookLM에서 생성한 비디오 자동 삽입
+  - Audio 부분: 리뷰 오디오 + 이미지 슬라이드쇼
+- **NotebookLM 비디오 자동 검색 기능**:
+  - `assets/video/` 폴더에서 자동으로 비디오 파일 검색
+  - 파일명 기반 언어 자동 감지 (한글 파일명 → 한글 비디오, 영문 파일명 → 영어 비디오)
+  - 명시적 언어 표시 (`_ko`, `_en`) 우선 인식
+- **코드 변경사항**:
+  - `src/03_make_video.py`: `create_video` 메서드에 `notebooklm_video_path` 파라미터 추가
+  - `src/10_create_video_with_summary.py`: NotebookLM 비디오 자동 검색 및 전달 로직 추가
+  - `--notebooklm-video` CLI 옵션 추가
+- **폴더 구조**:
+  - `assets/video/` 폴더 생성 (NotebookLM 비디오 저장용)
+- **문서 업데이트**:
+  - README.md에 NotebookLM 비디오 사용법 추가
+
 ## 2024-11-23
 
 ### 초기 프로젝트 설정
@@ -371,3 +391,37 @@
   - 2MB 이하로 압축
   - output 폴더로 변환된 파일 저장
   - 언어 선택 기능 (한글/영어/둘 다)
+
+## 2025-12-01
+
+### 영상 구조 개선 및 기능 추가
+
+#### 영상 구조 변경
+- **새로운 영상 구조**: Summary → 3초 silence → NotebookLM Video → 3초 silence → Audio
+- 각 섹션 사이에 3초 검은 화면(silence) 추가로 자연스러운 전환
+- `src/03_make_video.py`의 `create_video` 함수 수정
+
+#### Summary 오디오 음량 조정 기능
+- Summary 오디오 음량 조정 기능 추가 (기본값: 1.2배, 20% 증가)
+- `--summary-audio-volume` 파라미터로 조정 가능
+- `src/03_make_video.py`, `src/10_create_video_with_summary.py` 수정
+
+#### 썸네일 파일 이름 표준화
+- 표준 네이밍 규칙 적용: `{책제목}_thumbnail_{lang}.jpg`
+- 예시: `Sunrise_on_the_Reaping_thumbnail_ko.jpg`, `Sunrise_on_the_Reaping_thumbnail_en.jpg`
+
+#### 메타데이터 자동 썸네일 경로 찾기
+- 메타데이터 생성 시 썸네일 경로를 자동으로 찾아서 포함
+- `find_thumbnail_for_video` 함수 추가
+- `src/08_create_and_preview_videos.py`의 `save_metadata` 함수 개선
+
+### YouTube 업로드 완료
+- 업로드된 책: Sunrise on the Reaping
+- 업로드된 영상 수: 2개
+- [1] [English] Sunrise on the Reaping Book Review | [영어] 선라이즈 온 더 리핑 책 리뷰
+  - URL: https://www.youtube.com/watch?v=fqhQF3uheEg
+- [2] [한국어] 선라이즈 온 더 리핑 책 리뷰 | [Korean] Sunrise on the Reaping Book Review
+  - URL: https://www.youtube.com/watch?v=vsqgSAgIdC4
+
+### 문서 업데이트
+- README.md 업데이트: 영상 구조, 음량 조정 기능, 메타데이터 생성 방법 추가

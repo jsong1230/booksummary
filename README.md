@@ -12,9 +12,9 @@ NotebookLM 기반 책 리뷰 영상 자동 생성기
 1.  **NotebookLM 오디오 업로드**: 사용자가 NotebookLM에서 생성한 오디오 파일을 `assets/audio/` 폴더에 업로드합니다.
 2.  **관련 이미지 확보**: 책 제목과 관련된 고품질 무드 이미지를 **100개** 자동으로 수집합니다. (`assets/images/{책제목}/` 폴더)
 3.  **오디오 서머리 생성**: 5분 분량의 책 요약(한글/영문)을 생성하고 TTS로 MP3 변환합니다. 생성된 서머리 오디오는 `assets/audio/`로 이동됩니다.
-4.  **오디오 합성**: `오디오 서머리 MP3` + `3초 정적(Pause)` + `NotebookLM 오디오`를 자동으로 연결합니다.
-5.  **영상 합성**: 연결된 오디오와 100개의 이미지를 자연스럽게 합성하여 MP4 영상을 생성합니다. (`output/` 폴더)
-6.  **배포 준비 및 업로드**: 썸네일과 메타데이터를 생성하고, 사용자의 허가 하에 유튜브에 업로드합니다.
+4.  **영상 합성**: Summary 오디오 + 3초 silence + NotebookLM Video (선택사항) + 3초 silence + 리뷰 오디오 순서로 영상을 생성합니다.
+5.  **배포 준비**: 썸네일과 메타데이터를 생성합니다. 썸네일은 자동으로 찾아서 메타데이터에 포함됩니다.
+6.  **유튜브 업로드**: 메타데이터 파일을 기반으로 유튜브에 자동 업로드합니다.
 
 ## 설치 방법
 
@@ -75,8 +75,37 @@ python src/10_create_video_with_summary.py \
   --book-title "책 제목" \
   --author "저자 이름" \
   --language ko \
-  --summary-duration 5.0
+  --summary-duration 5.0 \
+  --summary-audio-volume 1.2
 ```
+
+**메타데이터만 생성 (영상이 이미 있는 경우):**
+```bash
+python src/08_create_and_preview_videos.py \
+  --book-title "책 제목" \
+  --metadata-only
+```
+메타데이터 생성 시 썸네일 경로를 자동으로 찾아서 포함합니다.
+
+**NotebookLM 비디오 포함 영상 제작:**
+NotebookLM에서 생성한 비디오를 영상에 포함하려면:
+1. NotebookLM 비디오 파일을 `assets/video/` 폴더에 저장
+2. 파일명 규칙 (표준 네이밍):
+   - 한글 비디오: `{책제목}_notebooklm_ko.mp4`
+   - 영어 비디오: `{영문제목}_notebooklm_en.mp4`
+   - 예시: `Sunrise_on_the_Reaping_notebooklm_ko.mp4`
+3. 위 명령어 실행 시 자동으로 NotebookLM 비디오가 Summary와 Audio 사이에 삽입됨
+
+**영상 구성:**
+- **Summary** (이미지 슬라이드쇼 + 요약 오디오, 음량 1.2배 조정)
+- **3초 silence** (검은 화면)
+- **NotebookLM Video** (선택사항, 있으면 자동 포함)
+- **3초 silence** (검은 화면)
+- **Audio** (이미지 슬라이드쇼 + 리뷰 오디오)
+
+**Summary 오디오 음량 조정:**
+- 기본값: 1.2배 (20% 증가)
+- 조정 가능: `--summary-audio-volume 1.5` (50% 증가) 또는 `--summary-audio-volume 1.0` (원본)
 
 **유튜브 업로드:**
 ```bash
@@ -90,6 +119,7 @@ booksummary/
 ├── assets/
 │   ├── audio/          # NotebookLM 오디오 및 생성된 요약 오디오
 │   ├── images/         # 책 표지 및 무드 이미지
+│   ├── video/          # NotebookLM 비디오 파일 (선택사항)
 │   └── summaries/      # 생성된 요약 텍스트
 ├── docs/               # 문서
 │   └── SUMMARY_TEMPLATE.md  # 유튜브 롱폼 영상용 요약 템플릿 (Hook → Summary → Bridge)

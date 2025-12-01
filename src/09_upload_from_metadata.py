@@ -361,7 +361,9 @@ def update_books_csv(uploaded_videos: list):
         if video_path:
             # 파일명에서 책 제목 추출
             path_obj = Path(video_path)
-            book_title = path_obj.stem.replace('_review_ko', '').replace('_review_en', '').replace('_review', '')
+            book_title = path_obj.stem.replace('_review_with_summary_ko', '').replace('_review_with_summary_en', '')
+            book_title = book_title.replace('_review_ko', '').replace('_review_en', '').replace('_review', '')
+            book_title = book_title.replace('_with_summary', '')
             uploaded_books.add(book_title)
     
     if not uploaded_books:
@@ -378,13 +380,31 @@ def update_books_csv(uploaded_videos: list):
             matched = False
             for uploaded_book in uploaded_books:
                 # 공백과 언더스코어를 제거하여 비교
-                title_normalized = title.replace(' ', '').replace('_', '')
-                uploaded_book_normalized = uploaded_book.replace(' ', '').replace('_', '')
+                title_normalized = title.replace(' ', '').replace('_', '').lower()
+                uploaded_book_normalized = uploaded_book.replace(' ', '').replace('_', '').lower()
                 
+                # 한글/영문 제목 매칭을 위한 추가 로직
+                # "Sunrise_on_the_Reaping"과 "선라이즈 온 더 리핑" 매칭
+                from utils.translations import translate_book_title, translate_book_title_to_korean
+                try:
+                    # CSV의 한글 제목을 영문으로 변환하여 비교
+                    en_title_from_csv = translate_book_title(title)
+                    en_title_normalized = en_title_from_csv.replace(' ', '').replace('_', '').lower()
+                    
+                    # 업로드된 영문 제목과 비교
+                    if (en_title_normalized == uploaded_book_normalized or
+                        uploaded_book_normalized in en_title_normalized or
+                        en_title_normalized in uploaded_book_normalized):
+                        matched = True
+                except:
+                    pass
+                
+                # 기본 매칭 로직
                 if (title == uploaded_book or 
                     uploaded_book_normalized in title_normalized or 
                     title_normalized in uploaded_book_normalized or
-                    title_normalized == uploaded_book_normalized):
+                    title_normalized == uploaded_book_normalized or
+                    matched):
                     # 업로드 정보 업데이트
                     upload_time = datetime.now().strftime('%Y-%m-%d')
                     row['youtube_uploaded'] = upload_time

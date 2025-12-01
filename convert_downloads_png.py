@@ -150,64 +150,35 @@ def main():
             # 한글용으로 추정
             output_path = output_dir / f"{clean_stem}_thumbnail_ko.jpg"
         else:
-            # 사용자에게 언어 선택 요청
-            print(f"   📝 언어를 선택해주세요:")
-            print(f"      1. 한글 (ko)")
-            print(f"      2. 영어 (en)")
-            print(f"      3. 둘 다 (both)")
-            choice = input(f"      선택 (1/2/3, 기본값: 1): ").strip()
+            # 파일명으로 언어를 판단할 수 없으면 둘 다 생성
+            ko_path = output_dir / f"{clean_stem}_thumbnail_ko.jpg"
+            en_path = output_dir / f"{clean_stem}_thumbnail_en.jpg"
             
-            if choice == '2':
-                output_path = output_dir / f"{clean_stem}_thumbnail_en.jpg"
-            elif choice == '3':
-                # 둘 다 생성
-                ko_path = output_dir / f"{clean_stem}_thumbnail_ko.jpg"
-                en_path = output_dir / f"{clean_stem}_thumbnail_en.jpg"
-                
-                # 한글 버전
-                print(f"\n   🇰🇷 한글 버전 생성 중...")
-                success_ko = convert_png_to_jpg(png_file, ko_path)
-                if success_ko:
-                    print(f"   ✅ 한글 썸네일 생성 완료: {ko_path.name}")
-                
-                # 영어 버전
-                print(f"\n   🇺🇸 영어 버전 생성 중...")
-                success_en = convert_png_to_jpg(png_file, en_path)
-                if success_en:
-                    print(f"   ✅ 영어 썸네일 생성 완료: {en_path.name}")
-                
-                if success_ko or success_en:
-                    print(f"\n   ✅ 변환 완료!")
-                    # 원본 PNG 파일 삭제 여부 확인
-                    try:
-                        delete = input(f"   🗑️ 원본 PNG 파일을 삭제하시겠습니까? (y/n, 기본값: n): ").strip().lower()
-                        if delete == 'y':
-                            png_file.unlink()
-                            print(f"   🗑️ 원본 PNG 파일 삭제: {png_file.name}")
-                    except Exception as e:
-                        print(f"   ⚠️ 원본 PNG 파일 삭제 실패: {e}")
-                else:
-                    print(f"   ❌ 변환 실패: {png_file.name}")
-                
-                print()
-                continue
+            # 한글 버전
+            print(f"\n   🇰🇷 한글 버전 생성 중...")
+            success_ko = convert_png_to_jpg(png_file, ko_path)
+            if success_ko:
+                print(f"   ✅ 한글 썸네일 생성 완료: {ko_path.name}")
+            
+            # 영어 버전
+            print(f"\n   🇺🇸 영어 버전 생성 중...")
+            success_en = convert_png_to_jpg(png_file, en_path)
+            if success_en:
+                print(f"   ✅ 영어 썸네일 생성 완료: {en_path.name}")
+            
+            if success_ko or success_en:
+                print(f"\n   ✅ 변환 완료!")
             else:
-                # 기본값: 한글
-                output_path = output_dir / f"{clean_stem}_thumbnail_ko.jpg"
+                print(f"   ❌ 변환 실패: {png_file.name}")
+            
+            print()
+            continue
         
         # PNG를 JPG로 변환
         success = convert_png_to_jpg(png_file, output_path)
         
         if success:
             print(f"✅ 변환 완료: {output_path.name}")
-            # 원본 PNG 파일 삭제 여부 확인
-            try:
-                delete = input(f"   🗑️ 원본 PNG 파일을 삭제하시겠습니까? (y/n, 기본값: n): ").strip().lower()
-                if delete == 'y':
-                    png_file.unlink()
-                    print(f"   🗑️ 원본 PNG 파일 삭제: {png_file.name}")
-            except Exception as e:
-                print(f"   ⚠️ 원본 PNG 파일 삭제 실패: {e}")
         else:
             print(f"❌ 변환 실패: {png_file.name}")
         
@@ -219,3 +190,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+

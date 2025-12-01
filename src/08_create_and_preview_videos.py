@@ -507,7 +507,38 @@ def preview_metadata(title: str, description: str, tags: list, lang: str):
     print()
 
 
-def save_metadata(video_path: Path, title: str, description: str, tags: list, lang: str, book_info: Optional[Dict] = None, thumbnail_path: Optional[str] = None):
+def find_thumbnail_for_video(video_path: Path, lang: str, safe_title_str: str = None) -> Optional[str]:
+    """영상 파일에 맞는 썸네일 찾기"""
+    video_dir = video_path.parent
+    
+    # safe_title_str이 없으면 video_path에서 추출
+    if safe_title_str is None:
+        video_stem = video_path.stem
+        safe_title_str = video_stem.replace('_review_with_summary_ko', '').replace('_review_with_summary_en', '')
+        safe_title_str = safe_title_str.replace('_review_ko', '').replace('_review_en', '').replace('_review', '')
+        safe_title_str = safe_title_str.replace('_with_summary', '')
+    
+    # 1순위: 표준 네이밍 규칙 ({safe_title}_thumbnail_{lang}.jpg)
+    lang_suffix = "ko" if lang == "ko" else "en"
+    thumbnail_path = video_dir / f"{safe_title_str}_thumbnail_{lang_suffix}.jpg"
+    if thumbnail_path.exists():
+        return str(thumbnail_path)
+    
+    # 2순위: 영상 파일명 기반
+    video_stem = video_path.stem
+    thumbnail_path = video_dir / f"{video_stem}_thumbnail_{lang_suffix}.jpg"
+    if thumbnail_path.exists():
+        return str(thumbnail_path)
+    
+    # 3순위: 언어 구분 없는 썸네일
+    thumbnail_path = video_dir / f"{safe_title_str}_thumbnail.jpg"
+    if thumbnail_path.exists():
+        return str(thumbnail_path)
+    
+    return None
+
+
+def save_metadata(video_path: Path, title: str, description: str, tags: list, lang: str, book_info: Optional[Dict] = None, thumbnail_path: Optional[str] = None, safe_title_str: str = None):
     """메타데이터를 JSON 파일로 저장"""
     # 영문 메타데이터의 경우 book_info의 authors를 영어로 변환
     if lang == "en" and book_info and book_info.get('authors'):
@@ -525,6 +556,10 @@ def save_metadata(video_path: Path, title: str, description: str, tags: list, la
         'book_info': book_info
     }
     
+    # 썸네일 경로 찾기 (제공되지 않았으면 자동으로 찾기)
+    if not thumbnail_path:
+        thumbnail_path = find_thumbnail_for_video(video_path, lang, safe_title_str)
+    
     # 썸네일 경로도 메타데이터에 포함
     if thumbnail_path:
         metadata['thumbnail_path'] = thumbnail_path
@@ -534,6 +569,8 @@ def save_metadata(video_path: Path, title: str, description: str, tags: list, la
         json.dump(metadata, f, ensure_ascii=False, indent=2)
     
     print(f"💾 메타데이터 저장: {metadata_path.name}")
+    if thumbnail_path:
+        print(f"   📸 썸네일: {Path(thumbnail_path).name}")
     return metadata_path
 
 
@@ -569,7 +606,6 @@ def main():
         
         # 한글 메타데이터 생성
         video_path_ko = Path(f"output/{safe_title_str}_review_with_summary_ko.mp4")
-        thumbnail_path_ko = Path(f"output/{safe_title_str}_thumbnail_ko.jpg")
         
         if video_path_ko.exists():
             print("📋 한글 메타데이터 생성 중...")
@@ -584,16 +620,14 @@ def main():
                 tags_ko,
                 'ko',
                 book_info,
-                str(thumbnail_path_ko) if thumbnail_path_ko.exists() else None
+                thumbnail_path=None,  # 자동으로 찾기
+                safe_title_str=safe_title_str
             )
-            if not thumbnail_path_ko.exists():
-                print(f"   ⚠️ 한글 썸네일이 아직 없습니다. 나중에 추가하세요: {thumbnail_path_ko}")
         else:
             print(f"⚠️ 한글 영상을 찾을 수 없습니다: {video_path_ko}")
         
         # 영문 메타데이터 생성
         video_path_en = Path(f"output/{safe_title_str}_review_with_summary_en.mp4")
-        thumbnail_path_en = Path(f"output/{safe_title_str}_thumbnail_en.jpg")
         
         if video_path_en.exists():
             print("\n📋 영문 메타데이터 생성 중...")
@@ -608,10 +642,9 @@ def main():
                 tags_en,
                 'en',
                 book_info,
-                str(thumbnail_path_en) if thumbnail_path_en.exists() else None
+                thumbnail_path=None,  # 자동으로 찾기
+                safe_title_str=safe_title_str
             )
-            if not thumbnail_path_en.exists():
-                print(f"   ⚠️ 영문 썸네일이 아직 없습니다. 나중에 추가하세요: {thumbnail_path_en}")
         else:
             print(f"⚠️ 영문 영상을 찾을 수 없습니다: {video_path_en}")
         
@@ -717,7 +750,12 @@ def main():
         
         # 메타데이터 저장
         if output_path.exists():
-            metadata_path = save_metadata(output_path, title, description, tags, "ko", book_info, thumbnail_path)
+            metadata_path = save_metadata(output_path, title, description, tags, "ko", book_info, thumbnail_path, safe_title_str=safe_title_str)
+            # 저장된 메타데이터에서 썸네일 경로 읽기
+            if metadata_path.exists():
+                with open(metadata_path, 'r', encoding='utf-8') as f:
+                    saved_metadata = json.load(f)
+                    thumbnail_path = saved_metadata.get('thumbnail_path')
             videos_created.append({
                 'video_path': output_path,
                 'metadata_path': metadata_path,
@@ -804,7 +842,12 @@ def main():
         
         # 메타데이터 저장
         if output_path.exists():
-            metadata_path = save_metadata(output_path, title, description, tags, "en", book_info, thumbnail_path)
+            metadata_path = save_metadata(output_path, title, description, tags, "en", book_info, thumbnail_path, safe_title_str=safe_title_str)
+            # 저장된 메타데이터에서 썸네일 경로 읽기
+            if metadata_path.exists():
+                with open(metadata_path, 'r', encoding='utf-8') as f:
+                    saved_metadata = json.load(f)
+                    thumbnail_path = saved_metadata.get('thumbnail_path')
             videos_created.append({
                 'video_path': output_path,
                 'metadata_path': metadata_path,
