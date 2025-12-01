@@ -5,14 +5,23 @@ NotebookLM 기반 책 리뷰 영상 자동 생성기
 ## 프로젝트 개요
 
 이 프로젝트는 NotebookLM을 활용하여 책 리뷰 영상을 자동으로 생성하는 파이프라인입니다.
-사용자가 NotebookLM에서 생성한 오디오 파일을 업로드하면, AI가 자동으로 요약을 생성하고 이미지를 합성하여 유튜브 영상을 제작합니다.
+사용자가 NotebookLM에서 생성한 오디오 파일(및 선택적으로 비디오 파일)을 업로드하면, AI가 자동으로 요약을 생성하고 이미지를 합성하여 유튜브 영상을 제작합니다.
+
+**생성되는 영상 구조:**
+- Summary (요약 오디오 + 이미지 슬라이드쇼)
+- 3초 silence (검은 화면)
+- NotebookLM Video (선택사항, 있으면 자동 포함)
+- 3초 silence (검은 화면)
+- Audio (리뷰 오디오 + 이미지 슬라이드쇼)
 
 ## 전체 워크플로우 (6단계)
 
-1.  **NotebookLM 오디오 업로드**: 사용자가 NotebookLM에서 생성한 오디오 파일을 `assets/audio/` 폴더에 업로드합니다.
+1.  **NotebookLM 오디오/비디오 준비**: 
+   - 리뷰 오디오 파일을 `assets/audio/{책제목}_review_{언어}.{확장자}` 형식으로 저장
+   - NotebookLM 비디오(선택사항)를 `assets/video/{책제목}_notebooklm_{언어}.{확장자}` 형식으로 저장
 2.  **관련 이미지 확보**: 책 제목과 관련된 고품질 무드 이미지를 **100개** 자동으로 수집합니다. (`assets/images/{책제목}/` 폴더)
-3.  **오디오 서머리 생성**: 5분 분량의 책 요약(한글/영문)을 생성하고 TTS로 MP3 변환합니다. 생성된 서머리 오디오는 `assets/audio/`로 이동됩니다.
-4.  **영상 합성**: Summary 오디오 + 3초 silence + NotebookLM Video (선택사항) + 3초 silence + 리뷰 오디오 순서로 영상을 생성합니다.
+3.  **Summary 오디오 생성**: 5분 분량의 책 요약(한글/영문)을 생성하고 TTS로 MP3 변환합니다. 생성된 Summary 오디오는 `assets/audio/{책제목}_summary_{언어}.mp3` 형식으로 저장됩니다.
+4.  **영상 합성**: Summary 오디오 + 3초 silence + NotebookLM Video (선택사항) + 3초 silence + 리뷰 오디오 순서로 영상을 생성합니다. 생성된 영상은 `output/{책제목}_review_with_summary_{언어}.mp4` 형식으로 저장됩니다.
 5.  **배포 준비**: 썸네일과 메타데이터를 생성합니다. 썸네일은 자동으로 찾아서 메타데이터에 포함됩니다.
 6.  **유튜브 업로드**: 메타데이터 파일을 기반으로 유튜브에 자동 업로드합니다.
 
@@ -44,11 +53,36 @@ pip install -r requirements.txt
 
 `.env.example` 파일을 참고하여 `.env` 파일을 생성하고 API 키를 설정하세요.
 
+**필수 API 키:**
+- `GOOGLE_BOOKS_API_KEY`: 책 표지 이미지 다운로드용
+- `PEXELS_API_KEY`: 무드 이미지 다운로드용 (1순위)
+- `PIXABAY_API_KEY`: 무드 이미지 다운로드용 (2순위, 선택사항)
+- `UNSPLASH_ACCESS_KEY`: 무드 이미지 다운로드용 (3순위, 선택사항)
+- `OPENAI_API_KEY`: Summary 생성 및 TTS용
+- `CLAUDE_API_KEY`: Summary 생성용 (선택사항)
+- `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`, `YOUTUBE_REFRESH_TOKEN`: YouTube 업로드용
+
 ## 사용 방법
 
-### 1. NotebookLM 오디오 준비
-NotebookLM에서 생성한 오디오 파일을 `assets/audio/` 폴더에 위치시킵니다.
-파일명 예시: `The_Boy_is_Coming_review_en.m4a`
+### 1. NotebookLM 오디오 및 비디오 준비
+
+**오디오 파일:**
+NotebookLM에서 생성한 리뷰 오디오 파일을 `assets/audio/` 폴더에 위치시킵니다.
+
+**파일명 규칙 (표준 네이밍):**
+- 한글 오디오: `{책제목}_review_ko.{확장자}` (예: `Sunrise_on_the_Reaping_review_ko.m4a`)
+- 영어 오디오: `{영문제목}_review_en.{확장자}` (예: `Sunrise_on_the_Reaping_review_en.m4a`)
+- 지원 확장자: `.m4a`, `.mp3`, `.wav`
+
+**비디오 파일 (선택사항):**
+NotebookLM에서 생성한 비디오 파일을 `assets/video/` 폴더에 위치시킵니다.
+
+**파일명 규칙 (표준 네이밍):**
+- 한글 비디오: `{책제목}_notebooklm_ko.{확장자}` (예: `Sunrise_on_the_Reaping_notebooklm_ko.mp4`)
+- 영어 비디오: `{영문제목}_notebooklm_en.{확장자}` (예: `Sunrise_on_the_Reaping_notebooklm_en.mp4`)
+- 지원 확장자: `.mp4`, `.mov`, `.avi`, `.mkv`
+
+**참고:** Summary 오디오는 자동으로 생성되며 `{책제목}_summary_{언어}.mp3` 형식으로 저장됩니다.
 
 ### 2. 전체 파이프라인 실행
 다음 명령어로 2~6단계 과정을 한 번에 실행할 수 있습니다.
@@ -87,14 +121,13 @@ python src/08_create_and_preview_videos.py \
 ```
 메타데이터 생성 시 썸네일 경로를 자동으로 찾아서 포함합니다.
 
-**NotebookLM 비디오 포함 영상 제작:**
-NotebookLM에서 생성한 비디오를 영상에 포함하려면:
-1. NotebookLM 비디오 파일을 `assets/video/` 폴더에 저장
-2. 파일명 규칙 (표준 네이밍):
-   - 한글 비디오: `{책제목}_notebooklm_ko.mp4`
-   - 영어 비디오: `{영문제목}_notebooklm_en.mp4`
-   - 예시: `Sunrise_on_the_Reaping_notebooklm_ko.mp4`
-3. 위 명령어 실행 시 자동으로 NotebookLM 비디오가 Summary와 Audio 사이에 삽입됨
+**파일 네이밍 규칙 요약:**
+- **리뷰 오디오**: `assets/audio/{책제목}_review_{언어}.{확장자}`
+- **Summary 오디오**: `assets/audio/{책제목}_summary_{언어}.mp3` (자동 생성)
+- **NotebookLM 비디오**: `assets/video/{책제목}_notebooklm_{언어}.{확장자}` (선택사항)
+- **생성된 영상**: `output/{책제목}_review_with_summary_{언어}.mp4`
+- **썸네일**: `output/{책제목}_thumbnail_{언어}.jpg`
+- **메타데이터**: `output/{책제목}_review_with_summary_{언어}.metadata.json`
 
 **영상 구성:**
 - **Summary** (이미지 슬라이드쇼 + 요약 오디오, 음량 1.2배 조정)
@@ -158,7 +191,8 @@ booksummary/
 ### 스마트 이미지 키워드 생성
 - 책의 summary 파일을 분석하여 주제에 맞는 이미지 키워드 자동 생성
 - AI 기반 키워드 추출로 더 정확한 무드 이미지 수집
-- Unsplash/Pexels API를 통한 고품질 이미지 다운로드
+- 다중 이미지 소스 지원: **Pexels (1순위) → Pixabay (2순위) → Unsplash (3순위)**
+- 각 API의 장점을 활용하여 최대 100개의 고품질 무드 이미지 수집
 
 ### 유튜브 채널에서 CSV 자동 업데이트
 - 유튜브 채널에 업로드된 책 정보를 자동으로 CSV에 반영

@@ -424,7 +424,13 @@
   - URL: https://www.youtube.com/watch?v=vsqgSAgIdC4
 
 ### 문서 업데이트
-- README.md 업데이트: 영상 구조, 음량 조정 기능, 메타데이터 생성 방법 추가
+- README.md 업데이트: 
+  - 영상 구조 상세 설명 추가 (프로젝트 개요 섹션)
+  - 오디오/비디오 파일 네이밍 규칙 명확화
+  - 워크플로우에 파일 경로 및 형식 추가
+  - 환경 변수 설명 추가 (PIXABAY_API_KEY 포함)
+  - 파일 네이밍 규칙 요약 섹션 추가
+  - 이미지 다운로드 소스 우선순위 설명 (Pexels → Pixabay → Unsplash)
 
 ### 파일 구조 정리
 - 루트 디렉토리의 유틸리티 스크립트를 scripts/ 폴더로 이동
