@@ -9,8 +9,8 @@ import requests
 from pathlib import Path
 from dotenv import load_dotenv
 
-# 프로젝트 루트를 경로에 추가
-sys.path.insert(0, str(Path(__file__).parent))
+# 프로젝트 루트를 경로에 추가 (scripts/ 폴더에서 실행 시)
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 try:
     from pexels_api import API as PexelsAPI
@@ -23,7 +23,7 @@ load_dotenv()
 
 def download_pexels_images(book_title: str, target_count: int = 100):
     """Pexels API로 무드 이미지 다운로드"""
-    from utils.file_utils import safe_title
+    from src.utils.file_utils import safe_title
     
     pexels_api_key = os.getenv("PEXELS_API_KEY")
     if not pexels_api_key:

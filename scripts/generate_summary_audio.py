@@ -6,13 +6,13 @@ import sys
 from pathlib import Path
 import importlib.util
 
-# 프로젝트 루트를 경로에 추가
-sys.path.insert(0, str(Path(__file__).parent))
+# 프로젝트 루트를 경로에 추가 (scripts/ 폴더에서 실행 시)
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.utils.file_utils import safe_title
 
 # TTS 모듈 동적 로드
-tts_path = Path(__file__).parent / "src" / "09_text_to_speech.py"
+tts_path = Path(__file__).parent.parent / "src" / "09_text_to_speech.py"
 spec = importlib.util.spec_from_file_location("text_to_speech", tts_path)
 tts_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(tts_module)
