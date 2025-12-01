@@ -321,3 +321,25 @@
     - URL: https://www.youtube.com/watch?v=QcmWjHj93fA
     - 파일 크기: 174.14 MB
 - **CSV 업데이트**: data/ildangbaek_books.csv에 선라이즈 온 더 리핑 정보 추가
+
+## 2025-12-01
+
+### 썸네일 생성 방식 변경
+- **변경 사항**: 썸네일을 Nano Banana에서 수동으로 만든 PNG 파일을 기반으로 처리하도록 변경
+  - `process_png_thumbnails` 메서드 개선: `_kr`, `_ko`, `_en` 등으로 구분된 PNG 파일 자동 인식
+  - `generate_thumbnail` 메서드: 자동 생성 비활성화, 경고 메시지만 출력
+  - `08_create_and_preview_videos.py`: PNG 파일 우선 처리, 없으면 경고만 출력
+  - 파일명 예시: `{책제목}_kr.png`, `{책제목}_ko.png`, `{책제목}_en.png`
+
+### 메타데이터 제목 형식 변경
+- **변경 사항**: 제목에서 불필요한 접미사 제거
+  - 한글 제목: `[한국어] 불안 세대 책 리뷰 | [Korean] The Anxious Generation Book Review` (일당백 스타일 제거)
+  - 영어 제목: `[English] The Anxious Generation Book Review | [영어] 불안 세대 책 리뷰` (Auto-Generated 제거)
+  - `src/08_create_and_preview_videos.py`의 `generate_title` 함수 수정
+  - `src/05_auto_upload.py`의 `generate_title` 메서드 수정
+
+### PNG to JPG 변환 스크립트 추가
+- **추가 파일**: `convert_png_to_jpg.py`
+  - output 폴더의 PNG 파일을 JPG로 변환하여 롱폼 썸네일로 사용 가능하게 함
+  - 4K 해상도 (3840x2160)로 리사이즈
+  - 2MB 이하로 압축

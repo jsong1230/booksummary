@@ -156,8 +156,37 @@ class VideoWithSummaryPipeline:
             lang_suffix = "ko" if language == "ko" else "en"
             summary_audio_path = f"assets/audio/{safe_title_str}_summary_{lang_suffix}.mp3"
             if not Path(summary_audio_path).exists():
-                print(f"⚠️ 요약 오디오를 찾을 수 없습니다: {summary_audio_path}")
-                summary_audio_path = None
+                print("=" * 60)
+                print("❌ 요약 오디오를 찾을 수 없습니다!")
+                print("=" * 60)
+                print(f"   찾는 파일: {summary_audio_path}")
+                print()
+                print("   가능한 대안 파일:")
+                # 유사한 파일명 찾기
+                audio_dir = Path("assets/audio")
+                possible_files = list(audio_dir.glob(f"*summary*{lang_suffix}*"))
+                if not possible_files:
+                    possible_files = list(audio_dir.glob(f"*summary*{lang_suffix.upper()}*"))
+                if possible_files:
+                    for f in possible_files:
+                        print(f"     - {f.name}")
+                else:
+                    print("     (대안 파일 없음)")
+                print()
+                print("   다음 중 선택하세요:")
+                print("   1. 요약 오디오 파일을 올바른 위치에 복사/이동")
+                print("   2. 요약 오디오를 새로 생성 (--skip-summary 옵션 제거)")
+                print("   3. 영상 생성을 취소")
+                print()
+                try:
+                    user_input = input("계속 진행하시겠습니까? (y/n): ").strip().lower()
+                    if user_input != 'y':
+                        raise ValueError("사용자가 영상 생성을 취소했습니다. 요약 오디오를 준비한 후 다시 시도하세요.")
+                    else:
+                        print("⚠️ 경고: 요약 없이 영상을 생성합니다.")
+                        summary_audio_path = None
+                except (EOFError, KeyboardInterrupt):
+                    raise ValueError("영상 생성이 취소되었습니다. 요약 오디오를 준비한 후 다시 시도하세요.")
         
         # 3. 리뷰 오디오 경로 확인
         if review_audio_path is None:
@@ -198,7 +227,22 @@ class VideoWithSummaryPipeline:
             lang_suffix = "ko" if language == "ko" else "en"
             output_path = f"output/{safe_title_str}_review_with_summary_{lang_suffix}.mp4"
         
-        # 6. 영상 제작
+        # 6. 요약 오디오 최종 확인
+        if summary_audio_path is None:
+            print("=" * 60)
+            print("❌ 요약 오디오가 없습니다!")
+            print("=" * 60)
+            print("   요약이 포함된 영상을 생성하려면 요약 오디오가 필요합니다.")
+            print("   요약 없이 영상을 생성하면 나중에 다시 만들어야 합니다.")
+            print()
+            try:
+                user_input = input("요약 없이 계속 진행하시겠습니까? (y/n): ").strip().lower()
+                if user_input != 'y':
+                    raise ValueError("영상 생성을 취소했습니다. 요약 오디오를 준비한 후 다시 시도하세요.")
+            except (EOFError, KeyboardInterrupt):
+                raise ValueError("영상 생성이 취소되었습니다. 요약 오디오를 준비한 후 다시 시도하세요.")
+        
+        # 7. 영상 제작
         print("=" * 60)
         print("🎬 3단계: 영상 제작")
         print("=" * 60)

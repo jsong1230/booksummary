@@ -120,11 +120,11 @@ class AutoYouTubeUploader:
         
         if lang == "ko":
             # 한글 먼저, 영어 나중
-            return f"[한국어] {ko_title} 책 리뷰 | [Korean] {en_title} Book Review | 일당백 스타일"
+            return f"[한국어] {ko_title} 책 리뷰 | [Korean] {en_title} Book Review"
         elif lang == "en":
             # 영어 먼저, 한글 나중
             # 중요: 한글 부분에는 반드시 한글 제목이 들어가야 함
-            return f"[English] {en_title} Book Review | [영어] {ko_title} 책 리뷰 | Auto-Generated"
+            return f"[English] {en_title} Book Review | [영어] {ko_title} 책 리뷰"
         else:  # both
             return f"{ko_title} 책 리뷰 | {en_title} Book Review | 일당백 스타일"
     

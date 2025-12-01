@@ -434,23 +434,29 @@ clean background with space for text placement.
         background_image_path: Optional[str] = None,
         output_path: Optional[str] = None,
         use_author_image: bool = True
-    ) -> str:
+    ) -> Optional[str]:
         """
-        썸네일 생성
+        썸네일 생성 (더 이상 자동 생성하지 않음 - PNG 파일 우선 처리)
+        
+        주의: 이 메서드는 더 이상 사용되지 않습니다. 
+        대신 process_png_thumbnails()를 사용하여 Nano Banana에서 만든 PNG 파일을 처리하세요.
         
         Args:
             book_title: 책 제목
             author: 작가 이름
             lang: 언어 ("ko" 또는 "en")
-            background_image_path: 배경 이미지 경로 (None이면 그라데이션 사용)
-            output_path: 출력 경로 (None이면 자동 생성)
-            use_author_image: 작가/책 이미지 사용 여부 (True면 Unsplash/Pexels에서 검색)
+            background_image_path: 배경 이미지 경로 (사용 안 함)
+            output_path: 출력 경로 (사용 안 함)
+            use_author_image: 작가/책 이미지 사용 여부 (사용 안 함)
         
         Returns:
-            생성된 썸네일 파일 경로
+            None (경고 메시지만 출력)
         """
-        # 배경 이미지 로드 또는 생성
-        bg = None
+        print("   ⚠️ 썸네일 자동 생성은 더 이상 지원되지 않습니다.")
+        print("   💡 Nano Banana에서 썸네일을 만들어서 output 폴더에 넣어주세요.")
+        print("      파일명 예시: {책제목}_kr.png, {책제목}_en.png")
+        print("      그 후 process_png_thumbnails() 메서드를 사용하세요.")
+        return None
         
         # 1순위: DALL-E 생성 (옵션이 켜져 있는 경우)
         if self.use_dalle:
@@ -767,6 +773,240 @@ clean background with space for text placement.
         bottom = top + target_height
         
         return img.crop((left, top, right, bottom))
+    
+    def process_png_thumbnails(
+        self,
+        book_title: str,
+        output_dir: Path = None
+    ) -> Dict[str, Optional[str]]:
+        """
+        output 폴더의 PNG 썸네일 파일을 찾아서 리사이즈 및 압축하여 JPG로 변환
+        (Nano Banana에서 수동으로 만든 PNG 파일 처리)
+        
+        Args:
+            book_title: 책 제목
+            output_dir: output 폴더 경로 (기본값: output/)
+            
+        Returns:
+            {'ko': 한글 썸네일 경로, 'en': 영어 썸네일 경로}
+        """
+        if output_dir is None:
+            output_dir = Path("output")
+        
+        safe_title_str = safe_title(book_title)
+        
+        # output 폴더에서 PNG 파일 찾기
+        png_files = list(output_dir.glob("*.png"))
+        
+        if not png_files:
+            print("   📭 output 폴더에 PNG 파일이 없습니다.")
+            print("   💡 Nano Banana에서 만든 썸네일 PNG 파일을 output 폴더에 넣어주세요.")
+            print("      파일명 예시: {책제목}_kr.png, {책제목}_en.png 또는 {책제목}_ko.png, {책제목}_en.png")
+            return {'ko': None, 'en': None}
+        
+        print(f"   📁 발견된 PNG 파일: {len(png_files)}개")
+        for png_file in png_files:
+            print(f"      - {png_file.name}")
+        
+        # 썸네일 파일명 패턴
+        thumbnail_ko_path = output_dir / f"{safe_title_str}_thumbnail_ko.jpg"
+        thumbnail_en_path = output_dir / f"{safe_title_str}_thumbnail_en.jpg"
+        
+        result = {'ko': None, 'en': None}
+        
+        # PNG 파일을 언어별로 구분 (kr, ko, en 등으로 구분)
+        ko_png_files = []
+        en_png_files = []
+        unknown_png_files = []
+        
+        for png_file in png_files:
+            filename_lower = png_file.name.lower()
+            # 파일명에 언어 표시가 있는지 확인 (kr, ko, en 등)
+            if '_kr' in filename_lower or '_ko' in filename_lower or 'korean' in filename_lower or '한글' in filename_lower or '한국어' in filename_lower:
+                ko_png_files.append(png_file)
+            elif '_en' in filename_lower or 'english' in filename_lower or '영어' in filename_lower or '영문' in filename_lower:
+                en_png_files.append(png_file)
+            else:
+                unknown_png_files.append(png_file)
+        
+        # PNG 파일을 썸네일로 변환
+        if len(ko_png_files) > 0 and len(en_png_files) > 0:
+            # 파일명으로 구분 가능한 경우
+            print(f"   ✅ 파일명으로 언어 구분: 한글 {len(ko_png_files)}개, 영어 {len(en_png_files)}개")
+            
+            if thumbnail_ko_path.parent.exists() and ko_png_files:
+                ko_path = self._resize_and_compress_png(ko_png_files[0], thumbnail_ko_path)
+                if ko_path:
+                    result['ko'] = str(ko_path)
+            
+            if thumbnail_en_path.parent.exists() and en_png_files:
+                en_path = self._resize_and_compress_png(en_png_files[0], thumbnail_en_path)
+                if en_path:
+                    result['en'] = str(en_path)
+        
+        elif len(ko_png_files) > 0:
+            # 한글용만 있는 경우
+            print(f"   ✅ 한글 썸네일만 발견: {len(ko_png_files)}개")
+            if thumbnail_ko_path.parent.exists() and ko_png_files:
+                ko_path = self._resize_and_compress_png(ko_png_files[0], thumbnail_ko_path)
+                if ko_path:
+                    result['ko'] = str(ko_path)
+        
+        elif len(en_png_files) > 0:
+            # 영어용만 있는 경우
+            print(f"   ✅ 영어 썸네일만 발견: {len(en_png_files)}개")
+            if thumbnail_en_path.parent.exists() and en_png_files:
+                en_path = self._resize_and_compress_png(en_png_files[0], thumbnail_en_path)
+                if en_path:
+                    result['en'] = str(en_path)
+        
+        elif len(png_files) == 1:
+            # 하나의 PNG를 두 썸네일에 모두 사용
+            png_file = png_files[0]
+            print(f"   📝 단일 PNG 파일을 두 썸네일에 적용합니다.")
+            
+            if thumbnail_ko_path.parent.exists():
+                ko_path = self._resize_and_compress_png(png_file, thumbnail_ko_path)
+                if ko_path:
+                    result['ko'] = str(ko_path)
+            
+            if thumbnail_en_path.parent.exists():
+                en_path = self._resize_and_compress_png(png_file, thumbnail_en_path)
+                if en_path:
+                    result['en'] = str(en_path)
+        
+        elif len(png_files) >= 2:
+            # 두 개 이상의 PNG 파일이 있으면 수정 시간 순서로 매칭
+            # (구분 불가능한 경우)
+            if unknown_png_files:
+                png_files_sorted = sorted(unknown_png_files, key=lambda x: x.stat().st_mtime, reverse=True)
+                print(f"   ⚠️ 파일명으로 언어를 구분할 수 없습니다. 수정 시간 순서로 매칭합니다.")
+                print(f"      (최신 파일 → 영어, 그 다음 → 한글)")
+                print(f"   💡 파일명에 _kr, _ko, _en 등을 포함하여 언어를 구분해주세요.")
+                
+                # 첫 번째 파일을 영어용으로
+                if thumbnail_en_path.parent.exists() and len(png_files_sorted) > 0:
+                    en_path = self._resize_and_compress_png(png_files_sorted[0], thumbnail_en_path)
+                    if en_path:
+                        result['en'] = str(en_path)
+                
+                # 두 번째 파일을 한글용으로
+                if thumbnail_ko_path.parent.exists() and len(png_files_sorted) > 1:
+                    ko_path = self._resize_and_compress_png(png_files_sorted[1], thumbnail_ko_path)
+                    if ko_path:
+                        result['ko'] = str(ko_path)
+            else:
+                # 일부는 구분 가능하고 일부는 불가능한 경우
+                if ko_png_files and thumbnail_ko_path.parent.exists():
+                    ko_path = self._resize_and_compress_png(ko_png_files[0], thumbnail_ko_path)
+                    if ko_path:
+                        result['ko'] = str(ko_path)
+                
+                if en_png_files and thumbnail_en_path.parent.exists():
+                    en_path = self._resize_and_compress_png(en_png_files[0], thumbnail_en_path)
+                    if en_path:
+                        result['en'] = str(en_path)
+        
+        return result
+    
+    def _resize_and_compress_png(
+        self,
+        input_path: Path,
+        output_path: Path,
+        max_size_mb: float = 2.0
+    ) -> Optional[Path]:
+        """
+        PNG 파일을 리사이즈하고 압축하여 JPG로 저장
+        
+        Args:
+            input_path: 입력 PNG 파일 경로
+            output_path: 출력 JPG 파일 경로
+            max_size_mb: 최대 파일 크기 (MB)
+            
+        Returns:
+            생성된 파일 경로 (None이면 실패)
+        """
+        try:
+            print(f"   📖 이미지 로드 중: {input_path.name}")
+            img = Image.open(input_path)
+            
+            # RGBA를 RGB로 변환 (PNG 투명도 처리)
+            if img.mode == 'RGBA':
+                # 흰색 배경에 합성
+                background = Image.new('RGB', img.size, (255, 255, 255))
+                background.paste(img, mask=img.split()[3])  # alpha 채널을 마스크로 사용
+                img = background
+            elif img.mode != 'RGB':
+                img = img.convert('RGB')
+            
+            # 리사이즈 (비율 유지하며 크롭)
+            print(f"   🔄 리사이즈 중: {img.size} -> {self.THUMBNAIL_SIZE}")
+            img = self._resize_and_crop(img, self.THUMBNAIL_SIZE)
+            
+            # 압축 (품질 조정하여 2MB 이하로)
+            print(f"   💾 압축 중...")
+            quality = 95
+            while quality >= 50:
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+                img.save(output_path, 'JPEG', quality=quality, optimize=True)
+                
+                file_size_mb = output_path.stat().st_size / (1024 * 1024)
+                print(f"      품질 {quality}: {file_size_mb:.2f} MB")
+                
+                if file_size_mb <= max_size_mb:
+                    print(f"   ✅ 압축 완료: {file_size_mb:.2f} MB (품질: {quality})")
+                    # 원본 PNG 파일 삭제
+                    try:
+                        input_path.unlink()
+                        print(f"   🗑️ 원본 PNG 파일 삭제: {input_path.name}")
+                    except Exception as e:
+                        print(f"   ⚠️ 원본 PNG 파일 삭제 실패: {e}")
+                    return output_path
+                
+                quality -= 5
+            
+            # 최소 품질로도 2MB를 넘으면 경고
+            file_size_mb = output_path.stat().st_size / (1024 * 1024)
+            if file_size_mb > max_size_mb:
+                print(f"   ⚠️ 경고: 파일 크기가 {file_size_mb:.2f} MB로 2MB를 초과합니다.")
+                print(f"      해상도를 낮춰서 다시 시도합니다...")
+                
+                # 해상도를 90%로 줄여서 재시도
+                new_size = (int(self.THUMBNAIL_SIZE[0] * 0.9), int(self.THUMBNAIL_SIZE[1] * 0.9))
+                img_resized = img.resize(new_size, Image.Resampling.LANCZOS)
+                # 다시 원래 크기로 확대 (약간의 품질 손실)
+                img_resized = img_resized.resize(self.THUMBNAIL_SIZE, Image.Resampling.LANCZOS)
+                
+                quality = 85
+                while quality >= 50:
+                    img_resized.save(output_path, 'JPEG', quality=quality, optimize=True)
+                    file_size_mb = output_path.stat().st_size / (1024 * 1024)
+                    if file_size_mb <= max_size_mb:
+                        print(f"   ✅ 압축 완료 (해상도 조정): {file_size_mb:.2f} MB (품질: {quality})")
+                        # 원본 PNG 파일 삭제
+                        try:
+                            input_path.unlink()
+                            print(f"   🗑️ 원본 PNG 파일 삭제: {input_path.name}")
+                        except Exception as e:
+                            print(f"   ⚠️ 원본 PNG 파일 삭제 실패: {e}")
+                        return output_path
+                    quality -= 5
+            
+            # 성공적으로 저장된 경우에도 원본 삭제
+            if output_path.exists():
+                try:
+                    input_path.unlink()
+                    print(f"   🗑️ 원본 PNG 파일 삭제: {input_path.name}")
+                except Exception as e:
+                    print(f"   ⚠️ 원본 PNG 파일 삭제 실패: {e}")
+            
+            return output_path
+            
+        except Exception as e:
+            print(f"   ❌ 오류 발생: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
 
 
 # load_book_info는 utils.file_utils에서 import됨

@@ -53,12 +53,29 @@ def generate_title(book_title: str, lang: str = "both") -> str:
                 "Animal Farm": "애니멀 팜",
                 "Hamlet": "햄릿",
                 "Sunrise on the Reaping": "선라이즈 온 더 리핑",
+                "The Anxious Generation": "불안 세대",
             }
             ko_title = pronunciation_map.get(ko_title, ko_title)
     else:
         # 한글 제목이 들어온 경우: 영어 제목으로 변환
         ko_title = book_title  # 이미 한글
         en_title = translate_book_title(book_title)
+        
+        # en_title이 여전히 한글인 경우 (번역 실패), 에러 발생
+        if not is_english_title(en_title):
+            # 매핑에 없는 경우, pronunciation_map에서 찾기
+            pronunciation_map = {
+                "벅아이": "Buckeye",
+                "애니멀 팜": "Animal Farm",
+                "햄릿": "Hamlet",
+                "선라이즈 온 더 리핑": "Sunrise on the Reaping",
+                "불안 세대": "The Anxious Generation",
+            }
+            en_title = pronunciation_map.get(ko_title, en_title)
+            
+            # 여전히 한글이면 에러
+            if not is_english_title(en_title):
+                raise ValueError(f"책 제목 '{book_title}'의 영어 번역을 찾을 수 없습니다. src/utils/translations.py에 매핑을 추가하세요.")
     
     alt_titles = get_book_alternative_title(ko_title)  # 한글 제목 기준으로 대체 제목 찾기
     
@@ -70,7 +87,7 @@ def generate_title(book_title: str, lang: str = "both") -> str:
             main_title = f"{ko_title} ({alt_titles['ko']})"
         else:
             main_title = ko_title
-        return f"[한국어] {main_title} 책 리뷰 | [Korean] {en_title} Book Review | 일당백 스타일"
+        return f"[한국어] {main_title} 책 리뷰 | [Korean] {en_title} Book Review"
     elif lang == "en":
         # 영어 먼저, 한글 나중
         # 영어 부분: [English], 한글 부분: [영어]
@@ -88,7 +105,7 @@ def generate_title(book_title: str, lang: str = "both") -> str:
         else:
             ko_main_title = ko_title
         
-        return f"[English] {en_main_title} Book Review | [영어] {ko_main_title} 책 리뷰 | Auto-Generated"
+        return f"[English] {en_main_title} Book Review | [영어] {ko_main_title} 책 리뷰"
     else:
         return f"{ko_title} 책 리뷰 | {en_title} Book Review | 일당백 스타일"
 
@@ -554,7 +571,7 @@ def main():
         video_path_ko = Path(f"output/{safe_title_str}_review_with_summary_ko.mp4")
         thumbnail_path_ko = Path(f"output/{safe_title_str}_thumbnail_ko.jpg")
         
-        if thumbnail_path_ko.exists():
+        if video_path_ko.exists():
             print("📋 한글 메타데이터 생성 중...")
             title_ko = generate_title(args.book_title, lang='ko')
             description_ko = generate_description(book_info, lang='ko', book_title=args.book_title)
@@ -569,14 +586,16 @@ def main():
                 book_info,
                 str(thumbnail_path_ko) if thumbnail_path_ko.exists() else None
             )
+            if not thumbnail_path_ko.exists():
+                print(f"   ⚠️ 한글 썸네일이 아직 없습니다. 나중에 추가하세요: {thumbnail_path_ko}")
         else:
-            print(f"⚠️ 한글 썸네일을 찾을 수 없습니다: {thumbnail_path_ko}")
+            print(f"⚠️ 한글 영상을 찾을 수 없습니다: {video_path_ko}")
         
         # 영문 메타데이터 생성
         video_path_en = Path(f"output/{safe_title_str}_review_with_summary_en.mp4")
         thumbnail_path_en = Path(f"output/{safe_title_str}_thumbnail_en.jpg")
         
-        if thumbnail_path_en.exists():
+        if video_path_en.exists():
             print("\n📋 영문 메타데이터 생성 중...")
             title_en = generate_title(args.book_title, lang='en')
             description_en = generate_description(book_info, lang='en', book_title=args.book_title)
@@ -591,8 +610,10 @@ def main():
                 book_info,
                 str(thumbnail_path_en) if thumbnail_path_en.exists() else None
             )
+            if not thumbnail_path_en.exists():
+                print(f"   ⚠️ 영문 썸네일이 아직 없습니다. 나중에 추가하세요: {thumbnail_path_en}")
         else:
-            print(f"⚠️ 영문 썸네일을 찾을 수 없습니다: {thumbnail_path_en}")
+            print(f"⚠️ 영문 영상을 찾을 수 없습니다: {video_path_en}")
         
         print("\n✅ 메타데이터 생성 완료!")
         return
@@ -674,24 +695,22 @@ def main():
         thumbnail_path = None
         if THUMBNAIL_AVAILABLE and not args.skip_thumbnail:
             try:
-                print("🖼️ 썸네일 생성 중...")
                 generator = ThumbnailGenerator(use_dalle=args.use_dalle_thumbnail)
                 
-                # 배경 이미지 찾기
-                background_image = None
-                if args.image_dir:
-                    mood_images = sorted(Path(args.image_dir).glob("mood_*.jpg"))
-                    if mood_images:
-                        background_image = str(mood_images[0])
+                # 먼저 output 폴더의 PNG 파일 확인 및 처리
+                print("🖼️ 썸네일 처리 중...")
+                png_thumbnails = generator.process_png_thumbnails(args.book_title)
                 
-                thumbnail_path = generator.generate_thumbnail(
-                    book_title=args.book_title,
-                    author=', '.join(book_info.get('authors', [])) if book_info else '',
-                    lang="ko",
-                    background_image_path=background_image,
-                    output_path=str(output_path.parent / f"{output_path.stem}_thumbnail_ko.jpg")
-                )
-                print()
+                if png_thumbnails.get('ko'):
+                    thumbnail_path = png_thumbnails['ko']
+                    print(f"   ✅ 한글 썸네일: PNG에서 변환 완료")
+                    print()
+                else:
+                    # PNG 파일이 없으면 경고만 출력
+                    print("   ⚠️ 한글 썸네일 PNG 파일을 찾을 수 없습니다.")
+                    print("   💡 Nano Banana에서 만든 썸네일 PNG 파일을 output 폴더에 넣어주세요.")
+                    print("      파일명 예시: {책제목}_kr.png 또는 {책제목}_ko.png")
+                    print()
             except Exception as e:
                 print(f"⚠️ 썸네일 생성 실패: {e}")
                 print()
@@ -763,26 +782,22 @@ def main():
         thumbnail_path = None
         if THUMBNAIL_AVAILABLE and not args.skip_thumbnail:
             try:
-                print("🖼️ 썸네일 생성 중...")
                 generator = ThumbnailGenerator(use_dalle=args.use_dalle_thumbnail)
                 
-                # 배경 이미지 찾기
-                background_image = None
-                if args.image_dir:
-                    mood_images = sorted(Path(args.image_dir).glob("mood_*.jpg"))
-                    if mood_images:
-                        background_image = str(mood_images[0])
+                # 먼저 output 폴더의 PNG 파일 확인 및 처리
+                print("🖼️ 썸네일 처리 중...")
+                png_thumbnails = generator.process_png_thumbnails(args.book_title)
                 
-                # 영어 제목으로 변환
-                en_title = translate_book_title(args.book_title)
-                thumbnail_path = generator.generate_thumbnail(
-                    book_title=en_title,
-                    author=', '.join(book_info.get('authors', [])) if book_info else '',
-                    lang="en",
-                    background_image_path=background_image,
-                    output_path=str(output_path.parent / f"{output_path.stem}_thumbnail_en.jpg")
-                )
-                print()
+                if png_thumbnails.get('en'):
+                    thumbnail_path = png_thumbnails['en']
+                    print(f"   ✅ 영어 썸네일: PNG에서 변환 완료")
+                    print()
+                else:
+                    # PNG 파일이 없으면 경고만 출력
+                    print("   ⚠️ 영어 썸네일 PNG 파일을 찾을 수 없습니다.")
+                    print("   💡 Nano Banana에서 만든 썸네일 PNG 파일을 output 폴더에 넣어주세요.")
+                    print("      파일명 예시: {책제목}_en.png")
+                    print()
             except Exception as e:
                 print(f"⚠️ 썸네일 생성 실패: {e}")
                 print()
