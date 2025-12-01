@@ -124,6 +124,12 @@ booksummary/
 ├── docs/               # 문서
 │   └── SUMMARY_TEMPLATE.md  # 유튜브 롱폼 영상용 요약 템플릿 (Hook → Summary → Bridge)
 ├── output/             # 생성된 영상 및 썸네일
+├── scripts/            # 유틸리티 스크립트
+│   ├── convert_downloads_png.py    # Downloads 폴더 PNG를 JPG 썸네일로 변환
+│   ├── convert_png_to_jpg.py       # PNG를 JPG로 변환
+│   ├── download_pexels_images.py  # Pexels API 이미지 다운로드 테스트
+│   ├── generate_summary_audio.py   # Summary 오디오 생성
+│   └── ...
 ├── src/                # 소스 코드
 │   ├── 08_generate_summary.py      # 요약 텍스트 생성 (Hook → Summary → Bridge 구조)
 │   ├── 09_text_to_speech.py        # TTS 변환
