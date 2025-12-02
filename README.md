@@ -64,7 +64,43 @@ pip install -r requirements.txt
 
 ## 사용 방법
 
-### 1. NotebookLM 오디오 및 비디오 준비
+### 방법 1: Downloads 폴더에서 자동 준비 (권장)
+
+**가장 간편한 방법입니다.** `~/Downloads` 폴더에 파일을 준비하고 한 번에 처리합니다.
+
+1. **Downloads 폴더에 파일 준비:**
+   - `{prefix}_audio_en.m4a` / `{prefix}_audio_kr.m4a` - 리뷰 오디오
+   - `{prefix}_summary_en.md` / `{prefix}_summary_kr.md` - 요약 텍스트 (선택사항)
+   - `{prefix}_thumbnail_en.png` / `{prefix}_thumbnail_kr.png` - 썸네일 원본
+   - `{prefix}_video_en.mp4` / `{prefix}_video_kr.mp4` - NotebookLM 비디오 (선택사항)
+
+2. **전체 파이프라인 실행:**
+   ```bash
+   python scripts/run_full_pipeline_from_downloads.py \
+     --book-title "책 제목" \
+     --author "저자 이름" \
+     --prefix "파일명접두사" \
+     --language both
+   ```
+   
+   예시:
+   ```bash
+   python scripts/run_full_pipeline_from_downloads.py \
+     --book-title "The Loneliness of Sonia and Sunny (소니아와 써니의 고독)" \
+     --author "키란 데사이" \
+     --prefix "lonliness" \
+     --language both
+   ```
+
+3. **파일만 준비하고 싶은 경우:**
+   ```bash
+   python scripts/prepare_files_from_downloads.py \
+     --book-title "책 제목" \
+     --author "저자 이름" \
+     --prefix "파일명접두사"
+   ```
+
+### 방법 2: 수동으로 파일 준비
 
 **오디오 파일:**
 NotebookLM에서 생성한 리뷰 오디오 파일을 `assets/audio/` 폴더에 위치시킵니다.
@@ -81,6 +117,16 @@ NotebookLM에서 생성한 비디오 파일을 `assets/video/` 폴더에 위치�
 - 한글 비디오: `{책제목}_notebooklm_ko.{확장자}` (예: `Sunrise_on_the_Reaping_notebooklm_ko.mp4`)
 - 영어 비디오: `{영문제목}_notebooklm_en.{확장자}` (예: `Sunrise_on_the_Reaping_notebooklm_en.mp4`)
 - 지원 확장자: `.mp4`, `.mov`, `.avi`, `.mkv`
+
+**Summary 파일 (선택사항):**
+요약 텍스트 파일을 `assets/summaries/` 폴더에 위치시킵니다.
+- 한글: `{책제목}_summary_ko.md`
+- 영어: `{책제목}_summary_en.md`
+
+**썸네일 파일:**
+PNG 파일을 `output/` 폴더에 위치시키고 JPG로 변환합니다.
+- 한글: `{책제목}_thumbnail_ko.jpg`
+- 영어: `{책제목}_thumbnail_en.jpg`
 
 **참고:** Summary 오디오는 자동으로 생성되며 `{책제목}_summary_{언어}.mp3` 형식으로 저장됩니다.
 
@@ -158,6 +204,8 @@ booksummary/
 │   └── SUMMARY_TEMPLATE.md  # 유튜브 롱폼 영상용 요약 템플릿 (Hook → Summary → Bridge)
 ├── output/             # 생성된 영상 및 썸네일
 ├── scripts/            # 유틸리티 스크립트
+│   ├── prepare_files_from_downloads.py  # Downloads 폴더에서 파일 준비 및 표준 네이밍
+│   ├── run_full_pipeline_from_downloads.py  # Downloads 폴더 기반 전체 파이프라인 실행
 │   ├── convert_downloads_png.py    # Downloads 폴더 PNG를 JPG 썸네일로 변환
 │   ├── convert_png_to_jpg.py       # PNG를 JPG로 변환
 │   ├── download_pexels_images.py  # Pexels API 이미지 다운로드 테스트

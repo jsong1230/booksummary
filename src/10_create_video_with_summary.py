@@ -108,7 +108,28 @@ class VideoWithSummaryPipeline:
         
         # 1. 요약 생성 (건너뛰지 않는 경우)
         summary_audio_path = None
-        if not skip_summary:
+        lang_suffix = "ko" if language == "ko" else "en"
+        
+        # 기존 Summary 파일 확인
+        summary_file_path = Path("assets/summaries") / f"{safe_title_str}_summary_{lang_suffix}.md"
+        existing_summary_text = None
+        
+        if summary_file_path.exists():
+            print("=" * 60)
+            print("📚 기존 Summary 파일 발견")
+            print("=" * 60)
+            print(f"   파일: {summary_file_path}")
+            print()
+            try:
+                with open(summary_file_path, 'r', encoding='utf-8') as f:
+                    existing_summary_text = f.read()
+                print("✅ 기존 Summary 파일 로드 완료")
+                print()
+            except Exception as e:
+                print(f"⚠️ Summary 파일 읽기 실패: {e}")
+                existing_summary_text = None
+        
+        if not skip_summary and existing_summary_text is None:
             print("=" * 60)
             print("📚 1단계: 책 요약 생성")
             print("=" * 60)
@@ -130,69 +151,44 @@ class VideoWithSummaryPipeline:
                     language=language
                 )
                 print()
+                existing_summary_text = summary_text
                 
-                # 2. TTS로 요약 음성 생성
+            except Exception as e:
+                print(f"❌ 요약 생성 실패: {e}")
+                print("⚠️ 요약 없이 리뷰만으로 영상을 제작합니다.")
+                existing_summary_text = None
+        
+        # 2. TTS로 요약 음성 생성 (Summary 텍스트가 있는 경우)
+        if existing_summary_text:
+            # 요약 오디오가 이미 있는지 확인
+            summary_audio_path = f"assets/audio/{safe_title_str}_summary_{lang_suffix}.mp3"
+            
+            if not Path(summary_audio_path).exists():
                 print("=" * 60)
                 print("🎤 2단계: TTS 요약 음성 생성")
                 print("=" * 60)
                 print()
                 
-                lang_suffix = "ko" if language == "ko" else "en"
-                # 표준 네이밍 규칙: {책제목}_summary_{언어}.mp3
-                summary_audio_path = f"assets/audio/{safe_title_str}_summary_{lang_suffix}.mp3"
-                
                 # 한국어는 nova (더 자연스러운 여성 음성), 영어는 alloy 추천
                 voice = "nova" if language == "ko" else "alloy"
                 
                 self.tts_engine.generate_speech(
-                    text=summary_text,
+                    text=existing_summary_text,
                     output_path=summary_audio_path,
                     voice=voice,
                     language=language,
                     model="tts-1-hd"  # 고품질 모델 사용
                 )
                 print()
-                
-            except Exception as e:
-                print(f"❌ 요약 생성 실패: {e}")
-                print("⚠️ 요약 없이 리뷰만으로 영상을 제작합니다.")
-                summary_audio_path = None
+            else:
+                print("=" * 60)
+                print("🎤 기존 Summary 오디오 사용")
+                print("=" * 60)
+                print(f"   파일: {summary_audio_path}")
+                print()
         else:
-            # 이미 생성된 요약 오디오 찾기
-            lang_suffix = "ko" if language == "ko" else "en"
-            summary_audio_path = f"assets/audio/{safe_title_str}_summary_{lang_suffix}.mp3"
-            if not Path(summary_audio_path).exists():
-                print("=" * 60)
-                print("❌ 요약 오디오를 찾을 수 없습니다!")
-                print("=" * 60)
-                print(f"   찾는 파일: {summary_audio_path}")
-                print()
-                print("   가능한 대안 파일:")
-                # 유사한 파일명 찾기
-                audio_dir = Path("assets/audio")
-                possible_files = list(audio_dir.glob(f"*summary*{lang_suffix}*"))
-                if not possible_files:
-                    possible_files = list(audio_dir.glob(f"*summary*{lang_suffix.upper()}*"))
-                if possible_files:
-                    for f in possible_files:
-                        print(f"     - {f.name}")
-                else:
-                    print("     (대안 파일 없음)")
-                print()
-                print("   다음 중 선택하세요:")
-                print("   1. 요약 오디오 파일을 올바른 위치에 복사/이동")
-                print("   2. 요약 오디오를 새로 생성 (--skip-summary 옵션 제거)")
-                print("   3. 영상 생성을 취소")
-                print()
-                try:
-                    user_input = input("계속 진행하시겠습니까? (y/n): ").strip().lower()
-                    if user_input != 'y':
-                        raise ValueError("사용자가 영상 생성을 취소했습니다. 요약 오디오를 준비한 후 다시 시도하세요.")
-                    else:
-                        print("⚠️ 경고: 요약 없이 영상을 생성합니다.")
-                        summary_audio_path = None
-                except (EOFError, KeyboardInterrupt):
-                    raise ValueError("영상 생성이 취소되었습니다. 요약 오디오를 준비한 후 다시 시도하세요.")
+            print("⚠️ Summary 텍스트가 없어 요약 오디오를 생성하지 않습니다.")
+            summary_audio_path = None
         
         # 3. 리뷰 오디오 경로 확인 (일관된 네이밍 규칙 사용)
         if review_audio_path is None:

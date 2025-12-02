@@ -1,5 +1,36 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2025-12-02
+
+### Downloads 폴더에서 자동 파일 준비 기능 추가
+
+#### 새로운 워크플로우
+- **Downloads 폴더 기반 작업 시작**: `~/Downloads` 폴더에 파일을 준비하고 자동으로 표준 네이밍으로 변경하여 적절한 위치로 이동
+- **지원 파일 타입**:
+  - 오디오: `{prefix}_audio_{lang}.{ext}` → `assets/audio/{safe_title}_review_{lang}.{ext}`
+  - Summary: `{prefix}_summary_{lang}.md` → `assets/summaries/{safe_title}_summary_{lang}.md`
+  - 썸네일: `{prefix}_thumbnail_{lang}.png` → `output/{safe_title}_thumbnail_{lang}.jpg` (PNG → JPG 변환)
+  - 비디오: `{prefix}_video_{lang}.{ext}` → `assets/video/{safe_title}_notebooklm_{lang}.{ext}`
+
+#### 새로 추가된 스크립트
+- **`scripts/prepare_files_from_downloads.py`**: Downloads 폴더에서 파일을 찾아 표준 네이밍으로 변경하고 이동
+  - 자동 접두사 감지 기능
+  - 언어 자동 인식 (`_en`, `_kr`, `_ko` 지원)
+  - PNG → JPG 변환 (4K 해상도, 2MB 이하 압축)
+- **`scripts/run_full_pipeline_from_downloads.py`**: 전체 파이프라인을 한 번에 실행
+  - 파일 준비 → 이미지 다운로드 → 영상 생성 (한글/영어) → 메타데이터 생성
+
+#### 코드 개선
+- **`src/10_create_video_with_summary.py`**:
+  - 기존 Summary 파일 자동 감지 및 사용 (`assets/summaries/` 폴더 확인)
+  - Summary 파일이 있으면 TTS만 생성하고 요약 생성은 건너뛰기
+  - Summary 오디오가 이미 있으면 재생성하지 않음
+
+#### 문서 업데이트
+- README.md에 "방법 1: Downloads 폴더에서 자동 준비 (권장)" 섹션 추가
+- 전체 워크플로우 설명 개선
+- 파일 네이밍 규칙 상세 설명 추가
+
 ## 2025-12-01
 
 ### NotebookLM 비디오 통합 기능 추가
