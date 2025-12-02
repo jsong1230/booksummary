@@ -10,7 +10,12 @@ import os
 import sys
 from pathlib import Path
 from typing import Optional
-from dotenv import load_dotenv
+
+try:
+    from dotenv import load_dotenv  # type: ignore[import-untyped]
+except ImportError:
+    def load_dotenv() -> None:  # dotenv가 없어도 동작하도록
+        pass
 
 # 프로젝트 루트를 경로에 추가
 sys.path.insert(0, str(Path(__file__).parent.parent))

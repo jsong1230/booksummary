@@ -39,11 +39,15 @@ from utils.file_utils import safe_title, load_book_info
 
 def generate_title(book_title: str, lang: str = "both") -> str:
     """영상 제목 생성 (두 언어 포함, 언어 표시 포함, 대체 제목 포함)"""
+    # 괄호 안의 한글 제거 (예: "The Loneliness of Sonia and Sunny (소니아와 써니의 고독)" -> "The Loneliness of Sonia and Sunny")
+    import re
+    book_title_clean = re.sub(r'\s*\([^)]*\)\s*$', '', book_title).strip()
+    
     # book_title이 영어인지 한글인지 판단
-    if is_english_title(book_title):
+    if is_english_title(book_title_clean):
         # 영어 제목이 들어온 경우: 한글 제목으로 변환
-        ko_title = translate_book_title_to_korean(book_title)
-        en_title = book_title  # 이미 영어
+        ko_title = translate_book_title_to_korean(book_title_clean)
+        en_title = book_title_clean  # 이미 영어
         
         # ko_title이 여전히 영어인 경우 (번역 실패), 한글 발음으로 변환 시도
         if is_english_title(ko_title):
@@ -109,20 +113,73 @@ def generate_title(book_title: str, lang: str = "both") -> str:
     else:
         return f"{ko_title} 책 리뷰 | {en_title} Book Review | 일당백 스타일"
 
-def generate_description(book_info: Optional[Dict] = None, lang: str = "both", book_title: str = None) -> str:
-    """영상 설명 생성 (두 언어 포함)"""
+def generate_description(book_info: Optional[Dict] = None, lang: str = "both", book_title: str = None, timestamps: Optional[Dict] = None) -> str:
+    """
+    영상 설명 생성 (두 언어 포함)
+    
+    Args:
+        book_info: 책 정보 딕셔너리
+        lang: 언어 ('ko', 'en', 'both')
+        book_title: 책 제목
+        timestamps: timestamp 정보 딕셔너리
+            - summary_duration: Summary 부분 길이 (초)
+            - notebooklm_duration: NotebookLM Video 부분 길이 (초)
+            - review_duration: Review Audio 부분 길이 (초)
+    """
     if lang == "ko":
         # 한글 먼저, 영어 나중
-        return _generate_description_ko(book_info, book_title)
+        return _generate_description_ko(book_info, book_title, timestamps)
     elif lang == "en":
         # 영어 먼저, 한글 나중
-        return _generate_description_en_with_ko(book_info, book_title)
+        return _generate_description_en_with_ko(book_info, book_title, timestamps)
     else:
-        ko_desc = _generate_description_ko(book_info, book_title)
-        en_desc = _generate_description_en_with_ko(book_info, book_title)
+        ko_desc = _generate_description_ko(book_info, book_title, timestamps)
+        en_desc = _generate_description_en_with_ko(book_info, book_title, timestamps)
         return f"{ko_desc}\n\n{'='*60}\n\n{en_desc}"
 
-def _generate_description_ko(book_info: Optional[Dict] = None, book_title: str = None) -> str:
+def _format_timestamp(seconds: float) -> str:
+    """초를 YouTube timestamp 형식으로 변환 (예: 1:36, 8:07)"""
+    minutes = int(seconds // 60)
+    secs = int(seconds % 60)
+    return f"{minutes}:{secs:02d}"
+
+def _generate_timestamps_section(timestamps: Optional[Dict] = None, lang: str = "ko") -> str:
+    """Timestamp 섹션 생성"""
+    if not timestamps:
+        return ""
+    
+    summary_duration = timestamps.get('summary_duration', 0)
+    notebooklm_duration = timestamps.get('notebooklm_duration', 0)
+    review_duration = timestamps.get('review_duration', 0)
+    
+    # Summary가 없으면 timestamp 추가 안 함
+    if summary_duration == 0:
+        return ""
+    
+    silence_duration = 3.0  # 섹션 사이 silence
+    
+    # 첫 번째 timestamp: Summary 끝나고 NotebookLM Video 시작
+    timestamp1 = summary_duration
+    
+    # 두 번째 timestamp: NotebookLM Video 끝나고 Review Audio 시작
+    timestamp2 = summary_duration + silence_duration + notebooklm_duration
+    
+    if lang == "ko":
+        section = "\n⏱️ 영상 구간:\n"
+        section += f"0:00 - 요약 (Summary)\n"
+        if notebooklm_duration > 0:
+            section += f"{_format_timestamp(timestamp1)} - NotebookLM 상세 분석\n"
+        section += f"{_format_timestamp(timestamp2)} - 오디오 리뷰 (Audio Review)\n"
+    else:  # en
+        section = "\n⏱️ Video Chapters:\n"
+        section += f"0:00 - Summary\n"
+        if notebooklm_duration > 0:
+            section += f"{_format_timestamp(timestamp1)} - NotebookLM Detailed Analysis\n"
+        section += f"{_format_timestamp(timestamp2)} - Audio Review\n"
+    
+    return section
+
+def _generate_description_ko(book_info: Optional[Dict] = None, book_title: str = None, timestamps: Optional[Dict] = None) -> str:
     """한글 설명 생성 (한글 먼저, 영어 나중)"""
     # 한글 부분
     ko_desc = """📚 책 리뷰 영상
@@ -131,9 +188,15 @@ def _generate_description_ko(book_info: Optional[Dict] = None, book_title: str =
 
 📝 영상 구성:
 • GPT로 생성한 소설 요약 (약 5분)
+• NotebookLM 비디오 (상세 분석)
 • NotebookLM으로 생성한 오디오 리뷰
 
 """
+    
+    # Timestamp 추가
+    if timestamps:
+        ko_desc += _generate_timestamps_section(timestamps, lang="ko")
+        ko_desc += "\n"
     if book_info:
         if book_info.get('description'):
             ko_desc += f"📖 책 소개:\n{book_info['description'][:500]}...\n\n"
@@ -197,7 +260,7 @@ def get_english_book_description(book_title: str) -> str:
     
     return descriptions.get(book_title, "")
 
-def _generate_description_en(book_info: Optional[Dict] = None, book_title: str = None, include_header: bool = True) -> str:
+def _generate_description_en(book_info: Optional[Dict] = None, book_title: str = None, include_header: bool = True, timestamps: Optional[Dict] = None) -> str:
     """영문 설명 생성"""
     description = ""
     
@@ -208,9 +271,15 @@ This video was automatically generated using NotebookLM and AI.
 
 📝 Video Content:
 • Book summary generated by GPT (approximately 5 minutes)
+• NotebookLM Video (Detailed Analysis)
 • Audio review generated by NotebookLM
 
 """
+        
+        # Timestamp 추가
+        if timestamps:
+            description += _generate_timestamps_section(timestamps, lang="en")
+            description += "\n"
     
     if book_info:
         # 영어 설명 사용
@@ -241,10 +310,10 @@ This video was automatically generated using NotebookLM and AI.
 """
     return description
 
-def _generate_description_en_with_ko(book_info: Optional[Dict] = None, book_title: str = None) -> str:
+def _generate_description_en_with_ko(book_info: Optional[Dict] = None, book_title: str = None, timestamps: Optional[Dict] = None) -> str:
     """영문 설명 생성 (영어 먼저, 한글 나중)"""
     # 영어 부분
-    en_desc = _generate_description_en(book_info, book_title, include_header=True)
+    en_desc = _generate_description_en(book_info, book_title, include_header=True, timestamps=timestamps)
     
     # 한글 부분
     ko_desc = """📚 책 리뷰 영상
@@ -507,6 +576,95 @@ def preview_metadata(title: str, description: str, tags: list, lang: str):
     print()
 
 
+def calculate_timestamps_from_video(video_path: Path, safe_title_str: str, lang: str) -> Optional[Dict]:
+    """
+    영상 파일과 관련 오디오/비디오 파일에서 timestamp 정보 계산
+    
+    Returns:
+        timestamps 딕셔너리 또는 None
+        {
+            'summary_duration': float,
+            'notebooklm_duration': float,
+            'review_duration': float
+        }
+    """
+    try:
+        from moviepy.editor import VideoFileClip, AudioFileClip
+        import subprocess
+        
+        lang_suffix = "ko" if lang == "ko" else "en"
+        timestamps = {
+            'summary_duration': 0,
+            'notebooklm_duration': 0,
+            'review_duration': 0
+        }
+        
+        # Summary 오디오 길이 확인
+        summary_audio_path = Path(f"assets/audio/{safe_title_str}_summary_{lang_suffix}.mp3")
+        if summary_audio_path.exists():
+            try:
+                audio = AudioFileClip(str(summary_audio_path))
+                timestamps['summary_duration'] = audio.duration
+                audio.close()
+            except:
+                # ffprobe로 시도
+                result = subprocess.run(
+                    ['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1', str(summary_audio_path)],
+                    capture_output=True, text=True, timeout=5
+                )
+                if result.returncode == 0:
+                    timestamps['summary_duration'] = float(result.stdout.strip().split('=')[1])
+        
+        # NotebookLM Video 길이 확인
+        notebooklm_video_path = Path(f"assets/video/{safe_title_str}_notebooklm_{lang_suffix}.mp4")
+        if notebooklm_video_path.exists():
+            try:
+                video = VideoFileClip(str(notebooklm_video_path))
+                timestamps['notebooklm_duration'] = video.duration
+                video.close()
+            except:
+                # ffprobe로 시도
+                result = subprocess.run(
+                    ['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1', str(notebooklm_video_path)],
+                    capture_output=True, text=True, timeout=5
+                )
+                if result.returncode == 0:
+                    timestamps['notebooklm_duration'] = float(result.stdout.strip().split('=')[1])
+        
+        # Review 오디오 길이 확인
+        review_audio_path = Path(f"assets/audio/{safe_title_str}_review_{lang_suffix}.m4a")
+        if not review_audio_path.exists():
+            # 다른 확장자 시도
+            for ext in ['.mp3', '.wav']:
+                test_path = Path(f"assets/audio/{safe_title_str}_review_{lang_suffix}{ext}")
+                if test_path.exists():
+                    review_audio_path = test_path
+                    break
+        
+        if review_audio_path.exists():
+            try:
+                audio = AudioFileClip(str(review_audio_path))
+                timestamps['review_duration'] = audio.duration
+                audio.close()
+            except:
+                # ffprobe로 시도
+                result = subprocess.run(
+                    ['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1', str(review_audio_path)],
+                    capture_output=True, text=True, timeout=5
+                )
+                if result.returncode == 0:
+                    timestamps['review_duration'] = float(result.stdout.strip().split('=')[1])
+        
+        # Summary가 없으면 timestamp 추가 안 함
+        if timestamps['summary_duration'] == 0:
+            return None
+        
+        return timestamps
+        
+    except Exception as e:
+        print(f"⚠️ Timestamp 계산 실패: {e}")
+        return None
+
 def find_thumbnail_for_video(video_path: Path, lang: str, safe_title_str: str = None) -> Optional[str]:
     """영상 파일에 맞는 썸네일 찾기"""
     video_dir = video_path.parent
@@ -610,7 +768,9 @@ def main():
         if video_path_ko.exists():
             print("📋 한글 메타데이터 생성 중...")
             title_ko = generate_title(args.book_title, lang='ko')
-            description_ko = generate_description(book_info, lang='ko', book_title=args.book_title)
+            # Timestamp 계산
+            timestamps_ko = calculate_timestamps_from_video(video_path_ko, safe_title_str, 'ko')
+            description_ko = generate_description(book_info, lang='ko', book_title=args.book_title, timestamps=timestamps_ko)
             tags_ko = generate_tags(book_title=args.book_title, book_info=book_info, lang='ko')
             
             save_metadata(
@@ -632,7 +792,10 @@ def main():
         if video_path_en.exists():
             print("\n📋 영문 메타데이터 생성 중...")
             title_en = generate_title(args.book_title, lang='en')
-            description_en = generate_description(book_info, lang='en', book_title=args.book_title)
+            # Timestamp 계산
+            timestamps_en = calculate_timestamps_from_video(video_path_en, safe_title_str, 'en')
+            
+            description_en = generate_description(book_info, lang='en', book_title=args.book_title, timestamps=timestamps_en)
             tags_en = generate_tags(book_title=args.book_title, book_info=book_info, lang='en')
             
             save_metadata(

@@ -501,15 +501,34 @@ class ImageDownloader:
         print()
         
         # 3. 무드 이미지 다운로드 (Pexels → Pixabay → Unsplash 순서)
+        # 기존 이미지 확인
+        existing_images = list(output_dir.glob("mood_*.jpg"))
+        existing_count = len(existing_images)
+        
+        if existing_count >= num_mood_images:
+            print(f"✅ 기존 이미지 발견: {existing_count}개 (목표: {num_mood_images}개)")
+            print(f"   이미지 다운로드를 건너뜁니다.")
+            print()
+            return {
+                'cover_path': str(cover_path) if cover_path else None,
+                'mood_images': [str(img) for img in existing_images[:num_mood_images]],
+                'total_mood_images': existing_count
+            }
+        
+        print(f"📊 기존 이미지: {existing_count}개, 추가로 {num_mood_images - existing_count}개 필요")
+        print()
+        
         # 100개 이미지를 확실히 다운로드하기 위해 여러 키워드에서 충분히 수집
-        mood_images = []
+        mood_images = existing_images.copy()  # 기존 이미지 포함
         target_count = num_mood_images
         
         # Pexels에서 다운로드 (1순위)
-        if self.pexels:
-            print(f"  📸 Pexels에서 이미지 다운로드 중... (목표: {target_count}개)")
-            mood_images = self.download_mood_images_pexels(keywords, target_count, output_dir)
-            print(f"  ✅ Pexels: {len(mood_images)}개 다운로드 완료")
+        if len(mood_images) < target_count and self.pexels:
+            remaining = target_count - len(mood_images)
+            print(f"  📸 Pexels에서 이미지 다운로드 중... (목표: {remaining}개)")
+            additional = self.download_mood_images_pexels(keywords, remaining, output_dir)
+            mood_images.extend(additional)
+            print(f"  ✅ Pexels: {len(additional)}개 다운로드 완료")
         
         # Pixabay에서 추가 다운로드 (2순위)
         if len(mood_images) < target_count and self.pixabay_api_key:
@@ -581,10 +600,14 @@ class ImageDownloader:
         print(f"🎨 무드 이미지: {len(mood_images)}개")
         print()
         
+        # mood_images가 Path 객체 리스트인 경우 문자열로 변환
+        mood_images_str = [str(img) if isinstance(img, Path) else img for img in mood_images]
+        
         return {
-            'cover_path': cover_path,
-            'mood_images': mood_images,
-            'output_dir': str(output_dir)
+            'cover_path': str(cover_path) if cover_path else None,
+            'mood_images': mood_images_str,
+            'output_dir': str(output_dir),
+            'total_mood_images': len(mood_images_str)
         }
     
     def _generate_keywords(self, book_title: str, author: str = None) -> List[str]:

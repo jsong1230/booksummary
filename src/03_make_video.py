@@ -11,6 +11,7 @@ Phase 4: 영상 합성 및 편집 스크립트
 import os
 import random
 import math
+import numpy as np
 from pathlib import Path
 from typing import List, Optional, Tuple
 from dotenv import load_dotenv
@@ -242,11 +243,29 @@ class VideoMaker:
             # 이미지가 더 높음
             scaled_width = int(scaled_height * img_aspect)
         
+        # 이미지 모드 변환 (RGB로 통일)
+        if img.mode != 'RGB':
+            img = img.convert('RGB')
+        
         # 고품질 리사이즈
         img = img.resize((scaled_width, scaled_height), Image.Resampling.LANCZOS)
         
         # 이미지를 numpy 배열로 변환 (한 번만)
         img_array = np.array(img)
+        
+        # 배열 shape 확인 및 수정 (높이, 너비, 채널 순서)
+        if len(img_array.shape) == 2:
+            # Grayscale 이미지인 경우 RGB로 변환
+            img_array = np.stack([img_array, img_array, img_array], axis=-1)
+        elif len(img_array.shape) == 3 and img_array.shape[2] != 3:
+            # 채널이 3개가 아닌 경우 (예: RGBA)
+            if img_array.shape[2] == 4:
+                # RGBA -> RGB 변환
+                img_array = img_array[:, :, :3]
+            else:
+                # 다른 채널 수인 경우 RGB로 변환
+                img = Image.fromarray(img_array).convert('RGB')
+                img_array = np.array(img)
         
         # Ken Burns 효과 적용 (부드러운 애니메이션)
         def make_frame(t):
@@ -305,10 +324,17 @@ class VideoMaker:
             
             # 크롭 (numpy 배열 슬라이싱 사용 - 더 빠름)
             try:
+                # 배열 shape 확인: (height, width, channels)
+                if len(img_array.shape) != 3 or img_array.shape[2] != 3:
+                    # RGB가 아니면 PIL로 변환 후 처리
+                    from PIL import Image as PILImage
+                    img_pil = PILImage.fromarray(img_array).convert('RGB')
+                    img_array = np.array(img_pil)
+                
                 cropped = img_array[top:bottom, left:right]
                 
                 # 빈 배열 체크
-                if cropped.size == 0:
+                if cropped.size == 0 or len(cropped.shape) != 3:
                     from PIL import Image as PILImage
                     resized = PILImage.fromarray(img_array).resize((target_width, target_height), Image.Resampling.LANCZOS)
                     return np.array(resized)
@@ -319,10 +345,14 @@ class VideoMaker:
                 resized = cropped_img.resize((target_width, target_height), Image.Resampling.LANCZOS)
                 
                 return np.array(resized)
-            except (IndexError, ValueError) as e:
+            except (IndexError, ValueError, TypeError) as e:
                 # 크롭 실패 시 원본 이미지 리사이즈
                 from PIL import Image as PILImage
-                resized = PILImage.fromarray(img_array).resize((target_width, target_height), Image.Resampling.LANCZOS)
+                if len(img_array.shape) == 3:
+                    img_pil = PILImage.fromarray(img_array).convert('RGB')
+                else:
+                    img_pil = PILImage.fromarray(img_array).convert('RGB')
+                resized = img_pil.resize((target_width, target_height), Image.Resampling.LANCZOS)
                 return np.array(resized)
         
         # make_frame 함수를 사용하여 클립 생성
@@ -416,21 +446,32 @@ class VideoMaker:
                 break
             
             # 정적 이미지만 사용 (줌인 효과 없음)
-            clip = ImageClip(image_path, duration=clip_duration)
-            # MoviePy 버전에 따라 다른 메서드 사용
+            # PIL로 이미지를 먼저 로드하고 리사이즈하여 크기 일관성 보장
+            from PIL import Image as PILImage
+            import numpy as np
             try:
-                # MoviePy 1.0+ 버전
-                clip = clip.resized(height=self.resolution[1])
-            except (TypeError, AttributeError):
+                img = PILImage.open(image_path)
+                # RGB로 변환
+                if img.mode != 'RGB':
+                    img = img.convert('RGB')
+                # 해상도에 맞게 리사이즈
+                img = img.resize(self.resolution, PILImage.Resampling.LANCZOS)
+                # ImageClip 생성 (크기 명시)
+                img_array = np.array(img)
+                # shape 확인: (height, width, channels) 형식이어야 함
+                if len(img_array.shape) != 3 or img_array.shape[2] != 3:
+                    img = img.convert('RGB')
+                    img_array = np.array(img)
+                clip = ImageClip(img_array, duration=clip_duration)
+            except Exception as e:
+                print(f"   ⚠️ 이미지 로드 실패 ({Path(image_path).name}): {e}, 기본 방법 사용")
                 try:
-                    # 구버전 호환성
-                    clip = clip.resize(height=self.resolution[1])
+                    clip = ImageClip(image_path, duration=clip_duration)
+                    clip = clip.resized(newsize=self.resolution)
                 except:
-                    # 최후의 수단: PIL로 직접 리사이즈
-                    from PIL import Image as PILImage
-                    img = PILImage.open(image_path)
-                    img = img.resize(self.resolution, PILImage.Resampling.LANCZOS)
-                    clip = ImageClip(img, duration=clip_duration)
+                    # 최후의 수단
+                    img = PILImage.open(image_path).convert('RGB').resize(self.resolution, PILImage.Resampling.LANCZOS)
+                    clip = ImageClip(np.array(img), duration=clip_duration)
             
             # fade out/in 전환 효과 적용
             # 모든 이미지에 fade out과 fade in을 모두 적용하여 크로스페이드 효과
@@ -446,12 +487,35 @@ class VideoMaker:
                     is_first = (current_time == 0.0)
                     is_last = (current_time + clip_duration >= total_duration)
                     
+                    # fade 효과 적용 전에 클립 크기 확인 및 수정
+                    try:
+                        # 클립의 첫 프레임을 가져와서 크기 확인
+                        test_frame = clip.get_frame(0)
+                        if len(test_frame.shape) == 3:
+                            # RGB 이미지인 경우
+                            expected_shape = (self.resolution[1], self.resolution[0], 3)
+                            if test_frame.shape != expected_shape:
+                                # 크기가 맞지 않으면 리사이즈
+                                clip = clip.resized(newsize=self.resolution)
+                    except:
+                        # 크기 확인 실패 시 리사이즈 시도
+                        try:
+                            clip = clip.resized(newsize=self.resolution)
+                        except:
+                            pass
+                    
                     if not is_first:
                         # fade in 적용
-                        clip = clip.fx(fadein, fade_duration)
+                        try:
+                            clip = clip.fx(fadein, fade_duration)
+                        except Exception as e:
+                            print(f"   ⚠️ fade in 적용 실패: {e}, fade 효과 없이 진행")
                     if not is_last:
                         # fade out 적용
-                        clip = clip.fx(fadeout, fade_duration)
+                        try:
+                            clip = clip.fx(fadeout, fade_duration)
+                        except Exception as e:
+                            print(f"   ⚠️ fade out 적용 실패: {e}, fade 효과 없이 진행")
                 else:
                     # 구버전 호환성
                     try:

@@ -33,6 +33,9 @@ def translate_book_title(book_title: str) -> str:
         "헝거 게임: 선라이즈 온 더 리핑": "Sunrise on the Reaping",
         "불안 세대": "The Anxious Generation",
         "불안_세대": "The Anxious Generation",
+        "소니아와 써니의 고독": "The Loneliness of Sonia and Sunny",
+        "The Loneliness of Sonia and Sunny": "The Loneliness of Sonia and Sunny",
+        "The Loneliness of Sonia and Sunny (소니아와 써니의 고독)": "The Loneliness of Sonia and Sunny",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -64,6 +67,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Hamlet": "햄릿",
         "Sunrise on the Reaping": "선라이즈 온 더 리핑",
         "The Anxious Generation": "불안 세대",
+        "The Loneliness of Sonia and Sunny": "소니아와 써니의 고독",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인

@@ -61,6 +61,47 @@ class YouTubeUploader:
             print(f"❌ 인증 실패: {e}")
             raise
     
+    def _validate_and_clean_tags(self, tags: list) -> list:
+        """태그 검증 및 정리 (YouTube 규칙 준수)"""
+        MAX_TAG_LENGTH = 30  # YouTube 태그 최대 길이
+        MAX_TAGS = 500  # YouTube 태그 최대 개수 (실제로는 더 적지만 안전하게)
+        
+        cleaned_tags = []
+        for tag in tags:
+            if not tag or not isinstance(tag, str):
+                continue
+            
+            # 공백 제거
+            tag = tag.strip()
+            
+            # 빈 태그 제거
+            if not tag:
+                continue
+            
+            # 길이 제한 (30자)
+            if len(tag) > MAX_TAG_LENGTH:
+                # 너무 긴 태그는 자르거나 건너뛰기
+                print(f"   ⚠️ 태그 길이 초과 (30자): '{tag[:50]}...' (건너뜀)")
+                continue
+            
+            # 특수 문자 제거 (YouTube가 허용하지 않는 문자)
+            # 허용되는 문자: 알파벳, 숫자, 공백, 하이픈, 언더스코어
+            import re
+            # 기본적으로는 그대로 사용하되, 문제가 될 수 있는 문자만 체크
+            if any(c in tag for c in ['<', '>', '&', '"', "'", '\n', '\r', '\t']):
+                # 문제가 되는 문자 제거
+                tag = re.sub(r'[<>&"\'\\n\\r\\t]', '', tag)
+                if not tag.strip():
+                    continue
+            
+            cleaned_tags.append(tag)
+            
+            # 최대 개수 제한
+            if len(cleaned_tags) >= MAX_TAGS:
+                break
+        
+        return cleaned_tags
+    
     def upload_video(
         self,
         video_path: str,
@@ -80,6 +121,13 @@ class YouTubeUploader:
         
         print(f"📤 업로드 중: {title}")
         print(f"   파일 크기: {file_size / (1024*1024):.2f} MB")
+        
+        # 태그 검증 및 정리
+        original_tag_count = len(tags)
+        tags = self._validate_and_clean_tags(tags)
+        if len(tags) < original_tag_count:
+            print(f"   ⚠️ 태그 정리: {original_tag_count}개 → {len(tags)}개 (30자 초과 태그 제거)")
+        print(f"   🏷️ 태그 개수: {len(tags)}개")
         
         # Description 검증 및 수정
         # YouTube description 최대 길이: 5000자

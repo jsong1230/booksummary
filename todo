@@ -55,6 +55,16 @@
 
 ## 최근 완료 작업
 
+### 2025-12-02
+- [x] NotebookLM 비디오 업데이트 스크립트 추가 (scripts/update_notebooklm_video.py)
+- [x] 이미지 다운로드 개선 (기존 이미지 100개 이상이면 건너뛰기)
+- [x] 이미지 리사이즈 오류 수정 (numpy import, RGB 변환 강화)
+- [x] 메타데이터 timestamp 기능 추가 (한국어/영어 모두)
+- [x] YouTube 업로드 태그 검증 기능 추가 (30자 초과 태그 자동 제거)
+- [x] The Loneliness of Sonia and Sunny 영상 제작 및 YouTube 업로드 (한글/영어 2개)
+- [x] README.md에 빠른 시작 가이드 섹션 추가
+- [x] 문서 업데이트 (history, README.md)
+
 ### 2025-12-01
 - [x] 썸네일 생성 방식 변경 (Nano Banana PNG 파일 기반 처리)
 - [x] 메타데이터 제목 형식 변경 (일당백 스타일, Auto-Generated 제거)
