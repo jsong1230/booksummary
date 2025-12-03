@@ -583,3 +583,47 @@
   - Timestamp 포함: ✅ (0:00 - 요약, 1:35 - NotebookLM 상세 분석, 8:18 - 오디오 리뷰)
 - **태그 검증**: 30자 초과 태그 자동 제거 (44개 → 38개)
 - **CSV 및 History 파일 자동 업데이트 완료**
+
+## 2025-12-03
+
+### YouTube 업로드 완료
+- 업로드된 책: Guns_Germs_and_Steel_총_균_쇠_with_summary_en, Guns_Germs_and_Steel_총_균_쇠_with_summary_ko
+- 업로드된 영상 수: 2개
+- [1] [English] Guns, Germs, and Steel Book Review | [영어] Guns, Germs, and Steel 책 리뷰
+  - URL: https://www.youtube.com/watch?v=-YbD5f_e8SA
+- [2] [한국어] Guns, Germs, and Steel 책 리뷰 | [Korean] Guns, Germs, and Steel Book Review
+  - URL: https://www.youtube.com/watch?v=XhcYsMr4NuU
+
+## 2025-12-03
+
+### 크리스마스 캐럴 (A Christmas Carol) 영상 제작 완료
+- **책 정보**: A Christmas Carol (크리스마스 캐럴) - 찰스 디킨스
+- **작업 내용**:
+  - Downloads 폴더에서 파일 준비 (오디오, 요약, 썸네일, 비디오)
+  - 이미지 다운로드 (100개 무드 이미지, Pixabay API 사용)
+  - 요약 텍스트 로드 (기존 파일 사용)
+  - TTS 요약 오디오 생성 (한글/영어)
+  - 한글/영어 영상 제작 (요약 + NotebookLM Video + 리뷰 오디오)
+  - 썸네일 변환 (PNG → JPG, 4K 해상도, 2MB 이하 압축)
+  - 메타데이터 생성 (한글/영어, timestamp 포함)
+- **생성된 파일**:
+  - 한글 영상: `A_Christmas_Carol_크리스마스_캐럴_review_with_summary_ko.mp4` (293MB, 약 24.6분)
+  - 영어 영상: `A_Christmas_Carol_크리스마스_캐럴_review_with_summary_en.mp4` (320MB, 약 24.6분)
+  - 한글 썸네일: `A_Christmas_Carol_크리스마스_캐럴_thumbnail_ko.jpg` (1.4MB)
+  - 영어 썸네일: `A_Christmas_Carol_크리스마스_캐럴_thumbnail_en.jpg` (1.4MB)
+  - 메타데이터: 한글/영어 각각 JSON 파일 생성
+- **영상 구성**:
+  - Summary (요약 오디오 + 이미지 슬라이드쇼, 약 2분 18초)
+  - 3초 silence
+  - NotebookLM Video (상세 분석, 약 11분 15초)
+  - 3초 silence
+  - Audio Review (리뷰 오디오 + 이미지 슬라이드쇼, 약 11분)
+- **참고**: 영상은 생성되었으나 아직 YouTube에 업로드하지 않음
+
+### YouTube 업로드 완료
+- 업로드된 책: A_Christmas_Carol_크리스마스_캐럴_with_summary_en, A_Christmas_Carol_크리스마스_캐럴_with_summary_ko
+- 업로드된 영상 수: 2개
+- [1] [English] A Christmas Carol Book Review | [영어] A Christmas Carol 책 리뷰
+  - URL: https://www.youtube.com/watch?v=NmhhK8ZIjG4
+- [2] [한국어] A Christmas Carol 책 리뷰 | [Korean] A Christmas Carol Book Review
+  - URL: https://www.youtube.com/watch?v=ynHSTn_ZLJs
