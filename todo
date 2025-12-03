@@ -62,6 +62,16 @@
   - 이미지 다운로드 (100개 무드 이미지)
   - 썸네일 생성 및 변환 (PNG → JPG, 4K 해상도)
   - 메타데이터 생성 (한글/영어)
+- [x] The Polar Express 영상 제작 및 YouTube 업로드 완료
+  - 크리스 반 알스버그의 1985년 아동 도서 The Polar Express 영상 제작
+  - 한글/영어 영상 생성 (요약 포함, 각 약 24분)
+  - 이미지 다운로드 (100개 무드 이미지)
+  - 썸네일 생성 및 변환 (PNG → JPG, 4K 해상도)
+  - 메타데이터 생성 (한글/영어)
+  - YouTube 업로드 완료 (한글/영어 2개)
+- [x] 영상 생성 스크립트 개선 (.mp4 확장자 지원 추가)
+  - src/10_create_video_with_summary.py에 .mp4 확장자 지원 추가
+  - 오디오 파일이 .mp4 형식일 때도 자동 인식
 
 ### 2025-12-02
 - [x] NotebookLM 비디오 업데이트 스크립트 추가 (scripts/update_notebooklm_video.py)
