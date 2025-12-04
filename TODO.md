@@ -104,6 +104,10 @@ _현재 알려진 이슈가 없습니다_
   - todo 파일을 TODO.md로 표준화
   - .cursorrules에서 "todo 파일"을 "TODO.md 파일"로 업데이트
   - Git에서 todo 파일 삭제 및 TODO.md 추가
+- [x] **.cursorrules 최신화 및 정리**
+  - 불필요한 중복 내용 제거 (문서 업데이트 규칙 섹션 통합)
+  - README.md와 TODO.md 항상 현행화 및 커밋/푸시 규칙 추가
+  - README.md와 TODO.md는 변경사항이 있으면 반드시 커밋/푸시하도록 명시
 
 #### 영상 제작
 - [x] **사탄탱고(Sátántangó)** 영상 제작 및 YouTube 업로드 완료
