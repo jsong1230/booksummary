@@ -74,6 +74,9 @@ assets/
 # output/ 폴더 전체 무시
 output/
 
+# input/ 폴더 전체 무시 (사용자 입력 파일)
+input/
+
 # 예외: book_info.json은 Git에 포함
 !assets/images/
 assets/images/**
