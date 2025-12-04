@@ -473,8 +473,8 @@ def update_books_csv(uploaded_videos: list):
 
 
 def update_history(uploaded_videos: list):
-    """history 파일에 업로드 기록 추가"""
-    history_file = Path("history")
+    """history.md 파일에 업로드 기록 추가"""
+    history_file = Path("history.md")
     if not history_file.exists():
         return
     
