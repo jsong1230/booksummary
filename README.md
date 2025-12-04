@@ -70,9 +70,9 @@ pip install -r requirements.txt
 
 ### 📋 1단계: 작업 전 준비사항
 
-**Downloads 폴더에 파일 준비하기**
+**input 폴더에 파일 준비하기**
 
-`~/Downloads` 폴더에 다음 파일들을 준비하세요. 파일명은 `{prefix}_타입_{언어}.{확장자}` 형식을 따라야 합니다.
+프로젝트 루트의 `input/` 폴더에 다음 파일들을 준비하세요. 파일명은 `{prefix}_타입_{언어}.{확장자}` 형식을 따라야 합니다.
 
 **필수 파일:**
 - `{prefix}_audio_en.m4a` - 영어 리뷰 오디오 (NotebookLM에서 생성)
@@ -88,7 +88,7 @@ pip install -r requirements.txt
 
 **파일명 예시 (prefix: `lonliness`):**
 ```
-~/Downloads/
+input/
 ├── lonliness_audio_en.m4a
 ├── lonliness_audio_kr.m4a
 ├── lonliness_summary_en.md
@@ -121,7 +121,7 @@ python scripts/run_full_pipeline_from_downloads.py \
 ```
 
 **이 명령어가 하는 일:**
-1. ✅ Downloads 폴더에서 파일 찾기 및 표준 네이밍으로 이동
+1. ✅ input 폴더에서 파일 찾기 및 표준 네이밍으로 이동
 2. ✅ 이미지 다운로드 (100개, 기존 이미지가 있으면 건너뜀)
 3. ✅ Summary 생성 (파일이 없으면 AI가 자동 생성)
 4. ✅ TTS로 Summary 오디오 생성
@@ -161,11 +161,11 @@ python src/09_upload_from_metadata.py --privacy private --auto
 
 ## 사용 방법
 
-### 방법 1: Downloads 폴더에서 자동 준비 (권장)
+### 방법 1: input 폴더에서 자동 준비 (권장)
 
-**가장 간편한 방법입니다.** `~/Downloads` 폴더에 파일을 준비하고 한 번에 처리합니다.
+**가장 간편한 방법입니다.** 프로젝트 루트의 `input/` 폴더에 파일을 준비하고 한 번에 처리합니다.
 
-1. **Downloads 폴더에 파일 준비:**
+1. **input 폴더에 파일 준비:**
    - `{prefix}_audio_en.m4a` / `{prefix}_audio_kr.m4a` - 리뷰 오디오
    - `{prefix}_summary_en.md` / `{prefix}_summary_kr.md` - 요약 텍스트 (선택사항)
    - `{prefix}_thumbnail_en.png` / `{prefix}_thumbnail_kr.png` - 썸네일 원본
@@ -202,7 +202,7 @@ python scripts/prepare_files_from_downloads.py \
 
 **NotebookLM 비디오 업데이트:**
 
-Downloads 폴더에 새로운 NotebookLM 비디오 파일을 올리고 기존 비디오를 교체한 후 영상을 재생성할 수 있습니다.
+input 폴더에 새로운 NotebookLM 비디오 파일을 올리고 기존 비디오를 교체한 후 영상을 재생성할 수 있습니다.
 
 ```bash
 python scripts/update_notebooklm_video.py \
@@ -213,7 +213,7 @@ python scripts/update_notebooklm_video.py \
 
 이 스크립트는:
 
-1. Downloads 폴더에서 새 비디오 파일을 찾습니다 (`{prefix}_video_kr.mp4` 또는 `{prefix}_video_ko.mp4`)
+1. input 폴더에서 새 비디오 파일을 찾습니다 (`{prefix}_video_kr.mp4` 또는 `{prefix}_video_ko.mp4` 또는 `{prefix}_video.kr.mp4` 형식)
 2. 기존 비디오 파일을 백업합니다 (`.backup` 확장자)
 3. 새 파일로 교체합니다
 4. 해당 언어의 영상을 자동으로 재생성합니다
@@ -350,10 +350,10 @@ booksummary/
 │   └── SUMMARY_TEMPLATE.md  # 유튜브 롱폼 영상용 요약 템플릿 (Hook → Summary → Bridge)
 ├── output/             # 생성된 영상 및 썸네일
 ├── scripts/            # 유틸리티 스크립트
-│   ├── prepare_files_from_downloads.py  # Downloads 폴더에서 파일 준비 및 표준 네이밍
-│   ├── run_full_pipeline_from_downloads.py  # Downloads 폴더 기반 전체 파이프라인 실행
+│   ├── prepare_files_from_downloads.py  # input 폴더에서 파일 준비 및 표준 네이밍
+│   ├── run_full_pipeline_from_downloads.py  # input 폴더 기반 전체 파이프라인 실행
 │   ├── update_notebooklm_video.py  # NotebookLM 비디오 업데이트 및 영상 재생성
-│   ├── convert_downloads_png.py    # Downloads 폴더 PNG를 JPG 썸네일로 변환
+│   ├── convert_downloads_png.py    # input 폴더 PNG를 JPG 썸네일로 변환
 │   ├── convert_png_to_jpg.py       # PNG를 JPG로 변환
 │   ├── download_pexels_images.py  # Pexels API 이미지 다운로드 테스트
 │   ├── generate_summary_audio.py   # Summary 오디오 생성

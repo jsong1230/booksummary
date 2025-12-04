@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Downloads 폴더에서 파일을 준비하고 전체 영상 제작 파이프라인 실행
+input 폴더에서 파일을 준비하고 전체 영상 제작 파이프라인 실행
 
 워크플로우:
-1. Downloads 폴더에서 파일 준비 (표준 네이밍으로 변경 및 이동)
+1. input 폴더에서 파일 준비 (표준 네이밍으로 변경 및 이동)
 2. 이미지 다운로드 (100개)
 3. 영상 생성 (한글/영어)
 """
@@ -22,7 +22,7 @@ def main():
     import argparse
     
     parser = argparse.ArgumentParser(
-        description="Downloads 폴더에서 파일을 준비하고 전체 영상 제작 파이프라인 실행"
+        description="input 폴더에서 파일을 준비하고 전체 영상 제작 파이프라인 실행"
     )
     parser.add_argument("--book-title", required=True, help="책 제목")
     parser.add_argument("--author", required=True, help="저자 이름")

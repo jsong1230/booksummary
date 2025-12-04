@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Downloads 폴더의 PNG 파일을 JPG로 변환하여 롱폼 썸네일로 사용 가능하게 함
+input 폴더의 PNG 파일을 JPG로 변환하여 롱폼 썸네일로 사용 가능하게 함
 output 폴더로 변환된 파일을 저장
 """
 
@@ -112,14 +112,14 @@ def convert_png_to_jpg(input_path: Path, output_path: Path) -> bool:
         return False
 
 def main():
-    downloads_dir = Path.home() / "Downloads"
+    downloads_dir = Path("input")
     output_dir = Path("output")
     
-    # Downloads 폴더에서 PNG 파일 찾기
+    # input 폴더에서 PNG 파일 찾기
     png_files = list(downloads_dir.glob("*.png"))
     
     if not png_files:
-        print("❌ Downloads 폴더에 PNG 파일이 없습니다.")
+        print("❌ input 폴더에 PNG 파일이 없습니다.")
         return
     
     print(f"📁 발견된 PNG 파일: {len(png_files)}개")

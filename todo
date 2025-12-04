@@ -55,6 +55,26 @@
 
 ## 최근 완료 작업
 
+### 2025-12-04
+- [x] 사탄탱고(Sátántangó) 영상 제작 및 YouTube 업로드 완료
+  - 라슬로 크라스나호르카이의 걸작 사탄탱고 영상 제작
+  - 한글/영어 영상 생성 (요약 포함, 각 약 21.5분)
+  - 이미지 다운로드 (100개 무드 이미지)
+  - 썸네일 생성 및 변환 (PNG → JPG, 4K 해상도)
+  - 메타데이터 생성 (한글/영어)
+  - YouTube 비공개 업로드 완료 (한글/영어 2개)
+- [x] 제목 형식 수정 및 개선
+  - 괄호에서 한글 제목 자동 추출 기능 추가
+  - 영어 제목에는 한글 제목, 한글 제목에는 영어 제목 표시 형식으로 수정
+  - Sátántangó → 사탄탱고 매핑 추가
+- [x] 책 소개(description) 가져오기 로직 개선
+  - load_book_info 함수 개선: description이 없으면 Google Books API에서 다시 가져오기
+  - 메타데이터 생성 시 자동으로 description 확인 및 업데이트
+- [x] Downloads 폴더를 input 폴더로 변경
+  - 모든 스크립트에서 Downloads 폴더 대신 input 폴더 사용하도록 변경
+  - prepare_files_from_downloads.py, update_notebooklm_video.py, convert_downloads_png.py, run_full_pipeline_from_downloads.py 수정
+  - 비디오 파일 패턴 매칭 개선 (점(.) 형식도 지원: satan_video.en.mp4)
+
 ### 2025-12-03
 - [x] 크리스마스 캐럴 (A Christmas Carol) 영상 제작 완료
   - 찰스 디킨스의 불멸의 고전 크리스마스 캐럴 영상 제작

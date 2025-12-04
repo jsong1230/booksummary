@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Downloads 폴더에서 파일을 찾아 표준 네이밍 규칙으로 변경하고 적절한 위치로 이동
+input 폴더에서 파일을 찾아 표준 네이밍 규칙으로 변경하고 적절한 위치로 이동
 
 파일 패턴:
 - {prefix}_audio_{lang}.{ext} → assets/audio/{safe_title}_review_{lang}.{ext}
@@ -106,7 +106,7 @@ def convert_png_to_jpg(input_path: Path, output_path: Path) -> bool:
 
 def find_files_in_downloads(prefix: str, book_title: str) -> dict:
     """
-    Downloads 폴더에서 파일 찾기
+    input 폴더에서 파일 찾기
     
     Args:
         prefix: 파일명 접두사 (예: "lonliness")
@@ -115,7 +115,7 @@ def find_files_in_downloads(prefix: str, book_title: str) -> dict:
     Returns:
         찾은 파일들의 딕셔너리
     """
-    downloads_dir = Path.home() / "Downloads"
+    downloads_dir = Path("input")
     safe_title_str = safe_title(book_title)
     
     files = {
@@ -167,7 +167,14 @@ def find_files_in_downloads(prefix: str, book_title: str) -> dict:
         if files['video'][lang_key] is not None:
             continue
         for ext in ['.mp4', '.mov', '.avi', '.mkv']:
+            # 패턴 1: {prefix}_video_{lang}.{ext} (언더스코어)
             pattern = f"{prefix}_video_{lang}{ext}"
+            file_path = downloads_dir / pattern
+            if file_path.exists():
+                files['video'][lang_key] = file_path
+                break
+            # 패턴 2: {prefix}_video.{lang}{ext} (점)
+            pattern = f"{prefix}_video.{lang}{ext}"
             file_path = downloads_dir / pattern
             if file_path.exists():
                 files['video'][lang_key] = file_path
@@ -177,7 +184,7 @@ def find_files_in_downloads(prefix: str, book_title: str) -> dict:
 
 def prepare_files(book_title: str, author: str = None, prefix: str = None) -> dict:
     """
-    Downloads 폴더에서 파일을 찾아 표준 네이밍으로 변경하고 이동
+    input 폴더에서 파일을 찾아 표준 네이밍으로 변경하고 이동
     
     Args:
         book_title: 책 제목
@@ -188,16 +195,16 @@ def prepare_files(book_title: str, author: str = None, prefix: str = None) -> di
         준비된 파일들의 경로 딕셔너리
     """
     print("=" * 60)
-    print("📁 Downloads 폴더에서 파일 준비")
+    print("📁 input 폴더에서 파일 준비")
     print("=" * 60)
     print()
     
-    downloads_dir = Path.home() / "Downloads"
+    downloads_dir = Path("input")
     safe_title_str = safe_title(book_title)
     
     # prefix가 없으면 safe_title의 첫 부분으로 추정
     if prefix is None:
-        # Downloads 폴더에서 패턴 매칭으로 찾기
+        # input 폴더에서 패턴 매칭으로 찾기
         possible_prefixes = []
         for file in downloads_dir.glob("*_audio_*.m4a"):
             stem = file.stem
@@ -308,7 +315,7 @@ def prepare_files(book_title: str, author: str = None, prefix: str = None) -> di
 def main():
     import argparse
     
-    parser = argparse.ArgumentParser(description="Downloads 폴더에서 파일을 준비하고 표준 네이밍으로 변경")
+    parser = argparse.ArgumentParser(description="input 폴더에서 파일을 준비하고 표준 네이밍으로 변경")
     parser.add_argument("--book-title", required=True, help="책 제목")
     parser.add_argument("--author", help="저자 이름")
     parser.add_argument("--prefix", help="파일명 접두사 (자동 감지 시 생략 가능)")

@@ -39,8 +39,18 @@ from utils.file_utils import safe_title, load_book_info
 
 def generate_title(book_title: str, lang: str = "both") -> str:
     """영상 제목 생성 (두 언어 포함, 언어 표시 포함, 대체 제목 포함)"""
-    # 괄호 안의 한글 제거 (예: "The Loneliness of Sonia and Sunny (소니아와 써니의 고독)" -> "The Loneliness of Sonia and Sunny")
+    # 괄호 안의 한글 추출 (예: "Sátántangó (사탄탱고)" -> ko_title="사탄탱고", en_title="Sátántangó")
     import re
+    # 괄호 안의 한글 추출
+    bracket_match = re.search(r'\(([^)]+)\)', book_title)
+    ko_title_from_bracket = None
+    if bracket_match:
+        bracket_content = bracket_match.group(1)
+        # 괄호 안 내용이 한글인지 확인
+        if not is_english_title(bracket_content):
+            ko_title_from_bracket = bracket_content
+    
+    # 괄호 제거한 제목
     book_title_clean = re.sub(r'\s*\([^)]*\)\s*$', '', book_title).strip()
     
     # book_title이 영어인지 한글인지 판단
@@ -48,6 +58,10 @@ def generate_title(book_title: str, lang: str = "both") -> str:
         # 영어 제목이 들어온 경우: 한글 제목으로 변환
         ko_title = translate_book_title_to_korean(book_title_clean)
         en_title = book_title_clean  # 이미 영어
+        
+        # 괄호에서 추출한 한글 제목이 있으면 우선 사용
+        if ko_title_from_bracket:
+            ko_title = ko_title_from_bracket
         
         # ko_title이 여전히 영어인 경우 (번역 실패), 한글 발음으로 변환 시도
         if is_english_title(ko_title):
@@ -58,6 +72,7 @@ def generate_title(book_title: str, lang: str = "both") -> str:
                 "Hamlet": "햄릿",
                 "Sunrise on the Reaping": "선라이즈 온 더 리핑",
                 "The Anxious Generation": "불안 세대",
+                "Sátántangó": "사탄탱고",
             }
             ko_title = pronunciation_map.get(ko_title, ko_title)
     else:
@@ -754,9 +769,14 @@ def main():
         print("=" * 60)
         print()
         
-        # 책 정보 로드
+        # 책 정보 로드 (description이 없으면 Google Books API에서 다시 가져옴)
+        # 저자 정보는 book_info.json에서 가져오거나 None 사용
         book_info = load_book_info(args.book_title)
         if book_info:
+            author = book_info.get('authors', [None])[0] if book_info.get('authors') else None
+            # description이 없으면 다시 시도
+            if not book_info.get('description') or book_info.get('description', '').strip() == '':
+                book_info = load_book_info(args.book_title, author=author)
             print(f"📚 책 정보 로드 완료: {book_info.get('title', args.book_title)}")
         print()
         
@@ -826,9 +846,13 @@ def main():
         print("❌ 오디오 파일을 찾을 수 없습니다.")
         return
     
-    # 책 정보 로드
+    # 책 정보 로드 (description이 없으면 Google Books API에서 다시 가져옴)
     book_info = load_book_info(args.book_title)
     if book_info:
+        author = book_info.get('authors', [None])[0] if book_info.get('authors') else None
+        # description이 없으면 다시 시도
+        if not book_info.get('description') or book_info.get('description', '').strip() == '':
+            book_info = load_book_info(args.book_title, author=author)
         print(f"📚 책 정보 로드 완료: {book_info.get('title', args.book_title)}")
         print()
     

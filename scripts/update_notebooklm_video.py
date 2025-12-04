@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Downloads 폴더에서 새로운 NotebookLM 비디오 파일을 찾아 교체하고 한국어 영상 재생성
+input 폴더에서 새로운 NotebookLM 비디오 파일을 찾아 교체하고 한국어 영상 재생성
 
 사용법:
     python scripts/update_notebooklm_video.py --book-title "책 제목" --prefix "파일_접두사" --language ko
@@ -18,8 +18,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from src.utils.file_utils import safe_title
 
 def find_notebooklm_video_in_downloads(prefix: str, lang: str = "ko") -> Path:
-    """Downloads 폴더에서 NotebookLM 비디오 파일 찾기"""
-    downloads_dir = Path.home() / "Downloads"
+    """input 폴더에서 NotebookLM 비디오 파일 찾기"""
+    downloads_dir = Path("input")
     
     # 언어 접미사 매핑
     lang_suffixes = {
@@ -46,12 +46,12 @@ def update_notebooklm_video(book_title: str, prefix: str, lang: str = "ko"):
     print("=" * 60)
     print()
     
-    # 1. Downloads 폴더에서 새 비디오 파일 찾기
-    print("📁 Downloads 폴더에서 새 비디오 파일 검색 중...")
+    # 1. input 폴더에서 새 비디오 파일 찾기
+    print("📁 input 폴더에서 새 비디오 파일 검색 중...")
     new_video = find_notebooklm_video_in_downloads(prefix, lang)
     
     if not new_video:
-        print(f"❌ Downloads 폴더에서 {prefix}_video_{lang} 파일을 찾을 수 없습니다.")
+        print(f"❌ input 폴더에서 {prefix}_video_{lang} 파일을 찾을 수 없습니다.")
         print(f"   찾는 패턴: {prefix}_video_kr.mp4, {prefix}_video_ko.mp4 등")
         return False
     
@@ -136,7 +136,7 @@ def update_notebooklm_video(book_title: str, prefix: str, lang: str = "ko"):
 def main():
     parser = argparse.ArgumentParser(description='NotebookLM 비디오 업데이트 및 영상 재생성')
     parser.add_argument('--book-title', type=str, required=True, help='책 제목')
-    parser.add_argument('--prefix', type=str, required=True, help='Downloads 폴더의 파일 접두사')
+    parser.add_argument('--prefix', type=str, required=True, help='input 폴더의 파일 접두사')
     parser.add_argument('--language', type=str, default='ko', choices=['ko', 'en'], help='언어 (기본값: ko)')
     
     args = parser.parse_args()
