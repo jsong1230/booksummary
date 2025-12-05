@@ -974,10 +974,43 @@
 
 ## 2025-12-06
 
-### YouTube 업로드 완료
-- 업로드된 책: 아토믹_해빗_with_summary_en, 아토믹_해빗_with_summary_ko
-- 업로드된 영상 수: 2개
-- [1] [English] Atomic Habits Book Review | [영어] 아토믹 해빗 책 리뷰
-  - URL: https://www.youtube.com/watch?v=EHh8AY3MlGk
-- [2] [한국어] 아토믹 해빗 책 리뷰 | [Korean] Atomic Habits Book Review
-  - URL: https://www.youtube.com/watch?v=OtsPh0vu9bI
+### 아토믹 해빗(Atomic Habits) 영상 제작 및 YouTube 업로드 완료
+- **책 정보**: 아토믹 해빗 (Atomic Habits) - 제임스 클리어 (James Clear)
+- **작업 내용**:
+  - input 폴더에서 파일 준비 (오디오, 요약, 썸네일, 비디오)
+  - 이미지 다운로드 (100개 무드 이미지, Pixabay API 사용)
+  - 책 정보 다운로드 시도 (Google Books API에서 검색 결과 없음)
+  - 요약 텍스트 로드 (기존 파일 사용)
+  - 롱폼 TTS 오디오 생성 (한글/영어, tts-1-hd 모델 사용)
+  - 한글/영어 영상 제작 (요약 + NotebookLM Video + 리뷰 오디오)
+  - 썸네일 변환 (PNG → JPG, 4K 해상도, 2MB 이하 압축)
+  - 메타데이터 생성 (한글/영어, timestamp 포함)
+- **생성된 파일**:
+  - 한글 영상: `아토믹_해빗_review_with_summary_ko.mp4` (1.0GB, 약 27.21분)
+  - 영어 영상: `아토믹_해빗_review_with_summary_en.mp4` (949MB, 약 24.85분)
+  - 한글 롱폼 오디오: `아토믹_해빗_summary_ko.mp3` (nova 음성)
+  - 영어 롱폼 오디오: `아토믹_해빗_summary_en.mp3` (alloy 음성)
+  - 한글 썸네일: `아토믹_해빗_thumbnail_ko.jpg`
+  - 영어 썸네일: `아토믹_해빗_thumbnail_en.jpg`
+  - 메타데이터: 한글/영어 각각 JSON 파일 생성
+- **영상 구성**:
+  - Summary (요약 오디오 + 이미지 슬라이드쇼, 한글: 110초, 영문: 101초)
+  - 3초 silence
+  - NotebookLM Video (상세 분석, 한글: 591초, 영문: 384초)
+  - 3초 silence
+  - Audio Review (리뷰 오디오 + 이미지 슬라이드쇼, 한글: 926초, 영문: 1000초)
+- **YouTube 업로드**:
+  - 업로드된 영상 수: 2개 (비공개)
+  - [1] [English] Atomic Habits Book Review | [영어] 아토믹 해빗 책 리뷰
+    - URL: https://www.youtube.com/watch?v=EHh8AY3MlGk
+  - [2] [한국어] 아토믹 해빗 책 리뷰 | [Korean] Atomic Habits Book Review
+    - URL: https://www.youtube.com/watch?v=OtsPh0vu9bI
+
+### 번역 매핑 추가
+- **`src/utils/translations.py`**:
+  - 책 제목 매핑 추가:
+    - "아토믹 해빗" → "Atomic Habits"
+    - "아토믹_해빗" → "Atomic Habits"
+  - 작가 이름 매핑 추가:
+    - "제임스 클리어" → "James Clear"
+    - "James Clear" → "James Clear"
