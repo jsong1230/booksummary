@@ -2,128 +2,6 @@
 
 ## 2025-12-05
 
-### 빅터 프랭클 (Viktor Frankl) - 죽음의 수용소에서 (Man's Search for Meaning) 영상 제작 및 YouTube 업로드 완료
-- **책 정보**: 죽음의 수용소에서 (Man's Search for Meaning) - 빅터 프랭클 (Viktor Frankl)
-- **작업 내용**:
-  - input 폴더에서 파일 준비 (오디오, 요약, 썸네일, 비디오)
-  - 이미지 다운로드 (100개 무드 이미지, Pixabay API 사용)
-  - 책 커버 및 책 정보 다운로드 (Google Books API)
-  - 요약 텍스트 로드 (기존 파일 사용)
-  - 롱폼 TTS 오디오 생성 (한글/영어, tts-1-hd 모델 사용)
-  - 한글/영어 영상 제작 (요약 + NotebookLM Video + 리뷰 오디오)
-  - 썸네일 변환 (PNG → JPG, 4K 해상도, 2MB 이하 압축)
-  - 메타데이터 생성 (한글/영어, timestamp 포함)
-- **생성된 파일**:
-  - 한글 영상: `죽음의_수용소에서_review_with_summary_ko.mp4` (861MB, 약 22.5분)
-  - 영어 영상: `죽음의_수용소에서_review_with_summary_en.mp4` (901MB, 약 23.6분)
-  - 한글 롱폼 오디오: `죽음의_수용소에서_longform_ko.mp3` (2.3MB, nova 음성)
-  - 영어 롱폼 오디오: `죽음의_수용소에서_longform_en.mp3` (1.9MB, alloy 음성)
-  - 한글 썸네일: `죽음의_수용소에서_thumbnail_ko.jpg`
-  - 영어 썸네일: `죽음의_수용소에서_thumbnail_en.jpg`
-  - 메타데이터: 한글/영어 각각 JSON 파일 생성
-- **영상 구성**:
-  - Summary (요약 오디오 + 이미지 슬라이드쇼, 한글: 115초, 영문: 98초)
-  - 3초 silence
-  - NotebookLM Video (상세 분석, 한글: 480초, 영문: 454초)
-  - 3초 silence
-  - Audio Review (리뷰 오디오 + 이미지 슬라이드쇼, 한글: 749초, 영문: 856초)
-- **YouTube 업로드**:
-  - 업로드된 영상 수: 2개 (비공개)
-  - [1] [English] Man's Search for Meaning Book Review | [영어] 죽음의 수용소에서 책 리뷰
-    - URL: https://www.youtube.com/watch?v=M-REus9onxA
-  - [2] [한국어] 죽음의 수용소에서 책 리뷰 | [Korean] Man's Search for Meaning Book Review
-    - URL: https://www.youtube.com/watch?v=Sz8MDOH15SI
-
-### 워크플로우 문서화 및 개선
-
-#### .cursorrules 업데이트
-- **Input 폴더 워크플로우 추가** (최우선 규칙):
-  - 모든 영상 제작 작업은 `input/` 폴더 확인부터 시작
-  - 필수 파일 체크리스트 문서화
-  - 표준 워크플로우 실행 순서 (7단계) 명령어와 함께 제공
-  - 번역 매핑 확인 및 추가 방법 가이드
-  - 파일 이동 후 위치 확인 가이드
-- **영상 구조 명확화**:
-  - Summary → 3초 silence → NotebookLM Video → 3초 silence → Audio
-  - 각 섹션별 설정 및 옵션 설명
-- **영상 제작 순서 업데이트**:
-  - Input 폴더 파일 확인 및 이동 추가
-  - 썸네일 PNG→JPG 변환 명시
-  - YouTube 업로드 (비공개 또는 공개) 옵션 추가
-
-### 메타데이터 언어 분리 개선
-
-#### 메타데이터 설명(description) 언어 분리
-- **문제**: 한글 메타데이터에 영문 책 소개가 포함되고, 영문 메타데이터에 한글 책 소개가 포함되는 문제
-- **해결**:
-  - 한글 메타데이터: 한글 설명만 포함, 영문 책 소개 제거
-  - 영문 메타데이터: 영문 설명만 포함, 한글 책 소개 제거
-  - `_generate_description_ko` 함수: 영문 book description 제거
-  - `_generate_description_en_with_ko` 함수: 한글 부분에서 영문 book description 제거
-- **수정 파일**: `src/08_create_and_preview_videos.py`
-
-#### 작가 이름 중복 표시 제거
-- **문제**: 작가 이름이 한글/영문 모두 표시되어 중복 (예: `✍️ 작가: Viktor E. Frankl | ✍️ Author: Viktor E. Frankl`)
-- **해결**:
-  - 한글 메타데이터: 한글 작가 이름만 표시 (`✍️ 작가: Viktor E. Frankl`)
-  - 영문 메타데이터: 영문 작가 이름만 표시 (`✍️ Author: Viktor E. Frankl`)
-  - `_generate_description_ko`, `_generate_description_en`, `_generate_description_en_with_ko` 함수 모두 수정
-- **수정 파일**: `src/08_create_and_preview_videos.py`
-
-### 번역 매핑 추가
-- **`src/utils/translations.py`**:
-  - 책 제목 매핑 추가:
-    - "죽음의 수용소에서" → "Man's Search for Meaning"
-    - "죽음의_수용소에서" → "Man's Search for Meaning"
-  - 작가 이름 매핑 추가:
-    - "빅터 프랭클" → "Viktor Frankl"
-    - "빅터 E. 프랭클" → "Viktor E. Frankl"
-
-### 연금술사(The Alchemist) 영상 제작 및 YouTube 업로드 완료
-- **책 정보**: 연금술사 (The Alchemist) - 파울로 코엘료 (Paulo Coelho)
-- **작업 내용**:
-  - input 폴더에서 파일 준비 (오디오, 요약, 썸네일, 비디오)
-  - 이미지 다운로드 (100개 무드 이미지, Pixabay API 사용)
-  - 요약 텍스트 로드 (기존 파일 사용)
-  - TTS 요약 오디오 생성 (한글/영어)
-  - 한글/영어 영상 제작 (요약 + NotebookLM Video + 리뷰 오디오)
-  - 썸네일 변환 (PNG → JPG, 4K 해상도, 2MB 이하 압축)
-  - 메타데이터 생성 (한글/영어, timestamp 포함)
-- **생성된 파일**:
-  - 한글 영상: `연금술사_review_with_summary_ko.mp4` (약 28.4분)
-  - 영어 영상: `연금술사_review_with_summary_en.mp4` (약 28.4분)
-  - 한글 썸네일: `연금술사_thumbnail_ko.jpg` (1.4MB)
-  - 영어 썸네일: `연금술사_thumbnail_en.jpg` (1.5MB)
-  - 메타데이터: 한글/영어 각각 JSON 파일 생성
-- **영상 구성**:
-  - Summary (요약 오디오 + 이미지 슬라이드쇼, 약 2분 34초)
-  - 3초 silence
-  - NotebookLM Video (상세 분석, 약 10분 5초)
-  - 3초 silence
-  - Audio Review (리뷰 오디오 + 이미지 슬라이드쇼, 약 15분 43초)
-- **YouTube 업로드**:
-  - 업로드된 영상 수: 2개 (수동 업로드)
-  - 한글/영어 각각 업로드 완료
-
-### 코드 개선
-
-#### 메타데이터 작가 이름 표시 개선
-- **문제**: 메타데이터에서 작가 이름이 한글 또는 영어로만 표시됨
-- **해결**: 
-  - 한글 메타데이터: `✍️ 작가: {한글} | ✍️ Author: {영어}` 형식으로 표시
-  - 영어 메타데이터: `✍️ Author: {영어} | ✍️ 작가: {한글}` 형식으로 표시
-  - `generate_description` 함수에 `author` 파라미터 추가
-  - `book_info`가 없어도 `--author` 파라미터로 작가 정보 표시 가능
-- **수정 파일**: `src/08_create_and_preview_videos.py`
-- **추가 매핑**: 
-  - `translations.py`에 "연금술사" → "The Alchemist" 매핑 추가
-  - `translations.py`에 "파울로 코엘료" → "Paulo Coelho" 매핑 추가
-
-#### file_utils.py 경로 오류 수정
-- **문제**: `load_book_info` 함수에서 `src/src/02_get_images.py` 경로 오류
-- **해결**: `src/02_get_images.py`로 경로 수정
-- **수정 파일**: `src/utils/file_utils.py`
-
 ### Phase 8: 품질 개선 및 최적화
 
 #### 영상 품질 향상
@@ -883,36 +761,6 @@
 
 ## 2025-12-05
 
-### YouTube 업로드 완료
-- 업로드된 책: 연금술사_with_summary_ko, 연금술사_with_summary_en
-- 업로드된 영상 수: 2개
-- [1] [English] The Alchemist Book Review | [영어] 연금술사 책 리뷰
-  - URL: https://www.youtube.com/watch?v=kbFDkhoQFq4
-- [2] [한국어] 연금술사 책 리뷰 | [Korean] The Alchemist Book Review
-  - URL: https://www.youtube.com/watch?v=Iju325kSvSI
-
-## 2025-12-05
-
-### YouTube 업로드 완료
-- 업로드된 책: 죽음의_수용소에서_with_summary_en, 죽음의_수용소에서_with_summary_ko
-- 업로드된 영상 수: 2개
-- [1] [English] Man's Search for Meaning Book Review | [영어] 죽음의 수용소에서 책 리뷰
-  - URL: https://www.youtube.com/watch?v=M-REus9onxA
-- [2] [한국어] 죽음의 수용소에서 책 리뷰 | [Korean] Man's Search for Meaning Book Review
-  - URL: https://www.youtube.com/watch?v=Sz8MDOH15SI
-
-## 2025-12-05
-
-### YouTube 업로드 완료
-- 업로드된 책: 듀얼_브레인_with_summary_en, 듀얼_브레인_with_summary_ko
-- 업로드된 영상 수: 2개
-- [1] [English] Co-Intelligence Book Review | [영어] 듀얼 브레인 책 리뷰
-  - URL: https://www.youtube.com/watch?v=qPKNcEYxX6o
-- [2] [한국어] 듀얼 브레인 책 리뷰 | [Korean] Co-Intelligence Book Review
-  - URL: https://www.youtube.com/watch?v=5eeuyeYs7-c
-
-## 2025-12-05
-
 ### 연금술사(The Alchemist) 영상 제작 및 YouTube 업로드 완료
 - **책 정보**: 연금술사 (The Alchemist) - 파울로 코엘료 (Paulo Coelho)
 - **작업 내용**:
@@ -945,35 +793,6 @@
   - [2] [한국어] 연금술사 책 리뷰 | [Korean] The Alchemist Book Review
     - URL: https://www.youtube.com/watch?v=noOCT0HY1bE
 
-### 메타데이터 개선
-
-#### 책 소개(description) 포함 개선
-- **문제**: 메타데이터에 책 소개가 자주 빠지는 문제
-- **해결**:
-  - `_generate_description_ko`: `book_info.get('description')`이 있으면 사용하도록 수정
-  - `_generate_description_en`: `book_info.get('description')`을 우선 사용하도록 수정
-  - `_generate_description_en_with_ko`: 한글 부분에도 책 소개 포함하도록 수정
-  - description이 없으면 기본 메시지 표시
-- **수정 파일**: `src/08_create_and_preview_videos.py`
-
-#### 작가 이름 표시 형식 통일
-- **문제**: 메타데이터에서 작가 이름 표시 형식이 일관되지 않음
-- **해결**:
-  - 모든 메타데이터에서 "Author: {영어} | 작가: {한글}" 형식으로 통일
-  - 한글 메타데이터와 영문 메타데이터 모두 동일한 형식 적용
-  - `_generate_description_ko`, `_generate_description_en`, `_generate_description_en_with_ko` 함수 모두 수정
-- **수정 파일**: `src/08_create_and_preview_videos.py`
-
-#### book_info.json 생성 개선
-- **문제**: `--skip-cover` 옵션 사용 시 `book_info.json`이 생성되지 않음
-- **해결**:
-  - `download_book_cover` 함수에 `skip_image` 파라미터 추가
-  - 이미지 다운로드는 건너뛰되 `book_info.json`은 항상 생성하도록 수정
-  - `download_all` 함수에서 `skip_cover=True`일 때도 `book_info.json` 생성하도록 수정
-- **수정 파일**: `src/02_get_images.py`
-
-## 2025-12-06
-
 ### 아토믹 해빗(Atomic Habits) 영상 제작 및 YouTube 업로드 완료
 - **책 정보**: 아토믹 해빗 (Atomic Habits) - 제임스 클리어 (James Clear)
 - **작업 내용**:
@@ -1005,6 +824,33 @@
     - URL: https://www.youtube.com/watch?v=EHh8AY3MlGk
   - [2] [한국어] 아토믹 해빗 책 리뷰 | [Korean] Atomic Habits Book Review
     - URL: https://www.youtube.com/watch?v=OtsPh0vu9bI
+
+### 메타데이터 개선
+
+#### 책 소개(description) 포함 개선
+- **문제**: 메타데이터에 책 소개가 자주 빠지는 문제
+- **해결**:
+  - `_generate_description_ko`: `book_info.get('description')`이 있으면 사용하도록 수정
+  - `_generate_description_en`: `book_info.get('description')`을 우선 사용하도록 수정
+  - `_generate_description_en_with_ko`: 한글 부분에도 책 소개 포함하도록 수정
+  - description이 없으면 기본 메시지 표시
+- **수정 파일**: `src/08_create_and_preview_videos.py`
+
+#### 작가 이름 표시 형식 통일
+- **문제**: 메타데이터에서 작가 이름 표시 형식이 일관되지 않음
+- **해결**:
+  - 모든 메타데이터에서 "Author: {영어} | 작가: {한글}" 형식으로 통일
+  - 한글 메타데이터와 영문 메타데이터 모두 동일한 형식 적용
+  - `_generate_description_ko`, `_generate_description_en`, `_generate_description_en_with_ko` 함수 모두 수정
+- **수정 파일**: `src/08_create_and_preview_videos.py`
+
+#### book_info.json 생성 개선
+- **문제**: `--skip-cover` 옵션 사용 시 `book_info.json`이 생성되지 않음
+- **해결**:
+  - `download_book_cover` 함수에 `skip_image` 파라미터 추가
+  - 이미지 다운로드는 건너뛰되 `book_info.json`은 항상 생성하도록 수정
+  - `download_all` 함수에서 `skip_cover=True`일 때도 `book_info.json` 생성하도록 수정
+- **수정 파일**: `src/02_get_images.py`
 
 ### 번역 매핑 추가
 - **`src/utils/translations.py`**:
