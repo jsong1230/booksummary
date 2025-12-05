@@ -2,6 +2,51 @@
 
 ## 2025-12-05
 
+### 연금술사(The Alchemist) 영상 제작 및 YouTube 업로드 완료
+- **책 정보**: 연금술사 (The Alchemist) - 파울로 코엘료 (Paulo Coelho)
+- **작업 내용**:
+  - input 폴더에서 파일 준비 (오디오, 요약, 썸네일, 비디오)
+  - 이미지 다운로드 (100개 무드 이미지, Pixabay API 사용)
+  - 요약 텍스트 로드 (기존 파일 사용)
+  - TTS 요약 오디오 생성 (한글/영어)
+  - 한글/영어 영상 제작 (요약 + NotebookLM Video + 리뷰 오디오)
+  - 썸네일 변환 (PNG → JPG, 4K 해상도, 2MB 이하 압축)
+  - 메타데이터 생성 (한글/영어, timestamp 포함)
+- **생성된 파일**:
+  - 한글 영상: `연금술사_review_with_summary_ko.mp4` (약 28.4분)
+  - 영어 영상: `연금술사_review_with_summary_en.mp4` (약 28.4분)
+  - 한글 썸네일: `연금술사_thumbnail_ko.jpg` (1.4MB)
+  - 영어 썸네일: `연금술사_thumbnail_en.jpg` (1.5MB)
+  - 메타데이터: 한글/영어 각각 JSON 파일 생성
+- **영상 구성**:
+  - Summary (요약 오디오 + 이미지 슬라이드쇼, 약 2분 34초)
+  - 3초 silence
+  - NotebookLM Video (상세 분석, 약 10분 5초)
+  - 3초 silence
+  - Audio Review (리뷰 오디오 + 이미지 슬라이드쇼, 약 15분 43초)
+- **YouTube 업로드**:
+  - 업로드된 영상 수: 2개 (수동 업로드)
+  - 한글/영어 각각 업로드 완료
+
+### 코드 개선
+
+#### 메타데이터 작가 이름 표시 개선
+- **문제**: 메타데이터에서 작가 이름이 한글 또는 영어로만 표시됨
+- **해결**: 
+  - 한글 메타데이터: `✍️ 작가: {한글} | ✍️ Author: {영어}` 형식으로 표시
+  - 영어 메타데이터: `✍️ Author: {영어} | ✍️ 작가: {한글}` 형식으로 표시
+  - `generate_description` 함수에 `author` 파라미터 추가
+  - `book_info`가 없어도 `--author` 파라미터로 작가 정보 표시 가능
+- **수정 파일**: `src/08_create_and_preview_videos.py`
+- **추가 매핑**: 
+  - `translations.py`에 "연금술사" → "The Alchemist" 매핑 추가
+  - `translations.py`에 "파울로 코엘료" → "Paulo Coelho" 매핑 추가
+
+#### file_utils.py 경로 오류 수정
+- **문제**: `load_book_info` 함수에서 `src/src/02_get_images.py` 경로 오류
+- **해결**: `src/02_get_images.py`로 경로 수정
+- **수정 파일**: `src/utils/file_utils.py`
+
 ### Phase 8: 품질 개선 및 최적화
 
 #### 영상 품질 향상
@@ -758,3 +803,13 @@
 #### 문서 업데이트
 - README.md에 input 폴더 사용법 반영
 - 모든 "Downloads 폴더" 언급을 "input 폴더"로 변경
+
+## 2025-12-05
+
+### YouTube 업로드 완료
+- 업로드된 책: 연금술사_with_summary_ko, 연금술사_with_summary_en
+- 업로드된 영상 수: 2개
+- [1] [English] The Alchemist Book Review | [영어] 연금술사 책 리뷰
+  - URL: https://www.youtube.com/watch?v=kbFDkhoQFq4
+- [2] [한국어] 연금술사 책 리뷰 | [Korean] The Alchemist Book Review
+  - URL: https://www.youtube.com/watch?v=Iju325kSvSI
