@@ -128,7 +128,7 @@ def generate_title(book_title: str, lang: str = "both") -> str:
     else:
         return f"{ko_title} 책 리뷰 | {en_title} Book Review | 일당백 스타일"
 
-def generate_description(book_info: Optional[Dict] = None, lang: str = "both", book_title: str = None, timestamps: Optional[Dict] = None) -> str:
+def generate_description(book_info: Optional[Dict] = None, lang: str = "both", book_title: str = None, timestamps: Optional[Dict] = None, author: Optional[str] = None) -> str:
     """
     영상 설명 생성 (두 언어 포함)
     
@@ -143,13 +143,13 @@ def generate_description(book_info: Optional[Dict] = None, lang: str = "both", b
     """
     if lang == "ko":
         # 한글 먼저, 영어 나중
-        return _generate_description_ko(book_info, book_title, timestamps)
+        return _generate_description_ko(book_info, book_title, timestamps, author)
     elif lang == "en":
         # 영어 먼저, 한글 나중
-        return _generate_description_en_with_ko(book_info, book_title, timestamps)
+        return _generate_description_en_with_ko(book_info, book_title, timestamps, author)
     else:
-        ko_desc = _generate_description_ko(book_info, book_title, timestamps)
-        en_desc = _generate_description_en_with_ko(book_info, book_title, timestamps)
+        ko_desc = _generate_description_ko(book_info, book_title, timestamps, author)
+        en_desc = _generate_description_en_with_ko(book_info, book_title, timestamps, author)
         return f"{ko_desc}\n\n{'='*60}\n\n{en_desc}"
 
 def _format_timestamp(seconds: float) -> str:
@@ -194,7 +194,7 @@ def _generate_timestamps_section(timestamps: Optional[Dict] = None, lang: str = 
     
     return section
 
-def _generate_description_ko(book_info: Optional[Dict] = None, book_title: str = None, timestamps: Optional[Dict] = None) -> str:
+def _generate_description_ko(book_info: Optional[Dict] = None, book_title: str = None, timestamps: Optional[Dict] = None, author: Optional[str] = None) -> str:
     """한글 설명 생성 (한글 먼저, 영어 나중)"""
     # 한글 부분
     ko_desc = """📚 책 리뷰 영상
@@ -216,7 +216,24 @@ def _generate_description_ko(book_info: Optional[Dict] = None, book_title: str =
         if book_info.get('description'):
             ko_desc += f"📖 책 소개:\n{book_info['description'][:500]}...\n\n"
         if book_info.get('authors'):
-            ko_desc += f"✍️ 작가: {', '.join(book_info['authors'])}\n"
+            # 한글과 영어 작가 이름 모두 표시
+            authors_ko = []
+            authors_en = []
+            for author in book_info['authors']:
+                if is_english_title(author):
+                    # 영어 작가 이름인 경우
+                    authors_en.append(author)
+                    ko_author = translate_author_name_to_korean(author)
+                    authors_ko.append(ko_author if ko_author != author else author)
+                else:
+                    # 한글 작가 이름인 경우
+                    authors_ko.append(author)
+                    en_author = translate_author_name(author)
+                    authors_en.append(en_author if en_author != author else author)
+            
+            ko_author_str = ', '.join(authors_ko) if authors_ko else ', '.join(book_info['authors'])
+            en_author_str = ', '.join(authors_en) if authors_en else ', '.join(book_info['authors'])
+            ko_desc += f"✍️ 작가: {ko_author_str} | ✍️ Author: {en_author_str}\n"
         if book_info.get('publishedDate'):
             ko_desc += f"📅 출간일: {book_info['publishedDate']}\n"
     
@@ -247,8 +264,33 @@ This video was automatically generated using NotebookLM and AI.
                 en_desc += f"📖 Book Introduction:\n{en_book_desc[:500]}...\n\n"
         
         if book_info.get('authors'):
-            authors_en = [translate_author_name(author) for author in book_info['authors']]
-            en_desc += f"✍️ Author: {', '.join(authors_en)}\n"
+            # 영어와 한글 작가 이름 모두 표시
+            authors_ko = []
+            authors_en = []
+            for author_name in book_info['authors']:
+                if is_english_title(author_name):
+                    # 영어 작가 이름인 경우
+                    authors_en.append(author_name)
+                    ko_author = translate_author_name_to_korean(author_name)
+                    authors_ko.append(ko_author if ko_author != author_name else author_name)
+                else:
+                    # 한글 작가 이름인 경우
+                    authors_ko.append(author_name)
+                    en_author = translate_author_name(author_name)
+                    authors_en.append(en_author if en_author != author_name else author_name)
+            
+            en_author_str = ', '.join(authors_en) if authors_en else ', '.join(book_info['authors'])
+            ko_author_str = ', '.join(authors_ko) if authors_ko else ', '.join(book_info['authors'])
+            en_desc += f"✍️ Author: {en_author_str} | ✍️ 작가: {ko_author_str}\n"
+        elif author:
+            # book_info에 authors가 없지만 author 파라미터가 있는 경우
+            if is_english_title(author):
+                ko_author = translate_author_name_to_korean(author)
+                en_author = author
+            else:
+                ko_author = author
+                en_author = translate_author_name(author)
+            en_desc += f"✍️ Author: {en_author} | ✍️ 작가: {ko_author}\n"
         if book_info.get('publishedDate'):
             en_desc += f"📅 Published: {book_info['publishedDate']}\n"
     
@@ -275,7 +317,7 @@ def get_english_book_description(book_title: str) -> str:
     
     return descriptions.get(book_title, "")
 
-def _generate_description_en(book_info: Optional[Dict] = None, book_title: str = None, include_header: bool = True, timestamps: Optional[Dict] = None) -> str:
+def _generate_description_en(book_info: Optional[Dict] = None, book_title: str = None, include_header: bool = True, timestamps: Optional[Dict] = None, author: Optional[str] = None) -> str:
     """영문 설명 생성"""
     description = ""
     
@@ -309,10 +351,34 @@ This video was automatically generated using NotebookLM and AI.
             description += f"📖 Book Introduction:\nA book review video about this literary work.\n\n"
         
         if book_info.get('authors'):
-            # 작가 이름 영어로 변환
-            authors_en = [translate_author_name(author) for author in book_info['authors']]
-            description += f"✍️ Author: {', '.join(authors_en)}\n"
-        if book_info.get('publishedDate'):
+            # 영어와 한글 작가 이름 모두 표시
+            authors_ko = []
+            authors_en = []
+            for author_name in book_info['authors']:
+                if is_english_title(author_name):
+                    # 영어 작가 이름인 경우
+                    authors_en.append(author_name)
+                    ko_author = translate_author_name_to_korean(author_name)
+                    authors_ko.append(ko_author if ko_author != author_name else author_name)
+                else:
+                    # 한글 작가 이름인 경우
+                    authors_ko.append(author_name)
+                    en_author = translate_author_name(author_name)
+                    authors_en.append(en_author if en_author != author_name else author_name)
+            
+            en_author_str = ', '.join(authors_en) if authors_en else ', '.join(book_info['authors'])
+            ko_author_str = ', '.join(authors_ko) if authors_ko else ', '.join(book_info['authors'])
+            description += f"✍️ Author: {en_author_str} | ✍️ 작가: {ko_author_str}\n"
+        elif author:
+            # book_info에 authors가 없지만 author 파라미터가 있는 경우
+            if is_english_title(author):
+                ko_author = translate_author_name_to_korean(author)
+                en_author = author
+            else:
+                ko_author = author
+                en_author = translate_author_name(author)
+            description += f"✍️ Author: {en_author} | ✍️ 작가: {ko_author}\n"
+        if book_info and book_info.get('publishedDate'):
             description += f"📅 Published: {book_info['publishedDate']}\n"
     
     description += """
@@ -325,10 +391,10 @@ This video was automatically generated using NotebookLM and AI.
 """
     return description
 
-def _generate_description_en_with_ko(book_info: Optional[Dict] = None, book_title: str = None, timestamps: Optional[Dict] = None) -> str:
+def _generate_description_en_with_ko(book_info: Optional[Dict] = None, book_title: str = None, timestamps: Optional[Dict] = None, author: Optional[str] = None) -> str:
     """영문 설명 생성 (영어 먼저, 한글 나중)"""
     # 영어 부분
-    en_desc = _generate_description_en(book_info, book_title, include_header=True, timestamps=timestamps)
+    en_desc = _generate_description_en(book_info, book_title, include_header=True, timestamps=timestamps, author=author)
     
     # 한글 부분
     ko_desc = """📚 책 리뷰 영상
@@ -344,16 +410,24 @@ def _generate_description_en_with_ko(book_info: Optional[Dict] = None, book_titl
         if book_info.get('description'):
             ko_desc += f"📖 책 소개:\n{book_info['description'][:500]}...\n\n"
         if book_info.get('authors'):
-            # 작가 이름이 영어인지 한글인지 판단하여 한글로 변환
+            # 한글과 영어 작가 이름 모두 표시
             authors_ko = []
+            authors_en = []
             for author in book_info['authors']:
                 if is_english_title(author):
-                    # 영어 작가 이름인 경우 한글로 변환
+                    # 영어 작가 이름인 경우
+                    authors_en.append(author)
                     ko_author = translate_author_name_to_korean(author)
-                    authors_ko.append(ko_author)
+                    authors_ko.append(ko_author if ko_author != author else author)
                 else:
+                    # 한글 작가 이름인 경우
                     authors_ko.append(author)
-            ko_desc += f"✍️ 작가: {', '.join(authors_ko)}\n"
+                    en_author = translate_author_name(author)
+                    authors_en.append(en_author if en_author != author else author)
+            
+            ko_author_str = ', '.join(authors_ko) if authors_ko else ', '.join(book_info['authors'])
+            en_author_str = ', '.join(authors_en) if authors_en else ', '.join(book_info['authors'])
+            ko_desc += f"✍️ 작가: {ko_author_str} | ✍️ Author: {en_author_str}\n"
         if book_info.get('publishedDate'):
             ko_desc += f"📅 출간일: {book_info['publishedDate']}\n"
     
@@ -753,6 +827,7 @@ def main():
     
     parser = argparse.ArgumentParser(description='영상 생성 및 메타데이터 미리보기')
     parser.add_argument('--book-title', type=str, default="노르웨이의 숲", help='책 제목')
+    parser.add_argument('--author', type=str, help='저자 이름 (메타데이터 생성 시 사용)')
     parser.add_argument('--image-dir', type=str, help='이미지 디렉토리')
     parser.add_argument('--skip-video', action='store_true', help='영상 생성 건너뛰기 (메타데이터만 생성)')
     parser.add_argument('--metadata-only', action='store_true', help='메타데이터만 생성 (영상/오디오 없이)')
@@ -770,66 +845,74 @@ def main():
         print()
         
         # 책 정보 로드 (description이 없으면 Google Books API에서 다시 가져옴)
-        # 저자 정보는 book_info.json에서 가져오거나 None 사용
-        book_info = load_book_info(args.book_title)
+        # 저자 정보는 book_info.json에서 가져오거나 args.author 사용
+        book_info = load_book_info(args.book_title, author=args.author)
         if book_info:
-            author = book_info.get('authors', [None])[0] if book_info.get('authors') else None
+            author = book_info.get('authors', [None])[0] if book_info.get('authors') else args.author
             # description이 없으면 다시 시도
             if not book_info.get('description') or book_info.get('description', '').strip() == '':
                 book_info = load_book_info(args.book_title, author=author)
             print(f"📚 책 정보 로드 완료: {book_info.get('title', args.book_title)}")
+        else:
+            # book_info가 없으면 author 정보로 임시 book_info 생성
+            if args.author:
+                book_info = {'authors': [args.author]}
+                print(f"📚 저자 정보 사용: {args.author}")
         print()
         
         safe_title_str = safe_title(args.book_title)
         
-        # 한글 메타데이터 생성
+        # 한글 메타데이터 생성 (영상 파일이 없어도 생성)
         video_path_ko = Path(f"output/{safe_title_str}_review_with_summary_ko.mp4")
         
+        print("📋 한글 메타데이터 생성 중...")
+        title_ko = generate_title(args.book_title, lang='ko')
+        # Timestamp 계산 (영상 파일이 있으면)
+        timestamps_ko = None
         if video_path_ko.exists():
-            print("📋 한글 메타데이터 생성 중...")
-            title_ko = generate_title(args.book_title, lang='ko')
-            # Timestamp 계산
             timestamps_ko = calculate_timestamps_from_video(video_path_ko, safe_title_str, 'ko')
-            description_ko = generate_description(book_info, lang='ko', book_title=args.book_title, timestamps=timestamps_ko)
-            tags_ko = generate_tags(book_title=args.book_title, book_info=book_info, lang='ko')
-            
-            save_metadata(
-                video_path_ko,
-                title_ko,
-                description_ko,
-                tags_ko,
-                'ko',
-                book_info,
-                thumbnail_path=None,  # 자동으로 찾기
-                safe_title_str=safe_title_str
-            )
         else:
-            print(f"⚠️ 한글 영상을 찾을 수 없습니다: {video_path_ko}")
+            print(f"⚠️ 한글 영상을 찾을 수 없습니다. Timestamp 없이 메타데이터 생성: {video_path_ko}")
         
-        # 영문 메타데이터 생성
+        description_ko = generate_description(book_info, lang='ko', book_title=args.book_title, timestamps=timestamps_ko, author=args.author)
+        tags_ko = generate_tags(book_title=args.book_title, book_info=book_info, lang='ko')
+        
+        save_metadata(
+            video_path_ko,
+            title_ko,
+            description_ko,
+            tags_ko,
+            'ko',
+            book_info,
+            thumbnail_path=None,  # 자동으로 찾기
+            safe_title_str=safe_title_str
+        )
+        
+        # 영문 메타데이터 생성 (영상 파일이 없어도 생성)
         video_path_en = Path(f"output/{safe_title_str}_review_with_summary_en.mp4")
         
+        print("\n📋 영문 메타데이터 생성 중...")
+        title_en = generate_title(args.book_title, lang='en')
+        # Timestamp 계산 (영상 파일이 있으면)
+        timestamps_en = None
         if video_path_en.exists():
-            print("\n📋 영문 메타데이터 생성 중...")
-            title_en = generate_title(args.book_title, lang='en')
-            # Timestamp 계산
             timestamps_en = calculate_timestamps_from_video(video_path_en, safe_title_str, 'en')
-            
-            description_en = generate_description(book_info, lang='en', book_title=args.book_title, timestamps=timestamps_en)
-            tags_en = generate_tags(book_title=args.book_title, book_info=book_info, lang='en')
-            
-            save_metadata(
-                video_path_en,
-                title_en,
-                description_en,
-                tags_en,
-                'en',
-                book_info,
-                thumbnail_path=None,  # 자동으로 찾기
-                safe_title_str=safe_title_str
-            )
         else:
-            print(f"⚠️ 영문 영상을 찾을 수 없습니다: {video_path_en}")
+            print(f"⚠️ 영문 영상을 찾을 수 없습니다. Timestamp 없이 메타데이터 생성: {video_path_en}")
+        
+        description_en = generate_description(book_info, lang='en', book_title=args.book_title, timestamps=timestamps_en, author=args.author)
+        tags_en = generate_tags(book_title=args.book_title, book_info=book_info, lang='en')
+        
+        save_metadata(
+            video_path_en,
+            title_en,
+            description_en,
+            tags_en,
+            'en',
+            book_info,
+            thumbnail_path=None,  # 자동으로 찾기
+            safe_title_str=safe_title_str
+        )
         
         print("\n✅ 메타데이터 생성 완료!")
         return

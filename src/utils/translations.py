@@ -36,6 +36,8 @@ def translate_book_title(book_title: str) -> str:
         "소니아와 써니의 고독": "The Loneliness of Sonia and Sunny",
         "The Loneliness of Sonia and Sunny": "The Loneliness of Sonia and Sunny",
         "The Loneliness of Sonia and Sunny (소니아와 써니의 고독)": "The Loneliness of Sonia and Sunny",
+        "연금술사": "The Alchemist",
+        "The Alchemist": "The Alchemist",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -70,6 +72,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "The Loneliness of Sonia and Sunny": "소니아와 써니의 고독",
         "Sátántangó": "사탄탱고",
         "Sátántangó (사탄탱고)": "사탄탱고",
+        "The Alchemist": "연금술사",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -120,6 +123,8 @@ def translate_author_name(author: str) -> str:
         "표도르 도스토옙스키": "Fyodor Dostoevsky",
         "한강": "Han Kang",
         "한강 작가": "Han Kang",
+        "파울로 코엘료": "Paulo Coelho",
+        "Paulo Coelho": "Paulo Coelho",
         "김영하": "Youngha Kim",
         "Youngha Kim": "Youngha Kim",  # 영어 이름은 그대로 반환
         "J.D. Salinger": "J.D. Salinger",

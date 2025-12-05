@@ -52,7 +52,8 @@ def load_book_info(book_title: str, author: str = None) -> Optional[Dict]:
         try:
             # ImageDownloader를 사용하여 Google Books API에서 정보 가져오기
             import importlib.util
-            images_spec = importlib.util.spec_from_file_location("get_images", Path(__file__).parent.parent / "src" / "02_get_images.py")
+            # __file__은 utils/file_utils.py이므로 parent.parent는 src/ 폴더
+            images_spec = importlib.util.spec_from_file_location("get_images", Path(__file__).parent.parent / "02_get_images.py")
             images_module = importlib.util.module_from_spec(images_spec)
             images_spec.loader.exec_module(images_module)
             
