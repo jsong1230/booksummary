@@ -9,7 +9,7 @@ googlesearch-python>=1.2.3
 
 # Image APIs
 google-api-python-client>=2.100.0
-pexels-api>=1.0.3
+pexels-api>=1.0.1
 unsplash-python>=1.0.0
 
 # Audio processing (for future use)
