@@ -44,6 +44,9 @@ def translate_book_title(book_title: str) -> str:
         "듀얼 브레인": "Co-Intelligence",
         "듀얼_브레인": "Co-Intelligence",
         "Co-Intelligence": "Co-Intelligence",
+        "아토믹 해빗": "Atomic Habits",
+        "아토믹_해빗": "Atomic Habits",
+        "Atomic Habits": "Atomic Habits",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -81,6 +84,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "The Alchemist": "연금술사",
         "Co-Intelligence": "듀얼 브레인",
         "Man's Search for Meaning": "죽음의 수용소에서",
+        "Atomic Habits": "아토믹 해빗",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -144,6 +148,8 @@ def translate_author_name(author: str) -> str:
         "Viktor E. Frankl": "Viktor E. Frankl",
         "이선 몰릭": "Ethan Mollick",
         "Ethan Mollick": "Ethan Mollick",
+        "제임스 클리어": "James Clear",
+        "James Clear": "James Clear",
     }
     
     if author in author_map:
@@ -169,6 +175,7 @@ def translate_author_name_to_korean(author: str) -> str:
         "Han Kang": "한강",
         "Ethan Mollick": "이선 몰릭",
         "Viktor Frankl": "빅터 프랭클",
+        "James Clear": "제임스 클리어",
     }
     
     if author in reverse_author_map:

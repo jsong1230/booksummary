@@ -971,3 +971,13 @@
   - 이미지 다운로드는 건너뛰되 `book_info.json`은 항상 생성하도록 수정
   - `download_all` 함수에서 `skip_cover=True`일 때도 `book_info.json` 생성하도록 수정
 - **수정 파일**: `src/02_get_images.py`
+
+## 2025-12-06
+
+### YouTube 업로드 완료
+- 업로드된 책: 아토믹_해빗_with_summary_en, 아토믹_해빗_with_summary_ko
+- 업로드된 영상 수: 2개
+- [1] [English] Atomic Habits Book Review | [영어] 아토믹 해빗 책 리뷰
+  - URL: https://www.youtube.com/watch?v=EHh8AY3MlGk
+- [2] [한국어] 아토믹 해빗 책 리뷰 | [Korean] Atomic Habits Book Review
+  - URL: https://www.youtube.com/watch?v=OtsPh0vu9bI
