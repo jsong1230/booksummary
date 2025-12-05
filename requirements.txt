@@ -10,7 +10,7 @@ googlesearch-python>=1.2.3
 # Image APIs
 google-api-python-client>=2.100.0
 pexels-api>=1.0.1
-unsplash-python>=1.0.0
+# unsplash-python 패키지는 사용하지 않음 (requests로 직접 API 호출)
 
 # Audio processing (for future use)
 pydub>=0.25.1
