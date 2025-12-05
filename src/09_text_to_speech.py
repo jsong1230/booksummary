@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 from typing import Optional
 from dotenv import load_dotenv
+from utils.retry_utils import retry_with_backoff
 
 try:
     from openai import OpenAI
@@ -29,6 +30,7 @@ class TTSEngine:
         
         self.client = OpenAI(api_key=self.openai_api_key)
     
+    @retry_with_backoff(retries=3, backoff_in_seconds=1.0)
     def generate_speech(
         self,
         text: str,

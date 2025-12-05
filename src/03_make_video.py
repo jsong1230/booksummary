@@ -46,14 +46,18 @@ load_dotenv()
 class VideoMaker:
     """영상 제작 클래스"""
     
-    def __init__(self, resolution: Tuple[int, int] = (1920, 1080), fps: int = 30):
+    def __init__(self, resolution: Tuple[int, int] = (1920, 1080), fps: int = 30, bitrate: str = "5000k", audio_bitrate: str = "320k"):
         """
         Args:
             resolution: 해상도 (width, height)
             fps: 프레임레이트
+            bitrate: 비디오 비트레이트 (기본값: "5000k")
+            audio_bitrate: 오디오 비트레이트 (기본값: "320k")
         """
         self.resolution = resolution
         self.fps = fps
+        self.bitrate = bitrate
+        self.audio_bitrate = audio_bitrate
         
         if not MOVIEPY_AVAILABLE:
             raise ImportError("MoviePy가 필요합니다. pip install moviepy")
@@ -840,7 +844,8 @@ class VideoMaker:
             fps=self.fps,
             codec='libx264',
             audio_codec='aac',
-            bitrate='1500k',
+            bitrate=self.bitrate,
+            audio_bitrate=self.audio_bitrate,
             preset='medium'
         )
         
@@ -875,6 +880,8 @@ def main():
     parser.add_argument('--subtitles', action='store_true', help='자막 추가 (Whisper)')
     parser.add_argument('--language', type=str, default='ko', help='자막 언어 (기본값: ko)')
     parser.add_argument('--max-duration', type=float, help='최대 영상 길이 (초, 테스트용)')
+    parser.add_argument('--bitrate', type=str, default="5000k", help='비디오 비트레이트 (기본값: 5000k)')
+    parser.add_argument('--audio-bitrate', type=str, default="320k", help='오디오 비트레이트 (기본값: 320k)')
     
     args = parser.parse_args()
     
@@ -917,7 +924,12 @@ def main():
     print()
     
     # 영상 제작
-    maker = VideoMaker(resolution=(1920, 1080), fps=30)
+    maker = VideoMaker(
+        resolution=(1920, 1080), 
+        fps=30,
+        bitrate=args.bitrate,
+        audio_bitrate=args.audio_bitrate
+    )
     maker.create_video(
         audio_path=args.audio,
         image_dir=args.image_dir,

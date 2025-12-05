@@ -1,5 +1,34 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2025-12-05
+
+### Phase 8: 품질 개선 및 최적화
+
+#### 영상 품질 향상
+- **비트레이트 설정 개선** (`src/03_make_video.py`):
+  - 비디오 비트레이트: 1500k → 5000k (3.3배 증가)
+  - 오디오 비트레이트: 320k로 설정
+  - CLI 인자로 비트레이트 조정 가능 (`--bitrate`, `--audio-bitrate`)
+- **관련 스크립트 업데이트**:
+  - `src/07_make_videos_both_languages.py`: 고품질 설정 적용
+  - `src/10_create_video_with_summary.py`: 고품질 설정 적용
+
+#### 처리 속도 최적화
+- **병렬 이미지 다운로드** (`src/02_get_images.py`):
+  - `ThreadPoolExecutor` 사용 (max_workers=5)
+  - Unsplash, Pexels, Pixabay API 모두 병렬 처리 적용
+  - 다운로드 속도 대폭 향상
+
+#### 에러 처리 개선
+- **재시도 로직 구현** (`src/utils/retry_utils.py`):
+  - `retry_with_backoff` 데코레이터 추가
+  - 지수 백오프 방식 (exponential backoff) 적용
+  - 최대 3회 재시도, 초기 대기 시간 1-2초
+- **적용 범위**:
+  - `src/02_get_images.py`: 이미지 다운로드 및 API 요청
+  - `src/09_text_to_speech.py`: OpenAI TTS API 호출
+  - 네트워크 오류 및 일시적 API 장애 대응 강화
+
 ## 2025-12-02
 
 ### NotebookLM 비디오 업데이트 기능 추가

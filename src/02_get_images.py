@@ -10,7 +10,9 @@ import time
 import requests
 from pathlib import Path
 from typing import List, Dict, Optional
+import concurrent.futures
 from dotenv import load_dotenv
+from utils.retry_utils import retry_with_backoff
 
 try:
     import openai
@@ -68,6 +70,31 @@ class ImageDownloader:
         # AI API 키 로드
         self.openai_api_key = os.getenv("OPENAI_API_KEY")
         self.claude_api_key = os.getenv("CLAUDE_API_KEY")
+    
+    @retry_with_backoff(retries=3, backoff_in_seconds=1.0)
+    def _download_single_image(self, url: str, output_path: Path) -> str:
+        """단일 이미지 다운로드 (병렬 처리용)"""
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        
+        with open(output_path, 'wb') as f:
+            f.write(response.content)
+        
+        return str(output_path)
+
+    @retry_with_backoff(retries=3, backoff_in_seconds=2.0)
+    def _make_request(self, url: str, headers: Dict = None, params: Dict = None) -> Dict:
+        """API 요청 수행 (재시도 로직 포함)"""
+        response = requests.get(url, headers=headers, params=params, timeout=10)
+        response.raise_for_status()
+        return response.json()
+
+    @retry_with_backoff(retries=3, backoff_in_seconds=2.0)
+    def _search_pexels(self, keyword: str, page: int, results_per_page: int) -> Dict:
+        """Pexels 검색 수행 (재시도 로직 포함)"""
+        if not self.pexels:
+            raise ValueError("Pexels API not initialized")
+        return self.pexels.search(keyword, page=page, results_per_page=results_per_page)
     
     def download_book_cover(self, book_title: str, author: str = None, output_dir: Path = None) -> Optional[str]:
         """
@@ -217,6 +244,7 @@ class ImageDownloader:
             print(f"  ❌ 오류: {e}")
             return None
     
+    @retry_with_backoff(retries=3, backoff_in_seconds=2.0)
     def download_mood_images_unsplash(self, keywords: List[str], num_images: int = 100, output_dir: Path = None) -> List[str]:
         """
         Unsplash API로 무드 이미지 다운로드
@@ -237,68 +265,74 @@ class ImageDownloader:
         # 각 키워드에서 가져올 최대 이미지 수 (다양성을 위해 제한)
         max_per_keyword = max(2, num_images // len(keywords)) if keywords else 2
         
-        for keyword in keywords:
-            if len(downloaded) >= num_images:
-                break
-            
-            try:
-                print(f"  🔍 검색: {keyword}")
+        # 다운로드 작업 리스트
+        download_tasks = []
+        
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            for keyword in keywords:
+                if len(downloaded) + len(download_tasks) >= num_images:
+                    break
                 
-                # Unsplash API 검색
-                url = "https://api.unsplash.com/search/photos"
-                headers = {
-                    "Authorization": f"Client-ID {self.unsplash_access_key}"
-                }
-                # 각 키워드에서 최대 max_per_keyword개만 가져오기
-                remaining = num_images - len(downloaded)
-                params = {
-                    "query": keyword,
-                    "per_page": min(max_per_keyword, remaining, 15),  # 더 많은 이미지 수집 (100개 목표)
-                    "orientation": "landscape"
-                }
-                
-                response = requests.get(url, headers=headers, params=params, timeout=10)
-                response.raise_for_status()
-                
-                data = response.json()
-                results = data.get('results', [])
-                
-                if not results:
-                    print(f"    ⚠️ 검색 결과 없음")
-                    continue
-                
-                for photo in results:
-                    if len(downloaded) >= num_images:
-                        break
+                try:
+                    print(f"  🔍 검색: {keyword}")
                     
-                    # 고화질 이미지 URL
-                    image_url = photo['urls'].get('regular') or photo['urls'].get('full')
+                    # Unsplash API 검색
+                    url = "https://api.unsplash.com/search/photos"
+                    headers = {
+                        "Authorization": f"Client-ID {self.unsplash_access_key}"
+                    }
+                    # 각 키워드에서 최대 max_per_keyword개만 가져오기
+                    remaining = num_images - (len(downloaded) + len(download_tasks))
+                    params = {
+                        "query": keyword,
+                        "per_page": min(max_per_keyword, remaining, 15),  # 더 많은 이미지 수집 (100개 목표)
+                        "orientation": "landscape"
+                    }
                     
-                    if not image_url:
+                    data = self._make_request(url, headers=headers, params=params)
+                    results = data.get('results', [])
+                    
+                    if not results:
+                        print(f"    ⚠️ 검색 결과 없음")
                         continue
                     
-                    # 이미지 다운로드
-                    img_response = requests.get(image_url, timeout=10)
-                    img_response.raise_for_status()
+                    for photo in results:
+                        if len(downloaded) + len(download_tasks) >= num_images:
+                            break
+                        
+                        # 고화질 이미지 URL
+                        image_url = photo['urls'].get('regular') or photo['urls'].get('full')
+                        
+                        if not image_url:
+                            continue
+                        
+                        # 저장 경로 설정
+                        filename = f"mood_{len(downloaded) + len(download_tasks) + 1:02d}_{keyword.replace(' ', '_')}.jpg"
+                        output_path = output_dir / filename
+                        
+                        # 병렬 다운로드 작업 추가
+                        future = executor.submit(self._download_single_image, image_url, output_path)
+                        download_tasks.append((future, filename))
+                        
+                        time.sleep(0.1)  # API rate limit 방지 (최소한의 지연)
                     
-                    # 저장
-                    filename = f"mood_{len(downloaded) + 1:02d}_{keyword.replace(' ', '_')}.jpg"
-                    output_path = output_dir / filename
-                    
-                    with open(output_path, 'wb') as f:
-                        f.write(img_response.content)
-                    
-                    downloaded.append(str(output_path))
-                    print(f"    ✅ {filename}")
-                    
-                    time.sleep(0.5)  # API rate limit 방지
-                
-            except Exception as e:
-                print(f"    ❌ 오류: {e}")
-                continue
+                except Exception as e:
+                    print(f"    ❌ 오류: {e}")
+                    continue
+            
+            # 결과 수집
+            for future, filename in download_tasks:
+                try:
+                    result = future.result()
+                    if result:
+                        downloaded.append(result)
+                        print(f"    ✅ {filename}")
+                except Exception as e:
+                    print(f"    ❌ 이미지 다운로드 실패 ({filename}): {e}")
         
         return downloaded
     
+    @retry_with_backoff(retries=3, backoff_in_seconds=2.0)
     def download_mood_images_pexels(self, keywords: List[str], num_images: int = 100, output_dir: Path = None) -> List[str]:
         """
         Pexels API로 무드 이미지 다운로드
@@ -316,68 +350,65 @@ class ImageDownloader:
             return []
         
         downloaded = []
+        download_tasks = []
         
-        for keyword in keywords:
-            if len(downloaded) >= num_images:
-                break
-            
-            try:
-                print(f"  🔍 검색: {keyword}")
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            for keyword in keywords:
+                if len(downloaded) + len(download_tasks) >= num_images:
+                    break
                 
-                # Pexels API 검색
                 try:
-                    # Pexels API 호출 (여러 방식 시도)
-                    remaining = num_images - len(downloaded)
+                    print(f"  🔍 검색: {keyword}")
+                    
+                    # Pexels API 검색
                     try:
-                        # 최신 API 방식
-                        search_results = self.pexels.search(keyword, page=1, results_per_page=min(15, remaining))
-                    except TypeError:
-                        try:
-                            # 구버전 API 호환성
-                            search_results = self.pexels.search(keyword, page=1)
-                        except Exception as e:
-                            print(f"    ❌ Pexels API 오류: {e}")
-                            continue
-                except Exception as e:
-                    print(f"    ❌ Pexels 검색 오류: {e}")
-                    continue
-                
-                if not search_results.get('photos'):
-                    print(f"    ⚠️ 검색 결과 없음")
-                    continue
-                
-                for photo in search_results['photos']:
-                    if len(downloaded) >= num_images:
-                        break
-                    
-                    # 고화질 이미지 URL
-                    image_url = photo.get('src', {}).get('large') or photo.get('src', {}).get('original')
-                    
-                    if not image_url:
+                        remaining = num_images - (len(downloaded) + len(download_tasks))
+                        search_results = self._search_pexels(keyword, page=1, results_per_page=min(15, remaining))
+                    except Exception as e:
+                        print(f"    ❌ Pexels 검색 오류: {e}")
                         continue
                     
-                    # 이미지 다운로드
-                    img_response = requests.get(image_url, timeout=10)
-                    img_response.raise_for_status()
+                    if not search_results.get('photos'):
+                        print(f"    ⚠️ 검색 결과 없음")
+                        continue
                     
-                    # 저장
-                    filename = f"mood_{len(downloaded) + 1:02d}_{keyword.replace(' ', '_')}.jpg"
-                    output_path = output_dir / filename
+                    for photo in search_results['photos']:
+                        if len(downloaded) + len(download_tasks) >= num_images:
+                            break
+                        
+                        # 고화질 이미지 URL
+                        image_url = photo.get('src', {}).get('large') or photo.get('src', {}).get('original')
+                        
+                        if not image_url:
+                            continue
+                        
+                        # 저장 경로 설정
+                        filename = f"mood_{len(downloaded) + len(download_tasks) + 1:02d}_{keyword.replace(' ', '_')}.jpg"
+                        output_path = output_dir / filename
+                        
+                        # 병렬 다운로드 작업 추가
+                        future = executor.submit(self._download_single_image, image_url, output_path)
+                        download_tasks.append((future, filename))
+                        
+                        time.sleep(0.1)  # API rate limit 방지
                     
-                    with open(output_path, 'wb') as f:
-                        f.write(img_response.content)
-                    
-                    downloaded.append(str(output_path))
-                    print(f"    ✅ {filename}")
-                    
-                    time.sleep(0.5)  # API rate limit 방지
-                
-            except Exception as e:
-                print(f"    ❌ 오류: {e}")
-                continue
+                except Exception as e:
+                    print(f"    ❌ 오류: {e}")
+                    continue
+            
+            # 결과 수집
+            for future, filename in download_tasks:
+                try:
+                    result = future.result()
+                    if result:
+                        downloaded.append(result)
+                        print(f"    ✅ {filename}")
+                except Exception as e:
+                    print(f"    ❌ 이미지 다운로드 실패 ({filename}): {e}")
         
         return downloaded
     
+    @retry_with_backoff(retries=3, backoff_in_seconds=2.0)
     def download_mood_images_pixabay(self, keywords: List[str], num_images: int = 100, output_dir: Path = None) -> List[str]:
         """
         Pixabay API로 무드 이미지 다운로드
@@ -396,63 +427,66 @@ class ImageDownloader:
         
         downloaded = []
         base_url = "https://pixabay.com/api/"
+        download_tasks = []
         
-        for keyword in keywords:
-            if len(downloaded) >= num_images:
-                break
-            
-            try:
-                print(f"  🔍 검색: {keyword}")
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            for keyword in keywords:
+                if len(downloaded) + len(download_tasks) >= num_images:
+                    break
                 
-                # Pixabay API 검색
-                params = {
-                    'key': self.pixabay_api_key,
-                    'q': keyword,
-                    'image_type': 'photo',
-                    'orientation': 'horizontal',
-                    'safesearch': 'true',
-                    'per_page': min(20, num_images - len(downloaded))
-                }
-                
-                response = requests.get(base_url, params=params, timeout=10)
-                response.raise_for_status()
-                
-                data = response.json()
-                hits = data.get('hits', [])
-                
-                if not hits:
-                    print(f"    ⚠️ 검색 결과 없음")
-                    continue
-                
-                for hit in hits:
-                    if len(downloaded) >= num_images:
-                        break
+                try:
+                    print(f"  🔍 검색: {keyword}")
                     
-                    # 고화질 이미지 URL (largeImageURL 우선, 없으면 webformatURL)
-                    image_url = hit.get('largeImageURL') or hit.get('webformatURL')
+                    # Pixabay API 검색
+                    params = {
+                        'key': self.pixabay_api_key,
+                        'q': keyword,
+                        'image_type': 'photo',
+                        'orientation': 'horizontal',
+                        'safesearch': 'true',
+                        'per_page': min(20, num_images - (len(downloaded) + len(download_tasks)))
+                    }
                     
-                    if not image_url:
+                    data = self._make_request(base_url, params=params)
+                    hits = data.get('hits', [])
+                    
+                    if not hits:
+                        print(f"    ⚠️ 검색 결과 없음")
                         continue
                     
-                    # 이미지 다운로드
-                    img_response = requests.get(image_url, timeout=10)
-                    img_response.raise_for_status()
+                    for hit in hits:
+                        if len(downloaded) + len(download_tasks) >= num_images:
+                            break
+                        
+                        # 고화질 이미지 URL (largeImageURL 우선, 없으면 webformatURL)
+                        image_url = hit.get('largeImageURL') or hit.get('webformatURL')
+                        
+                        if not image_url:
+                            continue
+                        
+                        # 저장 경로 설정
+                        filename = f"mood_{len(downloaded) + len(download_tasks) + 1:02d}_{keyword.replace(' ', '_')}.jpg"
+                        output_path = output_dir / filename
+                        
+                        # 병렬 다운로드 작업 추가
+                        future = executor.submit(self._download_single_image, image_url, output_path)
+                        download_tasks.append((future, filename))
+                        
+                        time.sleep(0.1)  # API rate limit 방지
                     
-                    # 저장
-                    filename = f"mood_{len(downloaded) + 1:02d}_{keyword.replace(' ', '_')}.jpg"
-                    output_path = output_dir / filename
-                    
-                    with open(output_path, 'wb') as f:
-                        f.write(img_response.content)
-                    
-                    downloaded.append(str(output_path))
-                    print(f"    ✅ {filename}")
-                    
-                    time.sleep(0.3)  # API rate limit 방지
-                
-            except Exception as e:
-                print(f"    ❌ 오류: {e}")
-                continue
+                except Exception as e:
+                    print(f"    ❌ 오류: {e}")
+                    continue
+            
+            # 결과 수집
+            for future, filename in download_tasks:
+                try:
+                    result = future.result()
+                    if result:
+                        downloaded.append(result)
+                        print(f"    ✅ {filename}")
+                except Exception as e:
+                    print(f"    ❌ 이미지 다운로드 실패 ({filename}): {e}")
         
         return downloaded
     

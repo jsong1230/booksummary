@@ -18,3 +18,4 @@ pydub>=0.25.1
 # Video processing (for future use)
 moviepy>=1.0.3
 
+pytest

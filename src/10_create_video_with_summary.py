@@ -50,7 +50,12 @@ class VideoWithSummaryPipeline:
     def __init__(self):
         self.summary_generator = SummaryGenerator()
         self.tts_engine = TTSEngine()
-        self.video_maker = VideoMaker(resolution=(1920, 1080), fps=30)
+        self.video_maker = VideoMaker(
+            resolution=(1920, 1080), 
+            fps=30,
+            bitrate="5000k",
+            audio_bitrate="320k"
+        )
     
     def create_video_with_summary(
         self,

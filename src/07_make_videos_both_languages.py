@@ -67,7 +67,12 @@ def main():
     if args.image_dir is None:
         args.image_dir = f"assets/images/{safe_title_str}"
     
-    maker = VideoMaker(resolution=(1920, 1080), fps=30)
+    maker = VideoMaker(
+        resolution=(1920, 1080), 
+        fps=30,
+        bitrate="5000k",
+        audio_bitrate="320k"
+    )
     
     # 한글 영상 제작
     if korean_audio:
