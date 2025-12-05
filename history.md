@@ -900,3 +900,74 @@
   - URL: https://www.youtube.com/watch?v=M-REus9onxA
 - [2] [한국어] 죽음의 수용소에서 책 리뷰 | [Korean] Man's Search for Meaning Book Review
   - URL: https://www.youtube.com/watch?v=Sz8MDOH15SI
+
+## 2025-12-05
+
+### YouTube 업로드 완료
+- 업로드된 책: 듀얼_브레인_with_summary_en, 듀얼_브레인_with_summary_ko
+- 업로드된 영상 수: 2개
+- [1] [English] Co-Intelligence Book Review | [영어] 듀얼 브레인 책 리뷰
+  - URL: https://www.youtube.com/watch?v=qPKNcEYxX6o
+- [2] [한국어] 듀얼 브레인 책 리뷰 | [Korean] Co-Intelligence Book Review
+  - URL: https://www.youtube.com/watch?v=5eeuyeYs7-c
+
+## 2025-12-05
+
+### 연금술사(The Alchemist) 영상 제작 및 YouTube 업로드 완료
+- **책 정보**: 연금술사 (The Alchemist) - 파울로 코엘료 (Paulo Coelho)
+- **작업 내용**:
+  - input 폴더에서 파일 준비 (오디오, 요약, 썸네일, 비디오)
+  - 이미지 다운로드 (100개 무드 이미지, Pixabay API 사용)
+  - 책 정보 다운로드 (Google Books API, book_info.json 생성)
+  - 요약 텍스트 로드 (기존 파일 사용)
+  - 롱폼 TTS 오디오 생성 (한글/영어, tts-1-hd 모델 사용)
+  - 한글/영어 영상 제작 (요약 + NotebookLM Video + 리뷰 오디오)
+  - 썸네일 변환 (PNG → JPG, 4K 해상도, 2MB 이하 압축)
+  - 메타데이터 생성 (한글/영어, timestamp 포함)
+- **생성된 파일**:
+  - 한글 영상: `연금술사_review_with_summary_ko.mp4` (921MB, 약 24.15분)
+  - 영어 영상: `연금술사_review_with_summary_en.mp4` (833MB, 약 21.69분)
+  - 한글 롱폼 오디오: `연금술사_summary_ko.mp3` (nova 음성)
+  - 영어 롱폼 오디오: `연금술사_summary_en.mp3` (alloy 음성)
+  - 한글 썸네일: `연금술사_thumbnail_ko.jpg`
+  - 영어 썸네일: `연금술사_thumbnail_en.jpg`
+  - 메타데이터: 한글/영어 각각 JSON 파일 생성
+- **영상 구성**:
+  - Summary (요약 오디오 + 이미지 슬라이드쇼, 한글: 175초, 영문: 125초)
+  - 3초 silence
+  - NotebookLM Video (상세 분석, 한글: 479초, 영문: 444초)
+  - 3초 silence
+  - Audio Review (리뷰 오디오 + 이미지 슬라이드쇼, 한글: 789초, 영문: 727초)
+- **YouTube 업로드**:
+  - 업로드된 영상 수: 2개 (비공개)
+  - [1] [English] The Alchemist Book Review | [영어] 연금술사 책 리뷰
+    - URL: https://www.youtube.com/watch?v=_5oNaO4f_tQ
+  - [2] [한국어] 연금술사 책 리뷰 | [Korean] The Alchemist Book Review
+    - URL: https://www.youtube.com/watch?v=noOCT0HY1bE
+
+### 메타데이터 개선
+
+#### 책 소개(description) 포함 개선
+- **문제**: 메타데이터에 책 소개가 자주 빠지는 문제
+- **해결**:
+  - `_generate_description_ko`: `book_info.get('description')`이 있으면 사용하도록 수정
+  - `_generate_description_en`: `book_info.get('description')`을 우선 사용하도록 수정
+  - `_generate_description_en_with_ko`: 한글 부분에도 책 소개 포함하도록 수정
+  - description이 없으면 기본 메시지 표시
+- **수정 파일**: `src/08_create_and_preview_videos.py`
+
+#### 작가 이름 표시 형식 통일
+- **문제**: 메타데이터에서 작가 이름 표시 형식이 일관되지 않음
+- **해결**:
+  - 모든 메타데이터에서 "Author: {영어} | 작가: {한글}" 형식으로 통일
+  - 한글 메타데이터와 영문 메타데이터 모두 동일한 형식 적용
+  - `_generate_description_ko`, `_generate_description_en`, `_generate_description_en_with_ko` 함수 모두 수정
+- **수정 파일**: `src/08_create_and_preview_videos.py`
+
+#### book_info.json 생성 개선
+- **문제**: `--skip-cover` 옵션 사용 시 `book_info.json`이 생성되지 않음
+- **해결**:
+  - `download_book_cover` 함수에 `skip_image` 파라미터 추가
+  - 이미지 다운로드는 건너뛰되 `book_info.json`은 항상 생성하도록 수정
+  - `download_all` 함수에서 `skip_cover=True`일 때도 `book_info.json` 생성하도록 수정
+- **수정 파일**: `src/02_get_images.py`

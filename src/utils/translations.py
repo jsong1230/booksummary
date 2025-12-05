@@ -41,6 +41,9 @@ def translate_book_title(book_title: str) -> str:
         "죽음의 수용소에서": "Man's Search for Meaning",
         "죽음의_수용소에서": "Man's Search for Meaning",
         "Man's Search for Meaning": "Man's Search for Meaning",
+        "듀얼 브레인": "Co-Intelligence",
+        "듀얼_브레인": "Co-Intelligence",
+        "Co-Intelligence": "Co-Intelligence",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -76,6 +79,8 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Sátántangó": "사탄탱고",
         "Sátántangó (사탄탱고)": "사탄탱고",
         "The Alchemist": "연금술사",
+        "Co-Intelligence": "듀얼 브레인",
+        "Man's Search for Meaning": "죽음의 수용소에서",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -137,6 +142,8 @@ def translate_author_name(author: str) -> str:
         "Viktor Frankl": "Viktor Frankl",
         "빅터 E. 프랭클": "Viktor E. Frankl",
         "Viktor E. Frankl": "Viktor E. Frankl",
+        "이선 몰릭": "Ethan Mollick",
+        "Ethan Mollick": "Ethan Mollick",
     }
     
     if author in author_map:
@@ -160,6 +167,8 @@ def translate_author_name_to_korean(author: str) -> str:
         "Niccolò Machiavelli": "니콜로 마키아벨리",
         "Nikos Kazantzakis": "니코스 카잔차키스",
         "Han Kang": "한강",
+        "Ethan Mollick": "이선 몰릭",
+        "Viktor Frankl": "빅터 프랭클",
     }
     
     if author in reverse_author_map:

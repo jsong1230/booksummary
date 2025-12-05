@@ -11,23 +11,28 @@ _현재 진행 중인 작업이 없습니다_
 #### 영상 제작
 - [x] **연금술사(The Alchemist)** 영상 제작 및 YouTube 업로드 완료
   - 파울로 코엘료의 대표작 연금술사 영상 제작
-  - 한글/영어 영상 생성 (요약 포함, 각 약 28.4분)
+  - 한글/영어 영상 생성 (요약 포함, 한글: 24.15분, 영문: 21.69분)
   - 이미지 다운로드 (100개 무드 이미지)
   - 썸네일 생성 및 변환 (PNG → JPG, 4K 해상도)
   - 메타데이터 생성 (한글/영어)
-  - YouTube 수동 업로드 완료 (한글/영어 2개)
+  - YouTube 자동 업로드 완료 (비공개, 한글/영어 2개)
 
 #### 기능 개선
-- [x] **메타데이터 작가 이름 표시 개선**
-  - 한글 메타데이터: `✍️ 작가: {한글} | ✍️ Author: {영어}` 형식
-  - 영어 메타데이터: `✍️ Author: {영어} | ✍️ 작가: {한글}` 형식
-  - `generate_description` 함수에 `author` 파라미터 추가
-  - `book_info`가 없어도 `--author` 파라미터로 작가 정보 표시 가능
+- [x] **메타데이터 작가 이름 표시 형식 통일**
+  - 모든 메타데이터에서 "Author: {영어} | 작가: {한글}" 형식으로 통일
+  - 한글 메타데이터와 영문 메타데이터 모두 동일한 형식 적용
+  - `_generate_description_ko`, `_generate_description_en`, `_generate_description_en_with_ko` 함수 모두 수정
+- [x] **메타데이터 책 소개(description) 포함 개선**
+  - `book_info.get('description')`이 있으면 자동으로 사용하도록 수정
+  - description이 없으면 기본 메시지 표시
+  - 한글/영문 메타데이터 모두에 책 소개 포함
+- [x] **book_info.json 생성 개선**
+  - `--skip-cover` 옵션 사용 시에도 `book_info.json` 생성하도록 수정
+  - `download_book_cover` 함수에 `skip_image` 파라미터 추가
+  - 이미지 다운로드는 건너뛰되 책 정보는 항상 저장
 - [x] **번역 매핑 추가**
   - "연금술사" → "The Alchemist" 매핑 추가
   - "파울로 코엘료" → "Paulo Coelho" 매핑 추가
-- [x] **file_utils.py 경로 오류 수정**
-  - `src/src/02_get_images.py` → `src/02_get_images.py` 경로 수정
 
 ## 📋 다음 작업 (우선순위별)
 

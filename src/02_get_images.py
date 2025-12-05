@@ -96,9 +96,9 @@ class ImageDownloader:
             raise ValueError("Pexels API not initialized")
         return self.pexels.search(keyword, page=page, results_per_page=results_per_page)
     
-    def download_book_cover(self, book_title: str, author: str = None, output_dir: Path = None) -> Optional[str]:
+    def download_book_cover(self, book_title: str, author: str = None, output_dir: Path = None, skip_image: bool = False) -> Optional[str]:
         """
-        Google Books API로 책 표지 다운로드
+        Google Books API로 책 표지 다운로드 및 book_info.json 생성
         
         ⚠️ 주의: 책 표지 이미지는 저작권이 있어 YouTube 등에 사용 시 문제가 될 수 있습니다.
         표지 이미지는 참고용으로만 다운로드하며, 실제 영상 제작에는 사용하지 않습니다.
@@ -107,9 +107,10 @@ class ImageDownloader:
             book_title: 책 제목
             author: 저자 이름
             output_dir: 저장 디렉토리
+            skip_image: 이미지 다운로드는 건너뛰고 book_info.json만 생성
             
         Returns:
-            다운로드된 파일 경로
+            다운로드된 파일 경로 (skip_image=True면 None)
         """
         if not self.books_service:
             print("⚠️ Google Books API가 설정되지 않았습니다.")
@@ -184,23 +185,6 @@ class ImageDownloader:
             book = best_book
             volume_info = book.get('volumeInfo', {})
             
-            # 이미지 링크 찾기
-            image_links = volume_info.get('imageLinks', {})
-            if not image_links:
-                print("  ⚠️ 표지 이미지를 찾을 수 없습니다.")
-                return None
-            
-            # 가장 큰 이미지 선택
-            image_url = image_links.get('large') or image_links.get('medium') or image_links.get('small') or image_links.get('thumbnail')
-            
-            if not image_url:
-                print("  ⚠️ 이미지 URL을 찾을 수 없습니다.")
-                return None
-            
-            # 이미지 다운로드
-            response = requests.get(image_url, timeout=10)
-            response.raise_for_status()
-            
             # 저장 경로
             if output_dir is None:
                 from utils.file_utils import safe_title
@@ -210,15 +194,45 @@ class ImageDownloader:
                 output_dir = Path(output_dir)
             
             output_dir.mkdir(parents=True, exist_ok=True)
-            output_path = output_dir / "cover.jpg"
             
-            # 파일 저장
-            with open(output_path, 'wb') as f:
-                f.write(response.content)
+            # 이미지 다운로드 (skip_image가 False인 경우만)
+            image_url = None
+            output_path = None
+            if not skip_image:
+                # 이미지 링크 찾기
+                image_links = volume_info.get('imageLinks', {})
+                if not image_links:
+                    print("  ⚠️ 표지 이미지를 찾을 수 없습니다.")
+                else:
+                    # 가장 큰 이미지 선택
+                    image_url = image_links.get('large') or image_links.get('medium') or image_links.get('small') or image_links.get('thumbnail')
+                    
+                    if image_url:
+                        try:
+                            # 이미지 다운로드
+                            response = requests.get(image_url, timeout=10)
+                            response.raise_for_status()
+                            
+                            output_path = output_dir / "cover.jpg"
+                            
+                            # 파일 저장
+                            with open(output_path, 'wb') as f:
+                                f.write(response.content)
+                            
+                            print(f"  ✅ 표지 다운로드 완료: {output_path}")
+                        except Exception as e:
+                            print(f"  ⚠️ 이미지 다운로드 실패: {e}")
+                            image_url = None
+                    else:
+                        print("  ⚠️ 이미지 URL을 찾을 수 없습니다.")
+            else:
+                # skip_image=True인 경우에도 image_url은 book_info에 포함하기 위해 가져오기
+                image_links = volume_info.get('imageLinks', {})
+                if image_links:
+                    image_url = image_links.get('large') or image_links.get('medium') or image_links.get('small') or image_links.get('thumbnail')
+                print("  ℹ️ 이미지 다운로드는 건너뛰고 책 정보만 저장합니다.")
             
-            print(f"  ✅ 표지 다운로드 완료: {output_path}")
-            
-            # 책 정보 저장
+            # 책 정보 저장 (이미지 다운로드 여부와 관계없이 항상 저장)
             book_info = {
                 'title': volume_info.get('title', book_title),
                 'authors': volume_info.get('authors', [author] if author else []),
@@ -229,7 +243,7 @@ class ImageDownloader:
                 'categories': volume_info.get('categories', []),
                 'language': volume_info.get('language', 'ko'),
                 'google_books_id': book.get('id', ''),
-                'image_url': image_url
+                'image_url': image_url if image_url else ''
             }
             
             book_info_path = output_dir / "book_info.json"
@@ -238,7 +252,7 @@ class ImageDownloader:
             
             print(f"  ✅ 책 정보 저장 완료: {book_info_path}")
             
-            return str(output_path)
+            return str(output_path) if output_path else None
             
         except Exception as e:
             print(f"  ❌ 오류: {e}")
@@ -514,14 +528,19 @@ class ImageDownloader:
         output_dir = Path("assets/images") / safe_title_str
         output_dir.mkdir(parents=True, exist_ok=True)
         
-        # 1. 책 표지 다운로드 (선택사항)
+        # 1. 책 표지 다운로드 및 book_info.json 생성 (선택사항)
         # ⚠️ 주의: 책 표지는 저작권이 있어 영상에 사용하지 않습니다.
         # 표지는 참고용으로만 다운로드하며, 실제 영상에는 저작권 없는 무드 이미지만 사용합니다.
+        # skip_cover=True여도 book_info.json은 생성합니다.
         cover_path = None
-        if not skip_cover:
+        if skip_cover:
+            print("ℹ️ 책 표지 이미지 다운로드는 건너뛰지만, 책 정보(book_info.json)는 생성합니다.")
+            self.download_book_cover(book_title, author, output_dir, skip_image=True)
+            print()
+        else:
             print("⚠️ 책 표지 이미지는 저작권 문제로 영상에 사용하지 않습니다.")
             print("   표지는 참고용으로만 다운로드합니다.")
-            cover_path = self.download_book_cover(book_title, author, output_dir)
+            cover_path = self.download_book_cover(book_title, author, output_dir, skip_image=False)
             print()
         
         # 2. 키워드 생성 (없으면) - AI를 사용하여 책 내용 기반 키워드 생성
