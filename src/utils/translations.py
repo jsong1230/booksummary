@@ -38,6 +38,9 @@ def translate_book_title(book_title: str) -> str:
         "The Loneliness of Sonia and Sunny (소니아와 써니의 고독)": "The Loneliness of Sonia and Sunny",
         "연금술사": "The Alchemist",
         "The Alchemist": "The Alchemist",
+        "죽음의 수용소에서": "Man's Search for Meaning",
+        "죽음의_수용소에서": "Man's Search for Meaning",
+        "Man's Search for Meaning": "Man's Search for Meaning",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -130,6 +133,10 @@ def translate_author_name(author: str) -> str:
         "J.D. Salinger": "J.D. Salinger",
         "제롬 데이비드 샐린저": "J.D. Salinger",
         "샐린저": "J.D. Salinger",
+        "빅터 프랭클": "Viktor Frankl",
+        "Viktor Frankl": "Viktor Frankl",
+        "빅터 E. 프랭클": "Viktor E. Frankl",
+        "Viktor E. Frankl": "Viktor E. Frankl",
     }
     
     if author in author_map:

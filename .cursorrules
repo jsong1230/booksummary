@@ -1,30 +1,123 @@
 # 프로젝트 규칙
 
+## 📁 Input 폴더 워크플로우 (최우선)
+
+### 작업 시작 전 필수 확인사항
+**중요: 모든 영상 제작 작업은 반드시 `input/` 폴더 확인부터 시작해야 합니다!**
+
+1. **Input 폴더 확인**
+   ```bash
+   ls -la input/
+   ```
+   - 사용자가 준비한 파일들이 있는지 확인
+   - 파일명 패턴: `{prefix}_타입_{언어}.{확장자}`
+   - 예: `man_audio_kr.m4a`, `man_summary_kr.md`, `man_thumbnail_kr.png`, `man_video_kr.mp4`
+
+2. **필수 파일 체크리스트**
+   - `{prefix}_audio_kr.m4a` / `{prefix}_audio_en.m4a` - NotebookLM 리뷰 오디오 (필수)
+   - `{prefix}_summary_kr.md` / `{prefix}_summary_en.md` - 요약 텍스트 (선택, 없으면 AI 생성)
+   - `{prefix}_thumbnail_kr.png` / `{prefix}_thumbnail_en.png` - 썸네일 원본 (선택)
+   - `{prefix}_video_kr.mp4` / `{prefix}_video_en.mp4` - NotebookLM 비디오 (선택)
+
+3. **표준 워크플로우 실행 순서**
+   ```bash
+   # 1단계: Input 폴더에서 파일 준비 및 표준 네이밍으로 이동
+   python scripts/prepare_files_from_downloads.py \
+     --book-title "책 제목" \
+     --author "저자 이름" \
+     --prefix "파일명접두사"
+   
+   # 2단계: 이미지 다운로드 (100개)
+   python src/02_get_images.py \
+     --title "책 제목" \
+     --author "저자 이름" \
+     --num-mood 100 \
+     --skip-cover
+   
+   # 3단계: 롱폼 TTS 오디오 생성 (선택사항, 요약 MD가 있는 경우)
+   python src/09_text_to_speech.py \
+     --text-file "assets/summaries/{책제목}_summary_ko.md" \
+     --output "assets/audio/{책제목}_longform_ko.mp3" \
+     --voice nova \
+     --language ko \
+     --model tts-1-hd
+   
+   # 4단계: 영상 제작 (한글)
+   python src/10_create_video_with_summary.py \
+     --book-title "책 제목" \
+     --author "저자 이름" \
+     --language ko \
+     --summary-duration 5.0 \
+     --summary-audio-volume 1.2
+   
+   # 5단계: 영상 제작 (영문)
+   python src/10_create_video_with_summary.py \
+     --book-title "책 제목" \
+     --author "저자 이름" \
+     --language en \
+     --summary-duration 5.0 \
+     --summary-audio-volume 1.2
+   
+   # 6단계: 메타데이터 생성
+   python src/08_create_and_preview_videos.py \
+     --book-title "책 제목" \
+     --metadata-only
+   
+   # 7단계: YouTube 업로드 (비공개)
+   python src/09_upload_from_metadata.py \
+     --privacy private \
+     --auto
+   ```
+
+4. **번역 매핑 확인 및 추가**
+   - 새로운 책의 경우 `src/utils/translations.py`에 매핑 추가 필요
+   - 책 제목 매핑: `translate_book_title()` 함수의 `title_map`
+   - 작가 이름 매핑: `translate_author_name()` 함수의 `author_map`
+   - 예시:
+     ```python
+     "죽음의 수용소에서": "Man's Search for Meaning",
+     "빅터 프랭클": "Viktor Frankl",
+     ```
+
+5. **파일 이동 후 위치 확인**
+   - 오디오: `assets/audio/{책제목}_review_{언어}.{확장자}`
+   - 요약: `assets/summaries/{책제목}_summary_{언어}.md`
+   - 썸네일: `output/{책제목}_thumbnail_{언어}.jpg` (PNG→JPG 자동 변환)
+   - 비디오: `assets/video/{책제목}_notebooklm_{언어}.{확장자}`
+   - 이미지: `assets/images/{책제목}/mood_*.jpg` (100개)
+   - 책 정보: `assets/images/{책제목}/book_info.json`
+   - 책 커버: `assets/images/{책제목}/cover.jpg`
+
 ## 영상 제작 파이프라인 규칙
 
 ### 이미지 다운로드
 - 무드 이미지는 **100개**를 다운로드 받아야 함
 - 책의 저자와 주제와 관련된 이미지를 다운로드
 - `--num-mood 100` 옵션 사용
+- 책 커버는 저작권 문제로 참고용으로만 다운로드 (`--skip-cover` 옵션 권장)
 
 ### 요약 생성
 - 요약 오디오는 **5분 목표**로 생성
 - `--summary-duration 5.0` 옵션 사용
 - 요약 텍스트는 최소 750단어 이상 (5분 × 150단어/분)
+- Hook → Summary → Bridge 구조 사용
 
-### 오디오 연결
-- 요약 오디오와 리뷰 오디오를 연결할 때 **3초간의 silence**를 추가
-- `gap_duration=3.0` 파라미터 사용 (src/03_make_video.py의 concatenate_audios 함수)
+### 영상 구조
+1. Summary (요약 오디오 + 이미지 슬라이드쇼, 음량 1.2배)
+2. 3초 silence (검은 화면)
+3. NotebookLM Video (선택사항, 있으면 자동 포함)
+4. 3초 silence (검은 화면)
+5. Audio (리뷰 오디오 + 이미지 슬라이드쇼)
 
 ### 영상 제작 순서
-1. 이미지 다운로드 (100개)
-2. 요약 생성 (5분 목표)
-3. TTS로 요약 오디오 생성
-4. 요약 오디오 + 리뷰 오디오 연결 (3초 silence)
-5. 영상 생성
-6. 썸네일 생성
+1. Input 폴더 파일 확인 및 이동
+2. 이미지 다운로드 (100개)
+3. 요약 생성 (5분 목표, 없으면 AI 생성)
+4. TTS로 요약 오디오 생성
+5. 영상 생성 (Summary + NotebookLM Video + Audio)
+6. 썸네일 생성 (PNG→JPG 변환)
 7. 메타데이터 생성
-8. (업로드는 수동으로)
+8. YouTube 업로드 (비공개 또는 공개)
 
 ## Git 커밋 전 필수 작업
 
