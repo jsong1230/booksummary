@@ -145,8 +145,8 @@ def generate_description(book_info: Optional[Dict] = None, lang: str = "both", b
         # 한글 먼저, 영어 나중
         return _generate_description_ko(book_info, book_title, timestamps, author)
     elif lang == "en":
-        # 영어 먼저, 한글 나중
-        return _generate_description_en_with_ko(book_info, book_title, timestamps, author)
+        # 영어 설명만 반환
+        return _generate_description_en(book_info, book_title, include_header=True, timestamps=timestamps, author=author)
     else:
         ko_desc = _generate_description_ko(book_info, book_title, timestamps, author)
         en_desc = _generate_description_en_with_ko(book_info, book_title, timestamps, author)
@@ -213,15 +213,18 @@ def _generate_description_ko(book_info: Optional[Dict] = None, book_title: str =
         ko_desc += _generate_timestamps_section(timestamps, lang="ko")
         ko_desc += "\n"
     if book_info:
-        # 책 소개 추가 (book_info의 description 사용)
+        # 책 소개 추가 (book_info의 description이 한글인 경우만 사용)
         if book_info.get('description'):
-            # description이 있으면 사용 (최대 500자)
+            # description이 있으면 한글인지 확인
             desc = book_info['description'].strip()
-            if desc:
+            if desc and not is_english_title(desc[:100]):  # 처음 100자로 한글인지 판단
+                # 한글 description인 경우만 사용
                 ko_desc += f"📖 책 소개:\n{desc[:500]}{'...' if len(desc) > 500 else ''}\n\n"
-        elif book_title:
-            # description이 없으면 기본 메시지
-            ko_desc += f"📖 책 소개:\n{book_title}에 대한 책 리뷰 영상입니다.\n\n"
+        if "📖 책 소개:" not in ko_desc:
+            # 한글 description이 없거나 영어 description만 있는 경우
+            if book_title:
+                # description이 없으면 기본 메시지
+                ko_desc += f"📖 책 소개:\n{book_title}에 대한 책 리뷰 영상입니다.\n\n"
         if book_info.get('authors'):
             # 한글과 영어 작가 이름 모두 표시
             authors_ko = []
@@ -239,10 +242,27 @@ def _generate_description_ko(book_info: Optional[Dict] = None, book_title: str =
                     authors_en.append(en_author if en_author != author else author)
             
             ko_author_str = ', '.join(authors_ko) if authors_ko else ', '.join(book_info['authors'])
-            en_author_str = ', '.join(authors_en) if authors_en else ', '.join(book_info['authors'])
-            ko_desc += f"✍️ Author: {en_author_str} | ✍️ 작가: {ko_author_str}\n"
-        if book_info.get('publishedDate'):
-            ko_desc += f"📅 출간일: {book_info['publishedDate']}\n"
+            ko_desc += f"✍️ 작가: {ko_author_str}\n"
+        elif author:
+            # book_info에 authors가 없지만 author 파라미터가 있는 경우
+            if is_english_title(author):
+                # 영어 작가 이름인 경우 한글로 변환
+                ko_author = translate_author_name_to_korean(author)
+            else:
+                # 한글 작가 이름인 경우 그대로 사용
+                ko_author = author
+            ko_desc += f"✍️ 작가: {ko_author}\n"
+    elif author:
+        # book_info가 없지만 author 파라미터가 있는 경우
+        if is_english_title(author):
+            # 영어 작가 이름인 경우 한글로 변환
+            ko_author = translate_author_name_to_korean(author)
+        else:
+            # 한글 작가 이름인 경우 그대로 사용
+            ko_author = author
+        ko_desc += f"✍️ 작가: {ko_author}\n"
+    if book_info and book_info.get('publishedDate'):
+        ko_desc += f"📅 출간일: {book_info['publishedDate']}\n"
     
     ko_desc += """
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -264,17 +284,20 @@ This video was automatically generated using NotebookLM and AI.
 
 """
     if book_info:
-        # 영어 책 소개 추가 (book_info의 description 우선 사용)
+        # 영어 책 소개 추가 (book_info의 description이 영어인 경우만 사용)
         if book_info.get('description'):
-            # description이 있으면 사용 (최대 500자)
+            # description이 있으면 영어인지 확인
             desc = book_info['description'].strip()
-            if desc:
+            if desc and is_english_title(desc[:100]):  # 처음 100자로 영어인지 판단
+                # 영어 description인 경우만 사용
                 en_desc += f"📖 Book Introduction:\n{desc[:500]}{'...' if len(desc) > 500 else ''}\n\n"
-        elif book_title:
-            # description이 없으면 하드코딩된 영어 설명 시도
-            en_book_desc = get_english_book_description(book_title)
-            if en_book_desc:
-                en_desc += f"📖 Book Introduction:\n{en_book_desc[:500]}...\n\n"
+        if "📖 Book Introduction:" not in en_desc:
+            # 영어 description이 없거나 한글 description만 있는 경우
+            if book_title:
+                # description이 없으면 하드코딩된 영어 설명 시도
+                en_book_desc = get_english_book_description(book_title)
+                if en_book_desc:
+                    en_desc += f"📖 Book Introduction:\n{en_book_desc[:500]}...\n\n"
         
         if book_info.get('authors'):
             # 영어와 한글 작가 이름 모두 표시
@@ -293,17 +316,14 @@ This video was automatically generated using NotebookLM and AI.
                     authors_en.append(en_author if en_author != author_name else author_name)
             
             en_author_str = ', '.join(authors_en) if authors_en else ', '.join(book_info['authors'])
-            ko_author_str = ', '.join(authors_ko) if authors_ko else ', '.join(book_info['authors'])
-            en_desc += f"✍️ Author: {en_author_str} | ✍️ 작가: {ko_author_str}\n"
+            en_desc += f"✍️ Author: {en_author_str}\n"
         elif author:
             # book_info에 authors가 없지만 author 파라미터가 있는 경우
             if is_english_title(author):
-                ko_author = translate_author_name_to_korean(author)
                 en_author = author
             else:
-                ko_author = author
                 en_author = translate_author_name(author)
-            en_desc += f"✍️ Author: {en_author} | ✍️ 작가: {ko_author}\n"
+            en_desc += f"✍️ Author: {en_author}\n"
         if book_info.get('publishedDate'):
             en_desc += f"📅 Published: {book_info['publishedDate']}\n"
     
@@ -352,20 +372,23 @@ This video was automatically generated using NotebookLM and AI.
             description += "\n"
     
     if book_info:
-        # 영어 설명 사용 (book_info의 description 우선 사용)
+        # 영어 설명 사용 (book_info의 description이 영어인 경우만 사용)
         if book_info.get('description'):
-            # description이 있으면 사용 (최대 500자)
+            # description이 있으면 영어인지 확인
             desc = book_info['description'].strip()
-            if desc:
+            if desc and is_english_title(desc[:100]):  # 처음 100자로 영어인지 판단
+                # 영어 description인 경우만 사용
                 description += f"📖 Book Introduction:\n{desc[:500]}{'...' if len(desc) > 500 else ''}\n\n"
-        elif book_title:
-            # description이 없으면 하드코딩된 영어 설명 시도
-            en_desc = get_english_book_description(book_title)
-            if en_desc:
-                description += f"📖 Book Introduction:\n{en_desc[:500]}...\n\n"
-            else:
-                # 하드코딩된 설명도 없으면 기본 메시지
-                description += f"📖 Book Introduction:\nA book review video about this literary work.\n\n"
+        if not description or "📖 Book Introduction:" not in description:
+            # 영어 description이 없거나 한글 description만 있는 경우
+            if book_title:
+                # description이 없으면 하드코딩된 영어 설명 시도
+                en_desc = get_english_book_description(book_title)
+                if en_desc:
+                    description += f"📖 Book Introduction:\n{en_desc[:500]}...\n\n"
+                else:
+                    # 하드코딩된 설명도 없으면 기본 메시지
+                    description += f"📖 Book Introduction:\nA book review video about this literary work.\n\n"
         
         if book_info.get('authors'):
             # 영어와 한글 작가 이름 모두 표시
@@ -384,19 +407,23 @@ This video was automatically generated using NotebookLM and AI.
                     authors_en.append(en_author if en_author != author_name else author_name)
             
             en_author_str = ', '.join(authors_en) if authors_en else ', '.join(book_info['authors'])
-            ko_author_str = ', '.join(authors_ko) if authors_ko else ', '.join(book_info['authors'])
-            description += f"✍️ Author: {en_author_str} | ✍️ 작가: {ko_author_str}\n"
+            description += f"✍️ Author: {en_author_str}\n"
         elif author:
             # book_info에 authors가 없지만 author 파라미터가 있는 경우
             if is_english_title(author):
-                ko_author = translate_author_name_to_korean(author)
                 en_author = author
             else:
-                ko_author = author
                 en_author = translate_author_name(author)
-            description += f"✍️ Author: {en_author} | ✍️ 작가: {ko_author}\n"
-        if book_info and book_info.get('publishedDate'):
-            description += f"📅 Published: {book_info['publishedDate']}\n"
+            description += f"✍️ Author: {en_author}\n"
+    elif author:
+        # book_info가 없지만 author 파라미터가 있는 경우
+        if is_english_title(author):
+            en_author = author
+        else:
+            en_author = translate_author_name(author)
+        description += f"✍️ Author: {en_author}\n"
+    if book_info and book_info.get('publishedDate'):
+        description += f"📅 Published: {book_info['publishedDate']}\n"
     
     description += """
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -424,11 +451,12 @@ def _generate_description_en_with_ko(book_info: Optional[Dict] = None, book_titl
 
 """
     if book_info:
-        # 책 소개 추가 (book_info의 description 사용)
+        # 책 소개 추가 (book_info의 description이 한글인 경우만 사용)
         if book_info.get('description'):
-            # description이 있으면 사용 (최대 500자)
+            # description이 있으면 한글인지 확인
             desc = book_info['description'].strip()
-            if desc:
+            if desc and not is_english_title(desc[:100]):  # 처음 100자로 한글인지 판단
+                # 한글 description인 경우만 사용
                 ko_desc += f"📖 책 소개:\n{desc[:500]}{'...' if len(desc) > 500 else ''}\n\n"
         if book_info.get('authors'):
             # 한글과 영어 작가 이름 모두 표시
@@ -447,10 +475,27 @@ def _generate_description_en_with_ko(book_info: Optional[Dict] = None, book_titl
                     authors_en.append(en_author if en_author != author else author)
             
             ko_author_str = ', '.join(authors_ko) if authors_ko else ', '.join(book_info['authors'])
-            en_author_str = ', '.join(authors_en) if authors_en else ', '.join(book_info['authors'])
-            ko_desc += f"✍️ Author: {en_author_str} | ✍️ 작가: {ko_author_str}\n"
-        if book_info.get('publishedDate'):
-            ko_desc += f"📅 출간일: {book_info['publishedDate']}\n"
+            ko_desc += f"✍️ 작가: {ko_author_str}\n"
+        elif author:
+            # book_info에 authors가 없지만 author 파라미터가 있는 경우
+            if is_english_title(author):
+                # 영어 작가 이름인 경우 한글로 변환
+                ko_author = translate_author_name_to_korean(author)
+            else:
+                # 한글 작가 이름인 경우 그대로 사용
+                ko_author = author
+            ko_desc += f"✍️ 작가: {ko_author}\n"
+    elif author:
+        # book_info가 없지만 author 파라미터가 있는 경우
+        if is_english_title(author):
+            # 영어 작가 이름인 경우 한글로 변환
+            ko_author = translate_author_name_to_korean(author)
+        else:
+            # 한글 작가 이름인 경우 그대로 사용
+            ko_author = author
+        ko_desc += f"✍️ 작가: {ko_author}\n"
+    if book_info and book_info.get('publishedDate'):
+        ko_desc += f"📅 출간일: {book_info['publishedDate']}\n"
     
     ko_desc += """
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -47,6 +47,9 @@ def translate_book_title(book_title: str) -> str:
         "아토믹 해빗": "Atomic Habits",
         "아토믹_해빗": "Atomic Habits",
         "Atomic Habits": "Atomic Habits",
+        "스티브 잡스": "Steve Jobs",
+        "스티브_잡스": "Steve Jobs",
+        "Steve Jobs": "Steve Jobs",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -85,6 +88,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Co-Intelligence": "듀얼 브레인",
         "Man's Search for Meaning": "죽음의 수용소에서",
         "Atomic Habits": "아토믹 해빗",
+        "Steve Jobs": "스티브 잡스",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -150,6 +154,8 @@ def translate_author_name(author: str) -> str:
         "Ethan Mollick": "Ethan Mollick",
         "제임스 클리어": "James Clear",
         "James Clear": "James Clear",
+        "월터 아이작슨": "Walter Isaacson",
+        "Walter Isaacson": "Walter Isaacson",
     }
     
     if author in author_map:
@@ -176,6 +182,7 @@ def translate_author_name_to_korean(author: str) -> str:
         "Ethan Mollick": "이선 몰릭",
         "Viktor Frankl": "빅터 프랭클",
         "James Clear": "제임스 클리어",
+        "Walter Isaacson": "월터 아이작슨",
     }
     
     if author in reverse_author_map:

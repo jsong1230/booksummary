@@ -761,8 +761,17 @@
 
 ## 2025-12-05
 
-### 연금술사(The Alchemist) 영상 제작 및 YouTube 업로드 완료
-- **책 정보**: 연금술사 (The Alchemist) - 파울로 코엘료 (Paulo Coelho)
+### YouTube 업로드 완료
+- 업로드된 책: 연금술사_with_summary_ko, 연금술사_with_summary_en
+- 업로드된 영상 수: 2개
+- [1] [English] The Alchemist Book Review | [영어] 연금술사 책 리뷰
+  - URL: https://www.youtube.com/watch?v=kbFDkhoQFq4
+- [2] [한국어] 연금술사 책 리뷰 | [Korean] The Alchemist Book Review
+  - URL: https://www.youtube.com/watch?v=Iju325kSvSI
+## 2025-12-06
+
+### 스티브 잡스(Steve Jobs) 영상 제작 및 YouTube 업로드 완료
+- **책 정보**: 스티브 잡스 (Steve Jobs) - 월터 아이작슨 (Walter Isaacson)
 - **작업 내용**:
   - input 폴더에서 파일 준비 (오디오, 요약, 썸네일, 비디오)
   - 이미지 다운로드 (100개 무드 이미지, Pixabay API 사용)
@@ -773,90 +782,54 @@
   - 썸네일 변환 (PNG → JPG, 4K 해상도, 2MB 이하 압축)
   - 메타데이터 생성 (한글/영어, timestamp 포함)
 - **생성된 파일**:
-  - 한글 영상: `연금술사_review_with_summary_ko.mp4` (921MB, 약 24.15분)
-  - 영어 영상: `연금술사_review_with_summary_en.mp4` (833MB, 약 21.69분)
-  - 한글 롱폼 오디오: `연금술사_summary_ko.mp3` (nova 음성)
-  - 영어 롱폼 오디오: `연금술사_summary_en.mp3` (alloy 음성)
-  - 한글 썸네일: `연금술사_thumbnail_ko.jpg`
-  - 영어 썸네일: `연금술사_thumbnail_en.jpg`
+  - 한글 영상: `스티브_잡스_review_with_summary_ko.mp4` (907MB, 약 23.76분)
+  - 영어 영상: `스티브_잡스_review_with_summary_en.mp4` (776MB, 약 20.29분)
+  - 한글 롱폼 오디오: `스티브_잡스_summary_ko.mp3` (nova 음성)
+  - 영어 롱폼 오디오: `스티브_잡스_summary_en.mp3` (alloy 음성)
+  - 한글 썸네일: `스티브_잡스_thumbnail_ko.jpg`
+  - 영어 썸네일: `스티브_잡스_thumbnail_en.jpg`
   - 메타데이터: 한글/영어 각각 JSON 파일 생성
 - **영상 구성**:
-  - Summary (요약 오디오 + 이미지 슬라이드쇼, 한글: 175초, 영문: 125초)
+  - Summary (요약 오디오 + 이미지 슬라이드쇼, 한글: 127초, 영문: 116초)
   - 3초 silence
-  - NotebookLM Video (상세 분석, 한글: 479초, 영문: 444초)
+  - NotebookLM Video (상세 분석, 한글: 476초, 영문: 392초)
   - 3초 silence
-  - Audio Review (리뷰 오디오 + 이미지 슬라이드쇼, 한글: 789초, 영문: 727초)
+  - Audio Review (리뷰 오디오 + 이미지 슬라이드쇼, 한글: 816초, 영문: 703초)
 - **YouTube 업로드**:
   - 업로드된 영상 수: 2개 (비공개)
-  - [1] [English] The Alchemist Book Review | [영어] 연금술사 책 리뷰
-    - URL: https://www.youtube.com/watch?v=_5oNaO4f_tQ
-  - [2] [한국어] 연금술사 책 리뷰 | [Korean] The Alchemist Book Review
-    - URL: https://www.youtube.com/watch?v=noOCT0HY1bE
-
-### 아토믹 해빗(Atomic Habits) 영상 제작 및 YouTube 업로드 완료
-- **책 정보**: 아토믹 해빗 (Atomic Habits) - 제임스 클리어 (James Clear)
-- **작업 내용**:
-  - input 폴더에서 파일 준비 (오디오, 요약, 썸네일, 비디오)
-  - 이미지 다운로드 (100개 무드 이미지, Pixabay API 사용)
-  - 책 정보 다운로드 시도 (Google Books API에서 검색 결과 없음)
-  - 요약 텍스트 로드 (기존 파일 사용)
-  - 롱폼 TTS 오디오 생성 (한글/영어, tts-1-hd 모델 사용)
-  - 한글/영어 영상 제작 (요약 + NotebookLM Video + 리뷰 오디오)
-  - 썸네일 변환 (PNG → JPG, 4K 해상도, 2MB 이하 압축)
-  - 메타데이터 생성 (한글/영어, timestamp 포함)
-- **생성된 파일**:
-  - 한글 영상: `아토믹_해빗_review_with_summary_ko.mp4` (1.0GB, 약 27.21분)
-  - 영어 영상: `아토믹_해빗_review_with_summary_en.mp4` (949MB, 약 24.85분)
-  - 한글 롱폼 오디오: `아토믹_해빗_summary_ko.mp3` (nova 음성)
-  - 영어 롱폼 오디오: `아토믹_해빗_summary_en.mp3` (alloy 음성)
-  - 한글 썸네일: `아토믹_해빗_thumbnail_ko.jpg`
-  - 영어 썸네일: `아토믹_해빗_thumbnail_en.jpg`
-  - 메타데이터: 한글/영어 각각 JSON 파일 생성
-- **영상 구성**:
-  - Summary (요약 오디오 + 이미지 슬라이드쇼, 한글: 110초, 영문: 101초)
-  - 3초 silence
-  - NotebookLM Video (상세 분석, 한글: 591초, 영문: 384초)
-  - 3초 silence
-  - Audio Review (리뷰 오디오 + 이미지 슬라이드쇼, 한글: 926초, 영문: 1000초)
-- **YouTube 업로드**:
-  - 업로드된 영상 수: 2개 (비공개)
-  - [1] [English] Atomic Habits Book Review | [영어] 아토믹 해빗 책 리뷰
-    - URL: https://www.youtube.com/watch?v=EHh8AY3MlGk
-  - [2] [한국어] 아토믹 해빗 책 리뷰 | [Korean] Atomic Habits Book Review
-    - URL: https://www.youtube.com/watch?v=OtsPh0vu9bI
+  - [1] [English] Steve Jobs Book Review | [영어] 스티브 잡스 책 리뷰
+    - URL: https://www.youtube.com/watch?v=d2PWE8z_44s
+  - [2] [한국어] 스티브 잡스 책 리뷰 | [Korean] Steve Jobs Book Review
+    - URL: https://www.youtube.com/watch?v=Qms01mzXrpk
 
 ### 메타데이터 개선
 
-#### 책 소개(description) 포함 개선
-- **문제**: 메타데이터에 책 소개가 자주 빠지는 문제
+#### 작가 이름 표시 언어 분리
+- **문제**: 메타데이터에서 작가 이름이 한글/영어 모두 표시되어 중복되거나 잘못 표시되는 문제
+  - 예: "✍️ Author: 월터아이작슨 | ✍️ 작가: 월터아이작슨"
 - **해결**:
-  - `_generate_description_ko`: `book_info.get('description')`이 있으면 사용하도록 수정
-  - `_generate_description_en`: `book_info.get('description')`을 우선 사용하도록 수정
-  - `_generate_description_en_with_ko`: 한글 부분에도 책 소개 포함하도록 수정
-  - description이 없으면 기본 메시지 표시
+  - 한글 메타데이터: 한글 작가 이름만 표시 (`✍️ 작가: 월터 아이작슨`)
+  - 영문 메타데이터: 영문 작가 이름만 표시 (`✍️ Author: Walter Isaacson`)
+  - `_generate_description_ko`: 한글 작가 이름만 표시하도록 수정
+  - `_generate_description_en`: 영문 작가 이름만 표시하도록 수정
+  - `_generate_description_en_with_ko`: 한글 부분은 한글만, 영어 부분은 영어만 표시하도록 수정
+  - `book_info`가 없을 때도 `author` 파라미터를 올바르게 처리하도록 개선
 - **수정 파일**: `src/08_create_and_preview_videos.py`
 
-#### 작가 이름 표시 형식 통일
-- **문제**: 메타데이터에서 작가 이름 표시 형식이 일관되지 않음
+#### 책 소개(description) 언어 분리 개선
+- **문제**: 한글 메타데이터에 영문 책 소개가 포함되고, 영문 메타데이터에 한글 책 소개가 포함되는 문제
 - **해결**:
-  - 모든 메타데이터에서 "Author: {영어} | 작가: {한글}" 형식으로 통일
-  - 한글 메타데이터와 영문 메타데이터 모두 동일한 형식 적용
-  - `_generate_description_ko`, `_generate_description_en`, `_generate_description_en_with_ko` 함수 모두 수정
+  - 한글 메타데이터: 한글 description만 사용 (영어 description 제외)
+  - 영문 메타데이터: 영문 description만 사용 (한글 description 제외)
+  - `is_english_title` 함수를 사용하여 description의 언어를 판단
+  - 처음 100자를 확인하여 언어 판단
 - **수정 파일**: `src/08_create_and_preview_videos.py`
-
-#### book_info.json 생성 개선
-- **문제**: `--skip-cover` 옵션 사용 시 `book_info.json`이 생성되지 않음
-- **해결**:
-  - `download_book_cover` 함수에 `skip_image` 파라미터 추가
-  - 이미지 다운로드는 건너뛰되 `book_info.json`은 항상 생성하도록 수정
-  - `download_all` 함수에서 `skip_cover=True`일 때도 `book_info.json` 생성하도록 수정
-- **수정 파일**: `src/02_get_images.py`
 
 ### 번역 매핑 추가
 - **`src/utils/translations.py`**:
   - 책 제목 매핑 추가:
-    - "아토믹 해빗" → "Atomic Habits"
-    - "아토믹_해빗" → "Atomic Habits"
+    - "스티브 잡스" → "Steve Jobs"
+    - "스티브_잡스" → "Steve Jobs"
   - 작가 이름 매핑 추가:
-    - "제임스 클리어" → "James Clear"
-    - "James Clear" → "James Clear"
+    - "월터 아이작슨" → "Walter Isaacson"
+    - "Walter Isaacson" → "Walter Isaacson"
