@@ -833,3 +833,23 @@
   - 작가 이름 매핑 추가:
     - "월터 아이작슨" → "Walter Isaacson"
     - "Walter Isaacson" → "Walter Isaacson"
+
+## 2025-12-07
+
+### YouTube 업로드 완료
+- 업로드된 책: 어린왕자_with_summary_en, 어린왕자_with_summary_ko
+- 업로드된 영상 수: 2개
+- [1] [English] The Little Prince Book Review | [영어] 어린왕자 책 리뷰
+  - URL: https://www.youtube.com/watch?v=tbgQklS3KvQ
+- [2] [한국어] 어린왕자 책 리뷰 | [Korean] The Little Prince Book Review
+  - URL: https://www.youtube.com/watch?v=txZ71km8Dxc
+
+## 2025-12-08
+
+### YouTube 업로드 완료
+- 업로드된 책: 내_이름은_빨강_with_summary_en, 내_이름은_빨강_with_summary_ko
+- 업로드된 영상 수: 2개
+- [1] [English] My Name is Red Book Review | [영어] 내 이름은 빨강 책 리뷰
+  - URL: https://www.youtube.com/watch?v=3YkuMcVDn0w
+- [2] [한국어] 내 이름은 빨강 책 리뷰 | [Korean] My Name is Red Book Review
+  - URL: https://www.youtube.com/watch?v=42v-dRrYjLQ

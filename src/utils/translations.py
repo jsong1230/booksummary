@@ -50,6 +50,12 @@ def translate_book_title(book_title: str) -> str:
         "스티브 잡스": "Steve Jobs",
         "스티브_잡스": "Steve Jobs",
         "Steve Jobs": "Steve Jobs",
+        "어린왕자": "The Little Prince",
+        "어린_왕자": "The Little Prince",
+        "The Little Prince": "The Little Prince",
+        "내 이름은 빨강": "My Name is Red",
+        "내_이름은_빨강": "My Name is Red",
+        "My Name is Red": "My Name is Red",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -89,6 +95,8 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Man's Search for Meaning": "죽음의 수용소에서",
         "Atomic Habits": "아토믹 해빗",
         "Steve Jobs": "스티브 잡스",
+        "The Little Prince": "어린왕자",
+        "My Name is Red": "내 이름은 빨강",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -156,6 +164,11 @@ def translate_author_name(author: str) -> str:
         "James Clear": "James Clear",
         "월터 아이작슨": "Walter Isaacson",
         "Walter Isaacson": "Walter Isaacson",
+        "생텍쥐페리": "Antoine de Saint-Exupéry",
+        "앙투안 드 생텍쥐페리": "Antoine de Saint-Exupéry",
+        "Antoine de Saint-Exupéry": "Antoine de Saint-Exupéry",
+        "우르한 파묵": "Orhan Pamuk",
+        "Orhan Pamuk": "Orhan Pamuk",
     }
     
     if author in author_map:
@@ -183,6 +196,8 @@ def translate_author_name_to_korean(author: str) -> str:
         "Viktor Frankl": "빅터 프랭클",
         "James Clear": "제임스 클리어",
         "Walter Isaacson": "월터 아이작슨",
+        "Antoine de Saint-Exupéry": "생텍쥐페리",
+        "Orhan Pamuk": "우르한 파묵",
     }
     
     if author in reverse_author_map:
