@@ -853,3 +853,29 @@
   - URL: https://www.youtube.com/watch?v=3YkuMcVDn0w
 - [2] [한국어] 내 이름은 빨강 책 리뷰 | [Korean] My Name is Red Book Review
   - URL: https://www.youtube.com/watch?v=42v-dRrYjLQ
+
+## 2025-12-08
+
+### 돈의 심리학 (The Psychology of Money) 영상 제작 및 업로드
+
+#### 번역 매핑 추가
+- **`src/utils/translations.py`**:
+  - "돈의 심리학" → "The Psychology of Money" 매핑 추가
+  - "모건 하우설" → "Morgan Housel" 매핑 추가
+  - 한글/영문 제목 상호 변환 지원
+
+#### 영상 제작 완료
+- 이미지 다운로드: 무드 이미지 100개 다운로드 완료
+- TTS 오디오 생성: 한글/영문 롱폼 오디오 생성 완료
+- 영상 제작: 한글/영문 영상 생성 완료
+  - 한글 영상: `output/돈의_심리학_review_with_summary_ko.mp4` (1044.36 MB)
+  - 영문 영상: `output/돈의_심리학_review_with_summary_en.mp4` (755.86 MB)
+- 메타데이터 생성: YouTube 업로드용 메타데이터 생성 완료
+
+#### YouTube 업로드 완료
+- 업로드된 책: 돈의_심리학_with_summary_en, 돈의_심리학_with_summary_ko
+- 업로드된 영상 수: 2개 (비공개)
+- [1] [English] The Psychology of Money Book Review | [영어] 돈의 심리학 책 리뷰
+  - URL: https://www.youtube.com/watch?v=CeA8OMkzeis
+- [2] [한국어] 돈의 심리학 책 리뷰 | [Korean] The Psychology of Money Book Review
+  - URL: https://www.youtube.com/watch?v=NLRoYFn_ahs

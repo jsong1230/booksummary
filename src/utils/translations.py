@@ -56,6 +56,9 @@ def translate_book_title(book_title: str) -> str:
         "내 이름은 빨강": "My Name is Red",
         "내_이름은_빨강": "My Name is Red",
         "My Name is Red": "My Name is Red",
+        "돈의 심리학": "The Psychology of Money",
+        "돈의_심리학": "The Psychology of Money",
+        "The Psychology of Money": "The Psychology of Money",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -97,6 +100,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Steve Jobs": "스티브 잡스",
         "The Little Prince": "어린왕자",
         "My Name is Red": "내 이름은 빨강",
+        "The Psychology of Money": "돈의 심리학",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -169,6 +173,8 @@ def translate_author_name(author: str) -> str:
         "Antoine de Saint-Exupéry": "Antoine de Saint-Exupéry",
         "우르한 파묵": "Orhan Pamuk",
         "Orhan Pamuk": "Orhan Pamuk",
+        "모건 하우설": "Morgan Housel",
+        "Morgan Housel": "Morgan Housel",
     }
     
     if author in author_map:
@@ -198,6 +204,7 @@ def translate_author_name_to_korean(author: str) -> str:
         "Walter Isaacson": "월터 아이작슨",
         "Antoine de Saint-Exupéry": "생텍쥐페리",
         "Orhan Pamuk": "우르한 파묵",
+        "Morgan Housel": "모건 하우설",
     }
     
     if author in reverse_author_map:
