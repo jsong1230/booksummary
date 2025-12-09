@@ -59,6 +59,9 @@ def translate_book_title(book_title: str) -> str:
         "돈의 심리학": "The Psychology of Money",
         "돈의_심리학": "The Psychology of Money",
         "The Psychology of Money": "The Psychology of Money",
+        "작은 아씨들": "Little Women",
+        "작은_아씨들": "Little Women",
+        "Little Women": "Little Women",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -101,6 +104,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "The Little Prince": "어린왕자",
         "My Name is Red": "내 이름은 빨강",
         "The Psychology of Money": "돈의 심리학",
+        "Little Women": "작은 아씨들",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -175,6 +179,8 @@ def translate_author_name(author: str) -> str:
         "Orhan Pamuk": "Orhan Pamuk",
         "모건 하우설": "Morgan Housel",
         "Morgan Housel": "Morgan Housel",
+        "루이자 메이 올콧": "Louisa May Alcott",
+        "Louisa May Alcott": "Louisa May Alcott",
     }
     
     if author in author_map:
@@ -205,6 +211,7 @@ def translate_author_name_to_korean(author: str) -> str:
         "Antoine de Saint-Exupéry": "생텍쥐페리",
         "Orhan Pamuk": "우르한 파묵",
         "Morgan Housel": "모건 하우설",
+        "Louisa May Alcott": "루이자 메이 올콧",
     }
     
     if author in reverse_author_map:

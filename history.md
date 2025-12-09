@@ -879,3 +879,26 @@
   - URL: https://www.youtube.com/watch?v=CeA8OMkzeis
 - [2] [한국어] 돈의 심리학 책 리뷰 | [Korean] The Psychology of Money Book Review
   - URL: https://www.youtube.com/watch?v=NLRoYFn_ahs
+
+## 2025-12-09
+
+### Git 관련 작업
+- **커밋 및 푸시**:
+  - 커밋 해시: `7d713ce`
+  - 메시지: "docs: 돈의 심리학 영상 제작 및 업로드 완료"
+  - `origin/main`으로 변경사항 푸시 완료
+  - 업데이트된 파일:
+    - `history.md`: "돈의 심리학" 영상 제작 및 업로드 내역 추가
+    - `src/utils/translations.py`: "돈의 심리학" 및 "모건 하우설" 번역 매핑 추가
+
+## 2025-12-09
+
+### 작은 아씨들 (Little Women) 영상 제작 완료
+
+- **번역 매핑 추가**: `src/utils/translations.py`에 "작은 아씨들" 및 "루이자 메이 올콧" 매핑 추가
+- **영상 제작 완료**:
+  - 한글 영상: `output/작은_아씨들_review_with_summary_ko.mp4` (926MB)
+  - 영문 영상: `output/작은_아씨들_review_with_summary_en.mp4` (821MB)
+- **메타데이터 생성 완료**:
+  - 한글: `작은_아씨들_review_with_summary_ko.metadata.json`
+  - 영문: `작은_아씨들_review_with_summary_en.metadata.json`
