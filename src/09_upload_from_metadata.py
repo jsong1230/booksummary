@@ -109,7 +109,8 @@ class YouTubeUploader:
         description: str,
         tags: list,
         privacy_status: str = "private",
-        thumbnail_path: Optional[str] = None
+        thumbnail_path: Optional[str] = None,
+        channel_id: Optional[str] = None
     ) -> Optional[Dict]:
         """영상 업로드"""
         if not os.path.exists(video_path):
@@ -181,6 +182,11 @@ class YouTubeUploader:
                 'selfDeclaredMadeForKids': False
             }
         }
+        
+        # 채널 ID가 지정된 경우 snippet에 추가
+        if channel_id:
+            body['snippet']['channelId'] = channel_id
+            print(f"   📺 채널 ID 지정: {channel_id}")
         
         try:
             # 파일 크기 확인 및 경고
@@ -594,6 +600,7 @@ def main():
     parser = argparse.ArgumentParser(description='YouTube 업로드 (메타데이터 기반)')
     parser.add_argument('--privacy', type=str, default='private', choices=['private', 'unlisted', 'public'], help='공개 설정 (기본값: private)')
     parser.add_argument('--auto', action='store_true', help='자동 업로드 (확인 없이)')
+    parser.add_argument('--channel-id', type=str, help='업로드할 채널 ID (선택사항, 환경 변수 YOUTUBE_CHANNEL_ID로도 설정 가능)')
     
     args = parser.parse_args()
     
@@ -629,6 +636,10 @@ def main():
     # 업로드 설정
     privacy = args.privacy
     
+    # 채널 ID 확인 (인자 > 환경 변수 > 기본값)
+    default_channel_id = 'UCxOcO_x_yW6sfg_FPUQVqYA'  # book summary 채널
+    channel_id = args.channel_id or os.getenv('YOUTUBE_CHANNEL_ID') or default_channel_id
+    
     if not args.auto:
         try:
             user_input = input(f"공개 설정 (private/unlisted/public, 기본값: {privacy}): ").strip().lower()
@@ -638,6 +649,8 @@ def main():
             print(f"   기본값 사용: {privacy}")
     
     print(f"📤 공개 설정: {privacy}")
+    if channel_id:
+        print(f"📺 채널 ID: {channel_id}")
     print()
     
     # 영상 업로드
@@ -802,6 +815,7 @@ def main():
         
         # 업로드
         result = uploader.upload_video(
+            channel_id=channel_id,
             video_path=str(video_path),
             title=title,
             description=description,

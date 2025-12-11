@@ -31,6 +31,10 @@ ENV/
 .env.local
 .env.*.local
 
+# OAuth credentials
+client_secret.json
+credentials.json
+
 # IDE
 .vscode/
 .idea/

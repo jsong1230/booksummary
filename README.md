@@ -63,6 +63,7 @@ pip install -r requirements.txt
 - `OPENAI_API_KEY`: Summary 생성 및 TTS용
 - `CLAUDE_API_KEY`: Summary 생성용 (선택사항)
 - `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`, `YOUTUBE_REFRESH_TOKEN`: YouTube 업로드용
+- `YOUTUBE_CHANNEL_ID`: 업로드할 채널 ID (선택사항, 기본값: book summary 채널)
 
 ## 빠른 시작 가이드 (처음 시작하는 경우)
 
@@ -329,6 +330,20 @@ python src/08_create_and_preview_videos.py \
 python src/09_upload_from_metadata.py --privacy private --auto
 ```
 
+**채널 선택:**
+- 기본값: book summary 채널 (`UCxOcO_x_yW6sfg_FPUQVqYA`)
+- 다른 채널로 업로드: `--channel-id UCxxxxxxxxxxxxxxxxxxxxxxxxxx`
+- 또는 환경 변수: `YOUTUBE_CHANNEL_ID=UCxxxxxxxxxxxxxxxxxxxxxxxxxx`
+
+**OAuth refresh token 생성:**
+- 같은 계정의 다른 채널로 업로드하려면 해당 채널에 대한 refresh token이 필요합니다
+- `scripts/get_youtube_refresh_token.py` 스크립트를 사용하여 새 refresh token 생성:
+  ```bash
+  python scripts/get_youtube_refresh_token.py
+  ```
+- OAuth 인증 화면에서 원하는 채널을 선택하세요
+- 생성된 refresh token을 `.env` 파일의 `YOUTUBE_REFRESH_TOKEN`에 설정하세요
+
 업로드 시:
 
 - 태그 자동 검증 (30자 초과 태그 제거)
@@ -357,6 +372,7 @@ booksummary/
 │   ├── convert_png_to_jpg.py       # PNG를 JPG로 변환
 │   ├── download_pexels_images.py  # Pexels API 이미지 다운로드 테스트
 │   ├── generate_summary_audio.py   # Summary 오디오 생성
+│   ├── get_youtube_refresh_token.py  # YouTube OAuth2 refresh token 생성
 │   └── ...
 ├── src/                # 소스 코드
 │   ├── 08_generate_summary.py      # 요약 텍스트 생성 (Hook → Summary → Bridge 구조)

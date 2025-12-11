@@ -948,3 +948,18 @@
   - URL: https://www.youtube.com/watch?v=vraC0u4ybkM
 - [2] [한국어] 사기 책 리뷰 | [Korean] Records of the Grand Historian Book Review
   - URL: https://www.youtube.com/watch?v=P-75PxfYUX0
+
+### YouTube 채널 선택 기능 추가
+- **문제**: 같은 계정의 다른 채널로 업로드하려면 채널 ID가 필요
+- **해결**:
+  - **`src/09_upload_from_metadata.py`**:
+    - `--channel-id` 명령줄 인자 추가
+    - `YOUTUBE_CHANNEL_ID` 환경 변수 지원
+    - book summary 채널 ID (`UCxOcO_x_yW6sfg_FPUQVqYA`) 기본값으로 설정
+    - `upload_video()` 메서드에 `channel_id` 파라미터 추가
+    - 업로드 시 채널 ID를 request body에 포함
+  - **`scripts/get_youtube_refresh_token.py`** (신규):
+    - OAuth2 인증을 통해 refresh token 생성 스크립트 추가
+    - 특정 채널에 대한 refresh token 생성 지원
+    - `client_secret.json` 파일을 사용하여 OAuth 플로우 실행
+- **효과**: 같은 계정의 여러 채널 중 원하는 채널로 업로드 가능
