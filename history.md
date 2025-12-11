@@ -902,3 +902,49 @@
 - **메타데이터 생성 완료**:
   - 한글: `작은_아씨들_review_with_summary_ko.metadata.json`
   - 영문: `작은_아씨들_review_with_summary_en.metadata.json`
+
+## 2025-12-10
+
+### YouTube 업로드 완료
+- 업로드된 책: 인간관계론_with_summary_ko, 인간관계론_with_summary_en
+- 업로드된 영상 수: 2개
+- [1] [English] How to Win Friends and Influence People Book Review | [영어] 인간관계론 책 리뷰
+  - URL: https://www.youtube.com/watch?v=fnzJ5zVk0Ls
+- [2] [한국어] 인간관계론 책 리뷰 | [Korean] How to Win Friends and Influence People Book Review
+  - URL: https://www.youtube.com/watch?v=0q7zOY_zbKU
+
+## 2025-12-11
+
+### 사마천의 사기 롱폼 영상 제작 완료
+- **책 제목**: 사기 (Records of the Grand Historian)
+- **저자**: 사마천 (Sima Qian)
+- **생성된 파일**:
+  - 영상: `output/사기_review_with_summary_ko.mp4` (835.19 MB), `output/사기_review_with_summary_en.mp4` (909.21 MB)
+  - 썸네일: `output/사기_thumbnail_ko.jpg`, `output/사기_thumbnail_en.jpg`
+  - 메타데이터: `사기_review_with_summary_ko.metadata.json`, `사기_review_with_summary_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - 오디오: 요약 오디오 (한글/영문) 생성 완료
+
+### 번역 매핑 추가
+- **`src/utils/translations.py`**:
+  - "사기" → "Records of the Grand Historian" / "Shiji" 매핑 추가
+  - "사마천" → "Sima Qian" 매핑 추가
+  - 한글/영문 양방향 번역 지원
+
+### 코드 개선: longform/summary 파일 중복 문제 해결
+- **문제**: TTS 오디오 생성 시 `longform` 이름으로 생성했지만, 영상 제작 스크립트는 `summary` 이름만 인식하여 중복 생성 발생
+- **해결**:
+  - **`src/10_create_video_with_summary.py`**:
+    - `summary`와 `longform` 파일 모두 인식하도록 수정
+    - `longform` 파일 발견 시 자동으로 `summary`로 이름 변경 (일관성 유지)
+  - **`src/08_create_and_preview_videos.py`**:
+    - 메타데이터 생성 시 `summary`와 `longform` 파일 모두 확인하도록 수정
+- **효과**: 중복 생성 방지 및 파일명 일관성 유지
+
+### YouTube 업로드 완료
+- 업로드된 책: 사기 (Records of the Grand Historian)
+- 업로드된 영상 수: 2개 (비공개)
+- [1] [English] Records of the Grand Historian Book Review | [영어] 사기 책 리뷰
+  - URL: https://www.youtube.com/watch?v=vraC0u4ybkM
+- [2] [한국어] 사기 책 리뷰 | [Korean] Records of the Grand Historian Book Review
+  - URL: https://www.youtube.com/watch?v=P-75PxfYUX0

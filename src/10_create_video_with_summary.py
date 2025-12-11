@@ -170,10 +170,19 @@ class VideoWithSummaryPipeline:
         
         # 2. TTS로 요약 음성 생성 (Summary 텍스트가 있는 경우)
         if existing_summary_text:
-            # 요약 오디오가 이미 있는지 확인
-            summary_audio_path = f"assets/audio/{safe_title_str}_summary_{lang_suffix}.mp3"
+            # 요약 오디오가 이미 있는지 확인 (summary 또는 longform 파일 모두 확인)
+            summary_audio_path = None
+            possible_paths = [
+                f"assets/audio/{safe_title_str}_summary_{lang_suffix}.mp3",
+                f"assets/audio/{safe_title_str}_longform_{lang_suffix}.mp3"
+            ]
             
-            if not Path(summary_audio_path).exists():
+            for path in possible_paths:
+                if Path(path).exists():
+                    summary_audio_path = path
+                    break
+            
+            if summary_audio_path is None:
                 print("=" * 60)
                 print("🎤 2단계: TTS 요약 음성 생성")
                 print("=" * 60)
@@ -195,6 +204,12 @@ class VideoWithSummaryPipeline:
                 print("🎤 기존 Summary 오디오 사용")
                 print("=" * 60)
                 print(f"   파일: {summary_audio_path}")
+                # longform 파일이면 summary로 이름 변경 (일관성 유지)
+                if "_longform_" in summary_audio_path:
+                    new_path = summary_audio_path.replace("_longform_", "_summary_")
+                    Path(summary_audio_path).rename(new_path)
+                    summary_audio_path = new_path
+                    print(f"   → {Path(summary_audio_path).name}로 이름 변경됨")
                 print()
         else:
             print("⚠️ Summary 텍스트가 없어 요약 오디오를 생성하지 않습니다.")

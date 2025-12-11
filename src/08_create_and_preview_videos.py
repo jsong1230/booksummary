@@ -754,9 +754,19 @@ def calculate_timestamps_from_video(video_path: Path, safe_title_str: str, lang:
             'review_duration': 0
         }
         
-        # Summary 오디오 길이 확인
-        summary_audio_path = Path(f"assets/audio/{safe_title_str}_summary_{lang_suffix}.mp3")
-        if summary_audio_path.exists():
+        # Summary 오디오 길이 확인 (summary 또는 longform 파일 모두 확인)
+        summary_audio_path = None
+        possible_paths = [
+            Path(f"assets/audio/{safe_title_str}_summary_{lang_suffix}.mp3"),
+            Path(f"assets/audio/{safe_title_str}_longform_{lang_suffix}.mp3")
+        ]
+        
+        for path in possible_paths:
+            if path.exists():
+                summary_audio_path = path
+                break
+        
+        if summary_audio_path and summary_audio_path.exists():
             try:
                 audio = AudioFileClip(str(summary_audio_path))
                 timestamps['summary_duration'] = audio.duration

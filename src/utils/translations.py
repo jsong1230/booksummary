@@ -62,6 +62,13 @@ def translate_book_title(book_title: str) -> str:
         "작은 아씨들": "Little Women",
         "작은_아씨들": "Little Women",
         "Little Women": "Little Women",
+        "인간관계론": "How to Win Friends and Influence People",
+        "인간_관계론": "How to Win Friends and Influence People",
+        "How to Win Friends and Influence People": "How to Win Friends and Influence People",
+        "사기": "Records of the Grand Historian",
+        "사기(史記)": "Records of the Grand Historian",
+        "Records of the Grand Historian": "Records of the Grand Historian",
+        "Shiji": "Records of the Grand Historian",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -105,6 +112,9 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "My Name is Red": "내 이름은 빨강",
         "The Psychology of Money": "돈의 심리학",
         "Little Women": "작은 아씨들",
+        "How to Win Friends and Influence People": "인간관계론",
+        "Records of the Grand Historian": "사기",
+        "Shiji": "사기",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -181,6 +191,10 @@ def translate_author_name(author: str) -> str:
         "Morgan Housel": "Morgan Housel",
         "루이자 메이 올콧": "Louisa May Alcott",
         "Louisa May Alcott": "Louisa May Alcott",
+        "데일 카네기": "Dale Carnegie",
+        "Dale Carnegie": "Dale Carnegie",
+        "사마천": "Sima Qian",
+        "Sima Qian": "Sima Qian",
     }
     
     if author in author_map:
@@ -212,6 +226,8 @@ def translate_author_name_to_korean(author: str) -> str:
         "Orhan Pamuk": "우르한 파묵",
         "Morgan Housel": "모건 하우설",
         "Louisa May Alcott": "루이자 메이 올콧",
+        "Dale Carnegie": "데일 카네기",
+        "Sima Qian": "사마천",
     }
     
     if author in reverse_author_map:
