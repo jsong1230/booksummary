@@ -601,6 +601,7 @@ def main():
     parser.add_argument('--privacy', type=str, default='private', choices=['private', 'unlisted', 'public'], help='공개 설정 (기본값: private)')
     parser.add_argument('--auto', action='store_true', help='자동 업로드 (확인 없이)')
     parser.add_argument('--channel-id', type=str, help='업로드할 채널 ID (선택사항, 환경 변수 YOUTUBE_CHANNEL_ID로도 설정 가능)')
+    parser.add_argument('--force', action='store_true', help='강제 업로드 (중복 체크 무시)')
     
     args = parser.parse_args()
     
@@ -630,8 +631,12 @@ def main():
     print(f"📹 발견된 메타데이터: {len(metadata_files)}개\n")
     
     # 이미 업로드된 영상 목록 로드
-    uploaded_videos = load_uploaded_videos()
-    print(f"📋 이미 업로드된 영상: {len(uploaded_videos)}개 (중복 체크용)\n")
+    uploaded_videos = set()
+    if not args.force:
+        uploaded_videos = load_uploaded_videos()
+        print(f"📋 이미 업로드된 영상: {len(uploaded_videos)}개 (중복 체크용)\n")
+    else:
+        print("⚠️ 강제 업로드 모드: 중복 체크를 건너뜁니다.\n")
     
     # 업로드 설정
     privacy = args.privacy

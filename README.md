@@ -330,6 +330,12 @@ python src/08_create_and_preview_videos.py \
 python src/09_upload_from_metadata.py --privacy private --auto
 ```
 
+**강제 업로드 (재업로드):**
+이미 업로드된 영상이라도 강제로 다시 업로드하려면 `--force` 옵션을 사용하세요:
+```bash
+python src/09_upload_from_metadata.py --privacy private --auto --force
+```
+
 **채널 선택:**
 - 기본값: book summary 채널 (`UCxOcO_x_yW6sfg_FPUQVqYA`)
 - 다른 채널로 업로드: `--channel-id UCxxxxxxxxxxxxxxxxxxxxxxxxxx`

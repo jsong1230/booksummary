@@ -1,5 +1,35 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2025-12-13
+
+### 프로젝트 규칙 정리 및 최적화
+- **`.cursorrules` 정리**:
+  - 중복된 섹션("Video Production Pipeline Rules", "Date Recording Rules") 제거
+  - 핵심 제약 사항을 "Standard Workflow Execution Order" 주석으로 통합하여 가독성 개선
+
+### 이미지 검색 로직 개선
+- **지리적/역사적 정확성 강화** (`src/02_get_images.py`):
+  - AI 키워드 생성 프롬프트 수정
+  - 책의 배경이 되는 국가/도시와 무관한 키워드(예: 한국, 태극기 등) 제외 로직 추가
+  - 책의 설정(Setting)을 분석하여 해당 지역/시대에 맞는 키워드만 생성하도록 강제
+
+### YouTube 업로드 기능 개선
+- **강제 업로드 옵션 추가** (`src/09_upload_from_metadata.py`):
+  - `--force` 플래그 추가
+  - 이미 업로드된 영상이라도 중복 체크를 건너뛰고 재업로드할 수 있는 기능 구현
+  - 사용자가 수동으로 영상을 삭제한 경우 유용
+
+### Peter Lynch "One Up On Wall Street" 영상 제작 및 업로드
+- **작업 내용**:
+  - 파일 준비 (prefix: `peter`)
+  - 이미지 다운로드 (100개, AI 키워드 + 기본 키워드)
+  - 롱폼 TTS 생성 (한글/영어)
+  - 영상 제작 (24분 분량)
+  - YouTube 업로드 (비공개, 재업로드 포함)
+- **업로드 결과**:
+  - [한국어] One Up On Wall Street 책 리뷰: https://www.youtube.com/watch?v=BSbsebZK9lA
+  - [English] One Up On Wall Street Book Review: https://www.youtube.com/watch?v=tro2UrHUu1E
+
 ## 2025-12-05
 
 ### Phase 8: 품질 개선 및 최적화
@@ -963,3 +993,23 @@
     - 특정 채널에 대한 refresh token 생성 지원
     - `client_secret.json` 파일을 사용하여 OAuth 플로우 실행
 - **효과**: 같은 계정의 여러 채널 중 원하는 채널로 업로드 가능
+
+## 2025-12-13
+
+### YouTube 업로드 완료
+- 업로드된 책: One_Up_On_Wall_Street_with_summary_en, One_Up_On_Wall_Street_with_summary_ko
+- 업로드된 영상 수: 2개
+- [1] [English] One Up On Wall Street Book Review | [영어] One Up On Wall Street 책 리뷰
+  - URL: https://www.youtube.com/watch?v=-LgQsie0luQ
+- [2] [한국어] One Up On Wall Street 책 리뷰 | [Korean] One Up On Wall Street Book Review
+  - URL: https://www.youtube.com/watch?v=URDYdUYy5G0
+
+## 2025-12-13
+
+### YouTube 업로드 완료
+- 업로드된 책: One_Up_On_Wall_Street_with_summary_en, One_Up_On_Wall_Street_with_summary_ko
+- 업로드된 영상 수: 2개
+- [1] [English] One Up On Wall Street Book Review | [영어] One Up On Wall Street 책 리뷰
+  - URL: https://www.youtube.com/watch?v=tro2UrHUu1E
+- [2] [한국어] One Up On Wall Street 책 리뷰 | [Korean] One Up On Wall Street Book Review
+  - URL: https://www.youtube.com/watch?v=BSbsebZK9lA
