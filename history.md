@@ -1,5 +1,26 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2025-12-14
+
+### 비디오 파이프라인 개선
+- **롱폼 영상 구성 변경**:
+  - NotebookLM audio review 부분 제거
+  - 최종 구성: Summary + NotebookLM Video만 포함
+  - 영상 길이 단축 및 제작 시간 개선
+- **Pause 시간 단축**:
+  - 섹션 간 pause: 3초 → 2초로 변경
+  - `src/03_make_video.py`: `gap_duration`, `silence_duration` 기본값 변경
+  - `src/08_create_and_preview_videos.py`: timestamp 계산 로직 업데이트
+- **코드 수정**:
+  - `src/03_make_video.py`:
+    - `VideoMaker.create_video()` 메서드에서 Audio Review 부분 제거 (27줄 삭제)
+    - Docstring 업데이트 (Summary → NotebookLM Video 순서)
+    - Cleanup 코드 수정 (`review_audio.close()` 제거)
+  - `src/08_create_and_preview_videos.py`:
+    - 메타데이터 설명에서 "오디오 리뷰" 관련 문구 제거
+    - 한글/영문 설명 모두 업데이트
+    - 미사용 `review_duration` 변수 제거
+
 ## 2025-12-13
 
 ### 프로젝트 규칙 정리 및 최적화

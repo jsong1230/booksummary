@@ -82,7 +82,7 @@ class VideoMaker:
         audio_paths: List[str],
         output_path: str = None,
         fade_duration: float = 1.0,
-        gap_duration: float = 3.0
+        gap_duration: float = 2.0
     ) -> AudioFileClip:
         """
         여러 오디오 파일을 연결
@@ -634,15 +634,15 @@ class VideoMaker:
         summary_audio_volume: float = 1.2
     ) -> str:
         """
-        최종 영상 생성 (Summary → NotebookLM Video → Audio 순서)
+        최종 영상 생성 (Summary → NotebookLM Video 순서)
         
         Args:
-            audio_path: 리뷰 오디오 파일 경로
+            audio_path: (사용 안 함, 하위 호환성을 위해 유지)
             image_dir: 이미지 디렉토리
             output_path: 출력 파일 경로
             add_subtitles_flag: 자막 추가 여부
             language: 자막 언어
-            max_duration: 최대 길이 제한
+            max_duration: 최대 길이 제한 (사용 안 함)
             summary_audio_path: 요약 오디오 파일 경로 (있으면 Summary 부분 생성)
             notebooklm_video_path: NotebookLM 비디오 파일 경로 (있으면 중간에 삽입)
             summary_audio_volume: Summary 오디오 음량 배율 (기본값: 1.2, 20% 증가)
@@ -743,34 +743,7 @@ class VideoMaker:
             print("🎥 NotebookLM Video 부분: 비디오 파일이 없어 건너뜁니다.")
             print()
         
-        # 3. Audio 부분: 리뷰 오디오 + 이미지 슬라이드쇼
-        print("🎵 3단계: Audio 부분 영상 생성")
-        print("-" * 60)
-        review_audio = self.load_audio(audio_path)
-        review_duration = review_audio.duration
-        
-        # 테스트용: 최대 길이 제한
-        if max_duration and review_duration > max_duration:
-            print(f"   ⚠️ 오디오 길이 제한: {review_duration:.2f}초 → {max_duration}초")
-            review_audio = review_audio.subclip(0, max_duration)
-            review_duration = max_duration
-        
-        print(f"   리뷰 오디오 길이: {review_duration:.2f}초")
-        
-        # Audio 부분 이미지 시퀀스 생성
-        review_image_clips = self.create_image_sequence(
-            image_paths=image_paths,
-            total_duration=review_duration,
-            fade_duration=1.5
-        )
-        review_video = concatenate_videoclips(review_image_clips, method="compose")
-        review_video = review_video.set_audio(review_audio)
-        
-        video_clips.append(review_video)
-        print(f"   ✅ Audio 부분 완료 ({review_duration:.2f}초)")
-        print()
-        
-        # 4. 세 부분 연결 (각 섹션 사이에 3초 silence 추가)
+        # 3. 두 부분 연결 (각 섹션 사이에 2초 silence 추가)
         if not video_clips:
             raise ValueError("생성할 영상 클립이 없습니다.")
         
@@ -791,9 +764,9 @@ class VideoMaker:
                 pass
             return silence_video
         
-        # 섹션 사이에 3초 silence 추가
+        # 섹션 사이에 2초 silence 추가
         final_clips = []
-        silence_duration = 3.0
+        silence_duration = 2.0
         
         for i, clip in enumerate(video_clips):
             final_clips.append(clip)
@@ -857,7 +830,6 @@ class VideoMaker:
         print()
         
         # 정리
-        review_audio.close()
         final_video.close()
         if summary_audio_path and Path(summary_audio_path).exists():
             summary_audio.close()
