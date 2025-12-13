@@ -5,24 +5,22 @@ NotebookLM 기반 책 리뷰 영상 자동 생성기
 ## 프로젝트 개요
 
 이 프로젝트는 NotebookLM을 활용하여 책 리뷰 영상을 자동으로 생성하는 파이프라인입니다.
-사용자가 NotebookLM에서 생성한 오디오 파일(및 선택적으로 비디오 파일)을 업로드하면, AI가 자동으로 요약을 생성하고 이미지를 합성하여 유튜브 영상을 제작합니다.
+사용자가 NotebookLM에서 생성한 비디오 파일(선택사항)과 요약 텍스트를 업로드하면, AI가 자동으로 요약 오디오를 생성하고 이미지를 합성하여 유튜브 영상을 제작합니다.
 
 **생성되는 영상 구조:**
 
 - Summary (요약 오디오 + 이미지 슬라이드쇼)
-- 3초 silence (검은 화면)
+- 2초 silence (검은 화면)
 - NotebookLM Video (선택사항, 있으면 자동 포함)
-- 3초 silence (검은 화면)
-- Audio (리뷰 오디오 + 이미지 슬라이드쇼)
 
 ## 전체 워크플로우 (6단계)
 
-1. **NotebookLM 오디오/비디오 준비**:
-   - 리뷰 오디오 파일을 `assets/audio/{책제목}_review_{언어}.{확장자}` 형식으로 저장
-   - NotebookLM 비디오(선택사항)를 `assets/video/{책제목}_notebooklm_{언어}.{확장자}` 형식으로 저장
+1. **NotebookLM 비디오 준비** (선택사항):
+   - NotebookLM 비디오를 `assets/video/{책제목}_notebooklm_{언어}.{확장자}` 형식으로 저장
+   - 비디오가 없어도 Summary만으로 영상 생성 가능
 2. **관련 이미지 확보**: 책 제목과 관련된 고품질 무드 이미지를 **100개** 자동으로 수집합니다. (`assets/images/{책제목}/` 폴더)
 3. **Summary 오디오 생성**: 5분 분량의 책 요약(한글/영문)을 생성하고 TTS로 MP3 변환합니다. 생성된 Summary 오디오는 `assets/audio/{책제목}_summary_{언어}.mp3` 형식으로 저장됩니다.
-4. **영상 합성**: Summary 오디오 + 3초 silence + NotebookLM Video (선택사항) + 3초 silence + 리뷰 오디오 순서로 영상을 생성합니다. 생성된 영상은 `output/{책제목}_review_with_summary_{언어}.mp4` 형식으로 저장됩니다.
+4. **영상 합성**: Summary 오디오 + 2초 silence + NotebookLM Video (선택사항) 순서로 영상을 생성합니다. 생성된 영상은 `output/{책제목}_review_with_summary_{언어}.mp4` 형식으로 저장됩니다.
 5. **배포 준비**: 썸네일과 메타데이터를 생성합니다. 썸네일은 자동으로 찾아서 메타데이터에 포함됩니다.
 6. **유튜브 업로드**: 메타데이터 파일을 기반으로 유튜브에 자동 업로드합니다.
 
@@ -76,22 +74,19 @@ pip install -r requirements.txt
 프로젝트 루트의 `input/` 폴더에 다음 파일들을 준비하세요. 파일명은 `{prefix}_타입_{언어}.{확장자}` 형식을 따라야 합니다.
 
 **필수 파일:**
-- `{prefix}_audio_en.m4a` - 영어 리뷰 오디오 (NotebookLM에서 생성)
-- `{prefix}_audio_kr.m4a` - 한국어 리뷰 오디오 (NotebookLM에서 생성)
+- 없음 (모든 파일이 선택사항이며, Summary는 AI가 자동 생성 가능)
 
-**선택 파일 (없어도 자동 생성됨):**
+**선택 파일:**
 - `{prefix}_summary_en.md` - 영어 요약 텍스트 (없으면 AI가 자동 생성)
 - `{prefix}_summary_kr.md` - 한국어 요약 텍스트 (없으면 AI가 자동 생성)
 - `{prefix}_thumbnail_en.png` - 영어 썸네일 원본
 - `{prefix}_thumbnail_kr.png` - 한국어 썸네일 원본
-- `{prefix}_video_en.mp4` - 영어 NotebookLM 비디오 (선택사항)
-- `{prefix}_video_kr.mp4` - 한국어 NotebookLM 비디오 (선택사항)
+- `{prefix}_video_en.mp4` - 영어 NotebookLM 비디오 (선택사항, 있으면 영상에 포함)
+- `{prefix}_video_kr.mp4` - 한국어 NotebookLM 비디오 (선택사항, 있으면 영상에 포함)
 
 **파일명 예시 (prefix: `lonliness`):**
 ```
 input/
-├── lonliness_audio_en.m4a
-├── lonliness_audio_kr.m4a
 ├── lonliness_summary_en.md
 ├── lonliness_summary_kr.md
 ├── lonliness_thumbnail_en.png
@@ -126,7 +121,7 @@ python scripts/run_full_pipeline_from_downloads.py \
 2. ✅ 이미지 다운로드 (100개, 기존 이미지가 있으면 건너뜀)
 3. ✅ Summary 생성 (파일이 없으면 AI가 자동 생성)
 4. ✅ TTS로 Summary 오디오 생성
-5. ✅ 영상 생성 (Summary + NotebookLM Video + Audio)
+5. ✅ 영상 생성 (Summary + NotebookLM Video)
 6. ✅ 메타데이터 생성 (timestamp 자동 포함)
 
 ### 📁 3단계: 결과 확인
@@ -167,7 +162,6 @@ python src/09_upload_from_metadata.py --privacy private --auto
 **가장 간편한 방법입니다.** 프로젝트 루트의 `input/` 폴더에 파일을 준비하고 한 번에 처리합니다.
 
 1. **input 폴더에 파일 준비:**
-   - `{prefix}_audio_en.m4a` / `{prefix}_audio_kr.m4a` - 리뷰 오디오
    - `{prefix}_summary_en.md` / `{prefix}_summary_kr.md` - 요약 텍스트 (선택사항)
    - `{prefix}_thumbnail_en.png` / `{prefix}_thumbnail_kr.png` - 썸네일 원본
    - `{prefix}_video_en.mp4` / `{prefix}_video_kr.mp4` - NotebookLM 비디오 (선택사항)
@@ -220,15 +214,6 @@ python scripts/update_notebooklm_video.py \
 4. 해당 언어의 영상을 자동으로 재생성합니다
 
 ### 방법 2: 수동으로 파일 준비
-
-**오디오 파일:**
-NotebookLM에서 생성한 리뷰 오디오 파일을 `assets/audio/` 폴더에 위치시킵니다.
-
-**파일명 규칙 (표준 네이밍):**
-
-- 한글 오디오: `{책제목}_review_ko.{확장자}` (예: `Sunrise_on_the_Reaping_review_ko.m4a`)
-- 영어 오디오: `{영문제목}_review_en.{확장자}` (예: `Sunrise_on_the_Reaping_review_en.m4a`)
-- 지원 확장자: `.m4a`, `.mp3`, `.wav`
 
 **비디오 파일 (선택사항):**
 NotebookLM에서 생성한 비디오 파일을 `assets/video/` 폴더에 위치시킵니다.
@@ -299,12 +284,11 @@ python src/08_create_and_preview_videos.py \
 메타데이터 생성 시:
 
 - 썸네일 경로를 자동으로 찾아서 포함합니다
-- **YouTube timestamp 자동 생성**: Summary, NotebookLM Video, Audio 섹션의 시작 시간을 자동으로 계산하여 Video Chapters에 포함합니다
-  - 예: `0:00 - Summary`, `1:27 - NotebookLM Detailed Analysis`, `9:08 - Audio Review`
+- **YouTube timestamp 자동 생성**: Summary, NotebookLM Video 섹션의 시작 시간을 자동으로 계산하여 Video Chapters에 포함합니다
+  - 예: `0:00 - Summary`, `1:27 - NotebookLM Detailed Analysis`
 
 **파일 네이밍 규칙 요약:**
 
-- **리뷰 오디오**: `assets/audio/{책제목}_review_{언어}.{확장자}`
 - **Summary 오디오**: `assets/audio/{책제목}_summary_{언어}.mp3` (자동 생성)
 - **NotebookLM 비디오**: `assets/video/{책제목}_notebooklm_{언어}.{확장자}` (선택사항)
 - **생성된 영상**: `output/{책제목}_review_with_summary_{언어}.mp4`
@@ -314,10 +298,8 @@ python src/08_create_and_preview_videos.py \
 **영상 구성:**
 
 - **Summary** (이미지 슬라이드쇼 + 요약 오디오, 음량 1.2배 조정)
-- **3초 silence** (검은 화면)
+- **2초 silence** (검은 화면)
 - **NotebookLM Video** (선택사항, 있으면 자동 포함)
-- **3초 silence** (검은 화면)
-- **Audio** (이미지 슬라이드쇼 + 리뷰 오디오)
 
 **Summary 오디오 음량 조정:**
 
