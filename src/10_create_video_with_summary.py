@@ -188,6 +188,9 @@ class VideoWithSummaryPipeline:
                 print("=" * 60)
                 print()
                 
+                # 출력 경로 설정
+                summary_audio_path = f"assets/audio/{safe_title_str}_summary_{lang_suffix}.mp3"
+                
                 # 한국어는 nova (더 자연스러운 여성 음성), 영어는 alloy 추천
                 voice = "nova" if language == "ko" else "alloy"
                 
@@ -215,28 +218,21 @@ class VideoWithSummaryPipeline:
             print("⚠️ Summary 텍스트가 없어 요약 오디오를 생성하지 않습니다.")
             summary_audio_path = None
         
-        # 3. 리뷰 오디오 경로 확인 (일관된 네이밍 규칙 사용)
+        # 3. 리뷰 오디오 경로 확인 (선택사항, 최신 구조에서는 사용하지 않음)
         if review_audio_path is None:
             lang_suffix = "ko" if language == "ko" else "en"
             audio_dir = Path("assets/audio")
             
-            if not audio_dir.exists():
-                raise FileNotFoundError(f"오디오 디렉토리를 찾을 수 없습니다: {audio_dir}")
-            
-            # 표준 네이밍 규칙: {책제목}_review_{언어}.{확장자}
-            review_audio_path = None
-            for ext in ['.m4a', '.mp3', '.wav', '.mp4']:
-                test_path = audio_dir / f"{safe_title_str}_review_{lang_suffix}{ext}"
-                if test_path.exists():
-                    review_audio_path = str(test_path)
-                    print(f"🎵 리뷰 오디오 발견: {test_path.name}")
-                    break
-            
-            if not review_audio_path:
-                raise FileNotFoundError(f"리뷰 오디오를 찾을 수 없습니다: assets/audio/{safe_title_str}_review_{lang_suffix}.*")
+            if audio_dir.exists():
+                # 표준 네이밍 규칙: {책제목}_review_{언어}.{확장자}
+                for ext in ['.m4a', '.mp3', '.wav', '.mp4']:
+                    test_path = audio_dir / f"{safe_title_str}_review_{lang_suffix}{ext}"
+                    if test_path.exists():
+                        review_audio_path = str(test_path)
+                        print(f"🎵 리뷰 오디오 발견: {test_path.name} (선택사항, 사용하지 않음)")
+                        break
         
-        if not Path(review_audio_path).exists():
-            raise FileNotFoundError(f"리뷰 오디오를 찾을 수 없습니다: {review_audio_path}")
+        # 리뷰 오디오는 선택사항이므로 없어도 계속 진행
         
         # 4. 이미지 디렉토리 확인
         if image_dir is None:

@@ -27,6 +27,33 @@
   - 파일 준비 가이드에서 리뷰 오디오 관련 설명 제거
   - 영상 구성 섹션 및 timestamp 예시 업데이트
 
+### 신경 끄기의 기술 영상 제작 및 업로드
+- **책 제목**: 신경 끄기의 기술 (The Subtle Art of Not Giving a F*ck)
+- **저자**: 마크 맨슨 (Mark Manson)
+- **생성된 파일**:
+  - 영상: `output/신경_끄기의_기술_review_with_summary_ko.mp4` (309MB), `output/신경_끄기의_기술_review_with_summary_en.mp4` (323MB)
+  - 썸네일: `output/신경_끄기의_기술_thumbnail_ko.jpg`, `output/신경_끄기의_기술_thumbnail_en.jpg`
+  - 메타데이터: `신경_끄기의_기술_review_with_summary_ko.metadata.json`, `신경_끄기의_기술_review_with_summary_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - 오디오: 요약 오디오 (한글/영문) 생성 완료
+- **YouTube 업로드 완료**:
+  - [1] [English] The Subtle Art of Not Giving a F*ck Book Review | [영어] 신경 끄기의 기술 책 리뷰
+    - URL: https://www.youtube.com/watch?v=Mh77zAIt7OQ
+  - [2] [한국어] 신경 끄기의 기술 책 리뷰 | [Korean] The Subtle Art of Not Giving a F*ck Book Review
+    - URL: https://www.youtube.com/watch?v=Jzn154gb7qM
+
+### 코드 개선: TTS 오류 수정 및 리뷰 오디오 선택사항화
+- **문제**: TTS 생성 시 `summary_audio_path`가 None으로 전달되어 오류 발생
+- **해결**:
+  - **`src/10_create_video_with_summary.py`**:
+    - TTS 생성 전 `summary_audio_path` 경로를 먼저 설정하도록 수정
+    - 리뷰 오디오 검사를 선택사항으로 변경 (최신 구조에서는 리뷰 오디오가 필요 없음)
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "신경 끄기의 기술" → "The Subtle Art of Not Giving a F*ck" 매핑 추가
+    - "마크 맨슨" → "Mark Manson" 매핑 추가
+    - 한글/영문 양방향 번역 지원
+
 ## 2025-12-13
 
 ### 프로젝트 규칙 정리 및 최적화
@@ -166,3 +193,13 @@
 ## 이전 히스토리
 
 이전 작업 내역은 [docs/history_archive.md](docs/history_archive.md)에서 확인할 수 있습니다.
+
+## 2025-12-14
+
+### YouTube 업로드 완료
+- 업로드된 책: 신경_끄기의_기술_with_summary_en, 신경_끄기의_기술_with_summary_ko
+- 업로드된 영상 수: 2개
+- [1] [English] The Subtle Art of Not Giving a F*ck Book Review | [영어] 신경 끄기의 기술 책 리뷰
+  - URL: https://www.youtube.com/watch?v=Mh77zAIt7OQ
+- [2] [한국어] 신경 끄기의 기술 책 리뷰 | [Korean] The Subtle Art of Not Giving a F*ck Book Review
+  - URL: https://www.youtube.com/watch?v=Jzn154gb7qM

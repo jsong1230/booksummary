@@ -69,6 +69,10 @@ def translate_book_title(book_title: str) -> str:
         "사기(史記)": "Records of the Grand Historian",
         "Records of the Grand Historian": "Records of the Grand Historian",
         "Shiji": "Records of the Grand Historian",
+        "신경 끄기의 기술": "The Subtle Art of Not Giving a F*ck",
+        "신경_끄기의_기술": "The Subtle Art of Not Giving a F*ck",
+        "The Subtle Art of Not Giving a F*ck": "The Subtle Art of Not Giving a F*ck",
+        "The Subtle Art of Not Giving a Fuck": "The Subtle Art of Not Giving a F*ck",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -115,6 +119,8 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "How to Win Friends and Influence People": "인간관계론",
         "Records of the Grand Historian": "사기",
         "Shiji": "사기",
+        "The Subtle Art of Not Giving a F*ck": "신경 끄기의 기술",
+        "The Subtle Art of Not Giving a Fuck": "신경 끄기의 기술",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -195,6 +201,8 @@ def translate_author_name(author: str) -> str:
         "Dale Carnegie": "Dale Carnegie",
         "사마천": "Sima Qian",
         "Sima Qian": "Sima Qian",
+        "마크 맨슨": "Mark Manson",
+        "Mark Manson": "Mark Manson",
     }
     
     if author in author_map:
@@ -228,6 +236,7 @@ def translate_author_name_to_korean(author: str) -> str:
         "Louisa May Alcott": "루이자 메이 올콧",
         "Dale Carnegie": "데일 카네기",
         "Sima Qian": "사마천",
+        "Mark Manson": "마크 맨슨",
     }
     
     if author in reverse_author_map:
