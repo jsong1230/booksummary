@@ -20,7 +20,7 @@ NotebookLM 기반 책 리뷰 영상 자동 생성기
    - 비디오가 없어도 Summary만으로 영상 생성 가능
 2. **관련 이미지 확보**: 책 제목과 관련된 고품질 무드 이미지를 **100개** 자동으로 수집합니다. (`assets/images/{책제목}/` 폴더)
 3. **Summary 오디오 생성**: 5분 분량의 책 요약(한글/영문)을 생성하고 TTS로 MP3 변환합니다. 생성된 Summary 오디오는 `assets/audio/{책제목}_summary_{언어}.mp3` 형식으로 저장됩니다.
-4. **영상 합성**: Summary 오디오 + 2초 silence + NotebookLM Video (선택사항) 순서로 영상을 생성합니다. 생성된 영상은 `output/{책제목}_review_with_summary_{언어}.mp4` 형식으로 저장됩니다.
+4. **영상 합성**: Summary 오디오 + 2초 silence + NotebookLM Video (선택사항) 순서로 영상을 생성합니다. Summary 부분에는 자막이 자동으로 추가됩니다. 생성된 영상은 `output/{책제목}_review_with_summary_{언어}.mp4` 형식으로 저장됩니다.
 5. **배포 준비**: 썸네일과 메타데이터를 생성합니다. 썸네일은 자동으로 찾아서 메타데이터에 포함됩니다.
 6. **유튜브 업로드**: 메타데이터 파일을 기반으로 유튜브에 자동 업로드합니다.
 
@@ -298,9 +298,44 @@ python src/08_create_and_preview_videos.py \
 
 **영상 구성:**
 
-- **Summary** (이미지 슬라이드쇼 + 요약 오디오, 음량 1.2배 조정)
+- **Summary** (이미지 슬라이드쇼 + 요약 오디오, 음량 1.2배 조정, **자막 자동 추가**)
 - **2초 silence** (검은 화면)
 - **NotebookLM Video** (선택사항, 있으면 자동 포함)
+
+**Summary 자막 기능:**
+
+- **언어별 자동 설정**:
+  - **영어 (`en`)**: 자막 자동 추가 (기본값)
+  - **한글 (`ko`)**: 자막 없음 (기본값)
+- **Whisper 단어 단위 타이밍**: 실제 오디오 파일을 Whisper로 분석하여 정확한 단어 단위 타임스탬프 사용
+- Summary 텍스트를 문장 단위로 분할하여 오디오 타이밍에 맞춰 자막 표시
+- 자막 스타일:
+  - 흰색 텍스트, 검은색 테두리 (가독성 향상)
+  - 화면 하단 중앙 위치
+  - 폰트 크기: 60px
+- **수동 제어 옵션**:
+  - `--no-subtitles`: 자막 강제 비활성화 (언어 기본값 무시)
+  - `--subtitles`: 자막 강제 활성화 (언어 기본값 무시)
+  ```bash
+  # 영어: 자막 자동 추가 (기본값)
+  python src/10_create_video_with_summary.py \
+    --book-title "책 제목" \
+    --author "저자 이름" \
+    --language en
+  
+  # 한글: 자막 없음 (기본값)
+  python src/10_create_video_with_summary.py \
+    --book-title "책 제목" \
+    --author "저자 이름" \
+    --language ko
+  
+  # 수동 제어: 한글에도 자막 추가
+  python src/10_create_video_with_summary.py \
+    --book-title "책 제목" \
+    --author "저자 이름" \
+    --language ko \
+    --subtitles
+  ```
 
 **Summary 오디오 음량 조정:**
 

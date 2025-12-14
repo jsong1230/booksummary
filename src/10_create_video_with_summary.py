@@ -68,7 +68,8 @@ class VideoWithSummaryPipeline:
         output_path: str = None,
         skip_summary: bool = False,
         notebooklm_video_path: Optional[str] = None,
-        summary_audio_volume: float = 1.2
+        summary_audio_volume: float = 1.2,
+        add_subtitles: Optional[bool] = None  # None이면 언어에 따라 자동 결정
     ) -> str:
         """
         요약 포함 영상 제작 (Summary → NotebookLM Video → Audio 순서)
@@ -84,12 +85,17 @@ class VideoWithSummaryPipeline:
             skip_summary: 요약 생성을 건너뛰기 (이미 생성된 경우)
             notebooklm_video_path: NotebookLM 비디오 파일 경로 (선택사항)
             summary_audio_volume: Summary 오디오 음량 배율 (기본값: 1.2, 20% 증가)
+            add_subtitles: Summary 부분에 자막 추가 여부 (None이면 언어에 따라 자동: ko=False, en=True)
             
         Returns:
             생성된 영상 파일 경로
         """
         from utils.file_utils import safe_title
         from utils.translations import translate_book_title, translate_author_name
+        
+        # 언어에 따라 자막 기본값 설정 (한글: 자막 없음, 영어: 자막 있음)
+        if add_subtitles is None:
+            add_subtitles = (language == "en")  # 영어만 자막 있음
         
         # 영문 영상 생성 시 영어 제목과 영어 작가 이름 사용
         if language == "en":
@@ -285,15 +291,22 @@ class VideoWithSummaryPipeline:
             print(f"📹 NotebookLM 비디오 사용: {Path(notebooklm_video_path).name}")
             print()
         
+        # 자막 추가를 위한 summary_text 준비
+        summary_text_for_subtitles = existing_summary_text if add_subtitles else None
+        print(f"🔍 자막 설정 확인: add_subtitles={add_subtitles}, summary_text={'있음' if summary_text_for_subtitles else '없음'}")
+        if summary_text_for_subtitles:
+            print(f"   Summary 텍스트 길이: {len(summary_text_for_subtitles)} 문자")
+        
         final_video_path = self.video_maker.create_video(
             audio_path=review_audio_path,
             image_dir=image_dir,
             output_path=output_path,
-            add_subtitles_flag=False,
+            add_subtitles_flag=add_subtitles,
             language=language,
             summary_audio_path=summary_audio_path,
             notebooklm_video_path=notebooklm_video_path,
-            summary_audio_volume=summary_audio_volume
+            summary_audio_volume=summary_audio_volume,
+            summary_text=summary_text_for_subtitles
         )
         
         print()
@@ -321,10 +334,20 @@ def main():
     parser.add_argument('--skip-summary', action='store_true', help='요약 생성을 건너뛰기 (이미 생성된 경우)')
     parser.add_argument('--notebooklm-video', type=str, help='NotebookLM 비디오 파일 경로 (선택사항, 자동 검색도 지원)')
     parser.add_argument('--summary-audio-volume', type=float, default=1.2, help='Summary 오디오 음량 배율 (기본값: 1.2, 20%% 증가)')
+    parser.add_argument('--no-subtitles', action='store_true', help='Summary 부분 자막 추가 안 함 (언어 기본값 무시)')
+    parser.add_argument('--subtitles', action='store_true', help='Summary 부분 자막 추가 (언어 기본값 무시)')
     
     args = parser.parse_args()
     
     pipeline = VideoWithSummaryPipeline()
+    
+    # 자막 설정: 플래그가 있으면 우선, 없으면 언어에 따라 자동 (None 전달)
+    add_subtitles = None
+    if args.no_subtitles:
+        add_subtitles = False
+    elif args.subtitles:
+        add_subtitles = True
+    # 둘 다 없으면 None (언어에 따라 자동 결정)
     
     try:
         pipeline.create_video_with_summary(
@@ -337,7 +360,8 @@ def main():
             output_path=args.output,
             skip_summary=args.skip_summary,
             notebooklm_video_path=args.notebooklm_video,
-            summary_audio_volume=args.summary_audio_volume
+            summary_audio_volume=args.summary_audio_volume,
+            add_subtitles=add_subtitles
         )
         return 0
     except Exception as e:

@@ -573,6 +573,408 @@ class VideoMaker:
             print(f"   ❌ 자막 생성 실패: {e}")
             return None
     
+    def generate_subtitles_from_text(
+        self,
+        text: str,
+        audio_duration: float,
+        language: str = "ko",
+        audio_path: Optional[str] = None
+    ) -> Optional[List[dict]]:
+        """
+        Summary 텍스트와 실제 오디오 파일을 기반으로 자막 생성
+        오디오 파일이 제공되면 Whisper로 정확한 타이밍을 분석하고,
+        원본 텍스트와 매칭하여 자막 생성
+        
+        Args:
+            text: Summary 텍스트
+            audio_duration: 오디오 길이 (초)
+            language: 언어 코드 ("ko", "en" 등)
+            audio_path: 실제 오디오 파일 경로 (있으면 Whisper로 타이밍 분석)
+            
+        Returns:
+            자막 리스트 [{"start": float, "end": float, "text": str}, ...]
+        """
+        import re
+        from difflib import SequenceMatcher
+        
+        # 오디오 파일이 있으면 Whisper로 정확한 타이밍 분석
+        if audio_path and Path(audio_path).exists() and WHISPER_AVAILABLE:
+            print("📝 자막 생성 중 (Whisper 단어 단위 타이밍 분석)...")
+            try:
+                # Whisper로 오디오 분석 (단어 단위 타임스탬프 포함)
+                model = whisper.load_model("base")
+                result = model.transcribe(
+                    audio_path, 
+                    language=language,
+                    word_timestamps=True  # 단어 단위 타임스탬프 활성화
+                )
+                
+                # 원본 텍스트 정리 (마크다운 제거)
+                cleaned_text = self._clean_markdown_text(text)
+                
+                # 원본 텍스트를 문장 단위로 분할
+                original_sentences = self._split_sentences(cleaned_text, language)
+                
+                # Whisper 단어 단위 타임스탬프 수집
+                whisper_words = []
+                for segment in result.get("segments", []):
+                    if "words" in segment:
+                        for word_info in segment["words"]:
+                            whisper_words.append({
+                                "word": word_info["word"].strip(),
+                                "start": word_info["start"],
+                                "end": word_info["end"]
+                            })
+                
+                if not whisper_words:
+                    print("   ⚠️ Whisper 단어 타임스탬프가 없습니다. 세그먼트 단위로 전환합니다.")
+                    # 단어 타임스탬프가 없으면 세그먼트 단위로 폴백
+                    whisper_segments = []
+                    for segment in result.get("segments", []):
+                        whisper_segments.append({
+                            "start": segment["start"],
+                            "end": segment["end"],
+                            "text": segment["text"].strip()
+                        })
+                    subtitles = self._match_sentences_to_whisper(
+                        original_sentences, 
+                        whisper_segments, 
+                        language
+                    )
+                    if subtitles:
+                        print(f"   ✅ {len(subtitles)}개의 자막 생성 완료 (Whisper 세그먼트 타이밍 사용)")
+                        return subtitles
+                    else:
+                        return self._generate_subtitles_from_text_fallback(text, audio_duration, language)
+                
+                # 단어 단위 정렬을 사용하여 자막 생성
+                subtitles = self._align_words_to_sentences(
+                    original_sentences,
+                    whisper_words,
+                    language
+                )
+                
+                if subtitles:
+                    print(f"   ✅ {len(subtitles)}개의 자막 생성 완료 (Whisper 단어 단위 타이밍 사용)")
+                    return subtitles
+                else:
+                    print("   ⚠️ 단어 정렬 실패. 세그먼트 단위로 전환합니다.")
+                    # 폴백: 세그먼트 단위 매칭
+                    whisper_segments = []
+                    for segment in result.get("segments", []):
+                        whisper_segments.append({
+                            "start": segment["start"],
+                            "end": segment["end"],
+                            "text": segment["text"].strip()
+                        })
+                    subtitles = self._match_sentences_to_whisper(
+                        original_sentences, 
+                        whisper_segments, 
+                        language
+                    )
+                    if subtitles:
+                        print(f"   ✅ {len(subtitles)}개의 자막 생성 완료 (Whisper 세그먼트 타이밍 사용)")
+                        return subtitles
+                    else:
+                        return self._generate_subtitles_from_text_fallback(text, audio_duration, language)
+                    
+            except Exception as e:
+                print(f"   ⚠️ Whisper 분석 실패: {e}. 텍스트 기반으로 전환합니다.")
+                import traceback
+                traceback.print_exc()
+                # Whisper 실패 시 폴백
+                return self._generate_subtitles_from_text_fallback(text, audio_duration, language)
+        else:
+            # 오디오 파일이 없거나 Whisper가 없으면 기존 방식 사용
+            if not audio_path:
+                print("📝 자막 생성 중 (Summary 텍스트 기반, 오디오 파일 없음)...")
+            elif not WHISPER_AVAILABLE:
+                print("📝 자막 생성 중 (Summary 텍스트 기반, Whisper 미설치)...")
+            return self._generate_subtitles_from_text_fallback(text, audio_duration, language)
+    
+    def _clean_markdown_text(self, text: str) -> str:
+        """마크다운 문법 제거"""
+        import re
+        text = re.sub(r'\[HOOK\]', '', text)
+        text = re.sub(r'\[SUMMARY\]', '', text)
+        text = re.sub(r'\[BRIDGE\]', '', text)
+        text = re.sub(r'#+\s*', '', text)  # 헤더 제거
+        text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)  # **볼드** 제거
+        text = re.sub(r'\*([^*]+)\*', r'\1', text)  # *이탤릭* 제거
+        text = re.sub(r'---+\s*', '\n', text)  # 구분선 제거
+        text = re.sub(r'^\s*[①-⑳]\s*', '', text, flags=re.MULTILINE)  # 번호 기호 제거
+        text = re.sub(r'^\s*[0-9]+\.\s*', '', text, flags=re.MULTILINE)  # 번호 리스트 제거
+        text = re.sub(r'^\s*[-*]\s*', '', text, flags=re.MULTILINE)  # 리스트 마커 제거
+        text = re.sub(r'『([^』]+)』', r'"\1"', text)  # 『』를 ""로 변환
+        text = re.sub(r'「([^」]+)」', r'"\1"', text)  # 「」를 ""로 변환
+        text = re.sub(r'\n\s*\n\s*\n+', '\n\n', text)  # 연속된 빈 줄 정리
+        return text.strip()
+    
+    def _split_sentences(self, text: str, language: str) -> List[str]:
+        """텍스트를 문장 단위로 분할"""
+        import re
+        if language == "ko":
+            text = re.sub(r'\n+', ' ', text)
+            sentences = re.split(r'([.!?。！？]\s+)', text)
+            sentences = [sentences[i] + (sentences[i+1] if i+1 < len(sentences) else '') 
+                         for i in range(0, len(sentences), 2) if sentences[i].strip()]
+        else:
+            text = re.sub(r'\n+', ' ', text)
+            sentences = re.split(r'([.!?]\s+)', text)
+            sentences = [sentences[i] + (sentences[i+1] if i+1 < len(sentences) else '') 
+                         for i in range(0, len(sentences), 2) if sentences[i].strip()]
+        return [s.strip() for s in sentences if s.strip() and len(s.strip()) > 5]
+    
+    def _align_words_to_sentences(
+        self,
+        original_sentences: List[str],
+        whisper_words: List[dict],
+        language: str
+    ) -> Optional[List[dict]]:
+        """
+        단어 단위 정렬을 사용하여 문장별 자막 생성
+        원본 문장의 단어들을 Whisper 단어 타임스탬프와 매칭
+        """
+        import re
+        from difflib import SequenceMatcher
+        
+        subtitles = []
+        whisper_word_idx = 0
+        
+        # Whisper 단어들을 텍스트로 변환 (매칭용)
+        whisper_text = ' '.join([w["word"] for w in whisper_words])
+        
+        for orig_sentence in original_sentences:
+            if whisper_word_idx >= len(whisper_words):
+                break
+            
+            # 원본 문장을 단어로 분할
+            if language == "ko":
+                # 한국어: 공백과 구두점으로 분할
+                orig_words = re.findall(r'\S+', orig_sentence.lower())
+            else:
+                # 영어: 공백으로 분할
+                orig_words = [w.lower().strip('.,!?;:') for w in orig_sentence.split() if w.strip()]
+            
+            if not orig_words:
+                continue
+            
+            # 현재 위치부터 시작하여 원본 문장의 단어들을 찾기
+            matched_word_indices = []
+            search_start = whisper_word_idx
+            
+            # 각 원본 단어를 Whisper 단어 리스트에서 찾기
+            for orig_word in orig_words:
+                # 원본 단어 정리 (구두점 제거)
+                clean_orig_word = re.sub(r'[^\w\s]', '', orig_word.lower())
+                if not clean_orig_word:
+                    continue
+                
+                # 현재 위치부터 최대 20개 단어까지 검색
+                best_match_idx = -1
+                best_similarity = 0.0
+                
+                for i in range(search_start, min(search_start + 20, len(whisper_words))):
+                    whisper_word = re.sub(r'[^\w\s]', '', whisper_words[i]["word"].lower())
+                    
+                    # 정확히 일치하는 경우
+                    if clean_orig_word == whisper_word:
+                        best_match_idx = i
+                        best_similarity = 1.0
+                        break
+                    
+                    # 유사도 계산
+                    sim = SequenceMatcher(None, clean_orig_word, whisper_word).ratio()
+                    if sim > best_similarity and sim > 0.6:  # 60% 이상 유사도
+                        best_similarity = sim
+                        best_match_idx = i
+                
+                if best_match_idx >= 0:
+                    matched_word_indices.append(best_match_idx)
+                    search_start = best_match_idx + 1
+                else:
+                    # 매칭 실패 시 다음 단어로 넘어감
+                    continue
+            
+            # 매칭된 단어가 있으면 자막 생성
+            if matched_word_indices:
+                # 첫 번째와 마지막 단어의 타임스탬프 사용
+                start_time = whisper_words[matched_word_indices[0]]["start"]
+                end_time = whisper_words[matched_word_indices[-1]]["end"]
+                
+                subtitles.append({
+                    "start": start_time,
+                    "end": end_time,
+                    "text": orig_sentence  # 원본 텍스트 사용
+                })
+                
+                # 다음 문장을 위해 마지막 매칭 단어 다음으로 이동
+                whisper_word_idx = matched_word_indices[-1] + 1
+            else:
+                # 매칭 실패 시 현재 위치의 Whisper 단어 시간 사용
+                if whisper_word_idx < len(whisper_words):
+                    # 다음 몇 개 단어의 시간 범위 사용
+                    end_idx = min(whisper_word_idx + len(orig_words), len(whisper_words) - 1)
+                    start_time = whisper_words[whisper_word_idx]["start"]
+                    end_time = whisper_words[end_idx]["end"]
+                    
+                    subtitles.append({
+                        "start": start_time,
+                        "end": end_time,
+                        "text": orig_sentence
+                    })
+                    
+                    whisper_word_idx = end_idx + 1
+        
+        return subtitles if subtitles else None
+    
+    def _match_sentences_to_whisper(
+        self, 
+        original_sentences: List[str], 
+        whisper_segments: List[dict],
+        language: str
+    ) -> Optional[List[dict]]:
+        """원본 문장과 Whisper 결과를 매칭하여 자막 생성"""
+        from difflib import SequenceMatcher
+        
+        subtitles = []
+        whisper_text = ' '.join([seg["text"] for seg in whisper_segments])
+        
+        # 원본 텍스트 전체와 Whisper 텍스트 전체의 유사도 확인
+        original_full = ' '.join(original_sentences)
+        similarity = SequenceMatcher(None, original_full.lower(), whisper_text.lower()).ratio()
+        
+        if similarity < 0.3:  # 유사도가 너무 낮으면 매칭 실패
+            return None
+        
+        # 각 원본 문장을 Whisper 세그먼트와 매칭
+        whisper_idx = 0
+        for orig_sentence in original_sentences:
+            if whisper_idx >= len(whisper_segments):
+                break
+            
+            # 현재 Whisper 세그먼트부터 시작하여 매칭 시도
+            best_match_idx = whisper_idx
+            best_similarity = 0.0
+            best_end_idx = whisper_idx
+            
+            # 여러 세그먼트를 합쳐서 매칭 시도 (최대 5개 세그먼트까지)
+            for end_idx in range(whisper_idx, min(whisper_idx + 5, len(whisper_segments))):
+                combined_whisper = ' '.join([
+                    whisper_segments[i]["text"] 
+                    for i in range(whisper_idx, end_idx + 1)
+                ])
+                sim = SequenceMatcher(
+                    None, 
+                    orig_sentence.lower(), 
+                    combined_whisper.lower()
+                ).ratio()
+                
+                if sim > best_similarity:
+                    best_similarity = sim
+                    best_end_idx = end_idx
+            
+            # 유사도가 0.4 이상이면 매칭 성공
+            if best_similarity >= 0.4:
+                start_time = whisper_segments[whisper_idx]["start"]
+                end_time = whisper_segments[best_end_idx]["end"]
+                
+                subtitles.append({
+                    "start": start_time,
+                    "end": end_time,
+                    "text": orig_sentence  # 원본 텍스트 사용
+                })
+                
+                whisper_idx = best_end_idx + 1
+            else:
+                # 매칭 실패 시 현재 세그먼트만 사용하고 다음으로
+                if whisper_idx < len(whisper_segments):
+                    subtitles.append({
+                        "start": whisper_segments[whisper_idx]["start"],
+                        "end": whisper_segments[whisper_idx]["end"],
+                        "text": orig_sentence  # 원본 텍스트 사용
+                    })
+                    whisper_idx += 1
+        
+        return subtitles if subtitles else None
+    
+    def _generate_subtitles_from_text_fallback(
+        self,
+        text: str,
+        audio_duration: float,
+        language: str = "ko"
+    ) -> Optional[List[dict]]:
+        """텍스트 기반 자막 생성 (폴백 방식)"""
+        import re
+        
+        try:
+            # 텍스트 정리
+            cleaned_text = self._clean_markdown_text(text)
+            
+            # 문장 분할
+            sentences = self._split_sentences(cleaned_text, language)
+            
+            if not sentences:
+                print("   ⚠️ 문장을 찾을 수 없습니다.")
+                return None
+            
+            # 각 문장의 길이에 비례하여 시간 할당
+            total_chars = sum(len(s) for s in sentences)
+            if total_chars == 0:
+                return None
+            
+            subtitles = []
+            current_time = 0.0
+            
+            # 각 문장의 기본 시간 계산
+            sentence_durations = []
+            for sentence in sentences:
+                base_duration = (len(sentence) / total_chars) * audio_duration
+                min_duration = 2.0
+                max_duration = 8.0
+                base_duration = max(min_duration, min(max_duration, base_duration))
+                sentence_durations.append(base_duration)
+            
+            # 전체 예상 시간 계산
+            total_estimated = sum(sentence_durations)
+            
+            # 실제 오디오 시간과의 비율 계산
+            if total_estimated > 0:
+                time_ratio = audio_duration / total_estimated
+            else:
+                time_ratio = 1.0
+            
+            # 비율을 적용하여 시간 할당
+            for i, (sentence, base_duration) in enumerate(zip(sentences, sentence_durations)):
+                sentence_duration = base_duration * time_ratio
+                
+                if i == len(sentences) - 1:
+                    end_time = audio_duration
+                else:
+                    end_time = current_time + sentence_duration
+                    if end_time > audio_duration:
+                        end_time = audio_duration
+                
+                subtitles.append({
+                    "start": current_time,
+                    "end": end_time,
+                    "text": sentence
+                })
+                
+                current_time = end_time
+                
+                if current_time >= audio_duration:
+                    break
+            
+            print(f"   ✅ {len(subtitles)}개의 자막 생성 완료 (텍스트 기반)")
+            return subtitles
+            
+        except Exception as e:
+            print(f"   ❌ 자막 생성 실패: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+    
     def add_subtitles(
         self,
         video_clip: CompositeVideoClip,
@@ -580,10 +982,11 @@ class VideoMaker:
         font_size: int = 60,
         font_color: str = "white",
         stroke_color: str = "black",
-        stroke_width: int = 2
+        stroke_width: int = 2,
+        language: str = "ko"
     ) -> CompositeVideoClip:
         """
-        자막 오버레이 추가
+        자막 오버레이 추가 (PIL/Pillow 사용하여 ImageMagick 없이 자막 생성)
         
         Args:
             video_clip: 비디오 클립
@@ -592,33 +995,168 @@ class VideoMaker:
             font_color: 폰트 색상
             stroke_color: 테두리 색상
             stroke_width: 테두리 두께
+            language: 언어 코드 ("ko", "en" 등)
         """
         if not subtitles:
+            print("   ⚠️ 자막 리스트가 비어있습니다")
             return video_clip
         
-        subtitle_clips = []
+        # 언어별 폰트 경로 설정
+        font_path = None
+        if language == "ko":
+            # macOS 한글 폰트 경로
+            korean_font_paths = [
+                '/System/Library/Fonts/Supplemental/AppleGothic.ttf',
+                '/System/Library/Fonts/AppleGothic.ttf',
+                '/Library/Fonts/AppleGothic.ttf',
+            ]
+            for path in korean_font_paths:
+                if os.path.exists(path):
+                    font_path = path
+                    break
+        else:
+            # 영어 폰트 경로
+            english_font_paths = [
+                '/System/Library/Fonts/Supplemental/Arial Bold.ttf',
+                '/System/Library/Fonts/Supplemental/Arial.ttf',
+                '/Library/Fonts/Arial.ttf',
+            ]
+            for path in english_font_paths:
+                if os.path.exists(path):
+                    font_path = path
+                    break
         
-        for subtitle in subtitles:
+        subtitle_clips = []
+        failed_count = 0
+        
+        # PIL/Pillow를 사용하여 자막 이미지 생성
+        try:
+            from PIL import Image, ImageDraw, ImageFont
+            PIL_AVAILABLE = True
+        except ImportError:
+            PIL_AVAILABLE = False
+            print("   ❌ PIL/Pillow가 설치되지 않았습니다. pip install Pillow")
+            return video_clip
+        
+        print(f"   📝 {len(subtitles)}개의 자막 클립 생성 중 (PIL 사용)...")
+        
+        # 폰트 로드
+        font_obj = None
+        if font_path and os.path.exists(font_path):
             try:
-                text_clip = TextClip(
-                    subtitle["text"],
-                    fontsize=font_size,
-                    color=font_color,
-                    stroke_color=stroke_color,
-                    stroke_width=stroke_width,
-                    method='caption',
-                    size=(self.resolution[0] - 100, None),
-                    align='center'
-                ).with_duration(subtitle["end"] - subtitle["start"]).with_start(subtitle["start"]).with_position(('center', self.resolution[1] - 150))
+                font_obj = ImageFont.truetype(font_path, font_size)
+                print(f"   📝 폰트 사용: {os.path.basename(font_path)}")
+            except Exception as e:
+                print(f"   ⚠️ 폰트 로드 실패: {e}, 기본 폰트 사용")
+                font_obj = ImageFont.load_default()
+        else:
+            print(f"   ⚠️ 폰트를 찾을 수 없어 기본 폰트 사용")
+            font_obj = ImageFont.load_default()
+        
+        for i, subtitle in enumerate(subtitles):
+            try:
+                # 자막 텍스트
+                text = subtitle["text"]
+                duration = subtitle["end"] - subtitle["start"]
+                
+                # 텍스트 크기 계산
+                temp_img = Image.new('RGB', (100, 100), (0, 0, 0))
+                temp_draw = ImageDraw.Draw(temp_img)
+                
+                # 텍스트가 화면 너비에 맞도록 줄바꿈 처리
+                max_width = self.resolution[0] - 200  # 좌우 여백 100px씩
+                words = text.split()
+                lines = []
+                current_line = []
+                
+                for word in words:
+                    test_line = ' '.join(current_line + [word])
+                    bbox = temp_draw.textbbox((0, 0), test_line, font=font_obj)
+                    text_width = bbox[2] - bbox[0]
+                    
+                    if text_width <= max_width:
+                        current_line.append(word)
+                    else:
+                        if current_line:
+                            lines.append(' '.join(current_line))
+                        current_line = [word]
+                
+                if current_line:
+                    lines.append(' '.join(current_line))
+                
+                if not lines:
+                    lines = [text]
+                
+                # 자막 이미지 생성
+                line_height = font_size + 10
+                img_height = len(lines) * line_height + 40
+                subtitle_img = Image.new('RGBA', (self.resolution[0], img_height), (0, 0, 0, 0))
+                draw = ImageDraw.Draw(subtitle_img)
+                
+                # 각 줄 그리기
+                y_offset = 20
+                for line in lines:
+                    bbox = draw.textbbox((0, 0), line, font=font_obj)
+                    text_width = bbox[2] - bbox[0]
+                    x = (self.resolution[0] - text_width) // 2
+                    
+                    # 테두리 그리기 (stroke 효과)
+                    if stroke_width > 0:
+                        for adj_x in range(-stroke_width, stroke_width + 1):
+                            for adj_y in range(-stroke_width, stroke_width + 1):
+                                if adj_x != 0 or adj_y != 0:
+                                    draw.text((x + adj_x, y_offset + adj_y), line, font=font_obj, fill=stroke_color)
+                    
+                    # 메인 텍스트 그리기
+                    draw.text((x, y_offset), line, font=font_obj, fill=font_color)
+                    y_offset += line_height
+                
+                # PIL 이미지를 numpy 배열로 변환
+                import numpy as np
+                img_array = np.array(subtitle_img)
+                
+                # ImageClip 생성
+                text_clip = ImageClip(img_array, duration=duration)
+                
+                # 위치 설정 (화면 하단 중앙)
+                y_position = self.resolution[1] - img_height - 50
+                # MoviePy 버전 호환성: with_start/set_start, with_position/set_position
+                try:
+                    text_clip = text_clip.with_start(subtitle["start"]).with_position(('center', y_position))
+                except AttributeError:
+                    # 구버전 호환성
+                    text_clip = text_clip.set_start(subtitle["start"]).set_position(('center', y_position))
                 
                 subtitle_clips.append(text_clip)
+                
+                if (i + 1) % 10 == 0:
+                    print(f"      {i + 1}/{len(subtitles)}개 생성됨...")
+                    
             except Exception as e:
-                print(f"   ⚠️ 자막 생성 오류: {e}")
+                failed_count += 1
+                if failed_count <= 3:  # 처음 3개 오류만 상세 출력
+                    print(f"   ⚠️ 자막 생성 오류 ({i+1}번째): {e}")
+                    print(f"      텍스트: {subtitle['text'][:50]}...")
+                    import traceback
+                    traceback.print_exc()
                 continue
         
-        if subtitle_clips:
-            return CompositeVideoClip([video_clip] + subtitle_clips)
+        if failed_count > 0:
+            print(f"   ⚠️ {failed_count}개의 자막 생성 실패")
         
+        if subtitle_clips:
+            print(f"   ✅ {len(subtitle_clips)}개의 자막 클립 생성 완료")
+            try:
+                result = CompositeVideoClip([video_clip] + subtitle_clips)
+                print(f"   ✅ 자막 오버레이 합성 완료")
+                return result
+            except Exception as e:
+                print(f"   ❌ 자막 오버레이 합성 실패: {e}")
+                import traceback
+                traceback.print_exc()
+                return video_clip
+        
+        print("   ⚠️ 생성된 자막 클립이 없습니다")
         return video_clip
     
     def create_video(
@@ -631,10 +1169,11 @@ class VideoMaker:
         max_duration: Optional[float] = None,
         summary_audio_path: Optional[str] = None,
         notebooklm_video_path: Optional[str] = None,
-        summary_audio_volume: float = 1.2
+        summary_audio_volume: float = 1.2,
+        summary_text: Optional[str] = None
     ) -> str:
         """
-        최종 영상 생성 (Summary → NotebookLM Video 순서)
+        최종 영상 생성 (Summary -> NotebookLM Video 순서)
         
         Args:
             audio_path: (사용 안 함, 하위 호환성을 위해 유지)
@@ -646,6 +1185,7 @@ class VideoMaker:
             summary_audio_path: 요약 오디오 파일 경로 (있으면 Summary 부분 생성)
             notebooklm_video_path: NotebookLM 비디오 파일 경로 (있으면 중간에 삽입)
             summary_audio_volume: Summary 오디오 음량 배율 (기본값: 1.2, 20% 증가)
+            summary_text: Summary 텍스트 (자막 생성용, 선택사항)
         """
         print("=" * 60)
         print("🎬 영상 제작 시작")
@@ -711,6 +1251,37 @@ class VideoMaker:
             )
             summary_video = concatenate_videoclips(summary_image_clips, method="compose")
             summary_video = summary_video.set_audio(summary_audio)
+            
+            # Summary 부분에 자막 추가 (텍스트가 있고 자막 옵션이 켜져 있는 경우)
+            print(f"   🔍 자막 옵션 확인: add_subtitles_flag={add_subtitles_flag}, summary_text={'있음' if summary_text else '없음'}")
+            if add_subtitles_flag and summary_text:
+                print("   📝 Summary 자막 생성 중...")
+                summary_subtitles = self.generate_subtitles_from_text(
+                    text=summary_text,
+                    audio_duration=summary_duration,
+                    language=language,
+                    audio_path=summary_audio_path  # 실제 오디오 파일 경로 전달
+                )
+                if summary_subtitles:
+                    print(f"   📝 {len(summary_subtitles)}개의 자막 생성됨")
+                    print("   📝 Summary 자막 오버레이 추가 중...")
+                    summary_video = self.add_subtitles(
+                        summary_video,
+                        summary_subtitles,
+                        font_size=60,
+                        font_color="white",
+                        stroke_color="black",
+                        stroke_width=2,
+                        language=language
+                    )
+                    print("   ✅ Summary 자막 추가 완료")
+                else:
+                    print("   ⚠️ 자막 생성 실패 또는 빈 자막")
+            else:
+                if not add_subtitles_flag:
+                    print("   ⚠️ 자막 옵션이 비활성화되어 있습니다")
+                if not summary_text:
+                    print("   ⚠️ Summary 텍스트가 없습니다")
             
             video_clips.append(summary_video)
             print(f"   ✅ Summary 부분 완료 ({summary_duration:.2f}초)")
