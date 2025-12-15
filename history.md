@@ -1,5 +1,28 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2025-12-15
+
+### 부에 대한 연감 영상 제작 및 업로드
+- **책 제목**: 부에 대한 연감 (The Almanack of Naval Ravikant)
+- **저자**: 나발 라비칸트 (Naval Ravikant)
+- **생성된 파일**:
+  - 영상: `output/부에_대한_연감_review_with_summary_ko.mp4` (224MB), `output/부에_대한_연감_review_with_summary_en.mp4` (189MB)
+  - 썸네일: `output/부에_대한_연감_thumbnail_ko.jpg`, `output/부에_대한_연감_thumbnail_en.jpg`
+  - 메타데이터: `부에_대한_연감_review_with_summary_ko.metadata.json`, `부에_대한_연감_review_with_summary_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - 오디오: 요약 오디오 (한글/영문) 생성 완료
+  - NotebookLM 비디오: `assets/video/부에_대한_연감_notebooklm_ko.mp4`, `assets/video/부에_대한_연감_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [English] The Almanack of Naval Ravikant Book Review | [영어] 부에 대한 연감 책 리뷰
+    - URL: https://www.youtube.com/watch?v=CRiseHhVzBo
+  - [2] [한국어] 부에 대한 연감 책 리뷰 | [Korean] The Almanack of Naval Ravikant Book Review
+    - URL: https://www.youtube.com/watch?v=XD6qGEPd9VQ
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "부에 대한 연감" → "The Almanack of Naval Ravikant" 매핑 추가
+    - "나발 라비칸트" → "Naval Ravikant" 매핑 추가
+    - 한글/영문 양방향 번역 지원
+
 ## 2025-12-14
 
 ### 비디오 파이프라인 개선
@@ -223,3 +246,13 @@
   - URL: https://www.youtube.com/watch?v=Mh77zAIt7OQ
 - [2] [한국어] 신경 끄기의 기술 책 리뷰 | [Korean] The Subtle Art of Not Giving a F*ck Book Review
   - URL: https://www.youtube.com/watch?v=Jzn154gb7qM
+
+## 2025-12-15
+
+### YouTube 업로드 완료
+- 업로드된 책: 부에_대한_연감_with_summary_en, 부에_대한_연감_with_summary_ko
+- 업로드된 영상 수: 2개
+- [1] [English] The Almanack of Naval Ravikant Book Review | [영어] 부에 대한 연감 책 리뷰
+  - URL: https://www.youtube.com/watch?v=CRiseHhVzBo
+- [2] [한국어] 부에 대한 연감 책 리뷰 | [Korean] The Almanack of Naval Ravikant Book Review
+  - URL: https://www.youtube.com/watch?v=XD6qGEPd9VQ

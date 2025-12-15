@@ -73,6 +73,9 @@ def translate_book_title(book_title: str) -> str:
         "신경_끄기의_기술": "The Subtle Art of Not Giving a F*ck",
         "The Subtle Art of Not Giving a F*ck": "The Subtle Art of Not Giving a F*ck",
         "The Subtle Art of Not Giving a Fuck": "The Subtle Art of Not Giving a F*ck",
+        "부에 대한 연감": "The Almanack of Naval Ravikant",
+        "부에_대한_연감": "The Almanack of Naval Ravikant",
+        "The Almanack of Naval Ravikant": "The Almanack of Naval Ravikant",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -121,6 +124,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Shiji": "사기",
         "The Subtle Art of Not Giving a F*ck": "신경 끄기의 기술",
         "The Subtle Art of Not Giving a Fuck": "신경 끄기의 기술",
+        "The Almanack of Naval Ravikant": "부에 대한 연감",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -203,6 +207,8 @@ def translate_author_name(author: str) -> str:
         "Sima Qian": "Sima Qian",
         "마크 맨슨": "Mark Manson",
         "Mark Manson": "Mark Manson",
+        "나발 라비칸트": "Naval Ravikant",
+        "Naval Ravikant": "Naval Ravikant",
     }
     
     if author in author_map:
@@ -237,6 +243,7 @@ def translate_author_name_to_korean(author: str) -> str:
         "Dale Carnegie": "데일 카네기",
         "Sima Qian": "사마천",
         "Mark Manson": "마크 맨슨",
+        "Naval Ravikant": "나발 라비칸트",
     }
     
     if author in reverse_author_map:
