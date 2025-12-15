@@ -23,6 +23,27 @@
     - "나발 라비칸트" → "Naval Ravikant" 매핑 추가
     - 한글/영문 양방향 번역 지원
 
+### 부의 추월차선 영상 제작 및 업로드
+- **책 제목**: 부의 추월차선 (The Millionaire Fastlane)
+- **저자**: 엠제이 드마코 (MJ DeMarco)
+- **생성된 파일**:
+  - 영상: `output/부의_추월차선_review_with_summary_ko.mp4` (200MB), `output/부의_추월차선_review_with_summary_en.mp4` (197MB)
+  - 썸네일: `output/부의_추월차선_thumbnail_ko.jpg`, `output/부의_추월차선_thumbnail_en.jpg`
+  - 메타데이터: `부의_추월차선_review_with_summary_ko.metadata.json`, `부의_추월차선_review_with_summary_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - 오디오: 요약 오디오 (한글/영문) 생성 완료
+  - NotebookLM 비디오: `assets/video/부의_추월차선_notebooklm_ko.mp4`, `assets/video/부의_추월차선_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [English] The Millionaire Fastlane Book Review | [영어] 부의 추월차선 책 리뷰
+    - URL: https://www.youtube.com/watch?v=mGNH6Zq1Iqk
+  - [2] [한국어] 부의 추월차선 책 리뷰 | [Korean] The Millionaire Fastlane Book Review
+    - URL: https://www.youtube.com/watch?v=Ox7sxfgXE5k
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "부의 추월차선" → "The Millionaire Fastlane" 매핑 추가
+    - "엠제이 드마코" → "MJ DeMarco" 매핑 추가
+    - 한글/영문 양방향 번역 지원
+
 ## 2025-12-14
 
 ### 비디오 파이프라인 개선
@@ -256,3 +277,13 @@
   - URL: https://www.youtube.com/watch?v=CRiseHhVzBo
 - [2] [한국어] 부에 대한 연감 책 리뷰 | [Korean] The Almanack of Naval Ravikant Book Review
   - URL: https://www.youtube.com/watch?v=XD6qGEPd9VQ
+
+## 2025-12-15
+
+### YouTube 업로드 완료
+- 업로드된 책: 부의_추월차선_with_summary_en, 부의_추월차선_with_summary_ko
+- 업로드된 영상 수: 2개
+- [1] [English] The Millionaire Fastlane Book Review | [영어] 부의 추월차선 책 리뷰
+  - URL: https://www.youtube.com/watch?v=mGNH6Zq1Iqk
+- [2] [한국어] 부의 추월차선 책 리뷰 | [Korean] The Millionaire Fastlane Book Review
+  - URL: https://www.youtube.com/watch?v=Ox7sxfgXE5k
