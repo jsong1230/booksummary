@@ -79,6 +79,9 @@ def translate_book_title(book_title: str) -> str:
         "부의 추월차선": "The Millionaire Fastlane",
         "부의_추월차선": "The Millionaire Fastlane",
         "The Millionaire Fastlane": "The Millionaire Fastlane",
+        "나는 오늘도 경제적 자유를 꿈꾼다": "I Will Teach You to Be Rich",
+        "나는_오늘도_경제적_자유를_꿈꾼다": "I Will Teach You to Be Rich",
+        "I Will Teach You to Be Rich": "I Will Teach You to Be Rich",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -129,6 +132,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "The Subtle Art of Not Giving a Fuck": "신경 끄기의 기술",
         "The Almanack of Naval Ravikant": "부에 대한 연감",
         "The Millionaire Fastlane": "부의 추월차선",
+        "I Will Teach You to Be Rich": "나는 오늘도 경제적 자유를 꿈꾼다",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -215,6 +219,8 @@ def translate_author_name(author: str) -> str:
         "Naval Ravikant": "Naval Ravikant",
         "엠제이 드마코": "MJ DeMarco",
         "MJ DeMarco": "MJ DeMarco",
+        "람릿 세티": "Ramit Sethi",
+        "Ramit Sethi": "Ramit Sethi",
     }
     
     if author in author_map:
@@ -251,6 +257,7 @@ def translate_author_name_to_korean(author: str) -> str:
         "Mark Manson": "마크 맨슨",
         "Naval Ravikant": "나발 라비칸트",
         "MJ DeMarco": "엠제이 드마코",
+        "Ramit Sethi": "람릿 세티",
     }
     
     if author in reverse_author_map:

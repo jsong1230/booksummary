@@ -1,5 +1,28 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2025-12-16
+
+### 나는 오늘도 경제적 자유를 꿈꾼다 영상 제작 및 업로드
+- **책 제목**: 나는 오늘도 경제적 자유를 꿈꾼다 (I Will Teach You to Be Rich)
+- **저자**: 람릿 세티 (Ramit Sethi)
+- **생성된 파일**:
+  - 영상: `output/나는_오늘도_경제적_자유를_꿈꾼다_review_with_summary_ko.mp4` (217MB), `output/나는_오늘도_경제적_자유를_꿈꾼다_review_with_summary_en.mp4` (170MB)
+  - 썸네일: `output/나는_오늘도_경제적_자유를_꿈꾼다_thumbnail_ko.jpg`, `output/나는_오늘도_경제적_자유를_꿈꾼다_thumbnail_en.jpg`
+  - 메타데이터: `나는_오늘도_경제적_자유를_꿈꾼다_review_with_summary_ko.metadata.json`, `나는_오늘도_경제적_자유를_꿈꾼다_review_with_summary_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - 오디오: 요약 오디오 (한글/영문) 생성 완료
+  - NotebookLM 비디오: `assets/video/나는_오늘도_경제적_자유를_꿈꾼다_notebooklm_ko.mp4`, `assets/video/나는_오늘도_경제적_자유를_꿈꾼다_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [English] I Will Teach You to Be Rich Book Review | [영어] 나는 오늘도 경제적 자유를 꿈꾼다 책 리뷰
+    - URL: https://www.youtube.com/watch?v=N1kzH1BGWoQ
+  - [2] [한국어] 나는 오늘도 경제적 자유를 꿈꾼다 책 리뷰 | [Korean] I Will Teach You to Be Rich Book Review
+    - URL: https://www.youtube.com/watch?v=SukZxCNZi0U
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "나는 오늘도 경제적 자유를 꿈꾼다" → "I Will Teach You to Be Rich" 매핑 추가
+    - "람릿 세티" → "Ramit Sethi" 매핑 추가
+    - 한글/영문 양방향 번역 지원
+
 ## 2025-12-15
 
 ### 부에 대한 연감 영상 제작 및 업로드
@@ -287,3 +310,13 @@
   - URL: https://www.youtube.com/watch?v=mGNH6Zq1Iqk
 - [2] [한국어] 부의 추월차선 책 리뷰 | [Korean] The Millionaire Fastlane Book Review
   - URL: https://www.youtube.com/watch?v=Ox7sxfgXE5k
+
+## 2025-12-16
+
+### YouTube 업로드 완료
+- 업로드된 책: 나는_오늘도_경제적_자유를_꿈꾼다_with_summary_en, 나는_오늘도_경제적_자유를_꿈꾼다_with_summary_ko
+- 업로드된 영상 수: 2개
+- [1] [English] I Will Teach You to Be Rich Book Review | [영어] 나는 오늘도 경제적 자유를 꿈꾼다 책 리뷰
+  - URL: https://www.youtube.com/watch?v=N1kzH1BGWoQ
+- [2] [한국어] 나는 오늘도 경제적 자유를 꿈꾼다 책 리뷰 | [Korean] I Will Teach You to Be Rich Book Review
+  - URL: https://www.youtube.com/watch?v=SukZxCNZi0U
