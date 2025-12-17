@@ -351,3 +351,26 @@
   - URL: https://www.youtube.com/watch?v=9jYhmK3xscw
 - [2] [한국어] 일론 머스크 책 리뷰 | [Korean] Elon Musk Book Review
   - URL: https://www.youtube.com/watch?v=SJCY1NHKF_E
+
+## 2025-12-18
+
+### 남아 있는 나날 영상 제작 및 업로드
+- **책 제목**: 남아 있는 나날 (The Remains of the Day)
+- **저자**: 가즈오 이시구로 (Kazuo Ishiguro)
+- **생성된 파일**:
+  - 영상: `output/남아_있는_나날_review_with_summary_ko.mp4` (310.58MB), `output/남아_있는_나날_review_with_summary_en.mp4` (291.63MB)
+  - 썸네일: `output/남아_있는_나날_thumbnail_ko.jpg`, `output/남아_있는_나날_thumbnail_en.jpg`
+  - 메타데이터: `남아_있는_나날_review_with_summary_ko.metadata.json`, `남아_있는_나날_review_with_summary_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - 오디오: 요약 오디오 (한글/영문) 생성 완료
+  - NotebookLM 비디오: `assets/video/남아_있는_나날_notebooklm_ko.mp4`, `assets/video/남아_있는_나날_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [English] The Remains of the Day Book Review | [영어] 남아 있는 나날 책 리뷰
+    - URL: https://www.youtube.com/watch?v=yl9qJnCwLe0
+  - [2] [한국어] 남아 있는 나날 책 리뷰 | [Korean] The Remains of the Day Book Review
+    - URL: https://www.youtube.com/watch?v=97pm29WSdGg
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "남아 있는 나날" → "The Remains of the Day" 매핑 추가
+    - "가즈오 이시구로" → "Kazuo Ishiguro" 매핑 추가
+    - 한글/영문 양방향 번역 지원
