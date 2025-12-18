@@ -374,3 +374,47 @@
     - "남아 있는 나날" → "The Remains of the Day" 매핑 추가
     - "가즈오 이시구로" → "Kazuo Ishiguro" 매핑 추가
     - 한글/영문 양방향 번역 지원
+
+## 2025-12-18
+
+### 남아 있는 나날 영상 제작 및 업로드
+- **책 제목**: 남아 있는 나날 (The Remains of the Day)
+- **저자**: 가즈오 이시구로 (Kazuo Ishiguro)
+- **생성된 파일**:
+  - 영상: `output/남아_있는_나날_review_with_summary_ko.mp4` (310.58MB), `output/남아_있는_나날_review_with_summary_en.mp4` (291.63MB)
+  - 썸네일: `output/남아_있는_나날_thumbnail_ko.jpg`, `output/남아_있는_나날_thumbnail_en.jpg`
+  - 메타데이터: `남아_있는_나날_review_with_summary_ko.metadata.json`, `남아_있는_나날_review_with_summary_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - 오디오: 요약 오디오 (한글/영문) 생성 완료
+  - NotebookLM 비디오: `assets/video/남아_있는_나날_notebooklm_ko.mp4`, `assets/video/남아_있는_나날_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [English] The Remains of the Day Book Review | [영어] 남아 있는 나날 책 리뷰
+    - URL: https://www.youtube.com/watch?v=yl9qJnCwLe0
+  - [2] [한국어] 남아 있는 나날 책 리뷰 | [Korean] The Remains of the Day Book Review
+    - URL: https://www.youtube.com/watch?v=97pm29WSdGg
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "남아 있는 나날" → "The Remains of the Day" 매핑 추가
+    - "가즈오 이시구로" → "Kazuo Ishiguro" 매핑 추가
+    - 한글/영문 양방향 번역 지원
+
+### 인간의 위대한 여정 영상 제작 및 업로드
+- **책 제목**: 인간의 위대한 여정 (The Life Cycle Completed)
+- **저자**: 에릭 에릭슨 (Erik Erikson)
+- **생성된 파일**:
+  - 영상: `output/인간의_위대한_여정_review_with_summary_ko.mp4` (265.94MB), `output/인간의_위대한_여정_review_with_summary_en.mp4` (200.40MB)
+  - 썸네일: `output/인간의_위대한_여정_thumbnail_ko.jpg`, `output/인간의_위대한_여정_thumbnail_en.jpg`
+  - 메타데이터: `인간의_위대한_여정_review_with_summary_ko.metadata.json`, `인간의_위대한_여정_review_with_summary_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - 오디오: 요약 오디오 (한글/영문) 생성 완료
+  - NotebookLM 비디오: `assets/video/인간의_위대한_여정_notebooklm_ko.mp4`, `assets/video/인간의_위대한_여정_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [English] The Life Cycle Completed Book Review | [영어] 인간의 위대한 여정 책 리뷰
+    - URL: https://www.youtube.com/watch?v=fONzPiWlCnA
+  - [2] [한국어] 인간의 위대한 여정 책 리뷰 | [Korean] The Life Cycle Completed Book Review
+    - URL: https://www.youtube.com/watch?v=naDfKUkRARY
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "인간의 위대한 여정" → "The Life Cycle Completed" 매핑 추가
+    - "에릭 에릭슨" → "Erik Erikson" 매핑 추가
+    - 한글/영문 양방향 번역 지원

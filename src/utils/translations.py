@@ -90,6 +90,9 @@ def translate_book_title(book_title: str) -> str:
         "남아있는 나날": "The Remains of the Day",
         "남아있는_나날": "The Remains of the Day",
         "The Remains of the Day": "The Remains of the Day",
+        "인간의 위대한 여정": "The Life Cycle Completed",
+        "인간의_위대한_여정": "The Life Cycle Completed",
+        "The Life Cycle Completed": "The Life Cycle Completed",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -143,6 +146,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "I Will Teach You to Be Rich": "나는 오늘도 경제적 자유를 꿈꾼다",
         "Elon Musk": "일론 머스크",
         "The Remains of the Day": "남아 있는 나날",
+        "The Life Cycle Completed": "인간의 위대한 여정",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -233,6 +237,8 @@ def translate_author_name(author: str) -> str:
         "Ramit Sethi": "Ramit Sethi",
         "가즈오 이시구로": "Kazuo Ishiguro",
         "Kazuo Ishiguro": "Kazuo Ishiguro",
+        "에릭 에릭슨": "Erik Erikson",
+        "Erik Erikson": "Erik Erikson",
     }
     
     if author in author_map:
@@ -271,6 +277,7 @@ def translate_author_name_to_korean(author: str) -> str:
         "MJ DeMarco": "엠제이 드마코",
         "Ramit Sethi": "람릿 세티",
         "Kazuo Ishiguro": "가즈오 이시구로",
+        "Erik Erikson": "에릭 에릭슨",
     }
     
     if author in reverse_author_map:
