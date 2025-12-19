@@ -717,54 +717,54 @@ class ImageDownloader:
         - 관련 영화, 작가, 책 테마 등
         """
         keywords = []
+        author_lower = author.lower() if author else ""
+        title_lower = book_title.lower() if book_title else ""
         
         # 작가 관련 키워드
         if author:
-            author_lower = author.lower()
             # 무라카미 하루키 관련
-            if "무라카미" in author or "하루키" in author or "murakami" in author_lower or "haruki" in author_lower:
+            if any(n in author_lower for n in ["무라카미", "하루키", "murakami", "haruki"]):
                 keywords.extend([
-                    "murakami haruki",
-                    "haruki murakami",
-                    "japanese literature",
-                    "japanese author",
-                    "tokyo cityscape",
-                    "japanese culture",
-                    "norwegian wood movie",  # 영화 관련
-                    "norwegian wood film",
-                    "japanese novel",
-                    "murakami books"
+                    "japanese literature", "tokyo cityscape", "japanese culture",
+                    "norwegian wood movie", "japanese novel", "murakami books",
+                    "surrealism art", "jazz bar atmosphere", "well in forest"
                 ])
-            # 다른 작가들도 추가 가능
+            # 오베라는 남자 / 프레드릭 배크만 관련
+            elif any(n in author_lower or n in title_lower for n in ["오베", "배크만", "backman", "ove"]):
+                keywords.extend([
+                    "swedish small town", "old neighborhood houses", "saab car vintage",
+                    "grumpy old man", "lonely figure park bench", "neighborhood community",
+                    "winter in sweden", "melancholic atmosphere", "warm interior cottage",
+                    "cat in neighborhood", "toolbox and tools", "blue overalls"
+                ])
+            # 일반적인 작가명 추가
             keywords.append(author_lower.replace(" ", ""))
         
-        # 책 제목 관련 키워드
-        title_lower = book_title.lower()
-        if "노르웨이" in book_title or "norwegian" in title_lower or "상실" in book_title or "loss" in title_lower:
+        # 책 제목 테마 관련 키워드
+        if any(n in title_lower for n in ["노르웨이", "norwegian", "상실", "loss"]):
             keywords.extend([
-                "norway forest",
-                "norwegian landscape",
-                "forest nature",
-                "scandinavian nature",
-                "norwegian wood beatles",  # 비틀즈 노래 관련
-                "1960s japan",  # 시대 배경
-                "tokyo 1960s",
-                "age of loss",  # 상실의 시대
-                "loss and grief",
-                "japanese youth 1960s",
-                "tokyo university",
-                "japanese student life"
+                "norway forest", "norwegian landscape", "forest nature",
+                "scandinavian nature", "1960s japan", "tokyo 1960s",
+                "loss and grief", "japanese youth 1960s", "tokyo university"
             ])
         
-        # 일반적인 문학 키워드 (책과 직접 관련된 것만)
-        # "bookstore", "book reading" 등은 너무 일반적이어서 제외
+        # 시각적 다양성을 위한 범용 테마 키워드 (추가)
         keywords.extend([
-            "literature",
-            "vintage book",
-            "classic novel"
+            "dramatic lighting", "cinematic landscape", "moody atmosphere",
+            "vintage photography", "storytelling visual", "emotional scene",
+            "historical setting", "urban decay", "peaceful countryside",
+            "abstract theme", "texture background", "soft bokeh",
+            "golden hour nature", "minimalist composition", "symbolic object"
         ])
         
-        # 중복 제거 및 최대 10개 반환
+        # 일반적인 문학 키워드 (이미지 검색 효율이 좋은 것들)
+        keywords.extend([
+            "classic novel vibe",
+            "vintage aesthetics",
+            "literary atmosphere"
+        ])
+        
+        # 중복 제거 및 최대 30개 반환 (기존 10개에서 상향)
         unique_keywords = []
         seen = set()
         for kw in keywords:
@@ -773,7 +773,7 @@ class ImageDownloader:
                 seen.add(kw_clean)
                 unique_keywords.append(kw_clean)
         
-        return unique_keywords[:10]
+        return unique_keywords[:30]
     
     def generate_keywords_with_ai(self, book_title: str, author: str = None, image_dir: Path = None) -> List[str]:
         """
@@ -898,17 +898,21 @@ Format:
             
             # 키워드 파싱 및 필터링
             keywords = []
-            # 금지된 일반적인 키워드 목록 (책과 직접 관련 없는 키워드)
+            # 금지된 일반적인 키워드 목록
             banned_keywords = {
                 'aesthetic', 'beautiful', 'nice', 'pretty', 'art', 'design', 'style',
                 'book', 'reading', 'literature', 'novel', 'story', 'fiction',
                 'image', 'photo', 'picture', 'illustration', 'graphic', 'visual',
-                'bookstore', 'bookshop', 'library',  # 책과 직접 관련 없는 일반적인 장소
-                'japanese bookstore', 'japanese bookshop'  # 구체적인 금지 키워드
+                'bookstore', 'bookshop', 'library'
             }
             
-            for line in keywords_text.strip().split('\n'):
-                line = line.strip()
+            # 쉼표(,)와 줄바꿈(\n)을 모두 처리하여 키워드 분리
+            raw_keywords = []
+            for part in keywords_text.split(','):
+                for line in part.split('\n'):
+                    raw_keywords.append(line.strip())
+            
+            for line in raw_keywords:
                 # 번호나 불필요한 문자 제거
                 if line and not line.startswith('#') and not line.startswith('-'):
                     # 번호 제거 (1. 2. 등)
@@ -918,18 +922,16 @@ Format:
                     # 단일 문자나 너무 짧은 키워드 제외
                     words = line.split()
                     if words and len(words) >= 1 and len(words) <= 5:
-                        # 각 단어가 최소 2글자 이상이어야 함
+                        # 각 단어가 최소 2글자 이상이어야 함 (단, 'saab' 같은 짧은 유효 단어 허용)
                         if all(len(w) >= 2 for w in words):
                             keyword = ' '.join(words).lower()
-                            # "s tokyo" 같은 이상한 패턴 필터링 (단일 문자로 시작하는 경우)
-                            if not (len(words) > 1 and len(words[0]) == 1):
-                                # 금지된 키워드 필터링 (책과 직접 관련 없는 일반적인 키워드 제외)
-                                keyword_words = set(keyword.split())
-                                if not keyword_words.intersection(banned_keywords):
-                                    keywords.append(keyword)
+                            # 금지된 키워드 필터링
+                            keyword_words = set(keyword.split())
+                            if not keyword_words.intersection(banned_keywords):
+                                keywords.append(keyword)
             
             if not keywords:
-                print("   ⚠️ AI 키워드 생성 실패, 기본 키워드 사용")
+                print("   ⚠️ AI 키워드 파싱 결과가 없어 기본 키워드를 사용합니다.")
                 return self._generate_keywords(book_title, author)
             
             # 기본 키워드와 병합 (중복 제거)
