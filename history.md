@@ -1,5 +1,30 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2025-12-19
+
+### TTS 엔진 다중 지원 기능 추가 및 테스트
+
+- **다중 TTS 엔진 지원 구현**:
+  - `src/09_text_to_speech_multi.py`: OpenAI, Google Cloud TTS, ElevenLabs, Replicate 지원
+  - Google Cloud TTS (Neural2) 통합: 빠른 처리 속도 (OpenAI 대비 6-10배), 작은 파일 크기
+  - ElevenLabs Multilingual v2 지원 (직접 API 사용)
+  - Replicate xtts-v2 지원 (영어 전용, 한글 미지원)
+
+- **TTS 테스트 스크립트 추가**:
+  - `scripts/test_tts_providers.py`: 모든 TTS 제공자 비교 테스트
+  - `scripts/test_korean_tts.py`: 한글 TTS 음질 비교 테스트
+  - `scripts/test_openai_korean_voices.py`: OpenAI TTS 모든 음성 옵션 테스트
+
+- **테스트 결과**:
+  - OpenAI TTS: `nova` 음성 사용 중 (한글 자연스러움 우수)
+  - Google Cloud TTS Neural2: 매우 빠른 속도, 작은 파일 크기, 한글 완벽 지원
+  - OpenAI TTS 음성 옵션: `nova`, `shimmer`, `alloy`, `echo`, `fable`, `onyx` 모두 테스트 완료
+
+- **문서 업데이트**:
+  - README.md에 다중 TTS 엔진 지원 섹션 추가
+  - 환경 변수 섹션에 TTS 관련 API 키 정보 추가
+  - `.gitignore`에 `test_outputs/` 폴더 추가 (테스트 파일 Git 제외)
+
 ## 2025-12-16
 
 ### 나는 오늘도 경제적 자유를 꿈꾼다 영상 제작 및 업로드

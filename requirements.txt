@@ -18,4 +18,8 @@ pydub>=0.25.1
 # Video processing (for future use)
 moviepy>=1.0.3
 
+# TTS providers
+google-cloud-texttospeech>=2.16.0
+replicate>=0.25.0
+
 pytest

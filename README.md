@@ -62,6 +62,9 @@ pip install -r requirements.txt
 - `CLAUDE_API_KEY`: Summary 생성용 (선택사항)
 - `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`, `YOUTUBE_REFRESH_TOKEN`: YouTube 업로드용
 - `YOUTUBE_CHANNEL_ID`: 업로드할 채널 ID (선택사항, 기본값: book summary 채널)
+- `GOOGLE_APPLICATION_CREDENTIALS`: Google Cloud TTS 사용 시 (선택사항, `google-cloud-tts-key.json` 파일 경로)
+- `REPLICATE_API_TOKEN`: Replicate TTS 사용 시 (선택사항)
+- `ELEVENLABS_API_KEY`: ElevenLabs TTS 사용 시 (선택사항)
 
 ## 빠른 시작 가이드 (처음 시작하는 경우)
 
@@ -423,6 +426,14 @@ booksummary/
 - **4K 해상도 (3840x2160)** 지원으로 고품질 썸네일 생성
 - 한국어/영어 폰트 자동 감지 및 최적화
 - DALL-E 3를 활용한 AI 배경 이미지 생성 옵션
+
+### 다중 TTS 엔진 지원
+
+- **OpenAI TTS** (기본): `nova` 음성 사용, 한글/영어 모두 지원
+- **Google Cloud TTS (Neural2)**: 빠른 처리 속도, 작은 파일 크기, 한글 완벽 지원
+- **ElevenLabs Multilingual v2**: 감정 표현이 풍부한 음성 (API 키 필요)
+- **Replicate xtts-v2**: 영어 전용 (한글 미지원)
+- 다양한 음성 옵션 테스트 스크립트 제공 (`scripts/test_tts_providers.py`, `scripts/test_korean_tts.py`)
 
 ### 스마트 이미지 키워드 생성
 
