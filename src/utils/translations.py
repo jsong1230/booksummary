@@ -93,6 +93,9 @@ def translate_book_title(book_title: str) -> str:
         "인간의 위대한 여정": "The Life Cycle Completed",
         "인간의_위대한_여정": "The Life Cycle Completed",
         "The Life Cycle Completed": "The Life Cycle Completed",
+        "오베라는 남자": "A Man Called Ove",
+        "오베라는_남자": "A Man Called Ove",
+        "A Man Called Ove": "A Man Called Ove",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -147,6 +150,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Elon Musk": "일론 머스크",
         "The Remains of the Day": "남아 있는 나날",
         "The Life Cycle Completed": "인간의 위대한 여정",
+        "A Man Called Ove": "오베라는 남자",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -239,6 +243,8 @@ def translate_author_name(author: str) -> str:
         "Kazuo Ishiguro": "Kazuo Ishiguro",
         "에릭 에릭슨": "Erik Erikson",
         "Erik Erikson": "Erik Erikson",
+        "프레드릭 배크만": "Fredrik Backman",
+        "Fredrik Backman": "Fredrik Backman",
     }
     
     if author in author_map:
@@ -278,6 +284,7 @@ def translate_author_name_to_korean(author: str) -> str:
         "Ramit Sethi": "람릿 세티",
         "Kazuo Ishiguro": "가즈오 이시구로",
         "Erik Erikson": "에릭 에릭슨",
+        "Fredrik Backman": "프레드릭 배크만",
     }
     
     if author in reverse_author_map:
