@@ -11,8 +11,12 @@ import requests
 from pathlib import Path
 from typing import List, Dict, Optional
 import concurrent.futures
+import random
 from dotenv import load_dotenv
-from utils.retry_utils import retry_with_backoff
+try:
+    from utils.retry_utils import retry_with_backoff
+except ImportError:
+    from src.utils.retry_utils import retry_with_backoff
 
 try:
     import openai
@@ -94,6 +98,11 @@ class ImageDownloader:
         """Pexels 검색 수행 (재시도 로직 포함)"""
         if not self.pexels:
             raise ValueError("Pexels API not initialized")
+        
+        # 다양성을 위해 랜덤하게 페이지 선택 (1~3페이지)
+        if page == 1:
+            page = random.randint(1, 3)
+            
         return self.pexels.search(keyword, page=page, results_per_page=results_per_page)
     
     def download_book_cover(self, book_title: str, author: str = None, output_dir: Path = None, skip_image: bool = False) -> Optional[str]:
@@ -187,7 +196,10 @@ class ImageDownloader:
             
             # 저장 경로
             if output_dir is None:
-                from utils.file_utils import safe_title
+                try:
+                    from utils.file_utils import safe_title
+                except ImportError:
+                    from src.utils.file_utils import safe_title
                 safe_title_str = safe_title(book_title)
                 output_dir = Path("assets/images") / safe_title_str
             else:
@@ -276,14 +288,19 @@ class ImageDownloader:
             return []
         
         downloaded = []
-        # 각 키워드에서 가져올 최대 이미지 수 (다양성을 위해 제한)
-        max_per_keyword = max(2, num_images // len(keywords)) if keywords else 2
+        # 각 키워드에서 가져올 이미지 수 (다양성을 위해 제한)
+        # 키워드가 많으면 적게, 적으면 많이 가져옴 (최소 2개, 최대 5개)
+        max_per_keyword = max(2, min(5, num_images // (len(keywords) or 1)))
+        
+        # 키워드 순서 섞기 (매번 같은 키워드만 사용되지 않도록)
+        shuffled_keywords = keywords.copy()
+        random.shuffle(shuffled_keywords)
         
         # 다운로드 작업 리스트
         download_tasks = []
         
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-            for keyword in keywords:
+            for keyword in shuffled_keywords:
                 if len(downloaded) + len(download_tasks) >= num_images:
                     break
                 
@@ -295,11 +312,15 @@ class ImageDownloader:
                     headers = {
                         "Authorization": f"Client-ID {self.unsplash_access_key}"
                     }
+                    # 다양성을 위해 랜덤하게 페이지 선택 (1~3페이지)
+                    page = random.randint(1, 3)
+                    
                     # 각 키워드에서 최대 max_per_keyword개만 가져오기
                     remaining = num_images - (len(downloaded) + len(download_tasks))
                     params = {
                         "query": keyword,
-                        "per_page": min(max_per_keyword, remaining, 15),  # 더 많은 이미지 수집 (100개 목표)
+                        "page": page,
+                        "per_page": min(max_per_keyword, remaining, 15),
                         "orientation": "landscape"
                     }
                     
@@ -364,10 +385,17 @@ class ImageDownloader:
             return []
         
         downloaded = []
+        # 키워드당 최대 이미지 수 제한 (다양성 확보)
+        max_per_keyword = max(2, min(5, num_images // (len(keywords) or 1)))
+        
+        # 키워드 순서 섞기
+        shuffled_keywords = keywords.copy()
+        random.shuffle(shuffled_keywords)
+        
         download_tasks = []
         
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-            for keyword in keywords:
+            for keyword in shuffled_keywords:
                 if len(downloaded) + len(download_tasks) >= num_images:
                     break
                 
@@ -377,7 +405,8 @@ class ImageDownloader:
                     # Pexels API 검색
                     try:
                         remaining = num_images - (len(downloaded) + len(download_tasks))
-                        search_results = self._search_pexels(keyword, page=1, results_per_page=min(15, remaining))
+                        # _search_pexels 내부에서 이미 페이지 랜덤화 처리됨
+                        search_results = self._search_pexels(keyword, page=1, results_per_page=min(max_per_keyword, remaining))
                     except Exception as e:
                         print(f"    ❌ Pexels 검색 오류: {e}")
                         continue
@@ -440,11 +469,18 @@ class ImageDownloader:
             return []
         
         downloaded = []
+        # 키워드당 최대 이미지 수 제한
+        max_per_keyword = max(2, min(5, num_images // (len(keywords) or 1)))
+        
+        # 키워드 순서 섞기
+        shuffled_keywords = keywords.copy()
+        random.shuffle(shuffled_keywords)
+        
         base_url = "https://pixabay.com/api/"
         download_tasks = []
         
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-            for keyword in keywords:
+            for keyword in shuffled_keywords:
                 if len(downloaded) + len(download_tasks) >= num_images:
                     break
                 
@@ -452,13 +488,17 @@ class ImageDownloader:
                     print(f"  🔍 검색: {keyword}")
                     
                     # Pixabay API 검색
+                    # 다양성을 위해 랜덤하게 페이지 선택
+                    page = random.randint(1, 3)
+                    
                     params = {
                         'key': self.pixabay_api_key,
                         'q': keyword,
                         'image_type': 'photo',
                         'orientation': 'horizontal',
                         'safesearch': 'true',
-                        'per_page': min(20, num_images - (len(downloaded) + len(download_tasks)))
+                        'page': page,
+                        'per_page': min(max_per_keyword, num_images - (len(downloaded) + len(download_tasks)))
                     }
                     
                     data = self._make_request(base_url, params=params)
@@ -523,7 +563,10 @@ class ImageDownloader:
         print()
         
         # 출력 디렉토리 설정
-        from utils.file_utils import safe_title
+        try:
+            from utils.file_utils import safe_title
+        except ImportError:
+            from src.utils.file_utils import safe_title
         safe_title_str = safe_title(book_title)
         output_dir = Path("assets/images") / safe_title_str
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -603,10 +646,15 @@ class ImageDownloader:
         if len(mood_images) < target_count:
             remaining = target_count - len(mood_images)
             print(f"  🔄 추가 키워드로 이미지 다운로드 중... (목표: {remaining}개)")
+            
+            # 키워드 순서 섞기
+            shuffled_keywords = keywords.copy()
+            random.shuffle(shuffled_keywords)
+            
             # 키워드를 순환하며 추가 다운로드
             keyword_cycle = 0
             while len(mood_images) < target_count and keyword_cycle < len(keywords) * 2:
-                for keyword in keywords:
+                for keyword in shuffled_keywords:
                     if len(mood_images) >= target_count:
                         break
                     remaining = target_count - len(mood_images)
@@ -732,7 +780,10 @@ class ImageDownloader:
         AI를 사용하여 책 내용 기반 이미지 검색 키워드 생성
         - 책의 내용, 주제, 배경, 감정, 주요 장면 등을 분석하여 구체적인 키워드 생성
         """
-        from utils.file_utils import safe_title
+        try:
+            from utils.file_utils import safe_title
+        except ImportError:
+            from src.utils.file_utils import safe_title
         
         # 책 정보 로드 시도
         book_info = None
@@ -747,33 +798,35 @@ class ImageDownloader:
         
         # Summary 파일 로드 시도 (더 정확한 키워드 생성을 위해)
         summary_text = None
-        summary_path_ko = Path("assets/summaries") / f"{safe_title(book_title)}_summary_ko.txt"
-        summary_path_en = Path("assets/summaries") / f"{safe_title(book_title)}_summary_en.txt"
+        # .txt와 .md 모두 지원
+        summary_paths = [
+            Path("assets/summaries") / f"{safe_title(book_title)}_summary_ko.md",
+            Path("assets/summaries") / f"{safe_title(book_title)}_summary_ko.txt",
+            Path("assets/summaries") / f"{safe_title(book_title)}_summary_en.md",
+            Path("assets/summaries") / f"{safe_title(book_title)}_summary_en.txt"
+        ]
         
-        if summary_path_ko.exists():
-            try:
-                with open(summary_path_ko, 'r', encoding='utf-8') as f:
-                    summary_text = f.read()[:2000]  # 처음 2000자만 사용
-            except:
-                pass
-        elif summary_path_en.exists():
-            try:
-                with open(summary_path_en, 'r', encoding='utf-8') as f:
-                    summary_text = f.read()[:2000]
-            except:
-                pass
+        for sp in summary_paths:
+            if sp.exists():
+                try:
+                    with open(sp, 'r', encoding='utf-8') as f:
+                        summary_text = f.read()[:2000]  # 처음 2000자만 사용
+                    break
+                except:
+                    continue
         
         prompt = f"""Role: You are an expert visual director and historian.
-Task: Generate 40-50 specific English image search keywords for the book "{book_title}" by "{author}".
+Task: Generate 60 specific English image search keywords for the book "{book_title}" by "{author}".
 
 Instructions:
-1. **Analyze Setting & Mood**: Determine the specific time period and geographical location of the book (e.g., 16th century Istanbul, 1960s Tokyo, Modern Seoul).
-2. **Visual Authenticity**: Generate keywords that strictly reflect this setting.
+1. **Analyze Setting & Mood**: Determine the specific time period and geographical location.
+2. **Visual Authenticity**: Generate keywords that strictly reflect the setting.
 3. **CRITICAL - Geographical Accuracy**:
-   - If the book is set in Turkey, ONLY use keywords related to Turkey/Istanbul/Ottoman era.
-   - If the book is set in Japan, ONLY use keywords related to Japan.
-   - **Do NOT** use "Korea", "Seoul", "Taegukgi", "Korean Text", or "Hangeul" unless the book is explicitly set in Korea or written by a Korean author about Korea.
-   - If the summary is in Korean, you must TRANSLATE the concepts into English keywords appropriate for the STORY'S SETTING, not the summary's language.
+   - Strictly follow the story's setting. Do NOT use "Korea" unless the book is set there.
+4. **Visual Diversity & Metaphor**: 
+   - Beyond literal descriptions, include metaphorical and abstract visual concepts that represent the book's themes.
+   - Use a mix of: Wide shots, Extreme-Close-ups (textures), and Medium shots.
+   - Request varied lighting: (e.g., golden hour, moody shadows, harsh contrast, soft ethereal light).
 
 Content to Analyze:
 """
@@ -789,22 +842,22 @@ Content to Analyze:
                 prompt += f"[Categories]\n{', '.join(book_info['categories'])}\n"
         
         prompt += """
-Keywords Categories (Provide 5-8 per category):
-1. **Atmosphere & Mood**: (e.g., melancholy, ottoman miniature style, noir, dystopian fog)
+Keywords Categories (Provide 10-12 per category):
+1. **Atmosphere & Mood**: (e.g., melancholy, ottoman miniature style, noir, dystopian fog, ethereal light)
 2. **Setting & Architecture**: (e.g., hagia sophia, 16th century istanbul streets, 1960s tokyo alley, snowy forest)
-3. **Objects & Symbols**: (e.g., red caftan, vintage ink pot, telescreen, norwegian wood)
-4. **Cultural Context**: (e.g., islamic art, japanese tea ceremony, socialist realism)
-5. **Characters/Crowds**: (e.g., ottoman scribes, japanese students 1960s, lonely figure in coat)
+3. **Objects & Symbols (Metaphoric)**: (e.g., broken hourglass, red caftan, vintage ink pot, wilting rose, heavy chains)
+4. **Textures & Close-ups**: (e.g., old parchment texture, rain on window, dust motes in light, cracked soil, silk fabric)
+5. **Characters/Scenes**: (e.g., silhouette in doorway, ottoman scribes, japanese students 1960s, lonely figure in coat)
 
 Constraints:
 - Keywords must be in **ENGLISH**.
 - **NO** text overlays or typography keywords.
 - **NO** generic terms like "book", "reading", "illustration".
-- **Strictly exclude** modern elements if the book is historical (e.g., no cars for 16th century).
-- **Strictly exclude** Korean elements (flags, signs, buildings) for non-Korean stories.
+- **Strictly exclude** modern elements if the book is historical.
+- **Strictly exclude** Korean elements for non-Korean stories.
 
 Format:
-- Return ONLY a list of keywords separated by commas or newlines.
+- Return ONLY a list of keywords separated by commas.
 - No numbering or explanations.
 """
 

@@ -13,6 +13,13 @@
   - `src/09_text_to_speech.py`: `utils.retry_utils` 임포트 시 경로 문제 해결을 위한 try-except 구문 추가
   - `scripts/generate_summary_audio.py`: 한국어 요약 파일 검색 시 `_ko.md` 접미사 지원 추가
 
+- **이미지 검색 다양성 및 관련성 개선**:
+  - `src/02_get_images.py`: AI 키워드 생성 시 시각적 다양성(구도, 조명, 비유적 표현)을 강조하도록 프롬프트 고도화
+  - 키워드 셔플링 및 키워드당 다운로드 수 제한(3~5장)으로 검색어 활용도 극대화
+  - 검색 페이지 랜덤화(1~3페이지) 적용으로 뻔하지 않은 이미지 확보
+  - AI 키워드 생성 시 최근 생성된 `.md` 요약 파일을 우선적으로 참조하도록 경로 수정
+  - 다양한 실행 환경 지원을 위한 임포트 구조 개선 (try-except 적용)
+
 
 - **다중 TTS 엔진 지원 구현**:
   - `src/09_text_to_speech_multi.py`: OpenAI, Google Cloud TTS, ElevenLabs, Replicate 지원
