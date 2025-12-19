@@ -7,7 +7,10 @@ import os
 from pathlib import Path
 from typing import Optional
 from dotenv import load_dotenv
-from utils.retry_utils import retry_with_backoff
+try:
+    from utils.retry_utils import retry_with_backoff
+except ImportError:
+    from src.utils.retry_utils import retry_with_backoff
 
 try:
     from openai import OpenAI

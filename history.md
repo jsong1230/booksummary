@@ -2,7 +2,17 @@
 
 ## 2025-12-19
 
-### TTS 엔진 다중 지원 기능 추가 및 테스트
+### 한국어 TTS(OpenAI Nova) 최적화 및 오디오 생성
+
+- **TTS 최적화 및 MP3 제작**:
+  - `input/life_summary_kr.md` 파일을 OpenAI Nova 음성에 최적화하여 `assets/summaries/인간의_위대한_여정_summary_ko.md`로 이동 및 저장
+  - 구조적 태그(`[HOOK]`, `[SUMMARY]`, `[BRIDGE]`) 제거 및 마크다운 문법 정리로 자연스러운 음성 흐름 확보
+  - `scripts/generate_summary_audio.py`를 사용하여 `assets/audio/인간의_위대한_여정_summary_ko.mp3` 생성 완료
+
+- **코드 개선 및 버그 수정**:
+  - `src/09_text_to_speech.py`: `utils.retry_utils` 임포트 시 경로 문제 해결을 위한 try-except 구문 추가
+  - `scripts/generate_summary_audio.py`: 한국어 요약 파일 검색 시 `_ko.md` 접미사 지원 추가
+
 
 - **다중 TTS 엔진 지원 구현**:
   - `src/09_text_to_speech_multi.py`: OpenAI, Google Cloud TTS, ElevenLabs, Replicate 지원

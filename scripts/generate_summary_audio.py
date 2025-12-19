@@ -26,6 +26,7 @@ def generate_summary_audio(book_title: str, language: str = "ko"):
     if language == "ko":
         # 여러 패턴 시도
         possible_paths = [
+            Path(f"assets/summaries/{safe_title_str}_summary_ko.md"),
             Path(f"assets/summaries/{safe_title_str}_summary_kr.md"),
             Path(f"assets/summaries/{safe_title_str.lower()}_summary_kr.md"),
             Path(f"assets/summaries/sunrise_summary_kr.md"),  # 실제 파일명
