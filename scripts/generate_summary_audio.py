@@ -9,7 +9,7 @@ import importlib.util
 # 프로젝트 루트를 경로에 추가 (scripts/ 폴더에서 실행 시)
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.utils.file_utils import safe_title
+from src.utils.file_utils import get_standard_safe_title
 
 # TTS 모듈 동적 로드
 tts_path = Path(__file__).parent.parent / "src" / "09_text_to_speech.py"
@@ -20,24 +20,24 @@ TTSEngine = tts_module.TTSEngine
 
 def generate_summary_audio(book_title: str, language: str = "ko"):
     """Summary 오디오 생성"""
-    safe_title_str = safe_title(book_title)
+    safe_title_str = get_standard_safe_title(book_title)
     
     # Summary 파일 읽기 (다양한 파일명 패턴 시도)
     if language == "ko":
+        lang_suffix = "kr"
         # 여러 패턴 시도
         possible_paths = [
-            Path(f"assets/summaries/{safe_title_str}_summary_ko.md"),
             Path(f"assets/summaries/{safe_title_str}_summary_kr.md"),
-            Path(f"assets/summaries/{safe_title_str.lower()}_summary_kr.md"),
-            Path(f"assets/summaries/sunrise_summary_kr.md"),  # 실제 파일명
+            Path(f"assets/summaries/{safe_title_str}_summary_ko.md"),
+            Path(f"assets/summaries/{safe_title_str}_summary_kr.txt"),
         ]
-        output_path = f"assets/audio/{safe_title_str}_summary_ko.mp3"
+        output_path = f"assets/audio/{safe_title_str}_summary_kr.mp3"
         voice = "nova"
     else:
+        lang_suffix = "en"
         possible_paths = [
             Path(f"assets/summaries/{safe_title_str}_summary_en.md"),
-            Path(f"assets/summaries/{safe_title_str.lower()}_summary_en.md"),
-            Path(f"assets/summaries/sunrise_summary_en.md"),  # 실제 파일명
+            Path(f"assets/summaries/{safe_title_str}_summary_en.txt"),
         ]
         output_path = f"assets/audio/{safe_title_str}_summary_en.mp3"
         voice = "alloy"

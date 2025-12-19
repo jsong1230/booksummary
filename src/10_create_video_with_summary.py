@@ -90,7 +90,7 @@ class VideoWithSummaryPipeline:
         Returns:
             생성된 영상 파일 경로
         """
-        from utils.file_utils import safe_title
+        from utils.file_utils import get_standard_safe_title
         from utils.translations import translate_book_title, translate_author_name
         
         # 언어에 따라 자막 기본값 설정 (한글: 자막 없음, 영어: 자막 있음)
@@ -112,7 +112,7 @@ class VideoWithSummaryPipeline:
             display_book_title = book_title
             display_author = author or "알 수 없음"
         
-        safe_title_str = safe_title(book_title)
+        safe_title_str = get_standard_safe_title(book_title)
         
         print("=" * 60)
         print("🎬 요약 포함 영상 제작 파이프라인 시작")
@@ -124,10 +124,17 @@ class VideoWithSummaryPipeline:
         
         # 1. 요약 생성 (건너뛰지 않는 경우)
         summary_audio_path = None
-        lang_suffix = "ko" if language == "ko" else "en"
+        lang_suffix = "kr" if language == "ko" else "en"
         
         # 기존 Summary 파일 확인
         summary_file_path = Path("assets/summaries") / f"{safe_title_str}_summary_{lang_suffix}.md"
+        
+        # 호환성을 위해 _ko.md도 확인
+        if not summary_file_path.exists() and lang_suffix == "kr":
+            summary_file_path_old = Path("assets/summaries") / f"{safe_title_str}_summary_ko.md"
+            if summary_file_path_old.exists():
+                summary_file_path = summary_file_path_old
+
         existing_summary_text = None
         
         if summary_file_path.exists():
@@ -180,8 +187,14 @@ class VideoWithSummaryPipeline:
             summary_audio_path = None
             possible_paths = [
                 f"assets/audio/{safe_title_str}_summary_{lang_suffix}.mp3",
-                f"assets/audio/{safe_title_str}_longform_{lang_suffix}.mp3"
+                f"assets/audio/{safe_title_str}_longform_{lang_suffix}.mp3",
+                # 호환성을 위해 _ko.mp3도 확인
+                f"assets/audio/{safe_title_str}_summary_ko.mp3" if lang_suffix == "kr" else None,
+                f"assets/audio/{safe_title_str}_longform_ko.mp3" if lang_suffix == "kr" else None,
             ]
+            
+            # None 제거
+            possible_paths = [p for p in possible_paths if p is not None]
             
             for path in possible_paths:
                 if Path(path).exists():
@@ -226,7 +239,7 @@ class VideoWithSummaryPipeline:
         
         # 3. 리뷰 오디오 경로 확인 (선택사항, 최신 구조에서는 사용하지 않음)
         if review_audio_path is None:
-            lang_suffix = "ko" if language == "ko" else "en"
+            lang_suffix = "kr" if language == "ko" else "en"
             audio_dir = Path("assets/audio")
             
             if audio_dir.exists():
@@ -249,7 +262,7 @@ class VideoWithSummaryPipeline:
         
         # 5. NotebookLM 비디오 파일 찾기 (일관된 네이밍 규칙 사용)
         if notebooklm_video_path is None:
-            lang_suffix = "ko" if language == "ko" else "en"
+            lang_suffix = "kr" if language == "ko" else "en"
             video_dir = Path("assets/video")
             
             if video_dir.exists():
@@ -263,8 +276,8 @@ class VideoWithSummaryPipeline:
         
         # 6. 출력 경로 설정
         if output_path is None:
-            lang_suffix = "ko" if language == "ko" else "en"
-            output_path = f"output/{safe_title_str}_review_with_summary_{lang_suffix}.mp4"
+            lang_suffix = "kr" if language == "ko" else "en"
+            output_path = f"output/{safe_title_str}_{lang_suffix}.mp4"
         
         # 7. 요약 오디오 최종 확인
         if summary_audio_path is None:

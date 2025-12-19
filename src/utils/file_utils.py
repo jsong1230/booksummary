@@ -18,8 +18,28 @@ def safe_title(title: str) -> str:
         안전한 파일명
     """
     safe = "".join(c for c in title if c.isalnum() or c in (' ', '-', '_')).strip()
-    safe = safe.replace(' ', '_')
+    # 공백과 하이픈을 언더스코어로 변환
+    safe = safe.replace(' ', '_').replace('-', '_')
+    # 연속된 언더스코어 제거
+    while '__' in safe:
+        safe = safe.replace('__', '_')
     return safe
+
+
+def get_standard_safe_title(title: str) -> str:
+    """
+    책 제목을 표준 영문 Safe Title로 변환.
+    한글 제목이 오더라도 영문 제목으로 변환하여 반환함.
+    
+    Args:
+        title: 책 제목 (한글 또는 영문)
+        
+    Returns:
+        표준화된 영문 Safe Title
+    """
+    from utils.translations import translate_book_title
+    en_title = translate_book_title(title)
+    return safe_title(en_title)
 
 
 def load_book_info(book_title: str, author: str = None) -> Optional[Dict]:

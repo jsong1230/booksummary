@@ -20,6 +20,13 @@
   - AI 키워드 생성 시 최근 생성된 `.md` 요약 파일을 우선적으로 참조하도록 경로 수정
   - 다양한 실행 환경 지원을 위한 임포트 구조 개선 (try-except 적용)
 
+- **파이프라인 표준화 및 CI 테스트 오류 해결**:
+  - `pytest.ini`: `scripts/` 디렉토리를 테스트 수집에서 제외하여 CI 실패 해결
+  - `src/utils/file_utils.py`: `get_standard_safe_title` 도입으로 한글/영문 제목에 관계없이 영문 표준 제목으로 디렉토리 관리
+  - 파일 접미사 표준화: 한글 `ko` -> `kr`로 통일 (파일명 일관성 확보)
+  - `src/10_create_video_with_summary.py` & `src/02_get_images.py`: 표준 명칭 규칙 적용하여 에셋 공유 및 관리 효율화
+  - "오베라는 남자" 관련 모든 에셋(요약, 오디오, 영상)을 `A_Man_Called_Ove_[kr/en]` 규칙에 맞춰 일괄 변경
+
 
 - **다중 TTS 엔진 지원 구현**:
   - `src/09_text_to_speech_multi.py`: OpenAI, Google Cloud TTS, ElevenLabs, Replicate 지원

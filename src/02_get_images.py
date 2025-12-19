@@ -197,10 +197,10 @@ class ImageDownloader:
             # 저장 경로
             if output_dir is None:
                 try:
-                    from utils.file_utils import safe_title
+                    from utils.file_utils import get_standard_safe_title
                 except ImportError:
-                    from src.utils.file_utils import safe_title
-                safe_title_str = safe_title(book_title)
+                    from src.utils.file_utils import get_standard_safe_title
+                safe_title_str = get_standard_safe_title(book_title)
                 output_dir = Path("assets/images") / safe_title_str
             else:
                 output_dir = Path(output_dir)
@@ -564,10 +564,10 @@ class ImageDownloader:
         
         # 출력 디렉토리 설정
         try:
-            from utils.file_utils import safe_title
+            from utils.file_utils import get_standard_safe_title
         except ImportError:
-            from src.utils.file_utils import safe_title
-        safe_title_str = safe_title(book_title)
+            from src.utils.file_utils import get_standard_safe_title
+        safe_title_str = get_standard_safe_title(book_title)
         output_dir = Path("assets/images") / safe_title_str
         output_dir.mkdir(parents=True, exist_ok=True)
         
@@ -781,9 +781,11 @@ class ImageDownloader:
         - 책의 내용, 주제, 배경, 감정, 주요 장면 등을 분석하여 구체적인 키워드 생성
         """
         try:
-            from utils.file_utils import safe_title
+            from utils.file_utils import get_standard_safe_title
         except ImportError:
-            from src.utils.file_utils import safe_title
+            from src.utils.file_utils import get_standard_safe_title
+        
+        safe_title_str = get_standard_safe_title(book_title)
         
         # 책 정보 로드 시도
         book_info = None
@@ -800,10 +802,12 @@ class ImageDownloader:
         summary_text = None
         # .txt와 .md 모두 지원
         summary_paths = [
-            Path("assets/summaries") / f"{safe_title(book_title)}_summary_ko.md",
-            Path("assets/summaries") / f"{safe_title(book_title)}_summary_ko.txt",
-            Path("assets/summaries") / f"{safe_title(book_title)}_summary_en.md",
-            Path("assets/summaries") / f"{safe_title(book_title)}_summary_en.txt"
+            Path("assets/summaries") / f"{safe_title_str}_summary_kr.md",
+            Path("assets/summaries") / f"{safe_title_str}_summary_en.md",
+            # 호환성을 위한 기존 경로들
+            Path("assets/summaries") / f"{safe_title_str}_summary_ko.md",
+            Path("assets/summaries") / f"{safe_title_str}_summary_ko.txt",
+            Path("assets/summaries") / f"{safe_title_str}_summary_en.txt"
         ]
         
         for sp in summary_paths:
