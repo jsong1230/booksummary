@@ -469,30 +469,12 @@
 
 ## 2025-12-19
 
-### YouTube 업로드 완료
-- 업로드된 책: A_Man_Called_Ove
-- 업로드된 영상 수: 2개
-- [1] [English] A Man Called Ove Book Review | [영어] 오베라는 남자 책 리뷰
-  - URL: https://www.youtube.com/watch?v=1ddWifFXg-k
-- [2] [한국어] 오베라는 남자 책 리뷰 | [Korean] A Man Called Ove Book Review
-  - URL: https://www.youtube.com/watch?v=AiLte6RMeDM
-
-## 2025-12-19
-
-### YouTube 업로드 완료
-- 업로드된 책: A_Man_Called_Ove
-- 업로드된 영상 수: 2개
-- [1] [English] A Man Called Ove Book Review | [영어] 오베라는 남자 책 리뷰
-  - URL: https://www.youtube.com/watch?v=-lR6HPtpd7o
-- [2] [한국어] 오베라는 남자 책 리뷰 | [Korean] A Man Called Ove Book Review
-  - URL: https://www.youtube.com/watch?v=49GeRA6YZ-A
-
-## 2025-12-19
-
-### YouTube 업로드 완료
-- 업로드된 책: A_Man_Called_Ove
-- 업로드된 영상 수: 2개
-- [1] [English] A Man Called Ove Book Review | [영어] 오베라는 남자 책 리뷰
-  - URL: https://www.youtube.com/watch?v=4NjPhyS-0_w
-- [2] [한국어] 오베라는 남자 책 리뷰 | [Korean] A Man Called Ove Book Review
-  - URL: https://www.youtube.com/watch?v=Mzg-8-i2XcM
+### YouTube 업로드 완료 (오베라는 남자)
+- **책**: [오베라는 남자](https://www.youtube.com/watch?v=Mzg-8-i2XcM) (프레드릭 배크만)
+- **변경 사항**: 
+  - 파이프라인 표준화(영문 제목 디렉토리, `kr` 접미사) 적용
+  - 이미지 다양성 로직(AI 파싱 수정, Fallback 확장) 적용
+  - 썸네일 용량 최적화 및 `.jpg` 변환 적용
+- **업로드 된 영상**:
+  - [한국어] https://www.youtube.com/watch?v=Mzg-8-i2XcM
+  - [영어] https://www.youtube.com/watch?v=4NjPhyS-0_w

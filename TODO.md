@@ -103,6 +103,13 @@ _현재 알려진 이슈가 없습니다_
 - [x] 업로드 로그 관리 (JSON, CSV, TXT)
 - [x] CSV 파일 자동 업데이트
 
+### Phase 8: 파이프라인 표준화 및 이미지 다양성 개선 (완료: 2025-12)
+
+- [x] 언어 접미사 표준화 (`ko` -> `kr`) 및 영문 표준 제목 기반 디렉토리 통합
+- [x] 이미지 다양성 향상 (AI 키워드 파싱 버그 수정, Fallback 리스트 확장)
+- [x] CI 테스트 안정화 (`pytest.ini` 설정) 및 `.cursorrules` 검증 프로세스 추가
+- [x] 유튜브 업로드 프로세스 표준화 대응 및 썸네일 용량 최적화 (`.jpg` 변환)
+
 ### 프로젝트 관리 (완료: 2025-11)
 
 - [x] 프로젝트 문서화 ([README](README.md), [TODO](TODO.md), [HISTORY](history.md), [RULES](.cursorrules))
