@@ -855,28 +855,29 @@ def find_thumbnail_for_video(video_path: Path, lang: str, safe_title_str: str = 
         safe_title_str = safe_title_str.replace('_review_ko', '').replace('_review_en', '').replace('_review', '')
         safe_title_str = safe_title_str.replace('_with_summary', '')
     
-    # 1순위: 표준 네이밍 규칙 ({safe_title}_thumbnail_{lang}.jpg)
+    # 1순위: 표준 네이밍 규칙 ({safe_title}_thumbnail_{lang}.jpg/png)
     lang_suffix = "kr" if lang == "ko" else "en"
-    thumbnail_path = video_dir / f"{safe_title_str}_thumbnail_{lang_suffix}.jpg"
-    if not thumbnail_path.exists() and lang_suffix == "kr":
-        thumbnail_path = video_dir / f"{safe_title_str}_thumbnail_ko.jpg"
-    
-    if thumbnail_path.exists():
-        return str(thumbnail_path)
+    for ext in [".jpg", ".png"]:
+        thumbnail_path = video_dir / f"{safe_title_str}_thumbnail_{lang_suffix}{ext}"
+        if not thumbnail_path.exists() and lang_suffix == "kr":
+            thumbnail_path = video_dir / f"{safe_title_str}_thumbnail_ko{ext}"
+        if thumbnail_path.exists():
+            return str(thumbnail_path)
     
     # 2순위: 영상 파일명 기반
     video_stem = video_path.stem
-    thumbnail_path = video_dir / f"{video_stem}_thumbnail_{lang_suffix}.jpg"
-    if not thumbnail_path.exists() and lang_suffix == "kr":
-        thumbnail_path = video_dir / f"{video_stem}_thumbnail_ko.jpg"
-    
-    if thumbnail_path.exists():
-        return str(thumbnail_path)
+    for ext in [".jpg", ".png"]:
+        thumbnail_path = video_dir / f"{video_stem}_thumbnail_{lang_suffix}{ext}"
+        if not thumbnail_path.exists() and lang_suffix == "kr":
+            thumbnail_path = video_dir / f"{video_stem}_thumbnail_ko{ext}"
+        if thumbnail_path.exists():
+            return str(thumbnail_path)
     
     # 3순위: 언어 구분 없는 썸네일
-    thumbnail_path = video_dir / f"{safe_title_str}_thumbnail.jpg"
-    if thumbnail_path.exists():
-        return str(thumbnail_path)
+    for ext in [".jpg", ".png"]:
+        thumbnail_path = video_dir / f"{safe_title_str}_thumbnail{ext}"
+        if thumbnail_path.exists():
+            return str(thumbnail_path)
     
     return None
 
