@@ -35,7 +35,7 @@ VideoMaker = make_video_module.VideoMaker
 
 # 공통 유틸리티 import
 from utils.translations import translate_book_title, translate_author_name, get_book_alternative_title, translate_book_title_to_korean, is_english_title, translate_author_name_to_korean
-from utils.file_utils import safe_title, load_book_info
+from utils.file_utils import safe_title, load_book_info, get_standard_safe_title
 
 def generate_title(book_title: str, lang: str = "both") -> str:
     """영상 제목 생성 (두 언어 포함, 언어 표시 포함, 대체 제목 포함)"""
@@ -744,7 +744,7 @@ def calculate_timestamps_from_video(video_path: Path, safe_title_str: str, lang:
         from moviepy.editor import VideoFileClip, AudioFileClip
         import subprocess
         
-        lang_suffix = "ko" if lang == "ko" else "en"
+        lang_suffix = "kr" if lang == "ko" else "en"
         timestamps = {
             'summary_duration': 0,
             'notebooklm_duration': 0,
@@ -763,6 +763,17 @@ def calculate_timestamps_from_video(video_path: Path, safe_title_str: str, lang:
                 summary_audio_path = path
                 break
         
+        # 호환성을 위해 ko 패턴도 확인
+        if not summary_audio_path and lang_suffix == "kr":
+            possible_paths_old = [
+                Path(f"assets/audio/{safe_title_str}_summary_ko.mp3"),
+                Path(f"assets/audio/{safe_title_str}_longform_ko.mp3")
+            ]
+            for path in possible_paths_old:
+                if path.exists():
+                    summary_audio_path = path
+                    break
+        
         if summary_audio_path and summary_audio_path.exists():
             try:
                 audio = AudioFileClip(str(summary_audio_path))
@@ -779,6 +790,9 @@ def calculate_timestamps_from_video(video_path: Path, safe_title_str: str, lang:
         
         # NotebookLM Video 길이 확인
         notebooklm_video_path = Path(f"assets/video/{safe_title_str}_notebooklm_{lang_suffix}.mp4")
+        if not notebooklm_video_path.exists() and lang_suffix == "kr":
+            notebooklm_video_path = Path(f"assets/video/{safe_title_str}_notebooklm_ko.mp4")
+        
         if notebooklm_video_path.exists():
             try:
                 video = VideoFileClip(str(notebooklm_video_path))
@@ -795,6 +809,9 @@ def calculate_timestamps_from_video(video_path: Path, safe_title_str: str, lang:
         
         # Review 오디오 길이 확인
         review_audio_path = Path(f"assets/audio/{safe_title_str}_review_{lang_suffix}.m4a")
+        if not review_audio_path.exists() and lang_suffix == "kr":
+            review_audio_path = Path(f"assets/audio/{safe_title_str}_review_ko.m4a")
+        
         if not review_audio_path.exists():
             # 다른 확장자 시도
             for ext in ['.mp3', '.wav']:
@@ -839,14 +856,20 @@ def find_thumbnail_for_video(video_path: Path, lang: str, safe_title_str: str = 
         safe_title_str = safe_title_str.replace('_with_summary', '')
     
     # 1순위: 표준 네이밍 규칙 ({safe_title}_thumbnail_{lang}.jpg)
-    lang_suffix = "ko" if lang == "ko" else "en"
+    lang_suffix = "kr" if lang == "ko" else "en"
     thumbnail_path = video_dir / f"{safe_title_str}_thumbnail_{lang_suffix}.jpg"
+    if not thumbnail_path.exists() and lang_suffix == "kr":
+        thumbnail_path = video_dir / f"{safe_title_str}_thumbnail_ko.jpg"
+    
     if thumbnail_path.exists():
         return str(thumbnail_path)
     
     # 2순위: 영상 파일명 기반
     video_stem = video_path.stem
     thumbnail_path = video_dir / f"{video_stem}_thumbnail_{lang_suffix}.jpg"
+    if not thumbnail_path.exists() and lang_suffix == "kr":
+        thumbnail_path = video_dir / f"{video_stem}_thumbnail_ko.jpg"
+    
     if thumbnail_path.exists():
         return str(thumbnail_path)
     
@@ -933,10 +956,10 @@ def main():
                 print(f"📚 저자 정보 사용: {args.author}")
         print()
         
-        safe_title_str = safe_title(args.book_title)
+        safe_title_str = get_standard_safe_title(args.book_title)
         
         # 한글 메타데이터 생성 (영상 파일이 없어도 생성)
-        video_path_ko = Path(f"output/{safe_title_str}_review_with_summary_ko.mp4")
+        video_path_ko = Path(f"output/{safe_title_str}_kr.mp4")
         
         print("📋 한글 메타데이터 생성 중...")
         title_ko = generate_title(args.book_title, lang='ko')
@@ -962,7 +985,7 @@ def main():
         )
         
         # 영문 메타데이터 생성 (영상 파일이 없어도 생성)
-        video_path_en = Path(f"output/{safe_title_str}_review_with_summary_en.mp4")
+        video_path_en = Path(f"output/{safe_title_str}_en.mp4")
         
         print("\n📋 영문 메타데이터 생성 중...")
         title_en = generate_title(args.book_title, lang='en')
@@ -1013,7 +1036,7 @@ def main():
         print()
     
     # 이미지 디렉토리 설정
-    safe_title_str = safe_title(args.book_title)
+    safe_title_str = get_standard_safe_title(args.book_title)
     if args.image_dir is None:
         args.image_dir = f"assets/images/{safe_title_str}"
     
@@ -1026,7 +1049,7 @@ def main():
         print(f"   오디오: {korean_audio.name}")
         print()
         
-        output_path = Path(f"output/{safe_title_str}_review_ko.mp4")
+        output_path = Path(f"output/{safe_title_str}_kr.mp4")
         
         # 영상 생성
         if not args.skip_video:
@@ -1118,7 +1141,7 @@ def main():
         print(f"   오디오: {english_audio.name}")
         print()
         
-        output_path = Path(f"output/{safe_title_str}_review_en.mp4")
+        output_path = Path(f"output/{safe_title_str}_en.mp4")
         
         # 영상 생성
         if not args.skip_video:

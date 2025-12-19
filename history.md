@@ -466,3 +466,13 @@
     - "인간의 위대한 여정" → "The Life Cycle Completed" 매핑 추가
     - "에릭 에릭슨" → "Erik Erikson" 매핑 추가
     - 한글/영문 양방향 번역 지원
+
+## 2025-12-19
+
+### YouTube 업로드 완료
+- 업로드된 책: A_Man_Called_Ove
+- 업로드된 영상 수: 2개
+- [1] [English] A Man Called Ove Book Review | [영어] 오베라는 남자 책 리뷰
+  - URL: https://www.youtube.com/watch?v=1ddWifFXg-k
+- [2] [한국어] 오베라는 남자 책 리뷰 | [Korean] A Man Called Ove Book Review
+  - URL: https://www.youtube.com/watch?v=AiLte6RMeDM

@@ -418,6 +418,7 @@ def update_books_csv(uploaded_videos: list):
             book_title = path_obj.stem.replace('_review_with_summary_ko', '').replace('_review_with_summary_en', '')
             book_title = book_title.replace('_review_ko', '').replace('_review_en', '').replace('_review', '')
             book_title = book_title.replace('_with_summary', '')
+            book_title = book_title.replace('_kr', '').replace('_en', '')
             uploaded_books.add(book_title)
     
     if not uploaded_books:
@@ -493,7 +494,7 @@ def update_history(uploaded_videos: list):
         video_path = result.get('video_path', '')
         if video_path:
             path_obj = Path(video_path)
-            book_title = path_obj.stem.replace('_review_ko', '').replace('_review_en', '').replace('_review', '')
+            book_title = path_obj.stem.replace('_review_ko', '').replace('_review_en', '').replace('_review', '').replace('_kr', '').replace('_en', '')
             book_titles.append(book_title)
         if result.get('url'):
             video_urls.append(result['url'])
@@ -710,7 +711,7 @@ def main():
             # 언어 감지
             detected_lang = lang
             if not detected_lang:
-                if '_ko' in video_stem or 'review_ko' in video_stem:
+                if '_ko' in video_stem or 'review_ko' in video_stem or '_kr' in video_stem:
                     detected_lang = 'ko'
                 elif '_en' in video_stem or 'review_en' in video_stem:
                     detected_lang = 'en'
@@ -723,6 +724,7 @@ def main():
             base_title = video_stem.replace('_review_with_summary_ko', '').replace('_review_with_summary_en', '')
             base_title = base_title.replace('_review_ko', '').replace('_review_en', '')
             base_title = base_title.replace('_review', '').replace('_with_summary', '')
+            base_title = base_title.replace('_kr', '').replace('_en', '')
             book_title_variants.append(base_title)
             
             # 공백 제거 버전
