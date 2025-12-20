@@ -126,14 +126,35 @@ class VideoWithSummaryPipeline:
         summary_audio_path = None
         lang_suffix = "kr" if language == "ko" else "en"
         
-        # 기존 Summary 파일 확인
-        summary_file_path = Path("assets/summaries") / f"{safe_title_str}_summary_{lang_suffix}.md"
+        # 기존 Summary 파일 확인 (여러 패턴 시도)
+        summary_file_path = None
+        possible_paths = [
+            Path("assets/summaries") / f"{safe_title_str}_summary_{lang_suffix}.md",
+            Path("assets/summaries") / f"{safe_title_str}_summary_ko.md" if lang_suffix == "kr" else None,
+            Path("assets/summaries") / f"{safe_title_str}_summary_{lang_suffix}.txt",
+            Path("assets/summaries") / f"{safe_title_str}_summary_ko.txt" if lang_suffix == "kr" else None,
+        ]
         
-        # 호환성을 위해 _ko.md도 확인
-        if not summary_file_path.exists() and lang_suffix == "kr":
-            summary_file_path_old = Path("assets/summaries") / f"{safe_title_str}_summary_ko.md"
-            if summary_file_path_old.exists():
-                summary_file_path = summary_file_path_old
+        # None 제거
+        possible_paths = [p for p in possible_paths if p is not None]
+        
+        # 한글 제목으로도 시도 (safe_title_str이 영문으로 변환된 경우)
+        from src.utils.file_utils import safe_title
+        korean_safe_title = safe_title(book_title)
+        if korean_safe_title != safe_title_str:
+            possible_paths.extend([
+                Path("assets/summaries") / f"{korean_safe_title}_summary_{lang_suffix}.md",
+                Path("assets/summaries") / f"{korean_safe_title}_summary_ko.md" if lang_suffix == "kr" else None,
+                Path("assets/summaries") / f"{korean_safe_title}_summary_{lang_suffix}.txt",
+                Path("assets/summaries") / f"{korean_safe_title}_summary_ko.txt" if lang_suffix == "kr" else None,
+            ])
+            possible_paths = [p for p in possible_paths if p is not None]
+        
+        # 존재하는 파일 찾기
+        for path in possible_paths:
+            if path.exists():
+                summary_file_path = path
+                break
 
         existing_summary_text = None
         
@@ -146,8 +167,18 @@ class VideoWithSummaryPipeline:
             try:
                 with open(summary_file_path, 'r', encoding='utf-8') as f:
                     existing_summary_text = f.read()
-                print("✅ 기존 Summary 파일 로드 완료")
+                
+                # TTS 생성을 위해 summary 파일 정리 및 저장
+                cleaned_summary_text = self._clean_markdown_for_tts(existing_summary_text)
+                
+                # 정리된 버전을 파일에 저장 (원본 백업은 하지 않음, 덮어쓰기)
+                with open(summary_file_path, 'w', encoding='utf-8') as f:
+                    f.write(cleaned_summary_text)
+                
+                print("✅ 기존 Summary 파일 로드 및 정리 완료")
+                print("   (마크다운 태그 제거 및 TTS 최적화)")
                 print()
+                existing_summary_text = cleaned_summary_text
             except Exception as e:
                 print(f"⚠️ Summary 파일 읽기 실패: {e}")
                 existing_summary_text = None
@@ -163,8 +194,7 @@ class VideoWithSummaryPipeline:
                     book_title=summary_book_title,
                     author=summary_author,
                     language=language,
-                    duration_minutes=summary_duration_minutes,
-                    use_engaging_opening=True  # Hook → Summary → Bridge 구조 사용
+                    duration_minutes=summary_duration_minutes
                 )
                 
                 # 요약 텍스트 저장
@@ -210,6 +240,7 @@ class VideoWithSummaryPipeline:
                 # 출력 경로 설정
                 summary_audio_path = f"assets/audio/{safe_title_str}_summary_{lang_suffix}.mp3"
                 
+                # summary 파일은 이미 정리되었으므로 그대로 사용
                 # 한국어는 nova (더 자연스러운 여성 음성), 영어는 alloy 추천
                 voice = "nova" if language == "ko" else "alloy"
                 
@@ -266,9 +297,29 @@ class VideoWithSummaryPipeline:
             video_dir = Path("assets/video")
             
             if video_dir.exists():
-                # 표준 네이밍 규칙: {책제목}_notebooklm_{언어}.{확장자}
+                # 여러 패턴 시도 (영문 제목, 한글 제목 모두 확인)
+                from src.utils.file_utils import safe_title
+                korean_safe_title = safe_title(book_title)
+                possible_paths = []
+                
+                # 영문 제목으로 시도
                 for ext in ['.mp4', '.mov', '.avi', '.mkv']:
-                    test_path = video_dir / f"{safe_title_str}_notebooklm_{lang_suffix}{ext}"
+                    possible_paths.append(video_dir / f"{safe_title_str}_notebooklm_{lang_suffix}{ext}")
+                    possible_paths.append(video_dir / f"{safe_title_str}_notebooklm_ko.mp4" if lang_suffix == "kr" else None)
+                    possible_paths.append(video_dir / f"{safe_title_str}_notebooklm_en.mp4" if lang_suffix == "en" else None)
+                
+                # 한글 제목으로도 시도
+                if korean_safe_title != safe_title_str:
+                    for ext in ['.mp4', '.mov', '.avi', '.mkv']:
+                        possible_paths.append(video_dir / f"{korean_safe_title}_notebooklm_{lang_suffix}{ext}")
+                        possible_paths.append(video_dir / f"{korean_safe_title}_notebooklm_ko.mp4" if lang_suffix == "kr" else None)
+                        possible_paths.append(video_dir / f"{korean_safe_title}_notebooklm_en.mp4" if lang_suffix == "en" else None)
+                
+                # None 제거
+                possible_paths = [p for p in possible_paths if p is not None]
+                
+                # 존재하는 파일 찾기
+                for test_path in possible_paths:
                     if test_path.exists():
                         notebooklm_video_path = str(test_path)
                         print(f"📹 NotebookLM 비디오 발견: {test_path.name}")
@@ -330,6 +381,38 @@ class VideoWithSummaryPipeline:
         print()
         
         return final_video_path
+    
+    def _clean_markdown_for_tts(self, text: str) -> str:
+        """
+        TTS 생성을 위해 마크다운 태그 및 문법 정리
+        구조적 태그([HOOK], [SUMMARY], [BRIDGE]) 제거 및 마크다운 문법 정리로 자연스러운 음성 흐름 확보
+        """
+        import re
+        # 구조적 태그 제거
+        text = re.sub(r'\[HOOK\]', '', text)
+        text = re.sub(r'\[SUMMARY\]', '', text)
+        text = re.sub(r'\[BRIDGE\]', '', text)
+        # 헤더 제거
+        text = re.sub(r'#+\s*', '', text)
+        # 볼드 제거
+        text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)
+        # 이탤릭 제거
+        text = re.sub(r'\*([^*]+)\*', r'\1', text)
+        # 구분선 제거
+        text = re.sub(r'---+\s*', '\n', text)
+        # 번호 기호 제거
+        text = re.sub(r'^\s*[①-⑳]\s*', '', text, flags=re.MULTILINE)
+        # 번호 리스트 제거
+        text = re.sub(r'^\s*[0-9]+\.\s*', '', text, flags=re.MULTILINE)
+        # 리스트 마커 제거
+        text = re.sub(r'^\s*[-*]\s*', '', text, flags=re.MULTILINE)
+        # 『』를 ""로 변환
+        text = re.sub(r'『([^』]+)』', r'"\1"', text)
+        # 「」를 ""로 변환
+        text = re.sub(r'「([^」]+)」', r'"\1"', text)
+        # 연속된 빈 줄 정리
+        text = re.sub(r'\n\s*\n\s*\n+', '\n\n', text)
+        return text.strip()
 
 
 def main():

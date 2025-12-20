@@ -732,6 +732,23 @@ def main():
             # 공백을 언더스코어로 변환한 버전
             book_title_variants.append(base_title.replace(' ', '_'))
             
+            # 메타데이터에서 책 제목 가져와서 한글 제목도 추가
+            metadata_book_title = metadata.get('book_title')
+            if metadata_book_title:
+                from src.utils.file_utils import safe_title
+                from src.utils.translations import translate_book_title_to_korean
+                # 한글 제목 추가
+                korean_title = translate_book_title_to_korean(metadata_book_title)
+                if korean_title and korean_title != metadata_book_title:
+                    korean_safe_title = safe_title(korean_title)
+                    if korean_safe_title not in book_title_variants:
+                        book_title_variants.append(korean_safe_title)
+                # 원본 제목도 추가 (한글이면)
+                if metadata_book_title != base_title:
+                    original_safe_title = safe_title(metadata_book_title)
+                    if original_safe_title not in book_title_variants:
+                        book_title_variants.append(original_safe_title)
+            
             # 언어 접미사 패턴
             lang_patterns = []
             if detected_lang == 'ko':

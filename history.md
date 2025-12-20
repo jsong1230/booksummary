@@ -1,5 +1,43 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2025-12-20
+
+### 크리스마스 선물 영상 제작 및 업로드
+- **책 제목**: 크리스마스 선물 (The Gift of the Magi)
+- **저자**: 오 헨리 (O. Henry)
+- **생성된 파일**:
+  - 영상: `output/The_Gift_of_the_Magi_kr.mp4` (308MB), `output/The_Gift_of_the_Magi_en.mp4` (312MB)
+  - 썸네일: `output/크리스마스_선물_thumbnail_ko.jpg`, `output/크리스마스_선물_thumbnail_en.jpg`
+  - 메타데이터: `output/The_Gift_of_the_Magi_kr.metadata.json`, `output/The_Gift_of_the_Magi_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - 오디오: 요약 오디오 (한글/영문) 생성 완료
+  - NotebookLM 비디오: `assets/video/The_Gift_of_the_Magi_notebooklm_kr.mp4`, `assets/video/The_Gift_of_the_Magi_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [한국어] 크리스마스 선물 책 리뷰 | [Korean] The Gift of the Magi Book Review
+    - URL: https://www.youtube.com/watch?v=4ICPrIDNWHo
+  - [2] [English] The Gift of the Magi Book Review | [영어] 크리스마스 선물 책 리뷰
+    - URL: https://www.youtube.com/watch?v=R-kWXvnBQjo
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "크리스마스 선물" ↔ "The Gift of the Magi" 매핑 추가
+    - "오 헨리" ↔ "O. Henry" 매핑 추가
+    - 한글/영문 양방향 번역 지원
+
+### 코드 개선 및 버그 수정
+- **Summary 파일 처리 개선**:
+  - `src/10_create_video_with_summary.py`: `_clean_markdown_for_tts` 메서드 추가로 마크다운 태그 제거 및 TTS 최적화
+  - 구조적 태그(`[HOOK]`, `[SUMMARY]`, `[BRIDGE]`), 헤더, 볼드/이탤릭, 리스트 마커 등 제거하여 자연스러운 음성 생성
+  - Summary 파일 경로 매칭 로직 개선: 영문/한글 제목, `.md`/`.txt` 확장자, `_ko`/`_kr` 접미사 모두 지원
+  - NotebookLM 비디오 파일 경로 매칭 로직 개선: 다양한 네이밍 패턴 지원
+- **파일 저장 형식 표준화**:
+  - `src/08_generate_summary.py`: Summary 파일 저장 형식을 `.txt`에서 `.md`로 변경하여 일관성 확보
+- **썸네일 파일 경로 매칭 개선**:
+  - `src/09_upload_from_metadata.py`: 한글 제목 기반 썸네일 파일 자동 검색 지원 추가
+  - 메타데이터의 책 제목을 활용하여 한글/영문 제목 모두 검색 가능하도록 개선
+- **파일 네이밍 표준화**:
+  - `scripts/prepare_files_from_downloads.py`: 표준 네이밍 규칙 적용 (영문 제목, `kr` 접미사 통일)
+  - `get_standard_safe_title` 함수 사용으로 일관된 파일명 생성
+
 ## 2025-12-19
 
 ### 한국어 TTS(OpenAI Nova) 최적화 및 오디오 생성
@@ -478,3 +516,13 @@
 - **업로드 된 영상**:
   - [한국어] https://www.youtube.com/watch?v=Mzg-8-i2XcM
   - [영어] https://www.youtube.com/watch?v=4NjPhyS-0_w
+
+## 2025-12-20
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Gift_of_the_Magi
+- 업로드된 영상 수: 2개
+- [1] [English] The Gift of the Magi Book Review | [영어] 크리스마스 선물 책 리뷰
+  - URL: https://www.youtube.com/watch?v=R-kWXvnBQjo
+- [2] [한국어] 크리스마스 선물 책 리뷰 | [Korean] The Gift of the Magi Book Review
+  - URL: https://www.youtube.com/watch?v=4ICPrIDNWHo

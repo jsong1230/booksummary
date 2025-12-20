@@ -17,7 +17,7 @@ import shutil
 # 프로젝트 루트를 sys.path에 추가
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.utils.file_utils import safe_title
+from src.utils.file_utils import get_standard_safe_title
 
 # YouTube 롱폼 썸네일 크기 (16:9 비율)
 THUMBNAIL_SIZE = (3840, 2160)  # 4K 해상도
@@ -116,7 +116,8 @@ def find_files_in_downloads(prefix: str, book_title: str) -> dict:
         찾은 파일들의 딕셔너리
     """
     downloads_dir = Path("input")
-    safe_title_str = safe_title(book_title)
+    # 표준 영문 제목으로 통일
+    safe_title_str = get_standard_safe_title(book_title)
     
     files = {
         'audio': {'en': None, 'ko': None},
@@ -200,7 +201,8 @@ def prepare_files(book_title: str, author: str = None, prefix: str = None) -> di
     print()
     
     downloads_dir = Path("input")
-    safe_title_str = safe_title(book_title)
+    # 표준 영문 제목으로 통일
+    safe_title_str = get_standard_safe_title(book_title)
     
     # prefix가 없으면 safe_title의 첫 부분으로 추정
     if prefix is None:
@@ -239,7 +241,7 @@ def prepare_files(book_title: str, author: str = None, prefix: str = None) -> di
     for lang in ['en', 'ko']:
         if files['audio'][lang]:
             src_file = files['audio'][lang]
-            lang_suffix = 'en' if lang == 'en' else 'ko'
+            lang_suffix = 'en' if lang == 'en' else 'kr'  # 한국어는 kr로 통일
             ext = src_file.suffix
             dst_file = Path("assets/audio") / f"{safe_title_str}_review_{lang_suffix}{ext}"
             dst_file.parent.mkdir(parents=True, exist_ok=True)
@@ -257,7 +259,7 @@ def prepare_files(book_title: str, author: str = None, prefix: str = None) -> di
     for lang in ['en', 'ko']:
         if files['summary'][lang]:
             src_file = files['summary'][lang]
-            lang_suffix = 'en' if lang == 'en' else 'ko'
+            lang_suffix = 'en' if lang == 'en' else 'kr'  # 한국어는 kr로 통일
             dst_file = Path("assets/summaries") / f"{safe_title_str}_summary_{lang_suffix}.md"
             dst_file.parent.mkdir(parents=True, exist_ok=True)
             
@@ -274,7 +276,7 @@ def prepare_files(book_title: str, author: str = None, prefix: str = None) -> di
     for lang in ['en', 'ko']:
         if files['thumbnail'][lang]:
             src_file = files['thumbnail'][lang]
-            lang_suffix = 'en' if lang == 'en' else 'ko'
+            lang_suffix = 'en' if lang == 'en' else 'kr'  # 한국어는 kr로 통일
             dst_file = Path("output") / f"{safe_title_str}_thumbnail_{lang_suffix}.jpg"
             dst_file.parent.mkdir(parents=True, exist_ok=True)
             
@@ -293,7 +295,7 @@ def prepare_files(book_title: str, author: str = None, prefix: str = None) -> di
     for lang in ['en', 'ko']:
         if files['video'][lang]:
             src_file = files['video'][lang]
-            lang_suffix = 'en' if lang == 'en' else 'ko'
+            lang_suffix = 'en' if lang == 'en' else 'kr'  # 한국어는 kr로 통일
             ext = src_file.suffix
             dst_file = Path("assets/video") / f"{safe_title_str}_notebooklm_{lang_suffix}{ext}"
             dst_file.parent.mkdir(parents=True, exist_ok=True)

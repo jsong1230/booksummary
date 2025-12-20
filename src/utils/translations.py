@@ -96,6 +96,9 @@ def translate_book_title(book_title: str) -> str:
         "오베라는 남자": "A Man Called Ove",
         "오베라는_남자": "A Man Called Ove",
         "A Man Called Ove": "A Man Called Ove",
+        "크리스마스 선물": "The Gift of the Magi",
+        "크리스마스_선물": "The Gift of the Magi",
+        "The Gift of the Magi": "The Gift of the Magi",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -245,6 +248,8 @@ def translate_author_name(author: str) -> str:
         "Erik Erikson": "Erik Erikson",
         "프레드릭 배크만": "Fredrik Backman",
         "Fredrik Backman": "Fredrik Backman",
+        "오 헨리": "O. Henry",
+        "O. Henry": "O. Henry",
     }
     
     if author in author_map:
@@ -285,6 +290,7 @@ def translate_author_name_to_korean(author: str) -> str:
         "Kazuo Ishiguro": "가즈오 이시구로",
         "Erik Erikson": "에릭 에릭슨",
         "Fredrik Backman": "프레드릭 배크만",
+        "O. Henry": "오 헨리",
     }
     
     if author in reverse_author_map:

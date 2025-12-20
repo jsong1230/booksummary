@@ -499,7 +499,8 @@ class SummaryGenerator:
         output_dir.mkdir(parents=True, exist_ok=True)
         
         lang_suffix = "ko" if language == "ko" else "en"
-        output_path = output_dir / f"{safe_title_str}_summary_{lang_suffix}.txt"
+        # .md 파일로 저장 (표준 형식)
+        output_path = output_dir / f"{safe_title_str}_summary_{lang_suffix}.md"
         
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(summary)
