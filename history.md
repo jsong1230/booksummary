@@ -2,6 +2,48 @@
 
 ## 2025-12-20
 
+### 호두까기 인형 영상 제작 및 업로드
+- **책 제목**: 호두까기 인형 (The Nutcracker)
+- **저자**: E.T.A. 호프만 (E.T.A. Hoffmann)
+- **생성된 파일**:
+  - 영상: `output/The_Nutcracker_kr.mp4` (309MB), `output/The_Nutcracker_en.mp4` (279MB)
+  - 썸네일: `output/The_Nutcracker_thumbnail_kr.jpg`, `output/The_Nutcracker_thumbnail_en.jpg`
+  - 메타데이터: `output/The_Nutcracker_kr.metadata.json`, `output/The_Nutcracker_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - 오디오: 요약 오디오 (한글/영문) 생성 완료
+  - NotebookLM 비디오: `assets/video/The_Nutcracker_notebooklm_kr.mp4`, `assets/video/The_Nutcracker_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [한국어] 호두까기 인형 책 리뷰 | [Korean] The Nutcracker Book Review
+    - URL: https://www.youtube.com/watch?v=4ICPrIDNWHo
+  - [2] [English] The Nutcracker Book Review | [영어] 호두까기 인형 책 리뷰
+    - URL: https://www.youtube.com/watch?v=R-kWXvnBQjo
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "호두까기 인형" ↔ "The Nutcracker" 매핑 추가
+    - "E.T.A. 호프만" ↔ "E.T.A. Hoffmann" 매핑 추가
+    - 한글/영문 양방향 번역 지원
+
+### 스노우맨 영상 제작 및 업로드
+- **책 제목**: 스노우맨 (The Snowman)
+- **저자**: 레이먼드 브릭스 (Raymond Briggs)
+- **생성된 파일**:
+  - 영상: `output/The_Snowman_kr.mp4` (277MB), `output/The_Snowman_en.mp4` (234MB)
+  - 썸네일: `output/The_Snowman_thumbnail_kr.jpg`, `output/The_Snowman_thumbnail_en.jpg`
+  - 메타데이터: `output/The_Snowman_kr.metadata.json`, `output/The_Snowman_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - 오디오: 요약 오디오 (한글/영문) 생성 완료
+  - NotebookLM 비디오: `assets/video/The_Snowman_notebooklm_kr.mp4`, `assets/video/The_Snowman_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [한국어] 스노우맨 책 리뷰 | [Korean] The Snowman Book Review
+    - URL: https://www.youtube.com/watch?v=KGfmy7aNzvE
+  - [2] [English] The Snowman Book Review | [영어] 스노우맨 책 리뷰
+    - URL: https://www.youtube.com/watch?v=dZwrTIh-cKA
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "스노우맨" ↔ "The Snowman" 매핑 추가
+    - "레이먼드 브릭스" ↔ "Raymond Briggs" 매핑 추가
+    - 한글/영문 양방향 번역 지원
+
 ### 크리스마스 선물 영상 제작 및 업로드
 - **책 제목**: 크리스마스 선물 (The Gift of the Magi)
 - **저자**: 오 헨리 (O. Henry)
@@ -24,9 +66,13 @@
     - 한글/영문 양방향 번역 지원
 
 ### 코드 개선 및 버그 수정
+- **TTS 생성 전 Summary 파일 포맷 정리 기능 추가**:
+  - `src/09_text_to_speech.py`: `_clean_markdown_for_tts` 메서드 추가
+  - TTS 생성 전에 summary 파일의 마크다운 태그 자동 정리
+  - 구조적 태그(`[HOOK]`, `[SUMMARY]`, `[BRIDGE]`), 헤더, 볼드/이탤릭, 리스트 마커 등 제거
+  - 정리된 텍스트를 원본 파일에 저장하여 일관성 유지
 - **Summary 파일 처리 개선**:
   - `src/10_create_video_with_summary.py`: `_clean_markdown_for_tts` 메서드 추가로 마크다운 태그 제거 및 TTS 최적화
-  - 구조적 태그(`[HOOK]`, `[SUMMARY]`, `[BRIDGE]`), 헤더, 볼드/이탤릭, 리스트 마커 등 제거하여 자연스러운 음성 생성
   - Summary 파일 경로 매칭 로직 개선: 영문/한글 제목, `.md`/`.txt` 확장자, `_ko`/`_kr` 접미사 모두 지원
   - NotebookLM 비디오 파일 경로 매칭 로직 개선: 다양한 네이밍 패턴 지원
 - **파일 저장 형식 표준화**:
@@ -37,6 +83,8 @@
 - **파일 네이밍 표준화**:
   - `scripts/prepare_files_from_downloads.py`: 표준 네이밍 규칙 적용 (영문 제목, `kr` 접미사 통일)
   - `get_standard_safe_title` 함수 사용으로 일관된 파일명 생성
+- **Import 경로 수정**:
+  - `src/utils/file_utils.py`: `get_standard_safe_title` 함수의 import 경로 수정 (상대 경로 지원 추가)
 
 ## 2025-12-19
 
@@ -526,3 +574,23 @@
   - URL: https://www.youtube.com/watch?v=R-kWXvnBQjo
 - [2] [한국어] 크리스마스 선물 책 리뷰 | [Korean] The Gift of the Magi Book Review
   - URL: https://www.youtube.com/watch?v=4ICPrIDNWHo
+
+## 2025-12-20
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Nutcracker
+- 업로드된 영상 수: 2개
+- [1] [English] The Nutcracker Book Review | [영어] 호두까기 인형 책 리뷰
+  - URL: https://www.youtube.com/watch?v=hqTB3WtSUv0
+- [2] [한국어] 호두까기 인형 책 리뷰 | [Korean] The Nutcracker Book Review
+  - URL: https://www.youtube.com/watch?v=5t6s17HK04k
+
+## 2025-12-20
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Snowman
+- 업로드된 영상 수: 2개
+- [1] [English] The Snowman Book Review | [영어] 스노우맨 책 리뷰
+  - URL: https://www.youtube.com/watch?v=dZwrTIh-cKA
+- [2] [한국어] 스노우맨 책 리뷰 | [Korean] The Snowman Book Review
+  - URL: https://www.youtube.com/watch?v=KGfmy7aNzvE

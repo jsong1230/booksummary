@@ -99,6 +99,12 @@ def translate_book_title(book_title: str) -> str:
         "크리스마스 선물": "The Gift of the Magi",
         "크리스마스_선물": "The Gift of the Magi",
         "The Gift of the Magi": "The Gift of the Magi",
+        "호두까기 인형": "The Nutcracker",
+        "호두까기_인형": "The Nutcracker",
+        "The Nutcracker": "The Nutcracker",
+        "스노우맨": "The Snowman",
+        "스노우_맨": "The Snowman",
+        "The Snowman": "The Snowman",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -154,6 +160,9 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "The Remains of the Day": "남아 있는 나날",
         "The Life Cycle Completed": "인간의 위대한 여정",
         "A Man Called Ove": "오베라는 남자",
+        "The Gift of the Magi": "크리스마스 선물",
+        "The Nutcracker": "호두까기 인형",
+        "The Snowman": "스노우맨",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -250,6 +259,12 @@ def translate_author_name(author: str) -> str:
         "Fredrik Backman": "Fredrik Backman",
         "오 헨리": "O. Henry",
         "O. Henry": "O. Henry",
+        "E.T.A. 호프만": "E.T.A. Hoffmann",
+        "호프만": "E.T.A. Hoffmann",
+        "E.T.A. Hoffmann": "E.T.A. Hoffmann",
+        "레이먼드 브릭스": "Raymond Briggs",
+        "브릭스": "Raymond Briggs",
+        "Raymond Briggs": "Raymond Briggs",
     }
     
     if author in author_map:
@@ -291,6 +306,8 @@ def translate_author_name_to_korean(author: str) -> str:
         "Erik Erikson": "에릭 에릭슨",
         "Fredrik Backman": "프레드릭 배크만",
         "O. Henry": "오 헨리",
+        "E.T.A. Hoffmann": "E.T.A. 호프만",
+        "Raymond Briggs": "레이먼드 브릭스",
     }
     
     if author in reverse_author_map:

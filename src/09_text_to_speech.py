@@ -200,6 +200,38 @@ class TTSEngine:
             print(f"❌ TTS 생성 오류: {e}")
             raise
     
+    def _clean_markdown_for_tts(self, text: str) -> str:
+        """
+        TTS 생성을 위해 마크다운 태그 및 문법 정리
+        구조적 태그([HOOK], [SUMMARY], [BRIDGE]) 제거 및 마크다운 문법 정리로 자연스러운 음성 흐름 확보
+        """
+        import re
+        # 구조적 태그 제거
+        text = re.sub(r'\[HOOK\]', '', text)
+        text = re.sub(r'\[SUMMARY\]', '', text)
+        text = re.sub(r'\[BRIDGE\]', '', text)
+        # 헤더 제거
+        text = re.sub(r'#+\s*', '', text)
+        # 볼드 제거
+        text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)
+        # 이탤릭 제거
+        text = re.sub(r'\*([^*]+)\*', r'\1', text)
+        # 구분선 제거
+        text = re.sub(r'---+\s*', '\n', text)
+        # 번호 기호 제거
+        text = re.sub(r'^\s*[①-⑳]\s*', '', text, flags=re.MULTILINE)
+        # 번호 리스트 제거
+        text = re.sub(r'^\s*[0-9]+\.\s*', '', text, flags=re.MULTILINE)
+        # 리스트 마커 제거
+        text = re.sub(r'^\s*[-*]\s*', '', text, flags=re.MULTILINE)
+        # 『』를 ""로 변환
+        text = re.sub(r'『([^』]+)』', r'"\1"', text)
+        # 「」를 ""로 변환
+        text = re.sub(r'「([^」]+)」', r'"\1"', text)
+        # 연속된 빈 줄 정리
+        text = re.sub(r'\n\s*\n\s*\n+', '\n\n', text)
+        return text.strip()
+    
     def generate_from_file(
         self,
         text_file_path: str,
@@ -228,6 +260,15 @@ class TTSEngine:
         # 텍스트 읽기
         with open(text_path, 'r', encoding='utf-8') as f:
             text = f.read()
+        
+        # TTS 생성을 위해 마크다운 정리
+        text = self._clean_markdown_for_tts(text)
+        
+        # 정리된 텍스트를 파일에 저장 (원본 파일 덮어쓰기)
+        with open(text_path, 'w', encoding='utf-8') as f:
+            f.write(text)
+        
+        print("✅ Summary 파일 마크다운 정리 완료 (TTS 최적화)")
         
         # 출력 경로 자동 생성
         if output_path is None:

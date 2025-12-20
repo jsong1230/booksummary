@@ -37,7 +37,10 @@ def get_standard_safe_title(title: str) -> str:
     Returns:
         표준화된 영문 Safe Title
     """
-    from utils.translations import translate_book_title
+    try:
+        from src.utils.translations import translate_book_title
+    except ImportError:
+        from .translations import translate_book_title
     en_title = translate_book_title(title)
     return safe_title(en_title)
 
