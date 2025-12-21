@@ -1,5 +1,28 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2025-12-21
+
+### 에센셜리즘 영상 제작 및 업로드
+- **책 제목**: 에센셜리즘 (Essentialism)
+- **저자**: 그렉 맥커운 (Greg McKeown)
+- **생성된 파일**:
+  - 영상: `output/Essentialism_kr.mp4` (190MB), `output/Essentialism_en.mp4` (163MB)
+  - 썸네일: `output/Essentialism_thumbnail_kr.jpg`, `output/Essentialism_thumbnail_en.jpg`
+  - 메타데이터: `output/Essentialism_kr.metadata.json`, `output/Essentialism_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - 오디오: 요약 오디오 (한글/영문) 생성 완료
+  - NotebookLM 비디오: `assets/video/Essentialism_notebooklm_kr.mp4`, `assets/video/Essentialism_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [한국어] 에센셜리즘 책 리뷰 | [Korean] Essentialism Book Review
+    - URL: https://www.youtube.com/watch?v=w_7cQGX-hJU
+  - [2] [English] Essentialism Book Review | [영어] 에센셜리즘 책 리뷰
+    - URL: https://www.youtube.com/watch?v=FeahbmeAqrQ
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "에센셜리즘" ↔ "Essentialism" 매핑 추가
+    - "그렉 맥커운" ↔ "Greg McKeown" 매핑 추가
+    - 한글/영문 양방향 번역 지원
+
 ## 2025-12-20
 
 ### 호두까기 인형 영상 제작 및 업로드
@@ -548,7 +571,7 @@
   - [2] [한국어] 인간의 위대한 여정 책 리뷰 | [Korean] The Life Cycle Completed Book Review
     - URL: https://www.youtube.com/watch?v=naDfKUkRARY
 - **번역 매핑 추가**:
-  - **`src/utils/translations.py`**:
+- **`src/utils/translations.py`**:
     - "인간의 위대한 여정" → "The Life Cycle Completed" 매핑 추가
     - "에릭 에릭슨" → "Erik Erikson" 매핑 추가
     - 한글/영문 양방향 번역 지원
@@ -594,3 +617,13 @@
   - URL: https://www.youtube.com/watch?v=dZwrTIh-cKA
 - [2] [한국어] 스노우맨 책 리뷰 | [Korean] The Snowman Book Review
   - URL: https://www.youtube.com/watch?v=KGfmy7aNzvE
+
+## 2025-12-21
+
+### YouTube 업로드 완료
+- 업로드된 책: Essentialism
+- 업로드된 영상 수: 2개
+- [1] [English] Essentialism Book Review | [영어] 에센셜리즘 책 리뷰
+  - URL: https://www.youtube.com/watch?v=FeahbmeAqrQ
+- [2] [한국어] 에센셜리즘 책 리뷰 | [Korean] Essentialism Book Review
+  - URL: https://www.youtube.com/watch?v=w_7cQGX-hJU
