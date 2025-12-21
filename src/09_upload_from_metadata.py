@@ -154,6 +154,32 @@ class YouTubeUploader:
         description = description.replace('─', '-')
         description = description.replace('━', '-')
         
+        # 유효하지 않은 유니코드 문자 제거 (서로게이트 페어, 제어 문자 등)
+        # YouTube API가 거부할 수 있는 문자 제거
+        cleaned_chars = []
+        for char in description:
+            code_point = ord(char)
+            # 유효한 유니코드 범위 체크 (서로게이트 페어 제외)
+            if code_point < 0xD800 or code_point > 0xDFFF:
+                # 제어 문자 제거 (줄바꿈, 탭 제외)
+                if code_point < 0x20 and char not in ['\n', '\t']:
+                    continue
+                # 유효한 유니코드 문자만 포함
+                if code_point <= 0x10FFFF:
+                    # 이모지 범위 제거 (일부 이모지가 문제를 일으킬 수 있음)
+                    # 하지만 기본 이모지는 유지 (0x1F300-0x1F9FF는 이모지 범위)
+                    # 문제가 되는 특정 이모지만 제거하거나, 모두 유지
+                    cleaned_chars.append(char)
+        description = ''.join(cleaned_chars)
+        
+        # YouTube API가 거부할 수 있는 특정 문자 패턴 제거
+        # 연속된 특수 문자 제거
+        description = re.sub(r'[━─]{3,}', '---', description)
+        
+        # description이 너무 길면 자르기 (YouTube 제한: 5000자)
+        if len(description) > 4500:
+            description = description[:4500] + '...'
+        
         # 연속된 줄바꿈 정리
         description = re.sub(r'\n{4,}', '\n\n\n', description)
         

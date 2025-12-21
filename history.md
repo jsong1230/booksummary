@@ -44,6 +44,54 @@
     - "그렉 맥커운" ↔ "Greg McKeown" 매핑 추가
     - 한글/영문 양방향 번역 지원
 
+### 21세기 자본 영상 제작 및 업로드
+- **책 제목**: 21세기 자본 (Capital in the Twenty-First Century)
+- **저자**: 토마 피케티 (Thomas Piketty)
+- **생성된 파일**:
+  - 영상: `output/Capital_in_the_Twenty_First_Century_kr.mp4` (213MB), `output/Capital_in_the_Twenty_First_Century_en.mp4` (170MB)
+  - 썸네일: `output/Capital_in_the_Twenty_First_Century_thumbnail_kr.jpg`, `output/Capital_in_the_Twenty_First_Century_thumbnail_en.jpg`
+  - 메타데이터: `output/Capital_in_the_Twenty_First_Century_kr.metadata.json`, `output/Capital_in_the_Twenty_First_Century_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - 오디오: 요약 오디오 (한글/영문) 생성 완료
+  - NotebookLM 비디오: `assets/video/Capital_in_the_Twenty_First_Century_notebooklm_kr.mp4`, `assets/video/Capital_in_the_Twenty_First_Century_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [한국어] 21세기 자본 책 리뷰 | [Korean] Capital in the Twenty-First Century Book Review
+    - URL: https://www.youtube.com/watch?v=yfWUCESAK-Y
+  - [2] [English] Capital in the Twenty-First Century Book Review | [영어] 21세기 자본 책 리뷰
+    - URL: https://www.youtube.com/watch?v=EJc2t41JZjg
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "21세기 자본" ↔ "Capital in the Twenty-First Century" 매핑 추가
+    - "토마 피케티" ↔ "Thomas Piketty" 매핑 추가
+    - 한글/영문 양방향 번역 지원
+
+### 유전자 영상 제작 및 업로드
+- **책 제목**: 유전자 (The Gene)
+- **저자**: 시다르타 무케르지 (Siddhartha Mukherjee)
+- **생성된 파일**:
+  - 영상: `output/The_Gene_kr.mp4` (284MB), `output/The_Gene_en.mp4` (255MB)
+  - 썸네일: `output/The_Gene_thumbnail_kr.jpg`, `output/The_Gene_thumbnail_en.jpg`
+  - 메타데이터: `output/The_Gene_kr.metadata.json`, `output/The_Gene_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - 오디오: 요약 오디오 (한글/영문) 생성 완료
+  - NotebookLM 비디오: `assets/video/The_Gene_notebooklm_kr.mp4`, `assets/video/The_Gene_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [한국어] 유전자 책 리뷰 | [Korean] The Gene Book Review
+    - URL: https://www.youtube.com/watch?v=t6AnvCfs7oY
+  - [2] [English] The Gene Book Review | [영어] 유전자 책 리뷰
+    - URL: https://www.youtube.com/watch?v=78yfOUFfftQ
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "유전자" ↔ "The Gene" 매핑 추가
+    - "시다르타 무케르지" ↔ "Siddhartha Mukherjee" 매핑 추가
+    - 한글/영문 양방향 번역 지원
+
+### 코드 개선
+- **`src/09_upload_from_metadata.py`**:
+  - YouTube API description 오류 해결을 위한 유니코드 문자 정리 로직 개선
+  - 서로게이트 페어 및 제어 문자 제거 로직 추가
+  - description 길이 제한 로직 추가 (4500자)
+
 ## 2025-12-20
 
 ### 호두까기 인형 영상 제작 및 업로드
@@ -658,3 +706,47 @@
   - URL: https://www.youtube.com/watch?v=gQRQcLZcscM
 - [2] [한국어] 팩트풀니스 책 리뷰 | [Korean] Factfulness Book Review
   - URL: https://www.youtube.com/watch?v=iQVuIDkI_kY
+
+## 2025-12-21
+
+### YouTube 업로드 완료
+- 업로드된 책: Capital_in_the_Twenty_First_Century
+- 업로드된 영상 수: 1개
+- [1] [English] Capital in the Twenty-First Century Book Review | [영어] 21세기 자본 책 리뷰
+  - URL: https://www.youtube.com/watch?v=ovaV8KnqySA
+
+## 2025-12-21
+
+### YouTube 업로드 완료
+- 업로드된 책: Capital_in_the_Twenty_First_Century
+- 업로드된 영상 수: 1개
+- [1] [English] Capital in the Twenty-First Century Book Review | [영어] 21세기 자본 책 리뷰
+  - URL: https://www.youtube.com/watch?v=vD2-PhO9rcs
+
+## 2025-12-21
+
+### YouTube 업로드 완료
+- 업로드된 책: Capital_in_the_Twenty_First_Century
+- 업로드된 영상 수: 1개
+- [1] [English] Capital in the Twenty-First Century Book Review | [영어] 21세기 자본 책 리뷰
+  - URL: https://www.youtube.com/watch?v=sKQP1GhTBvQ
+
+## 2025-12-21
+
+### YouTube 업로드 완료
+- 업로드된 책: Capital_in_the_Twenty_First_Century
+- 업로드된 영상 수: 2개
+- [1] [English] Capital in the Twenty-First Century Book Review | [영어] 21세기 자본 책 리뷰
+  - URL: https://www.youtube.com/watch?v=EJc2t41JZjg
+- [2] [한국어] 21세기 자본 책 리뷰 | [Korean] Capital in the Twenty-First Century Book Review
+  - URL: https://www.youtube.com/watch?v=yfWUCESAK-Y
+
+## 2025-12-21
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Gene
+- 업로드된 영상 수: 2개
+- [1] [English] The Gene Book Review | [영어] 유전자 책 리뷰
+  - URL: https://www.youtube.com/watch?v=78yfOUFfftQ
+- [2] [한국어] 유전자 책 리뷰 | [Korean] The Gene Book Review
+  - URL: https://www.youtube.com/watch?v=t6AnvCfs7oY

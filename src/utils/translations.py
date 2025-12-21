@@ -111,6 +111,12 @@ def translate_book_title(book_title: str) -> str:
         "팩트풀니스": "Factfulness",
         "팩트_풀니스": "Factfulness",
         "Factfulness": "Factfulness",
+        "21세기 자본": "Capital in the Twenty-First Century",
+        "21세기_자본": "Capital in the Twenty-First Century",
+        "Capital in the Twenty-First Century": "Capital in the Twenty-First Century",
+        "유전자": "The Gene",
+        "유전자_": "The Gene",
+        "The Gene": "The Gene",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -171,6 +177,8 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "The Snowman": "스노우맨",
         "Essentialism": "에센셜리즘",
         "Factfulness": "팩트풀니스",
+        "Capital in the Twenty-First Century": "21세기 자본",
+        "The Gene": "유전자",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -279,6 +287,12 @@ def translate_author_name(author: str) -> str:
         "한스 로슬링": "Hans Rosling",
         "한스_로슬링": "Hans Rosling",
         "Hans Rosling": "Hans Rosling",
+        "토마 피케티": "Thomas Piketty",
+        "토마_피케티": "Thomas Piketty",
+        "Thomas Piketty": "Thomas Piketty",
+        "시다르타 무케르지": "Siddhartha Mukherjee",
+        "시다르타_무케르지": "Siddhartha Mukherjee",
+        "Siddhartha Mukherjee": "Siddhartha Mukherjee",
     }
     
     if author in author_map:
@@ -324,6 +338,8 @@ def translate_author_name_to_korean(author: str) -> str:
         "Raymond Briggs": "레이먼드 브릭스",
         "Greg McKeown": "그렉 맥커운",
         "Hans Rosling": "한스 로슬링",
+        "Thomas Piketty": "토마 피케티",
+        "Siddhartha Mukherjee": "시다르타 무케르지",
     }
     
     if author in reverse_author_map:
