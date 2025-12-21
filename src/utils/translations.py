@@ -108,6 +108,9 @@ def translate_book_title(book_title: str) -> str:
         "에센셜리즘": "Essentialism",
         "에센셜_리즘": "Essentialism",
         "Essentialism": "Essentialism",
+        "팩트풀니스": "Factfulness",
+        "팩트_풀니스": "Factfulness",
+        "Factfulness": "Factfulness",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -167,6 +170,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "The Nutcracker": "호두까기 인형",
         "The Snowman": "스노우맨",
         "Essentialism": "에센셜리즘",
+        "Factfulness": "팩트풀니스",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -272,6 +276,9 @@ def translate_author_name(author: str) -> str:
         "그렉 맥커운": "Greg McKeown",
         "그렉_맥커운": "Greg McKeown",
         "Greg McKeown": "Greg McKeown",
+        "한스 로슬링": "Hans Rosling",
+        "한스_로슬링": "Hans Rosling",
+        "Hans Rosling": "Hans Rosling",
     }
     
     if author in author_map:
@@ -316,6 +323,7 @@ def translate_author_name_to_korean(author: str) -> str:
         "E.T.A. Hoffmann": "E.T.A. 호프만",
         "Raymond Briggs": "레이먼드 브릭스",
         "Greg McKeown": "그렉 맥커운",
+        "Hans Rosling": "한스 로슬링",
     }
     
     if author in reverse_author_map:
