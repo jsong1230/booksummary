@@ -93,9 +93,9 @@ class VideoWithSummaryPipeline:
         from utils.file_utils import get_standard_safe_title
         from utils.translations import translate_book_title, translate_author_name
         
-        # 언어에 따라 자막 기본값 설정 (한글: 자막 없음, 영어: 자막 있음)
+        # 언어에 따라 자막 기본값 설정 (기본: 자막 없음)
         if add_subtitles is None:
-            add_subtitles = (language == "en")  # 영어만 자막 있음
+            add_subtitles = False  # 기본적으로 자막 없음
         
         # 영문 영상 생성 시 영어 제목과 영어 작가 이름 사용
         if language == "en":

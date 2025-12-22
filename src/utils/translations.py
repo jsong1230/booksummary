@@ -117,6 +117,10 @@ def translate_book_title(book_title: str) -> str:
         "유전자": "The Gene",
         "유전자_": "The Gene",
         "The Gene": "The Gene",
+        "은하수를 여행하는 히치하이커를 위한 안내서": "Hitchhiker's Guide to the Galaxy",
+        "은하수를_여행하는_히치하이커를_위한_안내서": "Hitchhiker's Guide to the Galaxy",
+        "Hitchhiker's Guide to the Galaxy": "Hitchhiker's Guide to the Galaxy",
+        "The Hitchhiker's Guide to the Galaxy": "Hitchhiker's Guide to the Galaxy",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -179,6 +183,8 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Factfulness": "팩트풀니스",
         "Capital in the Twenty-First Century": "21세기 자본",
         "The Gene": "유전자",
+        "Hitchhiker's Guide to the Galaxy": "은하수를 여행하는 히치하이커를 위한 안내서",
+        "The Hitchhiker's Guide to the Galaxy": "은하수를 여행하는 히치하이커를 위한 안내서",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -293,6 +299,9 @@ def translate_author_name(author: str) -> str:
         "시다르타 무케르지": "Siddhartha Mukherjee",
         "시다르타_무케르지": "Siddhartha Mukherjee",
         "Siddhartha Mukherjee": "Siddhartha Mukherjee",
+        "더글라스 애덤스": "Douglas Adams",
+        "더글라스_애덤스": "Douglas Adams",
+        "Douglas Adams": "Douglas Adams",
     }
     
     if author in author_map:
@@ -340,6 +349,7 @@ def translate_author_name_to_korean(author: str) -> str:
         "Hans Rosling": "한스 로슬링",
         "Thomas Piketty": "토마 피케티",
         "Siddhartha Mukherjee": "시다르타 무케르지",
+        "Douglas Adams": "더글라스 애덤스",
     }
     
     if author in reverse_author_map:

@@ -1,5 +1,42 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2025-12-22
+
+### 은하수를 여행하는 히치하이커를 위한 안내서 영상 제작 및 업로드
+- **책 제목**: 은하수를 여행하는 히치하이커를 위한 안내서 (Hitchhiker's Guide to the Galaxy)
+- **저자**: 더글라스 애덤스 (Douglas Adams)
+- **생성된 파일**:
+  - 영상: `output/Hitchhikers_Guide_to_the_Galaxy_kr.mp4` (350MB), `output/Hitchhikers_Guide_to_the_Galaxy_en.mp4` (273MB)
+  - 썸네일: `output/Hitchhikers_Guide_to_the_Galaxy_thumbnail_kr.jpg`, `output/Hitchhikers_Guide_to_the_Galaxy_thumbnail_en.jpg`
+  - 메타데이터: `output/Hitchhikers_Guide_to_the_Galaxy_kr.metadata.json`, `output/Hitchhikers_Guide_to_the_Galaxy_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - 오디오: 요약 오디오 (한글/영문) 생성 완료
+  - NotebookLM 비디오: `assets/video/Hitchhikers_Guide_to_the_Galaxy_notebooklm_kr.mp4`, `assets/video/Hitchhikers_Guide_to_the_Galaxy_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [한국어] 은하수를 여행하는 히치하이커를 위한 안내서 책 리뷰 | [Korean] Hitchhiker's Guide to the Galaxy Book Review
+    - URL: https://www.youtube.com/watch?v=7E51amuXo68
+  - [2] [English] Hitchhiker's Guide to the Galaxy Book Review | [영어] 은하수를 여행하는 히치하이커를 위한 안내서 책 리뷰
+    - URL: https://www.youtube.com/watch?v=-qHCZQdDUdY
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "은하수를 여행하는 히치하이커를 위한 안내서" ↔ "Hitchhiker's Guide to the Galaxy" 매핑 추가
+    - "더글라스 애덤스" ↔ "Douglas Adams" 매핑 추가
+    - 한글/영문 양방향 번역 지원
+
+### 자막 생성 로직 개선
+- **`src/03_make_video.py`**:
+  - Whisper 자막 생성 시 첫 세그먼트 시작 시간 보정 로직 추가
+  - 자막 타이밍 검증 및 보정 메서드 추가 (`_validate_and_adjust_subtitle_timing`)
+  - 오디오 파일 존재 확인 및 오류 처리 개선
+  - 자막 타이밍이 오디오 길이를 초과하지 않도록 보정
+  - 중복 제거 및 겹치는 자막 병합 로직 추가
+  - 중복 자막 생성 부분 제거 (Summary 부분에만 자막 추가)
+
+### 영문 영상 자막 기본값 변경
+- **`src/10_create_video_with_summary.py`**:
+  - 영문 영상의 자막 기본값을 비활성화로 변경 (기본적으로 자막 없음)
+  - 자막이 필요한 경우 `--subtitles` 플래그로 명시적으로 추가 가능
+
 ## 2025-12-21
 
 ### 팩트풀니스 영상 제작 및 업로드
@@ -750,3 +787,13 @@
   - URL: https://www.youtube.com/watch?v=78yfOUFfftQ
 - [2] [한국어] 유전자 책 리뷰 | [Korean] The Gene Book Review
   - URL: https://www.youtube.com/watch?v=t6AnvCfs7oY
+
+## 2025-12-22
+
+### YouTube 업로드 완료
+- 업로드된 책: Hitchhikers_Guide_to_the_Galaxy
+- 업로드된 영상 수: 2개
+- [1] [English] Hitchhiker's Guide to the Galaxy Book Review | [영어] 은하수를 여행하는 히치하이커를 위한 안내서 책 리뷰
+  - URL: https://www.youtube.com/watch?v=-qHCZQdDUdY
+- [2] [한국어] 은하수를 여행하는 히치하이커를 위한 안내서 책 리뷰 | [Korean] Hitchhiker's Guide to the Galaxy Book Review
+  - URL: https://www.youtube.com/watch?v=7E51amuXo68

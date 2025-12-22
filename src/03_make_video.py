@@ -555,8 +555,19 @@ class VideoMaker:
         
         print("📝 자막 생성 중 (Whisper)...")
         try:
+            # 오디오 파일 존재 확인
+            audio_file = Path(audio_path)
+            if not audio_file.exists():
+                print(f"   ❌ 오디오 파일을 찾을 수 없습니다: {audio_path}")
+                return None
+            
+            print(f"   📁 오디오 파일: {audio_file.name}")
             model = whisper.load_model("base")
-            result = model.transcribe(audio_path, language=language)
+            result = model.transcribe(str(audio_path), language=language)
+            
+            if not result or "segments" not in result:
+                print("   ⚠️ Whisper 결과가 비어있습니다.")
+                return None
             
             subtitles = []
             for segment in result.get("segments", []):
@@ -571,6 +582,8 @@ class VideoMaker:
             
         except Exception as e:
             print(f"   ❌ 자막 생성 실패: {e}")
+            import traceback
+            traceback.print_exc()
             return None
     
     def generate_subtitles_from_text(
@@ -601,13 +614,23 @@ class VideoMaker:
         if audio_path and Path(audio_path).exists() and WHISPER_AVAILABLE:
             print("📝 자막 생성 중 (Whisper 단어 단위 타이밍 분석)...")
             try:
+                audio_file = Path(audio_path)
+                if not audio_file.exists():
+                    print(f"   ❌ 오디오 파일을 찾을 수 없습니다: {audio_path}")
+                    return None
+                
+                print(f"   📁 오디오 파일: {audio_file.name}")
                 # Whisper로 오디오 분석 (단어 단위 타임스탬프 포함)
                 model = whisper.load_model("base")
                 result = model.transcribe(
-                    audio_path, 
+                    str(audio_path), 
                     language=language,
                     word_timestamps=True  # 단어 단위 타임스탬프 활성화
                 )
+                
+                if not result:
+                    print("   ⚠️ Whisper 결과가 비어있습니다.")
+                    return None
                 
                 # 원본 텍스트 정리 (마크다운 제거)
                 cleaned_text = self._clean_markdown_text(text)
@@ -615,25 +638,40 @@ class VideoMaker:
                 # 원본 텍스트를 문장 단위로 분할
                 original_sentences = self._split_sentences(cleaned_text, language)
                 
-                # Whisper 단어 단위 타임스탬프 수집
+                # Whisper 결과의 첫 번째 세그먼트 시작 시간 확인 (타이밍 보정용)
+                segments = result.get("segments", [])
+                time_offset = 0.0
+                if segments:
+                    first_segment_start = segments[0].get("start", 0.0)
+                    if first_segment_start > 0.1:  # 0.1초 이상 차이나면 보정
+                        time_offset = first_segment_start
+                        print(f"   ⏱️ 타이밍 보정: 첫 세그먼트 시작 시간 {first_segment_start:.2f}초만큼 조정")
+                
+                # Whisper 단어 단위 타임스탬프 수집 (타이밍 보정 적용)
                 whisper_words = []
-                for segment in result.get("segments", []):
+                for segment in segments:
                     if "words" in segment:
                         for word_info in segment["words"]:
+                            # 타이밍 보정: 첫 세그먼트 시작 시간만큼 빼기
+                            adjusted_start = max(0.0, word_info["start"] - time_offset)
+                            adjusted_end = max(0.0, word_info["end"] - time_offset)
                             whisper_words.append({
                                 "word": word_info["word"].strip(),
-                                "start": word_info["start"],
-                                "end": word_info["end"]
+                                "start": adjusted_start,
+                                "end": adjusted_end
                             })
                 
                 if not whisper_words:
                     print("   ⚠️ Whisper 단어 타임스탬프가 없습니다. 세그먼트 단위로 전환합니다.")
-                    # 단어 타임스탬프가 없으면 세그먼트 단위로 폴백
+                    # 단어 타임스탬프가 없으면 세그먼트 단위로 폴백 (타이밍 보정 적용)
                     whisper_segments = []
-                    for segment in result.get("segments", []):
+                    for segment in segments:
+                        # 타이밍 보정: 첫 세그먼트 시작 시간만큼 빼기
+                        adjusted_start = max(0.0, segment["start"] - time_offset)
+                        adjusted_end = max(0.0, segment["end"] - time_offset)
                         whisper_segments.append({
-                            "start": segment["start"],
-                            "end": segment["end"],
+                            "start": adjusted_start,
+                            "end": adjusted_end,
                             "text": segment["text"].strip()
                         })
                     subtitles = self._match_sentences_to_whisper(
@@ -655,16 +693,21 @@ class VideoMaker:
                 )
                 
                 if subtitles:
+                    # 타이밍 검증 및 보정: 오디오 길이를 초과하지 않도록
+                    subtitles = self._validate_and_adjust_subtitle_timing(subtitles, audio_duration)
                     print(f"   ✅ {len(subtitles)}개의 자막 생성 완료 (Whisper 단어 단위 타이밍 사용)")
                     return subtitles
                 else:
                     print("   ⚠️ 단어 정렬 실패. 세그먼트 단위로 전환합니다.")
-                    # 폴백: 세그먼트 단위 매칭
+                    # 폴백: 세그먼트 단위 매칭 (타이밍 보정 적용)
                     whisper_segments = []
-                    for segment in result.get("segments", []):
+                    for segment in segments:
+                        # 타이밍 보정: 첫 세그먼트 시작 시간만큼 빼기
+                        adjusted_start = max(0.0, segment["start"] - time_offset)
+                        adjusted_end = max(0.0, segment["end"] - time_offset)
                         whisper_segments.append({
-                            "start": segment["start"],
-                            "end": segment["end"],
+                            "start": adjusted_start,
+                            "end": adjusted_end,
                             "text": segment["text"].strip()
                         })
                     subtitles = self._match_sentences_to_whisper(
@@ -673,6 +716,8 @@ class VideoMaker:
                         language
                     )
                     if subtitles:
+                        # 타이밍 검증 및 보정: 오디오 길이를 초과하지 않도록
+                        subtitles = self._validate_and_adjust_subtitle_timing(subtitles, audio_duration)
                         print(f"   ✅ {len(subtitles)}개의 자막 생성 완료 (Whisper 세그먼트 타이밍 사용)")
                         return subtitles
                     else:
@@ -897,6 +942,61 @@ class VideoMaker:
                     whisper_idx += 1
         
         return subtitles if subtitles else None
+    
+    def _validate_and_adjust_subtitle_timing(
+        self,
+        subtitles: List[dict],
+        audio_duration: float
+    ) -> List[dict]:
+        """
+        자막 타이밍 검증 및 보정
+        - 오디오 길이를 초과하지 않도록 조정
+        - 음수 타이밍 제거
+        - 타이밍 순서 정렬
+        """
+        if not subtitles:
+            return subtitles
+        
+        validated_subtitles = []
+        for subtitle in subtitles:
+            start = max(0.0, subtitle.get("start", 0.0))
+            end = min(audio_duration, subtitle.get("end", audio_duration))
+            
+            # 시작 시간이 끝 시간보다 크면 스왑
+            if start > end:
+                start, end = end, start
+            
+            # 최소 자막 길이 확인 (0.5초)
+            if end - start < 0.5:
+                end = start + 0.5
+                if end > audio_duration:
+                    end = audio_duration
+                    start = max(0.0, end - 0.5)
+            
+            validated_subtitles.append({
+                "start": start,
+                "end": end,
+                "text": subtitle.get("text", "")
+            })
+        
+        # 시작 시간 순으로 정렬
+        validated_subtitles.sort(key=lambda x: x["start"])
+        
+        # 중복 제거 및 겹치는 자막 병합
+        merged_subtitles = []
+        for subtitle in validated_subtitles:
+            if not merged_subtitles:
+                merged_subtitles.append(subtitle)
+            else:
+                last = merged_subtitles[-1]
+                # 이전 자막과 겹치거나 너무 가까우면 병합
+                if subtitle["start"] <= last["end"] + 0.3:
+                    last["end"] = max(last["end"], subtitle["end"])
+                    last["text"] = last["text"] + " " + subtitle["text"]
+                else:
+                    merged_subtitles.append(subtitle)
+        
+        return merged_subtitles
     
     def _generate_subtitles_from_text_fallback(
         self,
@@ -1363,14 +1463,9 @@ class VideoMaker:
         print()
         
         # 5. 자막 추가 (선택사항)
-        if add_subtitles_flag:
-            print("📝 자막 생성 중...")
-            subtitles = self.generate_subtitles(audio_path, language)
-            if subtitles:
-                print("📝 자막 오버레이 추가 중...")
-                final_video = self.add_subtitles(final_video, subtitles)
-                print("   ✅ 자막 추가 완료")
-                print()
+        # Note: Summary 부분의 자막은 이미 위에서 추가되었습니다.
+        # 전체 영상에 대한 추가 자막이 필요한 경우에만 여기서 처리합니다.
+        # 현재는 Summary 부분에만 자막을 추가하므로 이 부분은 사용하지 않습니다.
         
         # 6. 출력 디렉토리 생성
         output_path_obj = Path(output_path)
