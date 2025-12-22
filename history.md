@@ -2,6 +2,27 @@
 
 ## 2025-12-22
 
+### 괴델, 에셔, 바흐 영상 제작 및 업로드
+- **책 제목**: 괴델, 에셔, 바흐 (Gödel, Escher, Bach: An Eternal Golden Braid)
+- **저자**: 더글러스 호프스태터 (Douglas Hofstadter)
+- **생성된 파일**:
+  - 영상: `output/Gödel_Escher_Bach_An_Eternal_Golden_Braid_kr.mp4` (247MB), `output/Gödel_Escher_Bach_An_Eternal_Golden_Braid_en.mp4` (256MB)
+  - 썸네일: `output/Gödel_Escher_Bach_An_Eternal_Golden_Braid_thumbnail_kr.jpg`, `output/Gödel_Escher_Bach_An_Eternal_Golden_Braid_thumbnail_en.jpg`
+  - 메타데이터: `output/Gödel_Escher_Bach_An_Eternal_Golden_Braid_kr.metadata.json`, `output/Gödel_Escher_Bach_An_Eternal_Golden_Braid_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - 오디오: 요약 오디오 (한글/영문) 생성 완료
+  - NotebookLM 비디오: `assets/video/Gödel_Escher_Bach_An_Eternal_Golden_Braid_notebooklm_kr.mp4`, `assets/video/Gödel_Escher_Bach_An_Eternal_Golden_Braid_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [한국어] 괴델, 에셔, 바흐 책 리뷰 | [Korean] Gödel, Escher, Bach: An Eternal Golden Braid Book Review
+    - URL: https://www.youtube.com/watch?v=cA-U5OXTugE
+  - [2] [English] Gödel, Escher, Bach: An Eternal Golden Braid Book Review | [영어] 괴델, 에셔, 바흐 책 리뷰
+    - URL: https://www.youtube.com/watch?v=5Pe8jgivfYM
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "괴델, 에셔, 바흐" ↔ "Gödel, Escher, Bach: An Eternal Golden Braid" 매핑 추가
+    - "더글러스 호프스태터" ↔ "Douglas Hofstadter" 매핑 추가
+    - 한글/영문 양방향 번역 지원
+
 ### 은하수를 여행하는 히치하이커를 위한 안내서 영상 제작 및 업로드
 - **책 제목**: 은하수를 여행하는 히치하이커를 위한 안내서 (Hitchhiker's Guide to the Galaxy)
 - **저자**: 더글라스 애덤스 (Douglas Adams)
@@ -797,3 +818,13 @@
   - URL: https://www.youtube.com/watch?v=-qHCZQdDUdY
 - [2] [한국어] 은하수를 여행하는 히치하이커를 위한 안내서 책 리뷰 | [Korean] Hitchhiker's Guide to the Galaxy Book Review
   - URL: https://www.youtube.com/watch?v=7E51amuXo68
+
+## 2025-12-22
+
+### YouTube 업로드 완료
+- 업로드된 책: Gödel_Escher_Bach_An_Eternal_Golden_Braid
+- 업로드된 영상 수: 2개
+- [1] [English] Gödel, Escher, Bach: An Eternal Golden Braid Book Review | [영어] 괴델, 에셔, 바흐 책 리뷰
+  - URL: https://www.youtube.com/watch?v=5Pe8jgivfYM
+- [2] [한국어] 괴델, 에셔, 바흐 책 리뷰 | [Korean] Gödel, Escher, Bach: An Eternal Golden Braid Book Review
+  - URL: https://www.youtube.com/watch?v=cA-U5OXTugE

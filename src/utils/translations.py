@@ -121,6 +121,10 @@ def translate_book_title(book_title: str) -> str:
         "은하수를_여행하는_히치하이커를_위한_안내서": "Hitchhiker's Guide to the Galaxy",
         "Hitchhiker's Guide to the Galaxy": "Hitchhiker's Guide to the Galaxy",
         "The Hitchhiker's Guide to the Galaxy": "Hitchhiker's Guide to the Galaxy",
+        "괴델, 에셔, 바흐": "Gödel, Escher, Bach: An Eternal Golden Braid",
+        "괴델_에셔_바흐": "Gödel, Escher, Bach: An Eternal Golden Braid",
+        "Gödel, Escher, Bach: An Eternal Golden Braid": "Gödel, Escher, Bach: An Eternal Golden Braid",
+        "Gödel Escher Bach": "Gödel, Escher, Bach: An Eternal Golden Braid",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -185,6 +189,8 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "The Gene": "유전자",
         "Hitchhiker's Guide to the Galaxy": "은하수를 여행하는 히치하이커를 위한 안내서",
         "The Hitchhiker's Guide to the Galaxy": "은하수를 여행하는 히치하이커를 위한 안내서",
+        "Gödel, Escher, Bach: An Eternal Golden Braid": "괴델, 에셔, 바흐",
+        "Gödel Escher Bach": "괴델, 에셔, 바흐",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -302,6 +308,9 @@ def translate_author_name(author: str) -> str:
         "더글라스 애덤스": "Douglas Adams",
         "더글라스_애덤스": "Douglas Adams",
         "Douglas Adams": "Douglas Adams",
+        "더글러스 호프스태터": "Douglas Hofstadter",
+        "더글러스_호프스태터": "Douglas Hofstadter",
+        "Douglas Hofstadter": "Douglas Hofstadter",
     }
     
     if author in author_map:
@@ -350,6 +359,7 @@ def translate_author_name_to_korean(author: str) -> str:
         "Thomas Piketty": "토마 피케티",
         "Siddhartha Mukherjee": "시다르타 무케르지",
         "Douglas Adams": "더글라스 애덤스",
+        "Douglas Hofstadter": "더글러스 호프스태터",
     }
     
     if author in reverse_author_map:
