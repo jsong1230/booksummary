@@ -158,7 +158,7 @@ class VideoWithSummaryPipeline:
 
         existing_summary_text = None
         
-        if summary_file_path.exists():
+        if summary_file_path is not None and summary_file_path.exists():
             print("=" * 60)
             print("📚 기존 Summary 파일 발견")
             print("=" * 60)

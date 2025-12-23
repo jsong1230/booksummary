@@ -1,5 +1,34 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2025-12-23
+
+### 여섯 번째 대멸종 영상 제작 및 업로드
+- **책 제목**: 여섯 번째 대멸종 (The Sixth Extinction)
+- **저자**: 엘리자베스 콜버트 (Elizabeth Kolbert)
+- **생성된 파일**:
+  - 영상: `output/The_Sixth_Extinction_kr.mp4` (410MB), `output/The_Sixth_Extinction_en.mp4` (335MB)
+  - 썸네일: `output/The_Sixth_Extinction_thumbnail_kr.jpg`, `output/The_Sixth_Extinction_thumbnail_en.jpg`
+  - 메타데이터: `output/The_Sixth_Extinction_kr.metadata.json`, `output/The_Sixth_Extinction_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - 오디오: 요약 오디오 (한글/영문) 생성 완료
+  - NotebookLM 비디오: `assets/video/The_Sixth_Extinction_notebooklm_kr.mp4`, `assets/video/The_Sixth_Extinction_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [한국어] 여섯 번째 대멸종 책 리뷰 | [Korean] The Sixth Extinction Book Review
+    - URL: https://www.youtube.com/watch?v=v6Xet3dhrZk
+  - [2] [English] The Sixth Extinction Book Review | [영어] 여섯 번째 대멸종 책 리뷰
+    - URL: https://www.youtube.com/watch?v=fD7RBmbf-Bc
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "여섯 번째 대멸종" ↔ "The Sixth Extinction" 매핑 추가
+    - "엘리자베스 콜버트" ↔ "Elizabeth Kolbert" 매핑 추가
+    - 한글/영문 양방향 번역 지원
+
+### Summary 파일 없을 때 오류 수정
+- **`src/10_create_video_with_summary.py`**:
+  - `summary_file_path`가 `None`일 때 `exists()` 호출 오류 수정
+  - `summary_file_path is not None and summary_file_path.exists()` 조건 추가
+  - Summary 파일이 없어도 AI가 자동 생성하도록 개선
+
 ## 2025-12-22
 
 ### 괴델, 에셔, 바흐 영상 제작 및 업로드
@@ -828,3 +857,13 @@
   - URL: https://www.youtube.com/watch?v=5Pe8jgivfYM
 - [2] [한국어] 괴델, 에셔, 바흐 책 리뷰 | [Korean] Gödel, Escher, Bach: An Eternal Golden Braid Book Review
   - URL: https://www.youtube.com/watch?v=cA-U5OXTugE
+
+## 2025-12-23
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Sixth_Extinction
+- 업로드된 영상 수: 2개
+- [1] [English] The Sixth Extinction Book Review | [영어] 여섯 번째 대멸종 책 리뷰
+  - URL: https://www.youtube.com/watch?v=fD7RBmbf-Bc
+- [2] [한국어] 여섯 번째 대멸종 책 리뷰 | [Korean] The Sixth Extinction Book Review
+  - URL: https://www.youtube.com/watch?v=v6Xet3dhrZk
