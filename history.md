@@ -2,6 +2,27 @@
 
 ## 2025-12-23
 
+### 현명한 투자자 영상 제작 및 업로드
+- **책 제목**: 현명한 투자자 (The Intelligent Investor)
+- **저자**: 벤저민 그레이엄 (Benjamin Graham)
+- **생성된 파일**:
+  - 영상: `output/The_Intelligent_Investor_kr.mp4` (245MB), `output/The_Intelligent_Investor_en.mp4` (191MB)
+  - 썸네일: `output/The_Intelligent_Investor_thumbnail_kr.jpg`, `output/The_Intelligent_Investor_thumbnail_en.jpg`
+  - 메타데이터: `output/The_Intelligent_Investor_kr.metadata.json`, `output/The_Intelligent_Investor_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - 오디오: 요약 오디오 (한글/영문) 생성 완료
+  - NotebookLM 비디오: `assets/video/The_Intelligent_Investor_notebooklm_kr.mp4`, `assets/video/The_Intelligent_Investor_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [한국어] 현명한 투자자 책 리뷰 | [Korean] The Intelligent Investor Book Review
+    - URL: https://www.youtube.com/watch?v=eRLZ-aOE61E
+  - [2] [English] The Intelligent Investor Book Review | [영어] 현명한 투자자 책 리뷰
+    - URL: https://www.youtube.com/watch?v=mG0xEQ1hPm0
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "현명한 투자자" ↔ "The Intelligent Investor" 매핑 추가
+    - "벤저민 그레이엄" ↔ "Benjamin Graham" 매핑 추가
+    - 한글/영문 양방향 번역 지원
+
 ### 여섯 번째 대멸종 영상 제작 및 업로드
 - **책 제목**: 여섯 번째 대멸종 (The Sixth Extinction)
 - **저자**: 엘리자베스 콜버트 (Elizabeth Kolbert)
@@ -867,3 +888,13 @@
   - URL: https://www.youtube.com/watch?v=fD7RBmbf-Bc
 - [2] [한국어] 여섯 번째 대멸종 책 리뷰 | [Korean] The Sixth Extinction Book Review
   - URL: https://www.youtube.com/watch?v=v6Xet3dhrZk
+
+## 2025-12-23
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Intelligent_Investor
+- 업로드된 영상 수: 2개
+- [1] [English] The Intelligent Investor Book Review | [영어] 현명한 투자자 책 리뷰
+  - URL: https://www.youtube.com/watch?v=mG0xEQ1hPm0
+- [2] [한국어] 현명한 투자자 책 리뷰 | [Korean] The Intelligent Investor Book Review
+  - URL: https://www.youtube.com/watch?v=eRLZ-aOE61E

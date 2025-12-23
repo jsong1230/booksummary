@@ -130,6 +130,9 @@ def translate_book_title(book_title: str) -> str:
         "6번째 대멸종": "The Sixth Extinction",
         "6번째_대멸종": "The Sixth Extinction",
         "The Sixth Extinction": "The Sixth Extinction",
+        "현명한 투자자": "The Intelligent Investor",
+        "현명한_투자자": "The Intelligent Investor",
+        "The Intelligent Investor": "The Intelligent Investor",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -197,6 +200,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Gödel, Escher, Bach: An Eternal Golden Braid": "괴델, 에셔, 바흐",
         "Gödel Escher Bach": "괴델, 에셔, 바흐",
         "The Sixth Extinction": "여섯 번째 대멸종",
+        "The Intelligent Investor": "현명한 투자자",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -320,6 +324,9 @@ def translate_author_name(author: str) -> str:
         "엘리자베스 콜버트": "Elizabeth Kolbert",
         "엘리자베스_콜버트": "Elizabeth Kolbert",
         "Elizabeth Kolbert": "Elizabeth Kolbert",
+        "벤저민 그레이엄": "Benjamin Graham",
+        "벤저민_그레이엄": "Benjamin Graham",
+        "Benjamin Graham": "Benjamin Graham",
     }
     
     if author in author_map:
@@ -370,6 +377,7 @@ def translate_author_name_to_korean(author: str) -> str:
         "Douglas Adams": "더글라스 애덤스",
         "Douglas Hofstadter": "더글러스 호프스태터",
         "Elizabeth Kolbert": "엘리자베스 콜버트",
+        "Benjamin Graham": "벤저민 그레이엄",
     }
     
     if author in reverse_author_map:
