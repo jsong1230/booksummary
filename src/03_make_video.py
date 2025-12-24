@@ -271,6 +271,9 @@ class VideoMaker:
                 img = Image.fromarray(img_array).convert('RGB')
                 img_array = np.array(img)
         
+        # 세로형 이미지 여부 확인 (높이가 더 긴 이미지)
+        is_portrait = img_aspect < aspect_ratio
+        
         # Ken Burns 효과 적용 (부드러운 애니메이션)
         def make_frame(t):
             # 진행률 계산 (0.0 ~ 1.0)
@@ -301,63 +304,105 @@ class VideoMaker:
                 elif pan_direction == "down":
                     pan_y = pan_amount
             
-            # 현재 프레임 크기 계산
-            current_width = int(target_width / current_scale)
-            current_height = int(target_height / current_scale)
-            
-            # 중심점 계산 (스케일된 이미지 기준)
-            center_x = scaled_width // 2
-            center_y = scaled_height // 2
-            
-            # 패닝 적용 (스케일된 이미지 크기 기준)
-            center_x += int(pan_x * scaled_width)
-            center_y += int(pan_y * scaled_height)
-            
-            # 크롭 영역 계산 (경계 체크 강화)
-            left = max(0, center_x - current_width // 2)
-            top = max(0, center_y - current_height // 2)
-            right = min(scaled_width, left + current_width)
-            bottom = min(scaled_height, top + current_height)
-            
-            # 유효성 검사
-            if right <= left or bottom <= top:
-                # 잘못된 크롭 영역이면 원본 이미지 사용
-                from PIL import Image as PILImage
-                resized = PILImage.fromarray(img_array).resize((target_width, target_height), Image.Resampling.LANCZOS)
-                return np.array(resized)
-            
-            # 크롭 (numpy 배열 슬라이싱 사용 - 더 빠름)
-            try:
-                # 배열 shape 확인: (height, width, channels)
-                if len(img_array.shape) != 3 or img_array.shape[2] != 3:
-                    # RGB가 아니면 PIL로 변환 후 처리
+            # 세로형 이미지 처리: 원본 비율 유지하며 높이에 맞춰 중앙 배치
+            if is_portrait:
+                # 높이를 target_height에 정확히 맞춤 (스케일 효과 없이)
+                display_height = target_height
+                display_width = int(display_height * img_aspect)
+                
+                try:
+                    # 원본 이미지 배열 확인
+                    if len(img_array.shape) != 3 or img_array.shape[2] != 3:
+                        from PIL import Image as PILImage
+                        img_pil = PILImage.fromarray(img_array).convert('RGB')
+                        img_array = np.array(img_pil)
+                    
+                    # 원본 이미지를 원본 비율 유지하며 리사이즈
+                    from PIL import Image as PILImage
+                    img_pil = PILImage.fromarray(img_array)
+                    resized_img = img_pil.resize((display_width, display_height), Image.Resampling.LANCZOS)
+                    
+                    # 검은색 배경에 중앙 배치 (letterbox 효과)
+                    final_img = Image.new('RGB', (target_width, target_height), (0, 0, 0))
+                    paste_x = (target_width - display_width) // 2
+                    paste_y = 0  # 높이에 맞춰서 위에서부터 배치
+                    final_img.paste(resized_img, (paste_x, paste_y))
+                    
+                    return np.array(final_img)
+                except (IndexError, ValueError, TypeError) as e:
+                    # 실패 시 원본 이미지 사용 (비율 유지)
                     from PIL import Image as PILImage
                     img_pil = PILImage.fromarray(img_array).convert('RGB')
-                    img_array = np.array(img_pil)
+                    display_height = target_height
+                    display_width = int(display_height * img_aspect)
+                    resized = img_pil.resize((display_width, display_height), Image.Resampling.LANCZOS)
+                    
+                    # 검은색 배경에 중앙 배치
+                    final_img = Image.new('RGB', (target_width, target_height), (0, 0, 0))
+                    paste_x = (target_width - display_width) // 2
+                    paste_y = 0
+                    final_img.paste(resized, (paste_x, paste_y))
+                    
+                    return np.array(final_img)
+            else:
+                # 가로형 이미지: 기존 로직 유지
+                # 현재 프레임 크기 계산
+                current_width = int(target_width / current_scale)
+                current_height = int(target_height / current_scale)
                 
-                cropped = img_array[top:bottom, left:right]
+                # 중심점 계산 (스케일된 이미지 기준)
+                center_x = scaled_width // 2
+                center_y = scaled_height // 2
                 
-                # 빈 배열 체크
-                if cropped.size == 0 or len(cropped.shape) != 3:
+                # 패닝 적용 (스케일된 이미지 크기 기준)
+                center_x += int(pan_x * scaled_width)
+                center_y += int(pan_y * scaled_height)
+                
+                # 크롭 영역 계산 (경계 체크 강화)
+                left = max(0, center_x - current_width // 2)
+                top = max(0, center_y - current_height // 2)
+                right = min(scaled_width, left + current_width)
+                bottom = min(scaled_height, top + current_height)
+                
+                # 유효성 검사
+                if right <= left or bottom <= top:
+                    # 잘못된 크롭 영역이면 원본 이미지 사용
                     from PIL import Image as PILImage
                     resized = PILImage.fromarray(img_array).resize((target_width, target_height), Image.Resampling.LANCZOS)
                     return np.array(resized)
                 
-                # 리사이즈 (고품질)
-                from PIL import Image as PILImage
-                cropped_img = PILImage.fromarray(cropped)
-                resized = cropped_img.resize((target_width, target_height), Image.Resampling.LANCZOS)
-                
-                return np.array(resized)
-            except (IndexError, ValueError, TypeError) as e:
-                # 크롭 실패 시 원본 이미지 리사이즈
-                from PIL import Image as PILImage
-                if len(img_array.shape) == 3:
-                    img_pil = PILImage.fromarray(img_array).convert('RGB')
-                else:
-                    img_pil = PILImage.fromarray(img_array).convert('RGB')
-                resized = img_pil.resize((target_width, target_height), Image.Resampling.LANCZOS)
-                return np.array(resized)
+                # 크롭 (numpy 배열 슬라이싱 사용 - 더 빠름)
+                try:
+                    # 배열 shape 확인: (height, width, channels)
+                    if len(img_array.shape) != 3 or img_array.shape[2] != 3:
+                        # RGB가 아니면 PIL로 변환 후 처리
+                        from PIL import Image as PILImage
+                        img_pil = PILImage.fromarray(img_array).convert('RGB')
+                        img_array = np.array(img_pil)
+                    
+                    cropped = img_array[top:bottom, left:right]
+                    
+                    # 빈 배열 체크
+                    if cropped.size == 0 or len(cropped.shape) != 3:
+                        from PIL import Image as PILImage
+                        resized = PILImage.fromarray(img_array).resize((target_width, target_height), Image.Resampling.LANCZOS)
+                        return np.array(resized)
+                    
+                    # 리사이즈 (고품질)
+                    from PIL import Image as PILImage
+                    cropped_img = PILImage.fromarray(cropped)
+                    resized = cropped_img.resize((target_width, target_height), Image.Resampling.LANCZOS)
+                    
+                    return np.array(resized)
+                except (IndexError, ValueError, TypeError) as e:
+                    # 크롭 실패 시 원본 이미지 리사이즈
+                    from PIL import Image as PILImage
+                    if len(img_array.shape) == 3:
+                        img_pil = PILImage.fromarray(img_array).convert('RGB')
+                    else:
+                        img_pil = PILImage.fromarray(img_array).convert('RGB')
+                    resized = img_pil.resize((target_width, target_height), Image.Resampling.LANCZOS)
+                    return np.array(resized)
         
         # make_frame 함수를 사용하여 클립 생성
         try:
@@ -458,24 +503,83 @@ class VideoMaker:
                 # RGB로 변환
                 if img.mode != 'RGB':
                     img = img.convert('RGB')
-                # 해상도에 맞게 리사이즈
-                img = img.resize(self.resolution, PILImage.Resampling.LANCZOS)
-                # ImageClip 생성 (크기 명시)
-                img_array = np.array(img)
+                
+                # 세로형 이미지 여부 확인
+                img_width, img_height = img.size
+                target_width, target_height = self.resolution
+                aspect_ratio = target_width / target_height
+                img_aspect = img_width / img_height
+                is_portrait = img_aspect < aspect_ratio
+                
+                if is_portrait:
+                    # 세로형 이미지: 높이에 맞추고 좌우는 검은색
+                    display_height = target_height
+                    display_width = int(display_height * img_aspect)
+                    resized_img = img.resize((display_width, display_height), PILImage.Resampling.LANCZOS)
+                    
+                    # 검은색 배경에 중앙 배치
+                    final_img = PILImage.new('RGB', (target_width, target_height), (0, 0, 0))
+                    paste_x = (target_width - display_width) // 2
+                    paste_y = 0
+                    final_img.paste(resized_img, (paste_x, paste_y))
+                    img_array = np.array(final_img)
+                else:
+                    # 가로형 이미지: 기존 로직 (해상도에 맞게 리사이즈)
+                    img = img.resize(self.resolution, PILImage.Resampling.LANCZOS)
+                    img_array = np.array(img)
+                
                 # shape 확인: (height, width, channels) 형식이어야 함
                 if len(img_array.shape) != 3 or img_array.shape[2] != 3:
-                    img = img.convert('RGB')
+                    img = PILImage.fromarray(img_array).convert('RGB')
                     img_array = np.array(img)
                 clip = ImageClip(img_array, duration=clip_duration)
             except Exception as e:
                 print(f"   ⚠️ 이미지 로드 실패 ({Path(image_path).name}): {e}, 기본 방법 사용")
                 try:
-                    clip = ImageClip(image_path, duration=clip_duration)
-                    clip = clip.resized(newsize=self.resolution)
+                    # 예외 처리: 세로형 이미지 처리 포함
+                    img = PILImage.open(image_path)
+                    if img.mode != 'RGB':
+                        img = img.convert('RGB')
+                    
+                    img_width, img_height = img.size
+                    target_width, target_height = self.resolution
+                    aspect_ratio = target_width / target_height
+                    img_aspect = img_width / img_height
+                    is_portrait = img_aspect < aspect_ratio
+                    
+                    if is_portrait:
+                        display_height = target_height
+                        display_width = int(display_height * img_aspect)
+                        resized_img = img.resize((display_width, display_height), PILImage.Resampling.LANCZOS)
+                        final_img = PILImage.new('RGB', (target_width, target_height), (0, 0, 0))
+                        paste_x = (target_width - display_width) // 2
+                        paste_y = 0
+                        final_img.paste(resized_img, (paste_x, paste_y))
+                        clip = ImageClip(np.array(final_img), duration=clip_duration)
+                    else:
+                        clip = ImageClip(image_path, duration=clip_duration)
+                        clip = clip.resized(newsize=self.resolution)
                 except:
-                    # 최후의 수단
-                    img = PILImage.open(image_path).convert('RGB').resize(self.resolution, PILImage.Resampling.LANCZOS)
-                    clip = ImageClip(np.array(img), duration=clip_duration)
+                    # 최후의 수단: 세로형 이미지 처리 포함
+                    img = PILImage.open(image_path).convert('RGB')
+                    img_width, img_height = img.size
+                    target_width, target_height = self.resolution
+                    aspect_ratio = target_width / target_height
+                    img_aspect = img_width / img_height
+                    is_portrait = img_aspect < aspect_ratio
+                    
+                    if is_portrait:
+                        display_height = target_height
+                        display_width = int(display_height * img_aspect)
+                        resized_img = img.resize((display_width, display_height), PILImage.Resampling.LANCZOS)
+                        final_img = PILImage.new('RGB', (target_width, target_height), (0, 0, 0))
+                        paste_x = (target_width - display_width) // 2
+                        paste_y = 0
+                        final_img.paste(resized_img, (paste_x, paste_y))
+                        clip = ImageClip(np.array(final_img), duration=clip_duration)
+                    else:
+                        img = img.resize(self.resolution, PILImage.Resampling.LANCZOS)
+                        clip = ImageClip(np.array(img), duration=clip_duration)
             
             # fade out/in 전환 효과 적용
             # 모든 이미지에 fade out과 fade in을 모두 적용하여 크로스페이드 효과
