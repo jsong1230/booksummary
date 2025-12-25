@@ -75,6 +75,8 @@ def translate_book_title(book_title: str) -> str:
         "The Subtle Art of Not Giving a Fuck": "The Subtle Art of Not Giving a F*ck",
         "부에 대한 연감": "The Almanack of Naval Ravikant",
         "부에_대한_연감": "The Almanack of Naval Ravikant",
+        "네이벌 라비칸트 연감": "The Almanack of Naval Ravikant",
+        "네이벌_라비칸트_연감": "The Almanack of Naval Ravikant",
         "The Almanack of Naval Ravikant": "The Almanack of Naval Ravikant",
         "부의 추월차선": "The Millionaire Fastlane",
         "부의_추월차선": "The Millionaire Fastlane",
@@ -136,6 +138,12 @@ def translate_book_title(book_title: str) -> str:
         "부자 아빠 가난한 아빠": "Rich Dad Poor Dad",
         "부자_아빠_가난한_아빠": "Rich Dad Poor Dad",
         "Rich Dad Poor Dad": "Rich Dad Poor Dad",
+        "딥 워크": "Deep Work",
+        "딥_워크": "Deep Work",
+        "Deep Work": "Deep Work",
+        "생각에 관한 생각": "Thinking, Fast and Slow",
+        "생각에_관한_생각": "Thinking, Fast and Slow",
+        "Thinking, Fast and Slow": "Thinking, Fast and Slow",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -184,7 +192,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Shiji": "사기",
         "The Subtle Art of Not Giving a F*ck": "신경 끄기의 기술",
         "The Subtle Art of Not Giving a Fuck": "신경 끄기의 기술",
-        "The Almanack of Naval Ravikant": "부에 대한 연감",
+        "The Almanack of Naval Ravikant": "네이벌 라비칸트 연감",
         "The Millionaire Fastlane": "부의 추월차선",
         "I Will Teach You to Be Rich": "나는 오늘도 경제적 자유를 꿈꾼다",
         "Elon Musk": "일론 머스크",
@@ -205,6 +213,8 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "The Sixth Extinction": "여섯 번째 대멸종",
         "The Intelligent Investor": "현명한 투자자",
         "Rich Dad Poor Dad": "부자 아빠 가난한 아빠",
+        "Deep Work": "딥 워크",
+        "Thinking, Fast and Slow": "생각에 관한 생각",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -334,6 +344,12 @@ def translate_author_name(author: str) -> str:
         "로버트 기요사키": "Robert Kiyosaki",
         "로버트_기요사키": "Robert Kiyosaki",
         "Robert Kiyosaki": "Robert Kiyosaki",
+        "칼 뉴포트": "Cal Newport",
+        "칼_뉴포트": "Cal Newport",
+        "Cal Newport": "Cal Newport",
+        "대니얼 카너먼": "Daniel Kahneman",
+        "대니얼_카너먼": "Daniel Kahneman",
+        "Daniel Kahneman": "Daniel Kahneman",
     }
     
     if author in author_map:
@@ -386,6 +402,8 @@ def translate_author_name_to_korean(author: str) -> str:
         "Elizabeth Kolbert": "엘리자베스 콜버트",
         "Benjamin Graham": "벤저민 그레이엄",
         "Robert Kiyosaki": "로버트 기요사키",
+        "Cal Newport": "칼 뉴포트",
+        "Daniel Kahneman": "대니얼 카너먼",
     }
     
     if author in reverse_author_map:

@@ -939,3 +939,46 @@
   - URL: https://www.youtube.com/watch?v=9yGHSygpNN8
 - [2] [한국어] 부자 아빠 가난한 아빠 책 리뷰 | [Korean] Rich Dad Poor Dad Book Review
   - URL: https://www.youtube.com/watch?v=Qf9ftpgh2Zk
+
+## 2025-12-24
+
+### YouTube 업로드 완료
+- 업로드된 책: Deep_Work
+- 업로드된 영상 수: 2개
+- [1] [English] Deep Work Book Review | [영어] 딥 워크 책 리뷰
+  - URL: https://www.youtube.com/watch?v=aPo9cZ1JH8k
+- [2] [한국어] 딥 워크 책 리뷰 | [Korean] Deep Work Book Review
+  - URL: https://www.youtube.com/watch?v=i4zgz6zT_G8
+
+## 2025-12-24
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Almanack_of_Naval_Ravikant
+- 업로드된 영상 수: 2개
+- [1] [English] The Almanack of Naval Ravikant Book Review | [영어] 네이벌 라비칸트 연감 책 리뷰
+  - URL: https://www.youtube.com/watch?v=n_Yfo41vuRc
+- [2] [한국어] 네이벌 라비칸트 연감 책 리뷰 | [Korean] The Almanack of Naval Ravikant Book Review
+  - URL: https://www.youtube.com/watch?v=6FE_pZDtePM
+
+## 2025-12-25
+
+### 생각에 관한 생각 영상 제작 및 업로드
+- **책 제목**: 생각에 관한 생각 (Thinking, Fast and Slow)
+- **저자**: 대니얼 카너먼 (Daniel Kahneman)
+- **생성된 파일**:
+  - 영상: `output/Thinking_Fast_and_Slow_kr.mp4` (235MB), `output/Thinking_Fast_and_Slow_en.mp4` (208MB)
+  - 썸네일: `output/Thinking_Fast_and_Slow_thumbnail_kr.jpg`, `output/Thinking_Fast_and_Slow_thumbnail_en.jpg`
+  - 메타데이터: `output/Thinking_Fast_and_Slow_kr.metadata.json`, `output/Thinking_Fast_and_Slow_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - 오디오: 요약 오디오 (한글/영문) 생성 완료
+  - NotebookLM 비디오: `assets/video/Thinking_Fast_and_Slow_notebooklm_kr.mp4`, `assets/video/Thinking_Fast_and_Slow_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [한국어] 생각에 관한 생각 책 리뷰 | [Korean] Thinking, Fast and Slow Book Review
+    - URL: https://www.youtube.com/watch?v=EDfOZfYtCbI
+  - [2] [English] Thinking, Fast and Slow Book Review | [영어] 생각에 관한 생각 책 리뷰
+    - URL: https://www.youtube.com/watch?v=GNTBUL9ic5k
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "생각에 관한 생각" ↔ "Thinking, Fast and Slow" 매핑 추가
+    - "대니얼 카너먼" ↔ "Daniel Kahneman" 매핑 추가
+    - 한글/영문 양방향 번역 지원
