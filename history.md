@@ -1005,3 +1005,24 @@
     - "명상록" ↔ "Meditations" 매핑 추가
     - "마르쿠스 아우렐리우스" ↔ "Marcus Aurelius" 매핑 추가
     - 한글/영문 양방향 번역 지원
+
+### 랜덤워크에 속지 마라 영상 제작 및 업로드
+- **책 제목**: 랜덤워크에 속지 마라 (Fooled by Randomness)
+- **저자**: 나심 탈레브 (Nassim Taleb)
+- **생성된 파일**:
+  - 영상: `output/Fooled_by_Randomness_kr.mp4` (246MB), `output/Fooled_by_Randomness_en.mp4` (197MB)
+  - 썸네일: `output/Fooled_by_Randomness_thumbnail_kr.jpg`, `output/Fooled_by_Randomness_thumbnail_en.jpg`
+  - 메타데이터: `output/Fooled_by_Randomness_kr.metadata.json`, `output/Fooled_by_Randomness_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - 오디오: 요약 오디오 (한글/영문) 생성 완료
+  - NotebookLM 비디오: `assets/video/Fooled_by_Randomness_notebooklm_kr.mp4`, `assets/video/Fooled_by_Randomness_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [한국어] 랜덤워크에 속지 마라 책 리뷰 | [Korean] Fooled by Randomness Book Review
+    - URL: https://www.youtube.com/watch?v=g2CMGEZIiKk
+  - [2] [English] Fooled by Randomness Book Review | [영어] 랜덤워크에 속지 마라 책 리뷰
+    - URL: https://www.youtube.com/watch?v=58kWvjPhs1M
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "랜덤워크에 속지 마라" ↔ "Fooled by Randomness" 매핑 추가
+    - "나심 탈레브" ↔ "Nassim Taleb" 매핑 추가
+    - 한글/영문 양방향 번역 지원

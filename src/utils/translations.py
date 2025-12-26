@@ -147,6 +147,9 @@ def translate_book_title(book_title: str) -> str:
         "명상록": "Meditations",
         "명상록_": "Meditations",
         "Meditations": "Meditations",
+        "랜덤워크에 속지 마라": "Fooled by Randomness",
+        "랜덤워크에_속지_마라": "Fooled by Randomness",
+        "Fooled by Randomness": "Fooled by Randomness",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -219,6 +222,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Deep Work": "딥 워크",
         "Thinking, Fast and Slow": "생각에 관한 생각",
         "Meditations": "명상록",
+        "Fooled by Randomness": "랜덤워크에 속지 마라",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -357,6 +361,9 @@ def translate_author_name(author: str) -> str:
         "마르쿠스 아우렐리우스": "Marcus Aurelius",
         "마르쿠스_아우렐리우스": "Marcus Aurelius",
         "Marcus Aurelius": "Marcus Aurelius",
+        "나심 탈레브": "Nassim Taleb",
+        "나심_탈레브": "Nassim Taleb",
+        "Nassim Taleb": "Nassim Taleb",
     }
     
     if author in author_map:
@@ -412,6 +419,7 @@ def translate_author_name_to_korean(author: str) -> str:
         "Cal Newport": "칼 뉴포트",
         "Daniel Kahneman": "대니얼 카너먼",
         "Marcus Aurelius": "마르쿠스 아우렐리우스",
+        "Nassim Taleb": "나심 탈레브",
     }
     
     if author in reverse_author_map:
