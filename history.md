@@ -982,3 +982,26 @@
     - "생각에 관한 생각" ↔ "Thinking, Fast and Slow" 매핑 추가
     - "대니얼 카너먼" ↔ "Daniel Kahneman" 매핑 추가
     - 한글/영문 양방향 번역 지원
+
+## 2025-12-26
+
+### 명상록 영상 제작 및 업로드
+- **책 제목**: 명상록 (Meditations)
+- **저자**: 마르쿠스 아우렐리우스 (Marcus Aurelius)
+- **생성된 파일**:
+  - 영상: `output/Meditations_kr.mp4` (321MB), `output/Meditations_en.mp4` (264MB)
+  - 썸네일: `output/Meditations_thumbnail_kr.jpg`, `output/Meditations_thumbnail_en.jpg`
+  - 메타데이터: `output/Meditations_kr.metadata.json`, `output/Meditations_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - 오디오: 요약 오디오 (한글/영문) 생성 완료
+  - NotebookLM 비디오: `assets/video/Meditations_notebooklm_kr.mp4`, `assets/video/Meditations_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [한국어] 명상록 책 리뷰 | [Korean] Meditations Book Review
+    - URL: https://www.youtube.com/watch?v=-mt0I3u9XPE
+  - [2] [English] Meditations Book Review | [영어] 명상록 책 리뷰
+    - URL: https://www.youtube.com/watch?v=vbbKT1nrdko
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "명상록" ↔ "Meditations" 매핑 추가
+    - "마르쿠스 아우렐리우스" ↔ "Marcus Aurelius" 매핑 추가
+    - 한글/영문 양방향 번역 지원
