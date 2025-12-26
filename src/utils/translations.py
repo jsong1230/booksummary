@@ -154,6 +154,9 @@ def translate_book_title(book_title: str) -> str:
         "행동하지_않으면_인생은_바뀌지_않는다": "No Excuses!: The Power of Self-Discipline",
         "No Excuses!: The Power of Self-Discipline": "No Excuses!: The Power of Self-Discipline",
         "No Excuses": "No Excuses!: The Power of Self-Discipline",
+        "설국": "Snow Country",
+        "설국_": "Snow Country",
+        "Snow Country": "Snow Country",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -229,6 +232,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Fooled by Randomness": "랜덤워크에 속지 마라",
         "No Excuses!: The Power of Self-Discipline": "행동하지 않으면 인생은 바뀌지 않는다",
         "No Excuses": "행동하지 않으면 인생은 바뀌지 않는다",
+        "Snow Country": "설국",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -373,6 +377,9 @@ def translate_author_name(author: str) -> str:
         "브라이언 트레이시": "Brian Tracy",
         "브라이언_트레이시": "Brian Tracy",
         "Brian Tracy": "Brian Tracy",
+        "가와바타 야스나리": "Yasunari Kawabata",
+        "가와바타_야스나리": "Yasunari Kawabata",
+        "Yasunari Kawabata": "Yasunari Kawabata",
     }
     
     if author in author_map:
@@ -430,6 +437,7 @@ def translate_author_name_to_korean(author: str) -> str:
         "Marcus Aurelius": "마르쿠스 아우렐리우스",
         "Nassim Taleb": "나심 탈레브",
         "Brian Tracy": "브라이언 트레이시",
+        "Yasunari Kawabata": "가와바타 야스나리",
     }
     
     if author in reverse_author_map:
