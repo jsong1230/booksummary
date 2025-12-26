@@ -1,5 +1,28 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2025-12-26
+
+### 행동하지 않으면 인생은 바뀌지 않는다 영상 제작 및 업로드
+- **책 제목**: 행동하지 않으면 인생은 바뀌지 않는다 (No Excuses!: The Power of Self-Discipline)
+- **저자**: 브라이언 트레이시 (Brian Tracy)
+- **생성된 파일**:
+  - 영상: `output/No_Excuses_The_Power_of_Self_Discipline_kr.mp4` (224MB), `output/No_Excuses_The_Power_of_Self_Discipline_en.mp4` (307MB)
+  - 썸네일: `output/No_Excuses_The_Power_of_Self_Discipline_thumbnail_kr.jpg`, `output/No_Excuses_The_Power_of_Self_Discipline_thumbnail_en.jpg`
+  - 메타데이터: `output/No_Excuses_The_Power_of_Self_Discipline_kr.metadata.json`, `output/No_Excuses_The_Power_of_Self_Discipline_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - 오디오: 요약 오디오 (한글/영문) 생성 완료
+  - NotebookLM 비디오: `assets/video/No_Excuses_The_Power_of_Self_Discipline_notebooklm_kr.mp4`, `assets/video/No_Excuses_The_Power_of_Self_Discipline_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [한국어] 행동하지 않으면 인생은 바뀌지 않는다 책 리뷰 | [Korean] No Excuses!: The Power of Self-Discipline Book Review
+    - URL: https://www.youtube.com/watch?v=cnMPYf727lk
+  - [2] [English] No Excuses!: The Power of Self-Discipline Book Review | [영어] 행동하지 않으면 인생은 바뀌지 않는다 책 리뷰
+    - URL: https://www.youtube.com/watch?v=XMr661ly1UU
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "행동하지 않으면 인생은 바뀌지 않는다" ↔ "No Excuses!: The Power of Self-Discipline" 매핑 추가
+    - "브라이언 트레이시" ↔ "Brian Tracy" 매핑 추가
+    - 한글/영문 양방향 번역 지원
+
 ## 2025-12-24
 
 ### 부자 아빠 가난한 아빠 영상 제작 및 업로드
@@ -1026,3 +1049,13 @@
     - "랜덤워크에 속지 마라" ↔ "Fooled by Randomness" 매핑 추가
     - "나심 탈레브" ↔ "Nassim Taleb" 매핑 추가
     - 한글/영문 양방향 번역 지원
+
+## 2025-12-26
+
+### YouTube 업로드 완료
+- 업로드된 책: No_Excuses_The_Power_of_Self_Discipline
+- 업로드된 영상 수: 2개
+- [1] [English] No Excuses!: The Power of Self-Discipline Book Review | [영어] 행동하지 않으면 인생은 바뀌지 않는다 책 리뷰
+  - URL: https://www.youtube.com/watch?v=XMr661ly1UU
+- [2] [한국어] 행동하지 않으면 인생은 바뀌지 않는다 책 리뷰 | [Korean] No Excuses!: The Power of Self-Discipline Book Review
+  - URL: https://www.youtube.com/watch?v=cnMPYf727lk
