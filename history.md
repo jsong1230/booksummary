@@ -19,6 +19,46 @@
     - URL: https://www.youtube.com/watch?v=rz5EpYOZCsI
     - 새 영상 ID: `rz5EpYOZCsI` (기존 영상과 다른 새 영상으로 업로드됨)
 
+### 프랑켄슈타인 영상 제작 및 업로드
+- **책 제목**: 프랑켄슈타인 (Frankenstein)
+- **저자**: 메리 셸리 (Mary Shelley)
+- **생성된 파일**:
+  - 영상: `output/Frankenstein_kr.mp4` (411MB), `output/Frankenstein_en.mp4` (294MB)
+  - 썸네일: `output/Frankenstein_thumbnail_kr.jpg`, `output/Frankenstein_thumbnail_en.jpg`
+  - 메타데이터: `output/Frankenstein_kr.metadata.json`, `output/Frankenstein_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - NotebookLM 비디오: `assets/video/Frankenstein_notebooklm_kr.mp4`, `assets/video/Frankenstein_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [한국어] 프랑켄슈타인 책 리뷰 | [Korean] Frankenstein Book Review
+    - URL: https://www.youtube.com/watch?v=Rx7RpKTkjaY
+  - [2] [English] Frankenstein Book Review | [영어] 프랑켄슈타인 책 리뷰
+    - URL: https://www.youtube.com/watch?v=3JrwQ45fngk
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "프랑켄슈타인" ↔ "Frankenstein" 매핑 추가
+    - "메리 셸리" ↔ "Mary Shelley" 매핑 추가
+    - 한글/영문 양방향 번역 지원
+
+### 젊은 베르테르의 슬픔 영상 제작 및 업로드
+- **책 제목**: 젊은 베르테르의 슬픔 (The Sorrows of Young Werther)
+- **저자**: 괴테 (Johann Wolfgang von Goethe)
+- **생성된 파일**:
+  - 영상: `output/The_Sorrows_of_Young_Werther_kr.mp4` (265MB), `output/The_Sorrows_of_Young_Werther_en.mp4` (306MB)
+  - 썸네일: `output/The_Sorrows_of_Young_Werther_thumbnail_kr.jpg`, `output/The_Sorrows_of_Young_Werther_thumbnail_en.jpg`
+  - 메타데이터: `output/The_Sorrows_of_Young_Werther_kr.metadata.json`, `output/The_Sorrows_of_Young_Werther_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - NotebookLM 비디오: `assets/video/The_Sorrows_of_Young_Werther_notebooklm_kr.mp4`, `assets/video/The_Sorrows_of_Young_Werther_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [한국어] 젊은 베르테르의 슬픔 책 리뷰 | [Korean] The Sorrows of Young Werther Book Review
+    - URL: https://www.youtube.com/watch?v=l7Zw32e_u0A
+  - [2] [English] The Sorrows of Young Werther Book Review | [영어] 젊은 베르테르의 슬픔 책 리뷰
+    - URL: https://www.youtube.com/watch?v=rf1R09G4hnw
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "젊은 베르테르의 슬픔" ↔ "The Sorrows of Young Werther" 매핑 추가
+    - "괴테" ↔ "Johann Wolfgang von Goethe" 매핑 추가
+    - 한글/영문 양방향 번역 지원
+
 ## 2025-12-26
 
 ### 행동하지 않으면 인생은 바뀌지 않는다 영상 제작 및 업로드
@@ -1125,3 +1165,23 @@
 - 업로드된 영상 수: 1개
 - [1] [English] Factfulness Book Review | [영어] 팩트풀니스 책 리뷰
   - URL: https://www.youtube.com/watch?v=rz5EpYOZCsI
+
+## 2025-12-27
+
+### YouTube 업로드 완료
+- 업로드된 책: Frankenstein
+- 업로드된 영상 수: 2개
+- [1] [English] Frankenstein Book Review | [영어] 프랑켄슈타인 책 리뷰
+  - URL: https://www.youtube.com/watch?v=3JrwQ45fngk
+- [2] [한국어] 프랑켄슈타인 책 리뷰 | [Korean] Frankenstein Book Review
+  - URL: https://www.youtube.com/watch?v=Rx7RpKTkjaY
+
+## 2025-12-27
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Sorrows_of_Young_Werther
+- 업로드된 영상 수: 2개
+- [1] [English] The Sorrows of Young Werther Book Review | [영어] 젊은 베르테르의 슬픔 책 리뷰
+  - URL: https://www.youtube.com/watch?v=rf1R09G4hnw
+- [2] [한국어] 젊은 베르테르의 슬픔 책 리뷰 | [Korean] The Sorrows of Young Werther Book Review
+  - URL: https://www.youtube.com/watch?v=l7Zw32e_u0A

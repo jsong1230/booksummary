@@ -157,6 +157,12 @@ def translate_book_title(book_title: str) -> str:
         "설국": "Snow Country",
         "설국_": "Snow Country",
         "Snow Country": "Snow Country",
+        "프랑켄슈타인": "Frankenstein",
+        "프랑켄슈타인_": "Frankenstein",
+        "Frankenstein": "Frankenstein",
+        "젊은 베르테르의 슬픔": "The Sorrows of Young Werther",
+        "젊은_베르테르의_슬픔": "The Sorrows of Young Werther",
+        "The Sorrows of Young Werther": "The Sorrows of Young Werther",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -233,6 +239,8 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "No Excuses!: The Power of Self-Discipline": "행동하지 않으면 인생은 바뀌지 않는다",
         "No Excuses": "행동하지 않으면 인생은 바뀌지 않는다",
         "Snow Country": "설국",
+        "Frankenstein": "프랑켄슈타인",
+        "The Sorrows of Young Werther": "젊은 베르테르의 슬픔",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -366,6 +374,9 @@ def translate_author_name(author: str) -> str:
         "칼_뉴포트": "Cal Newport",
         "Cal Newport": "Cal Newport",
         "대니얼 카너먼": "Daniel Kahneman",
+        "메리 셸리": "Mary Shelley",
+        "메리_셸리": "Mary Shelley",
+        "Mary Shelley": "Mary Shelley",
         "대니얼_카너먼": "Daniel Kahneman",
         "Daniel Kahneman": "Daniel Kahneman",
         "마르쿠스 아우렐리우스": "Marcus Aurelius",
@@ -380,6 +391,10 @@ def translate_author_name(author: str) -> str:
         "가와바타 야스나리": "Yasunari Kawabata",
         "가와바타_야스나리": "Yasunari Kawabata",
         "Yasunari Kawabata": "Yasunari Kawabata",
+        "괴테": "Johann Wolfgang von Goethe",
+        "괴테_": "Johann Wolfgang von Goethe",
+        "Johann Wolfgang von Goethe": "Johann Wolfgang von Goethe",
+        "Goethe": "Johann Wolfgang von Goethe",
     }
     
     if author in author_map:
