@@ -1,5 +1,24 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2025-12-27
+
+### 팩트풀니스 영문 영상 재생성 및 재업로드
+- **책 제목**: 팩트풀니스 (Factfulness)
+- **저자**: 한스 로슬링 (Hans Rosling)
+- **작업 내용**:
+  - input 폴더에서 파일 준비:
+    - `fact_summary_en.md` → `assets/summaries/Factfulness_summary_en.md`
+    - `fact_thumbnail_en.png` → `output/Factfulness_thumbnail_en.jpg` (PNG→JPG 변환)
+    - `fact_video_en.mp4` → `assets/video/Factfulness_notebooklm_en.mp4`
+  - 영문 롱폼 영상 재생성: `output/Factfulness_en.mp4` (189.93MB)
+  - 영문 메타데이터 재생성: `output/Factfulness_en.metadata.json`
+    - 한글 태그 제거 (YouTube 태그 규칙 준수)
+    - 문제가 될 수 있는 태그 수정 (공백 추가)
+- **YouTube 재업로드 완료 (비공개)**:
+  - [English] Factfulness Book Review | [영어] 팩트풀니스 책 리뷰
+    - URL: https://www.youtube.com/watch?v=rz5EpYOZCsI
+    - 새 영상 ID: `rz5EpYOZCsI` (기존 영상과 다른 새 영상으로 업로드됨)
+
 ## 2025-12-26
 
 ### 행동하지 않으면 인생은 바뀌지 않는다 영상 제작 및 업로드
@@ -1090,3 +1109,19 @@
   - URL: https://www.youtube.com/watch?v=MlXg0nvIziE
 - [2] [한국어] 설국 책 리뷰 | [Korean] Snow Country Book Review
   - URL: https://www.youtube.com/watch?v=x2qoMiJ02Xw
+
+## 2025-12-27
+
+### YouTube 업로드 완료
+- 업로드된 책: Factfulness
+- 업로드된 영상 수: 1개
+- [1] [English] Factfulness Book Review | [영어] 팩트풀니스 책 리뷰
+  - URL: https://www.youtube.com/watch?v=cxUJc-Cp-Ds
+
+## 2025-12-27
+
+### YouTube 업로드 완료
+- 업로드된 책: Factfulness
+- 업로드된 영상 수: 1개
+- [1] [English] Factfulness Book Review | [영어] 팩트풀니스 책 리뷰
+  - URL: https://www.youtube.com/watch?v=rz5EpYOZCsI
