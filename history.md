@@ -39,6 +39,17 @@
     - "메리 셸리" ↔ "Mary Shelley" 매핑 추가
     - 한글/영문 양방향 번역 지원
 
+### 프랑켄슈타인 한글 영상 재생성 및 재업로드
+- **책 제목**: 프랑켄슈타인 (Frankenstein)
+- **저자**: 메리 셸리 (Mary Shelley)
+- **작업 내용**:
+  - 한글 롱폼 영상 재생성: `output/Frankenstein_kr.mp4` (333.45MB)
+  - 한글 메타데이터 재생성: `output/Frankenstein_kr.metadata.json`
+- **YouTube 재업로드 완료 (비공개)**:
+  - [한국어] 프랑켄슈타인 책 리뷰 | [Korean] Frankenstein Book Review
+    - URL: https://www.youtube.com/watch?v=KsoVW_dHzN4
+    - 새 영상 ID: `KsoVW_dHzN4` (기존 영상과 다른 새 영상으로 업로드됨)
+
 ### 젊은 베르테르의 슬픔 영상 제작 및 업로드
 - **책 제목**: 젊은 베르테르의 슬픔 (The Sorrows of Young Werther)
 - **저자**: 괴테 (Johann Wolfgang von Goethe)
@@ -1185,3 +1196,11 @@
   - URL: https://www.youtube.com/watch?v=rf1R09G4hnw
 - [2] [한국어] 젊은 베르테르의 슬픔 책 리뷰 | [Korean] The Sorrows of Young Werther Book Review
   - URL: https://www.youtube.com/watch?v=l7Zw32e_u0A
+
+## 2025-12-27
+
+### YouTube 업로드 완료
+- 업로드된 책: Frankenstein
+- 업로드된 영상 수: 1개
+- [1] [한국어] 프랑켄슈타인 책 리뷰 | [Korean] Frankenstein Book Review
+  - URL: https://www.youtube.com/watch?v=KsoVW_dHzN4
