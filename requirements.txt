@@ -22,4 +22,11 @@ moviepy>=1.0.3
 google-cloud-texttospeech>=2.16.0
 replicate>=0.25.0
 
+# YouTube transcript
+youtube-transcript-api>=0.6.0
+
+# Web automation for Pixabay music download
+selenium>=4.15.0
+webdriver-manager>=4.0.0
+
 pytest

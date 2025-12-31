@@ -3,12 +3,17 @@
 """
 
 import os
+import sys
 import json
 import csv
 from pathlib import Path
 from typing import Optional, Dict, Set
 from datetime import datetime
 from dotenv import load_dotenv
+
+# 프로젝트 루트를 Python 경로에 추가
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
 try:
     from google.oauth2.credentials import Credentials
@@ -120,6 +125,12 @@ class YouTubeUploader:
         video_file = Path(video_path)
         file_size = video_file.stat().st_size
         
+        # 제목 정리 (앞뒤 공백 제거, NULL 문자 제거)
+        title = title.strip().replace('\x00', '')
+        if not title:
+            print("❌ 제목이 비어있습니다.")
+            return None
+        
         print(f"📤 업로드 중: {title}")
         print(f"   파일 크기: {file_size / (1024*1024):.2f} MB")
         
@@ -196,9 +207,14 @@ class YouTubeUploader:
         if len(description) > 0:
             print(f"   📝 Description 처음 100자: {repr(description[:100])}")
         
+        # 제목 최종 검증
+        if not title or len(title.strip()) == 0:
+            print("❌ 제목이 비어있습니다. 업로드를 중단합니다.")
+            return None
+        
         body = {
             'snippet': {
-                'title': title,
+                'title': title.strip(),
                 'description': description,
                 'tags': tags,
                 'categoryId': '22'  # People & Blogs
@@ -209,10 +225,14 @@ class YouTubeUploader:
             }
         }
         
-        # 채널 ID가 지정된 경우 snippet에 추가
+        # 디버깅: body의 title 확인
+        print(f"   🔍 디버깅 - body['snippet']['title']: {repr(body['snippet']['title'])}")
+        print(f"   🔍 디버깅 - title 길이: {len(body['snippet']['title'])}")
+        
+        # 채널 ID는 YouTube API v3에서 snippet에 직접 추가하지 않음
+        # 인증된 사용자의 기본 채널에 업로드됨
         if channel_id:
-            body['snippet']['channelId'] = channel_id
-            print(f"   📺 채널 ID 지정: {channel_id}")
+            print(f"   📺 채널 ID: {channel_id} (참고용, API에서는 인증된 사용자 채널 사용)")
         
         try:
             # 파일 크기 확인 및 경고

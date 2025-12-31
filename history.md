@@ -2,6 +2,34 @@
 
 ## 2025-12-31
 
+### 일당백 에피소드 제작 워크플로우 구현
+- **작업 내용**:
+  - YouTube 자막 추출 스크립트: 일당백 채널의 Part 1/Part 2 영상에서 자막 추출 기능 구현
+  - 에피소드 영상 합성: NotebookLM에서 생성한 Part 1/Part 2 영상과 인포그래픽을 하나의 에피소드로 합성
+  - 배경음악 자동 다운로드: 책 분위기에 맞는 라이센스 없는 배경음악 자동 다운로드 (Freesound API, Pixabay)
+  - 에피소드 메타데이터 생성: 일당백 스타일 에피소드용 메타데이터 생성 (제목, 설명, 태그)
+  - 영문 메타데이터 개선: 영문 메타데이터에서 한글 제거, 채널명을 1DANG100으로 통일
+  - 인포그래픽 표시 시간 조정: 5초 → 30초로 증가
+  - 배경음악 fadeout 효과 추가
+- **수정된 파일**:
+  - `src/09_upload_from_metadata.py`: sys.path 추가, 제목 검증 로직 추가, 채널 ID 처리 개선
+  - `src/20_create_episode_metadata.py`: 영문 메타데이터에서 한글 제거, 1DANG100으로 통일
+  - `src/utils/translations.py`: 마키아벨리 군주론 번역 매핑 추가
+- **새로 생성된 파일**:
+  - `scripts/fetch_separate_scripts.py`: YouTube 자막 추출 (Part 1/Part 2 분리 저장)
+  - `scripts/fetch_youtube_script.py`: YouTube 자막 추출 (통합 저장)
+  - `src/create_full_episode.py`: 에피소드 영상 합성 스크립트
+  - `src/20_create_episode_metadata.py`: 에피소드 메타데이터 생성 스크립트
+  - `src/21_download_background_music.py`: 배경음악 다운로드 스크립트
+  - `run_episode_maker.py`: 에피소드 제작 워크플로우 통합 스크립트
+- **생성된 영상**:
+  - 마키아벨리 군주론: 깨어있는 시민을 위한 필요악 (한글/영문)
+    - 한글: https://www.youtube.com/watch?v=UVMpO5zZE-E (15분 11초, 506.99MB)
+    - 영문: https://www.youtube.com/watch?v=HchRMda0H0s (15분 0초, 548.03MB)
+- **문서 업데이트**:
+  - `README.md`: 일당백 에피소드 제작 워크플로우 섹션 추가
+  - `requirements.txt`: youtube-transcript-api, selenium, webdriver-manager, Pillow 추가
+
 ### YouTube 채널 개선사항 구현
 - **작업 내용**:
   - 좋아요 유도 문구 중간 삽입: 설명란 중간 부분에 좋아요 유도 문구 추가 (알고리즘 영향 설명 포함)
@@ -1373,3 +1401,19 @@
   - URL: https://www.youtube.com/watch?v=bEYUYAxR0Bo
 - [2] [한국어] 제인 에어 책 리뷰 | [Korean] Jane Eyre Book Review
   - URL: https://www.youtube.com/watch?v=bnSKi6eURFM
+
+## 2025-12-31
+
+### YouTube 업로드 완료
+- 업로드된 책: 마키아벨리_군주론_깨어있는_시민을_위한_필요악_full_episode_ko
+- 업로드된 영상 수: 1개
+- [1] [일당백] 마키아벨리 군주론: 깨어있는 시민을 위한 필요악 완전정복 | 작가와 배경부터 소설 줄거리까지
+  - URL: https://www.youtube.com/watch?v=UVMpO5zZE-E
+
+## 2025-12-31
+
+### YouTube 업로드 완료
+- 업로드된 책: 마키아벨리_군주론_깨어있는_시민을_위한_필요악_full_episode
+- 업로드된 영상 수: 1개
+- [1] The Prince: A Necessary Evil for Awakened Citizens
+  - URL: https://www.youtube.com/watch?v=HchRMda0H0s
