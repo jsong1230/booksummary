@@ -842,11 +842,68 @@ class VideoMaker:
             return self._generate_subtitles_from_text_fallback(text, audio_duration, language)
     
     def _clean_markdown_text(self, text: str) -> str:
-        """마크다운 문법 제거"""
+        """마크다운 문법 제거 및 메타데이터 필터링"""
         import re
+        
+        # HTML 주석 제거 (<!-- -->)
+        text = re.sub(r'<!--.*?-->', '', text, flags=re.DOTALL)
+        
+        # 파일 시작 부분의 메타데이터 제거
+        lines = text.split('\n')
+        cleaned_lines = []
+        skip_metadata = True
+        metadata_patterns = [
+            r'^📘',  # 책 이모지
+            r'^📖',  # 책 이모지
+            r'^TTS 기준',
+            r'^서머리 스크립트',
+            r'^Summary script',
+            r'^TTS 기준.*서머리',
+            r'^TTS 기준.*스크립트',
+            r'^.*약.*분.*서머리',
+            r'^.*약.*분.*스크립트',
+        ]
+        
+        for i, line in enumerate(lines):
+            # 빈 줄이 나오면 메타데이터 구간 종료로 간주
+            if skip_metadata and line.strip() == '':
+                if i + 1 < len(lines) and lines[i + 1].strip():
+                    skip_metadata = False
+                    continue
+            
+            # 메타데이터 구간에서는 패턴 매칭하여 제거
+            if skip_metadata:
+                is_metadata = False
+                for pattern in metadata_patterns:
+                    if re.search(pattern, line, re.IGNORECASE):
+                        is_metadata = True
+                        break
+                
+                # 첫 3줄 내에서 저자 이름이나 책 제목만 있는 경우도 메타데이터로 간주
+                if i < 3 and line.strip() and not any(tag in line for tag in ['[HOOK]', '[SUMMARY]', '[BRIDGE]', '[CLOSING]']):
+                    if len(line.strip()) < 50 and not line.strip().startswith('['):
+                        is_metadata = True
+                
+                if is_metadata:
+                    continue
+            
+            cleaned_lines.append(line)
+        
+        text = '\n'.join(cleaned_lines)
+        
+        # 구조적 태그 제거
+        text = re.sub(r'\[HOOK\s*–?\s*[^\]]*\]', '', text, flags=re.IGNORECASE)
         text = re.sub(r'\[HOOK\]', '', text)
+        text = re.sub(r'\[SUMMARY\s*–?\s*[^\]]*\]', '', text, flags=re.IGNORECASE)
         text = re.sub(r'\[SUMMARY\]', '', text)
+        text = re.sub(r'\[BRIDGE\s*–?\s*[^\]]*\]', '', text, flags=re.IGNORECASE)
         text = re.sub(r'\[BRIDGE\]', '', text)
+        text = re.sub(r'\[CLOSING\s*–?\s*[^\]]*\]', '', text, flags=re.IGNORECASE)
+        text = re.sub(r'\[CLOSING\]', '', text)
+        
+        # 기타 구조적 태그 제거
+        text = re.sub(r'\[[^\]]+\]\s*$', '', text, flags=re.MULTILINE)
+        
         text = re.sub(r'#+\s*', '', text)  # 헤더 제거
         text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)  # **볼드** 제거
         text = re.sub(r'\*([^*]+)\*', r'\1', text)  # *이탤릭* 제거

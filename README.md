@@ -65,6 +65,7 @@ pip install -r requirements.txt
 - `GOOGLE_APPLICATION_CREDENTIALS`: Google Cloud TTS 사용 시 (선택사항, `google-cloud-tts-key.json` 파일 경로)
 - `REPLICATE_API_TOKEN`: Replicate TTS 사용 시 (선택사항)
 - `ELEVENLABS_API_KEY`: ElevenLabs TTS 사용 시 (선택사항)
+- `LOG_LEVEL`: 로그 레벨 설정 (선택사항, 기본값: INFO, 가능한 값: DEBUG, INFO, WARNING, ERROR, CRITICAL)
 
 ## 빠른 시작 가이드 (처음 시작하는 경우)
 
@@ -235,6 +236,30 @@ NotebookLM에서 생성한 비디오 파일을 `assets/video/` 폴더에 위치�
 - 한글: `{책제목}_summary_ko.md`
 - 영어: `{책제목}_summary_en.md`
 
+**Summary 파일 메타데이터 주석 처리:**
+
+Summary 파일 생성 시 메타데이터(책 제목, 저자, 설명 라인)는 자동으로 HTML 주석(`<!-- -->`)으로 처리됩니다. TTS 생성 시 이 메타데이터는 자동으로 필터링되어 음성으로 변환되지 않습니다.
+
+**자동 생성되는 형식:**
+```markdown
+<!-- 📘 노인과 바다 -->
+<!-- 어니스트 헤밍웨이 -->
+<!-- TTS 기준 약 5분 서머리 스크립트 (Korean) -->
+
+[HOOK – 도입]
+...
+```
+
+**영문 형식:**
+```markdown
+<!-- 📘 The Old Man and the Sea -->
+<!-- Ernest Hemingway -->
+<!-- TTS 기준 about 5 minutes summary script (English) -->
+
+[HOOK – Introduction]
+...
+```
+
 **썸네일 파일:**
 
 PNG 파일을 `output/` 폴더에 위치시키고 JPG로 변환합니다.
@@ -304,6 +329,15 @@ python src/08_create_and_preview_videos.py \
 - **Summary** (이미지 슬라이드쇼 + 요약 오디오, 음량 1.2배 조정, **자막 자동 추가**)
 - **2초 silence** (검은 화면)
 - **NotebookLM Video** (선택사항, 있으면 자동 포함)
+
+**YouTube 챕터 마커 자동 생성:**
+
+- 영상 description의 맨 앞에 YouTube 챕터 마커가 자동으로 추가됩니다
+- 형식: `0:00 Chapter Title` (YouTube가 자동으로 인식)
+- 챕터 구성:
+  - `0:00 Summary` (요약 섹션)
+  - `{timestamp} NotebookLM Detailed Analysis` (NotebookLM 비디오가 있는 경우)
+- 메타데이터 생성 시 timestamp 정보가 있으면 자동으로 챕터 마커가 생성됩니다
 
 **Summary 자막 기능:**
 
@@ -482,6 +516,86 @@ booksummary/
   ```
 - 양방향 번역 지원 (한글→영문, 영문→한글)
 - 매핑이 없으면 메타데이터 생성 시 오류 발생
+
+### YouTube Analytics API 연동
+
+- **채널 및 영상 메트릭 수집**: 조회수, 좋아요, 댓글 수, 시청 시간 등
+- **자동 메트릭 수집**: 채널 전체 또는 특정 영상의 메트릭 수집
+- **데이터 저장**: JSON 및 CSV 형식으로 메트릭 데이터 저장
+- **사용 예시**:
+  ```bash
+  # 채널 전체 메트릭 수집
+  python src/15_youtube_analytics.py --channel
+  
+  # 모든 영상 메트릭 수집
+  python src/15_youtube_analytics.py --videos
+  
+  # 특정 영상 메트릭 수집
+  python src/15_youtube_analytics.py --video-id VIDEO_ID
+  
+  # 기간 지정
+  python src/15_youtube_analytics.py --channel --start-date 2025-01-01 --end-date 2025-01-31
+  
+  # 주간 리포트 생성
+  python src/15_youtube_analytics.py --weekly-report
+  
+  # 월간 리포트 생성
+  python src/15_youtube_analytics.py --monthly-report
+  
+  # 특정 월 리포트 생성
+  python src/15_youtube_analytics.py --monthly-report --year 2025 --month 1
+  ```
+- **필수 스코프**: YouTube Analytics API 사용을 위해 OAuth2 인증 시 다음 스코프가 필요합니다:
+  - `https://www.googleapis.com/auth/youtube.readonly`
+  - `https://www.googleapis.com/auth/yt-analytics.readonly`
+- **주의사항**: 기존 refresh token에 새로운 스코프를 추가하려면 `scripts/get_youtube_refresh_token.py`를 다시 실행해야 합니다
+- **주간/월간 리포트**: 자동으로 Markdown 형식의 리포트 생성
+  - 채널 전체 메트릭 요약
+  - 영상별 메트릭 (조회수 상위 10개)
+  - 통계 요약 (총 조회수, 좋아요, 댓글 수 등)
+- **대시보드 생성**: HTML 기반 대시보드로 메트릭 시각화
+  ```bash
+  # 대시보드 생성
+  python src/16_dashboard.py
+  
+  # 기간 지정
+  python src/16_dashboard.py --start-date 2025-01-01 --end-date 2025-01-31
+  
+  # 생성 후 브라우저에서 자동 열기
+  python src/16_dashboard.py --open
+  ```
+  - 채널 통계 카드 (총 영상 수, 조회수, 좋아요, 댓글 수 등)
+  - 조회수 상위 10개 영상 테이블
+  - 조회수 분포 차트 (Chart.js 사용)
+  - 최근 업로드 영상 목록
+
+### 구조화된 로깅 시스템
+
+- **로그 레벨 관리**: DEBUG, INFO, WARNING, ERROR, CRITICAL 레벨 지원
+- **파일 및 콘솔 로그 분리**: 
+  - 일반 로그: `logs/{모듈명}.log`
+  - 에러 로그: `logs/{모듈명}_error.log` (ERROR 레벨 이상만 저장)
+- **로그 파일 로테이션**: 파일 크기 기반 자동 로테이션 (기본 10MB, 최대 5개 백업)
+- **컬러 콘솔 출력**: 터미널에서 로그 레벨별 색상 구분 및 이모지 표시
+- **환경 변수 설정**: `LOG_LEVEL` 환경 변수로 로그 레벨 제어
+  ```bash
+  # DEBUG 레벨로 실행 (상세한 디버깅 정보 포함)
+  LOG_LEVEL=DEBUG python src/10_create_video_with_summary.py ...
+  
+  # WARNING 레벨로 실행 (경고 이상만 표시)
+  LOG_LEVEL=WARNING python src/10_create_video_with_summary.py ...
+  ```
+- **사용 예시**:
+  ```python
+  from utils.logger import get_logger
+  
+  logger = get_logger(__name__)
+  logger.debug("디버깅 정보")
+  logger.info("일반 정보")
+  logger.warning("경고 메시지")
+  logger.error("오류 메시지")
+  logger.critical("심각한 오류")
+  ```
 
 ## 라이선스
 

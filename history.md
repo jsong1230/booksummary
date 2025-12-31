@@ -1,5 +1,44 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2025-12-31
+
+### Summary 파일 메타데이터 주석 처리 기능 추가
+- **작업 내용**:
+  - Summary 파일 생성 시 메타데이터를 HTML 주석으로 자동 처리
+  - TTS 생성 시 메타데이터 자동 필터링 기능 추가
+  - 한글/영문 모두 지원
+- **수정된 파일**:
+  - `src/08_generate_summary.py`: `save_summary()` 메서드에 메타데이터 주석 처리 로직 추가
+  - `src/09_text_to_speech.py`: `_clean_markdown_for_tts()` 메서드에 HTML 주석 및 메타데이터 필터링 추가
+  - `src/10_create_video_with_summary.py`: 동일한 필터링 로직 적용
+  - `src/03_make_video.py`: 자막 생성 시 메타데이터 필터링 추가
+- **메타데이터 형식**:
+  - 한글: `<!-- 📘 노인과 바다 -->`, `<!-- 어니스트 헤밍웨이 -->`, `<!-- TTS 기준 약 5분 서머리 스크립트 (Korean) -->`
+  - 영문: `<!-- 📘 The Old Man and the Sea -->`, `<!-- Ernest Hemingway -->`, `<!-- TTS 기준 about 5 minutes summary script (English) -->`
+- **영상 업로드 워크플로우 개선**:
+  - `.cursorrules`에 YouTube 업로드 승인 절차 규칙 추가
+  - 영상 생성 요청 시 업로드까지 자동 진행하지 않음
+  - 사용자 명시적 요청 시에만 업로드 진행
+
+### 노인과 바다 영상 제작 및 업로드
+- **책 제목**: 노인과 바다 (The Old Man and the Sea)
+- **저자**: 어니스트 헤밍웨이 (Ernest Hemingway)
+- **생성된 파일**:
+  - 영상: `output/The_Old_Man_and_the_Sea_kr.mp4` (264.09MB), `output/The_Old_Man_and_the_Sea_en.mp4` (280.78MB)
+  - 썸네일: `output/The_Old_Man_and_the_Sea_thumbnail_kr.jpg`, `output/The_Old_Man_and_the_Sea_thumbnail_en.jpg`
+  - 메타데이터: `output/The_Old_Man_and_the_Sea_kr.metadata.json`, `output/The_Old_Man_and_the_Sea_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - NotebookLM 비디오: `assets/video/The_Old_Man_and_the_Sea_notebooklm_kr.mp4`, `assets/video/The_Old_Man_and_the_Sea_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [한국어] 노인과 바다 책 리뷰 | [Korean] The Old Man and the Sea Book Review
+    - URL: https://www.youtube.com/watch?v=cRcf2WF8iqo
+  - [2] [English] The Old Man and the Sea Book Review | [영어] 노인과 바다 책 리뷰
+    - URL: https://www.youtube.com/watch?v=_AqE6HnRJfc
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "노인과 바다" ↔ "The Old Man and the Sea" 매핑 추가
+    - "헤밍웨이" ↔ "Ernest Hemingway" 매핑 (이미 존재)
+
 ## 2025-12-27
 
 ### 팩트풀니스 영문 영상 재생성 및 재업로드
@@ -1204,3 +1243,23 @@
 - 업로드된 영상 수: 1개
 - [1] [한국어] 프랑켄슈타인 책 리뷰 | [Korean] Frankenstein Book Review
   - URL: https://www.youtube.com/watch?v=KsoVW_dHzN4
+
+## 2025-12-31
+
+### YouTube 업로드 완료
+- 업로드된 책: Thus_Spoke_Zarathustra
+- 업로드된 영상 수: 2개
+- [1] [English] Thus Spoke Zarathustra Book Review | [영어] 차라투스트라는 이렇게 말했다 책 리뷰
+  - URL: https://www.youtube.com/watch?v=CN2t7vtRbSQ
+- [2] [한국어] 차라투스트라는 이렇게 말했다 책 리뷰 | [Korean] Thus Spoke Zarathustra Book Review
+  - URL: https://www.youtube.com/watch?v=kHapabFebCk
+
+## 2025-12-31
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Old_Man_and_the_Sea
+- 업로드된 영상 수: 2개
+- [1] [English] The Old Man and the Sea Book Review | [영어] 노인과 바다 책 리뷰
+  - URL: https://www.youtube.com/watch?v=_AqE6HnRJfc
+- [2] [한국어] 노인과 바다 책 리뷰 | [Korean] The Old Man and the Sea Book Review
+  - URL: https://www.youtube.com/watch?v=cRcf2WF8iqo

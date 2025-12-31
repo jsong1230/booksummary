@@ -11,7 +11,12 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
 # YouTube API 스코프
-SCOPES = ['https://www.googleapis.com/auth/youtube.upload']
+# Analytics API를 사용하려면 yt-analytics.readonly 스코프도 필요합니다
+SCOPES = [
+    'https://www.googleapis.com/auth/youtube.upload',
+    'https://www.googleapis.com/auth/youtube.readonly',
+    'https://www.googleapis.com/auth/yt-analytics.readonly'
+]
 
 def get_refresh_token():
     """OAuth2 인증을 통해 refresh token 받기"""

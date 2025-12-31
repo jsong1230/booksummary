@@ -480,15 +480,19 @@ class SummaryGenerator:
         self,
         summary: str,
         book_title: str,
-        language: str = "ko"
+        author: str = None,
+        language: str = "ko",
+        duration_minutes: float = 5.0
     ) -> Path:
         """
-        요약 텍스트 저장
+        요약 텍스트 저장 (메타데이터 주석 처리 포함)
         
         Args:
             summary: 요약 텍스트
             book_title: 책 제목
+            author: 저자 이름
             language: 언어
+            duration_minutes: 요약 길이 (분 단위, 기본값: 5.0)
             
         Returns:
             저장된 파일 경로
@@ -502,10 +506,39 @@ class SummaryGenerator:
         # .md 파일로 저장 (표준 형식)
         output_path = output_dir / f"{safe_title_str}_summary_{lang_suffix}.md"
         
+        # 메타데이터 주석 처리 (언어별)
+        lang_name = "Korean" if language == "ko" else "English"
+        
+        # duration 텍스트 생성 (언어별)
+        if language == "ko":
+            if duration_minutes >= 1:
+                duration_text = f"약 {int(duration_minutes)}분"
+            else:
+                duration_text = f"약 {int(duration_minutes * 60)}초"
+            script_label = "서머리 스크립트"
+        else:
+            if duration_minutes >= 1:
+                duration_text = f"about {int(duration_minutes)} minutes"
+            else:
+                duration_text = f"about {int(duration_minutes * 60)} seconds"
+            script_label = "summary script"
+        
+        # 메타데이터를 HTML 주석으로 감싸기
+        metadata_lines = []
+        metadata_lines.append(f"<!-- 📘 {book_title} -->")
+        if author:
+            metadata_lines.append(f"<!-- {author} -->")
+        metadata_lines.append(f"<!-- TTS 기준 {duration_text} {script_label} ({lang_name}) -->")
+        metadata_lines.append("")  # 빈 줄 추가
+        
+        # 메타데이터 + 실제 요약 내용
+        full_content = "\n".join(metadata_lines) + summary
+        
         with open(output_path, 'w', encoding='utf-8') as f:
-            f.write(summary)
+            f.write(full_content)
         
         print(f"✅ 요약 저장 완료: {output_path}")
+        print(f"   📝 메타데이터 주석 처리 완료")
         return output_path
 
 
@@ -543,7 +576,9 @@ def main():
         output_path = generator.save_summary(
             summary=summary,
             book_title=args.title,
-            language=args.language
+            author=args.author,
+            language=args.language,
+            duration_minutes=args.duration
         )
         
         print()

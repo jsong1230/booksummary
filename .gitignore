@@ -89,6 +89,10 @@ assets/images/**
 # 테스트 출력 파일 (Git에 포함하지 않음)
 test_outputs/
 
+# 로그 파일 (Git에 포함하지 않음)
+logs/
+*.log
+
 # Google Cloud 인증 키 파일 (민감 정보)
 google-cloud-tts-key.json
 

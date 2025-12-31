@@ -20,6 +20,9 @@ except ImportError:
 # 프로젝트 루트를 경로에 추가
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+# 로깅 시스템 import
+from utils.logger import get_logger
+
 # 숫자로 시작하는 모듈은 importlib 사용
 import importlib.util
 
@@ -48,6 +51,7 @@ class VideoWithSummaryPipeline:
     """요약 포함 영상 제작 파이프라인"""
     
     def __init__(self):
+        self.logger = get_logger(__name__)
         self.summary_generator = SummaryGenerator()
         self.tts_engine = TTSEngine()
         self.video_maker = VideoMaker(
@@ -114,13 +118,13 @@ class VideoWithSummaryPipeline:
         
         safe_title_str = get_standard_safe_title(book_title)
         
-        print("=" * 60)
-        print("🎬 요약 포함 영상 제작 파이프라인 시작")
-        print("=" * 60)
-        print(f"책 제목: {display_book_title}")
-        print(f"저자: {display_author}")
-        print(f"언어: {language}")
-        print()
+        self.logger.info("=" * 60)
+        self.logger.info("🎬 요약 포함 영상 제작 파이프라인 시작")
+        self.logger.info("=" * 60)
+        self.logger.info(f"책 제목: {display_book_title}")
+        self.logger.info(f"저자: {display_author}")
+        self.logger.info(f"언어: {language}")
+        self.logger.info("")
         
         # 1. 요약 생성 (건너뛰지 않는 경우)
         summary_audio_path = None
@@ -201,7 +205,9 @@ class VideoWithSummaryPipeline:
                 summary_text_path = self.summary_generator.save_summary(
                     summary=summary_text,
                     book_title=book_title,
-                    language=language
+                    author=summary_author,
+                    language=language,
+                    duration_minutes=summary_duration_minutes
                 )
                 print()
                 existing_summary_text = summary_text
@@ -386,12 +392,72 @@ class VideoWithSummaryPipeline:
         """
         TTS 생성을 위해 마크다운 태그 및 문법 정리
         구조적 태그([HOOK], [SUMMARY], [BRIDGE]) 제거 및 마크다운 문법 정리로 자연스러운 음성 흐름 확보
+        메타데이터(책 제목, 저자, "TTS 기준..." 등) 자동 제거
         """
         import re
+        
+        # HTML 주석 제거 (<!-- -->)
+        text = re.sub(r'<!--.*?-->', '', text, flags=re.DOTALL)
+        
+        # 파일 시작 부분의 메타데이터 제거
+        # 패턴: 책 제목, 저자, "TTS 기준..." 같은 설명 라인
+        lines = text.split('\n')
+        cleaned_lines = []
+        skip_metadata = True
+        metadata_patterns = [
+            r'^📘',  # 책 이모지
+            r'^📖',  # 책 이모지
+            r'^TTS 기준',
+            r'^서머리 스크립트',
+            r'^Summary script',
+            r'^TTS 기준.*서머리',
+            r'^TTS 기준.*스크립트',
+            r'^.*약.*분.*서머리',
+            r'^.*약.*분.*스크립트',
+        ]
+        
+        for i, line in enumerate(lines):
+            # 빈 줄이 나오면 메타데이터 구간 종료로 간주
+            if skip_metadata and line.strip() == '':
+                # 빈 줄 다음에 실제 내용이 시작되는 것으로 간주
+                if i + 1 < len(lines) and lines[i + 1].strip():
+                    skip_metadata = False
+                    continue
+            
+            # 메타데이터 구간에서는 패턴 매칭하여 제거
+            if skip_metadata:
+                is_metadata = False
+                for pattern in metadata_patterns:
+                    if re.search(pattern, line, re.IGNORECASE):
+                        is_metadata = True
+                        break
+                
+                # 첫 3줄 내에서 저자 이름이나 책 제목만 있는 경우도 메타데이터로 간주
+                if i < 3 and line.strip() and not any(tag in line for tag in ['[HOOK]', '[SUMMARY]', '[BRIDGE]', '[CLOSING]']):
+                    # 한글이나 영문만 있는 짧은 라인은 메타데이터일 가능성 높음
+                    if len(line.strip()) < 50 and not line.strip().startswith('['):
+                        is_metadata = True
+                
+                if is_metadata:
+                    continue
+            
+            cleaned_lines.append(line)
+        
+        text = '\n'.join(cleaned_lines)
+        
         # 구조적 태그 제거
+        text = re.sub(r'\[HOOK\s*–?\s*[^\]]*\]', '', text, flags=re.IGNORECASE)
         text = re.sub(r'\[HOOK\]', '', text)
+        text = re.sub(r'\[SUMMARY\s*–?\s*[^\]]*\]', '', text, flags=re.IGNORECASE)
         text = re.sub(r'\[SUMMARY\]', '', text)
+        text = re.sub(r'\[BRIDGE\s*–?\s*[^\]]*\]', '', text, flags=re.IGNORECASE)
         text = re.sub(r'\[BRIDGE\]', '', text)
+        text = re.sub(r'\[CLOSING\s*–?\s*[^\]]*\]', '', text, flags=re.IGNORECASE)
+        text = re.sub(r'\[CLOSING\]', '', text)
+        
+        # 기타 구조적 태그 제거 (예: [핵심 장면], [상징과 의미] 등)
+        text = re.sub(r'\[[^\]]+\]\s*$', '', text, flags=re.MULTILINE)
+        
         # 헤더 제거
         text = re.sub(r'#+\s*', '', text)
         # 볼드 제거

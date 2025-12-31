@@ -193,10 +193,63 @@ def _generate_timestamps_section(timestamps: Optional[Dict] = None, lang: str = 
     
     return section
 
+def _generate_youtube_chapters(timestamps: Optional[Dict] = None, lang: str = "ko") -> str:
+    """
+    YouTube 챕터 마커 생성 (description 앞부분에 추가)
+    
+    YouTube는 description의 처음 부분에 특정 형식의 timestamp가 있으면 자동으로 챕터를 생성합니다.
+    형식: 0:00 Chapter Title (하이픈 없이도 가능)
+    """
+    if not timestamps:
+        return ""
+    
+    summary_duration = timestamps.get('summary_duration', 0)
+    notebooklm_duration = timestamps.get('notebooklm_duration', 0)
+    
+    # Summary가 없으면 챕터 추가 안 함
+    if summary_duration == 0:
+        return ""
+    
+    silence_duration = 2.0  # 섹션 사이 silence
+    
+    # 챕터 목록 생성
+    chapters = []
+    
+    # 첫 번째 챕터: Summary (0:00)
+    if lang == "ko":
+        chapters.append("0:00 요약 (Summary)")
+    else:
+        chapters.append("0:00 Summary")
+    
+    # 두 번째 챕터: NotebookLM Video (있는 경우)
+    if notebooklm_duration > 0:
+        timestamp1 = _format_timestamp(summary_duration)
+        if lang == "ko":
+            chapters.append(f"{timestamp1} NotebookLM 상세 분석")
+        else:
+            chapters.append(f"{timestamp1} NotebookLM Detailed Analysis")
+    
+    # 세 번째 챕터: Review Audio (있는 경우)
+    timestamp2 = summary_duration + silence_duration + notebooklm_duration
+    if timestamp2 > summary_duration:  # Review Audio가 있는 경우
+        timestamp2_str = _format_timestamp(timestamp2)
+        if lang == "ko":
+            chapters.append(f"{timestamp2_str} 오디오 리뷰 (Audio Review)")
+        else:
+            chapters.append(f"{timestamp2_str} Audio Review")
+    
+    # YouTube 챕터 형식으로 반환 (각 챕터는 새 줄에)
+    return "\n".join(chapters) + "\n\n"
+
 def _generate_description_ko(book_info: Optional[Dict] = None, book_title: str = None, timestamps: Optional[Dict] = None, author: Optional[str] = None) -> str:
     """한글 설명 생성 (한글 먼저, 영어 나중)"""
+    # YouTube 챕터 마커를 description의 맨 앞에 추가
+    youtube_chapters = ""
+    if timestamps:
+        youtube_chapters = _generate_youtube_chapters(timestamps, lang="ko")
+    
     # 한글 부분
-    ko_desc = """📚 책 리뷰 영상
+    ko_desc = youtube_chapters + """📚 책 리뷰 영상
 
 이 영상은 NotebookLM과 AI를 활용하여 자동으로 생성되었습니다.
 
@@ -206,7 +259,7 @@ def _generate_description_ko(book_info: Optional[Dict] = None, book_title: str =
 
 """
     
-    # Timestamp 추가
+    # Timestamp 섹션 추가 (중간에 표시용)
     if timestamps:
         ko_desc += _generate_timestamps_section(timestamps, lang="ko")
         ko_desc += "\n"
@@ -350,10 +403,15 @@ def get_english_book_description(book_title: str) -> str:
 
 def _generate_description_en(book_info: Optional[Dict] = None, book_title: str = None, include_header: bool = True, timestamps: Optional[Dict] = None, author: Optional[str] = None) -> str:
     """영문 설명 생성"""
+    # YouTube 챕터 마커를 description의 맨 앞에 추가
+    youtube_chapters = ""
+    if timestamps:
+        youtube_chapters = _generate_youtube_chapters(timestamps, lang="en")
+    
     description = ""
     
     if include_header:
-        description = """📚 Book Review Video
+        description = youtube_chapters + """📚 Book Review Video
 
 This video was automatically generated using NotebookLM and AI.
 
@@ -363,7 +421,7 @@ This video was automatically generated using NotebookLM and AI.
 
 """
         
-        # Timestamp 추가
+        # Timestamp 섹션 추가 (중간에 표시용)
         if timestamps:
             description += _generate_timestamps_section(timestamps, lang="en")
             description += "\n"
