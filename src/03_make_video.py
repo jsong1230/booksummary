@@ -31,6 +31,8 @@ except ImportError as e:
     except ImportError:
         MOVIEPY_AVAILABLE = False
         MOVIEPY_VERSION_NEW = False
+        # MoviePy import 오류는 모듈 레벨에서 발생하므로 로거를 사용할 수 없음
+        # print 문 유지
         print(f"⚠️ MoviePy import 오류: {e}")
         print("pip install moviepy")
 
@@ -39,6 +41,11 @@ try:
     WHISPER_AVAILABLE = True
 except ImportError:
     WHISPER_AVAILABLE = False
+
+try:
+    from utils.logger import get_logger
+except ImportError:
+    from src.utils.logger import get_logger
 
 load_dotenv()
 
@@ -54,6 +61,7 @@ class VideoMaker:
             bitrate: 비디오 비트레이트 (기본값: "5000k")
             audio_bitrate: 오디오 비트레이트 (기본값: "320k")
         """
+        self.logger = get_logger(__name__)
         self.resolution = resolution
         self.fps = fps
         self.bitrate = bitrate
@@ -68,10 +76,10 @@ class VideoMaker:
         if not audio_file.exists():
             raise FileNotFoundError(f"오디오 파일을 찾을 수 없습니다: {audio_path}")
         
-        print(f"🎵 오디오 로드 중: {audio_path}")
+        self.logger.info(f"🎵 오디오 로드 중: {audio_path}")
         try:
             audio = AudioFileClip(audio_path)
-            print(f"   길이: {audio.duration:.2f}초")
+            self.logger.info(f"   길이: {audio.duration:.2f}초")
         except Exception as e:
             raise ValueError(f"오디오 파일 로드 실패: {e}")
         
@@ -99,11 +107,11 @@ class VideoMaker:
         if not audio_paths:
             raise ValueError("오디오 파일 경로가 필요합니다.")
         
-        print("🔗 오디오 연결 중...")
+        self.logger.info("🔗 오디오 연결 중...")
         audio_clips = []
         
         for i, audio_path in enumerate(audio_paths):
-            print(f"   [{i+1}/{len(audio_paths)}] 로드: {Path(audio_path).name}")
+            self.logger.info(f"[{i+1}/{len(audio_paths)}] 로드: {Path(audio_path).name}")
             audio_clip = self.load_audio(audio_path)
             
             # 오디오 클립에 fade 효과 적용 (오디오 전용 메서드 사용)
@@ -119,7 +127,7 @@ class VideoMaker:
                 
                 # 오디오 간 간격 추가 (조용한 구간)
                 if gap_duration > 0:
-                    print(f"   ⏸️  {gap_duration}초 간격 추가...")
+                    self.logger.info(f"⏸️  {gap_duration}초 간격 추가...")
                     try:
                         # 무음 오디오 클립 생성
                         from moviepy.audio.AudioClip import AudioArrayClip
@@ -143,7 +151,7 @@ class VideoMaker:
                             audio_clips.append(silence_video)
                         except Exception as e2:
                             # 간격 추가 실패 시 경고만 출력하고 계속 진행
-                            print(f"   ⚠️ 간격 추가 실패: {e2}, 간격 없이 연결합니다.")
+                            self.logger.warning(f"간격 추가 실패: {e2}, 간격 없이 연결합니다.")
                 
                 # 현재 클립에 fade in
                 try:
@@ -164,7 +172,7 @@ class VideoMaker:
                 pass
         
         # 오디오 클립들을 연결
-        print("   연결 중...")
+        self.logger.info("연결 중...")
         try:
             from moviepy.audio.AudioClip import concatenate_audioclips
             final_audio = concatenate_audioclips(audio_clips)
@@ -180,14 +188,14 @@ class VideoMaker:
             concatenated = concatenate_videoclips(video_clips, method="compose")
             final_audio = concatenated.audio
         
-        print(f"   ✅ 연결 완료: 총 길이 {final_audio.duration:.2f}초")
+        self.logger.info(f"✅ 연결 완료: 총 길이 {final_audio.duration:.2f}초")
         
         # 저장 (선택사항)
         if output_path:
-            print(f"   💾 저장 중: {output_path}")
+            self.logger.info(f"💾 저장 중: {output_path}")
             Path(output_path).parent.mkdir(parents=True, exist_ok=True)
             final_audio.write_audiofile(output_path, codec='aac', bitrate='192k')
-            print(f"   ✅ 저장 완료")
+            self.logger.info("✅ 저장 완료")
         
         return final_audio
     
@@ -411,7 +419,7 @@ class VideoMaker:
             clip = clip.fl(lambda get_frame, t: make_frame(t), apply_to=['video'])
         except Exception as e:
             # 실패 시 기본 클립 반환 (효과 없이)
-            print(f"   ⚠️ Ken Burns 효과 적용 실패, 기본 클립 사용: {e}")
+            self.logger.warning(f"Ken Burns 효과 적용 실패, 기본 클립 사용: {e}")
             clip = ImageClip(img_array, duration=duration)
             clip = clip.resized(newsize=self.resolution)
         
@@ -463,18 +471,18 @@ class VideoMaker:
         max_images = 100
         if len(image_paths) > max_images:
             image_paths = image_paths[:max_images]
-            print(f"   ⚠️ 이미지가 {len(image_paths)}개 이상입니다. 앞에서 {max_images}개만 사용합니다.")
+            self.logger.warning(f"이미지가 {len(image_paths)}개 이상입니다. 앞에서 {max_images}개만 사용합니다.")
         
         # 영상이 끝날 때까지 필요한 이미지 개수 계산
         num_needed = math.ceil(total_duration / duration_per_image)
         num_cycles = math.ceil(num_needed / len(image_paths))
         
-        print(f"   📊 사용할 이미지 개수: {len(image_paths)}개 (최대 100개)")
-        print(f"   📊 필요한 총 이미지 개수: {num_needed}개")
-        print(f"   ⏱️  이미지당 표시 시간: {duration_per_image:.1f}초")
-        print(f"   🎨 페이드 전환 시간: {fade_duration:.1f}초 (fade out/in)")
-        print(f"   🔄 반복 횟수: {num_cycles}회 (100개 이미지를 순환 사용)")
-        print(f"   💡 시청자 관점 권장: 이미지당 4-5초가 가장 자연스럽고 적절합니다")
+        self.logger.info(f"📊 사용할 이미지 개수: {len(image_paths)}개 (최대 100개)")
+        self.logger.info(f"📊 필요한 총 이미지 개수: {num_needed}개")
+        self.logger.info(f"⏱️  이미지당 표시 시간: {duration_per_image:.1f}초")
+        self.logger.info(f"🎨 페이드 전환 시간: {fade_duration:.1f}초 (fade out/in)")
+        self.logger.info(f"🔄 반복 횟수: {num_cycles}회 (100개 이미지를 순환 사용)")
+        self.logger.info("💡 시청자 관점 권장: 이미지당 4-5초가 가장 자연스럽고 적절합니다")
         
         clips = []
         current_time = 0.0
@@ -534,7 +542,7 @@ class VideoMaker:
                     img_array = np.array(img)
                 clip = ImageClip(img_array, duration=clip_duration)
             except Exception as e:
-                print(f"   ⚠️ 이미지 로드 실패 ({Path(image_path).name}): {e}, 기본 방법 사용")
+                self.logger.warning(f"이미지 로드 실패 ({Path(image_path).name}): {e}, 기본 방법 사용")
                 try:
                     # 예외 처리: 세로형 이미지 처리 포함
                     img = PILImage.open(image_path)
@@ -617,13 +625,13 @@ class VideoMaker:
                         try:
                             clip = clip.fx(fadein, fade_duration)
                         except Exception as e:
-                            print(f"   ⚠️ fade in 적용 실패: {e}, fade 효과 없이 진행")
+                            self.logger.warning(f"fade in 적용 실패: {e}, fade 효과 없이 진행")
                     if not is_last:
                         # fade out 적용
                         try:
                             clip = clip.fx(fadeout, fade_duration)
                         except Exception as e:
-                            print(f"   ⚠️ fade out 적용 실패: {e}, fade 효과 없이 진행")
+                            self.logger.warning(f"fade out 적용 실패: {e}, fade 효과 없이 진행")
                 else:
                     # 구버전 호환성
                     try:
@@ -639,7 +647,7 @@ class VideoMaker:
             current_time += clip_duration
             image_index += 1  # 다음 이미지로 이동 (순환)
         
-        print(f"   ✅ 총 {len(clips)}개의 클립 생성 완료")
+        self.logger.info(f"✅ 총 {len(clips)}개의 클립 생성 완료")
         return clips
     
     def generate_subtitles(self, audio_path: str, language: str = "ko") -> Optional[List[dict]]:
@@ -654,23 +662,23 @@ class VideoMaker:
             자막 리스트 [{"start": float, "end": float, "text": str}, ...]
         """
         if not WHISPER_AVAILABLE:
-            print("⚠️ Whisper가 설치되지 않았습니다. 자막 생성을 건너뜁니다.")
+            self.logger.warning("Whisper가 설치되지 않았습니다. 자막 생성을 건너뜁니다.")
             return None
         
-        print("📝 자막 생성 중 (Whisper)...")
+        self.logger.info("📝 자막 생성 중 (Whisper)...")
         try:
             # 오디오 파일 존재 확인
             audio_file = Path(audio_path)
             if not audio_file.exists():
-                print(f"   ❌ 오디오 파일을 찾을 수 없습니다: {audio_path}")
+                self.logger.error(f"오디오 파일을 찾을 수 없습니다: {audio_path}")
                 return None
             
-            print(f"   📁 오디오 파일: {audio_file.name}")
+            self.logger.info(f"📁 오디오 파일: {audio_file.name}")
             model = whisper.load_model("base")
             result = model.transcribe(str(audio_path), language=language)
             
             if not result or "segments" not in result:
-                print("   ⚠️ Whisper 결과가 비어있습니다.")
+                self.logger.warning("Whisper 결과가 비어있습니다.")
                 return None
             
             subtitles = []
@@ -681,11 +689,11 @@ class VideoMaker:
                     "text": segment["text"].strip()
                 })
             
-            print(f"   ✅ {len(subtitles)}개의 자막 생성 완료")
+            self.logger.info(f"✅ {len(subtitles)}개의 자막 생성 완료")
             return subtitles
             
         except Exception as e:
-            print(f"   ❌ 자막 생성 실패: {e}")
+            self.logger.error(f"자막 생성 실패: {e}")
             import traceback
             traceback.print_exc()
             return None
@@ -716,14 +724,14 @@ class VideoMaker:
         
         # 오디오 파일이 있으면 Whisper로 정확한 타이밍 분석
         if audio_path and Path(audio_path).exists() and WHISPER_AVAILABLE:
-            print("📝 자막 생성 중 (Whisper 단어 단위 타이밍 분석)...")
+            self.logger.info("📝 자막 생성 중 (Whisper 단어 단위 타이밍 분석)...")
             try:
                 audio_file = Path(audio_path)
                 if not audio_file.exists():
-                    print(f"   ❌ 오디오 파일을 찾을 수 없습니다: {audio_path}")
+                    self.logger.error(f"오디오 파일을 찾을 수 없습니다: {audio_path}")
                     return None
                 
-                print(f"   📁 오디오 파일: {audio_file.name}")
+                self.logger.info(f"📁 오디오 파일: {audio_file.name}")
                 # Whisper로 오디오 분석 (단어 단위 타임스탬프 포함)
                 model = whisper.load_model("base")
                 result = model.transcribe(
@@ -733,7 +741,7 @@ class VideoMaker:
                 )
                 
                 if not result:
-                    print("   ⚠️ Whisper 결과가 비어있습니다.")
+                    self.logger.warning("Whisper 결과가 비어있습니다.")
                     return None
                 
                 # 원본 텍스트 정리 (마크다운 제거)
@@ -749,7 +757,7 @@ class VideoMaker:
                     first_segment_start = segments[0].get("start", 0.0)
                     if first_segment_start > 0.1:  # 0.1초 이상 차이나면 보정
                         time_offset = first_segment_start
-                        print(f"   ⏱️ 타이밍 보정: 첫 세그먼트 시작 시간 {first_segment_start:.2f}초만큼 조정")
+                        self.logger.info(f"⏱️ 타이밍 보정: 첫 세그먼트 시작 시간 {first_segment_start:.2f}초만큼 조정")
                 
                 # Whisper 단어 단위 타임스탬프 수집 (타이밍 보정 적용)
                 whisper_words = []
@@ -766,7 +774,7 @@ class VideoMaker:
                             })
                 
                 if not whisper_words:
-                    print("   ⚠️ Whisper 단어 타임스탬프가 없습니다. 세그먼트 단위로 전환합니다.")
+                    self.logger.warning("Whisper 단어 타임스탬프가 없습니다. 세그먼트 단위로 전환합니다.")
                     # 단어 타임스탬프가 없으면 세그먼트 단위로 폴백 (타이밍 보정 적용)
                     whisper_segments = []
                     for segment in segments:
@@ -784,7 +792,7 @@ class VideoMaker:
                         language
                     )
                     if subtitles:
-                        print(f"   ✅ {len(subtitles)}개의 자막 생성 완료 (Whisper 세그먼트 타이밍 사용)")
+                        self.logger.info(f"✅ {len(subtitles)}개의 자막 생성 완료 (Whisper 세그먼트 타이밍 사용)")
                         return subtitles
                     else:
                         return self._generate_subtitles_from_text_fallback(text, audio_duration, language)
@@ -799,10 +807,10 @@ class VideoMaker:
                 if subtitles:
                     # 타이밍 검증 및 보정: 오디오 길이를 초과하지 않도록
                     subtitles = self._validate_and_adjust_subtitle_timing(subtitles, audio_duration)
-                    print(f"   ✅ {len(subtitles)}개의 자막 생성 완료 (Whisper 단어 단위 타이밍 사용)")
+                    self.logger.info(f"✅ {len(subtitles)}개의 자막 생성 완료 (Whisper 단어 단위 타이밍 사용)")
                     return subtitles
                 else:
-                    print("   ⚠️ 단어 정렬 실패. 세그먼트 단위로 전환합니다.")
+                    self.logger.warning("단어 정렬 실패. 세그먼트 단위로 전환합니다.")
                     # 폴백: 세그먼트 단위 매칭 (타이밍 보정 적용)
                     whisper_segments = []
                     for segment in segments:
@@ -822,13 +830,13 @@ class VideoMaker:
                     if subtitles:
                         # 타이밍 검증 및 보정: 오디오 길이를 초과하지 않도록
                         subtitles = self._validate_and_adjust_subtitle_timing(subtitles, audio_duration)
-                        print(f"   ✅ {len(subtitles)}개의 자막 생성 완료 (Whisper 세그먼트 타이밍 사용)")
+                        self.logger.info(f"✅ {len(subtitles)}개의 자막 생성 완료 (Whisper 세그먼트 타이밍 사용)")
                         return subtitles
                     else:
                         return self._generate_subtitles_from_text_fallback(text, audio_duration, language)
                     
             except Exception as e:
-                print(f"   ⚠️ Whisper 분석 실패: {e}. 텍스트 기반으로 전환합니다.")
+                self.logger.warning(f"Whisper 분석 실패: {e}. 텍스트 기반으로 전환합니다.")
                 import traceback
                 traceback.print_exc()
                 # Whisper 실패 시 폴백
@@ -836,9 +844,9 @@ class VideoMaker:
         else:
             # 오디오 파일이 없거나 Whisper가 없으면 기존 방식 사용
             if not audio_path:
-                print("📝 자막 생성 중 (Summary 텍스트 기반, 오디오 파일 없음)...")
+                self.logger.info("📝 자막 생성 중 (Summary 텍스트 기반, 오디오 파일 없음)...")
             elif not WHISPER_AVAILABLE:
-                print("📝 자막 생성 중 (Summary 텍스트 기반, Whisper 미설치)...")
+                self.logger.info("📝 자막 생성 중 (Summary 텍스트 기반, Whisper 미설치)...")
             return self._generate_subtitles_from_text_fallback(text, audio_duration, language)
     
     def _clean_markdown_text(self, text: str) -> str:
@@ -1176,7 +1184,7 @@ class VideoMaker:
             sentences = self._split_sentences(cleaned_text, language)
             
             if not sentences:
-                print("   ⚠️ 문장을 찾을 수 없습니다.")
+                self.logger.warning("문장을 찾을 수 없습니다.")
                 return None
             
             # 각 문장의 길이에 비례하여 시간 할당
@@ -1227,11 +1235,11 @@ class VideoMaker:
                 if current_time >= audio_duration:
                     break
             
-            print(f"   ✅ {len(subtitles)}개의 자막 생성 완료 (텍스트 기반)")
+            self.logger.info(f"✅ {len(subtitles)}개의 자막 생성 완료 (텍스트 기반)")
             return subtitles
             
         except Exception as e:
-            print(f"   ❌ 자막 생성 실패: {e}")
+            self.logger.error(f"자막 생성 실패: {e}")
             import traceback
             traceback.print_exc()
             return None
@@ -1240,10 +1248,10 @@ class VideoMaker:
         self,
         video_clip: CompositeVideoClip,
         subtitles: List[dict],
-        font_size: int = 60,
+        font_size: int = 70,  # 개선: 60 -> 70 (가독성 향상)
         font_color: str = "white",
         stroke_color: str = "black",
-        stroke_width: int = 2,
+        stroke_width: int = 3,  # 개선: 2 -> 3 (가독성 향상)
         language: str = "ko"
     ) -> CompositeVideoClip:
         """
@@ -1259,7 +1267,7 @@ class VideoMaker:
             language: 언어 코드 ("ko", "en" 등)
         """
         if not subtitles:
-            print("   ⚠️ 자막 리스트가 비어있습니다")
+            self.logger.warning("자막 리스트가 비어있습니다")
             return video_clip
         
         # 언어별 폰트 경로 설정
@@ -1296,22 +1304,22 @@ class VideoMaker:
             PIL_AVAILABLE = True
         except ImportError:
             PIL_AVAILABLE = False
-            print("   ❌ PIL/Pillow가 설치되지 않았습니다. pip install Pillow")
+            self.logger.error("PIL/Pillow가 설치되지 않았습니다. pip install Pillow")
             return video_clip
         
-        print(f"   📝 {len(subtitles)}개의 자막 클립 생성 중 (PIL 사용)...")
+        self.logger.info(f"📝 {len(subtitles)}개의 자막 클립 생성 중 (PIL 사용)...")
         
         # 폰트 로드
         font_obj = None
         if font_path and os.path.exists(font_path):
             try:
                 font_obj = ImageFont.truetype(font_path, font_size)
-                print(f"   📝 폰트 사용: {os.path.basename(font_path)}")
+                self.logger.info(f"📝 폰트 사용: {os.path.basename(font_path)}")
             except Exception as e:
-                print(f"   ⚠️ 폰트 로드 실패: {e}, 기본 폰트 사용")
+                self.logger.warning(f"폰트 로드 실패: {e}, 기본 폰트 사용")
                 font_obj = ImageFont.load_default()
         else:
-            print(f"   ⚠️ 폰트를 찾을 수 없어 기본 폰트 사용")
+            self.logger.warning("폰트를 찾을 수 없어 기본 폰트 사용")
             font_obj = ImageFont.load_default()
         
         for i, subtitle in enumerate(subtitles):
@@ -1348,28 +1356,42 @@ class VideoMaker:
                 if not lines:
                     lines = [text]
                 
-                # 자막 이미지 생성
-                line_height = font_size + 10
-                img_height = len(lines) * line_height + 40
+                # 자막 이미지 생성 (개선: 배경 반투명 박스 추가)
+                line_height = font_size + 15  # 개선: 10 -> 15 (줄 간격 증가)
+                padding = 20  # 좌우 여백
+                img_height = len(lines) * line_height + padding * 2
                 subtitle_img = Image.new('RGBA', (self.resolution[0], img_height), (0, 0, 0, 0))
                 draw = ImageDraw.Draw(subtitle_img)
                 
+                # 배경 반투명 박스 그리기 (가독성 향상)
+                box_margin = 50  # 좌우 여백
+                box_y_start = 10
+                box_y_end = img_height - 10
+                box_alpha = 180  # 반투명도 (0-255, 180 = 약 70% 불투명)
+                box_color = (0, 0, 0, box_alpha)
+                draw.rectangle(
+                    [(box_margin, box_y_start), (self.resolution[0] - box_margin, box_y_end)],
+                    fill=box_color
+                )
+                
                 # 각 줄 그리기
-                y_offset = 20
+                y_offset = padding
+                # 개선: 더 밝은 흰색 사용 (가독성 향상)
+                bright_white = (255, 255, 255)
                 for line in lines:
                     bbox = draw.textbbox((0, 0), line, font=font_obj)
                     text_width = bbox[2] - bbox[0]
                     x = (self.resolution[0] - text_width) // 2
                     
-                    # 테두리 그리기 (stroke 효과)
+                    # 테두리 그리기 (stroke 효과) - 개선: 더 두꺼운 테두리
                     if stroke_width > 0:
                         for adj_x in range(-stroke_width, stroke_width + 1):
                             for adj_y in range(-stroke_width, stroke_width + 1):
                                 if adj_x != 0 or adj_y != 0:
                                     draw.text((x + adj_x, y_offset + adj_y), line, font=font_obj, fill=stroke_color)
                     
-                    # 메인 텍스트 그리기
-                    draw.text((x, y_offset), line, font=font_obj, fill=font_color)
+                    # 메인 텍스트 그리기 (밝은 흰색 사용)
+                    draw.text((x, y_offset), line, font=font_obj, fill=bright_white)
                     y_offset += line_height
                 
                 # PIL 이미지를 numpy 배열로 변환
@@ -1379,8 +1401,8 @@ class VideoMaker:
                 # ImageClip 생성
                 text_clip = ImageClip(img_array, duration=duration)
                 
-                # 위치 설정 (화면 하단 중앙)
-                y_position = self.resolution[1] - img_height - 50
+                # 위치 설정 (화면 하단 중앙) - 개선: 약간 위로 이동 (가독성 향상)
+                y_position = self.resolution[1] - img_height - 80  # 50 -> 80 (위로 이동)
                 # MoviePy 버전 호환성: with_start/set_start, with_position/set_position
                 try:
                     text_clip = text_clip.with_start(subtitle["start"]).with_position(('center', y_position))
@@ -1391,33 +1413,33 @@ class VideoMaker:
                 subtitle_clips.append(text_clip)
                 
                 if (i + 1) % 10 == 0:
-                    print(f"      {i + 1}/{len(subtitles)}개 생성됨...")
+                    self.logger.info(f"{i + 1}/{len(subtitles)}개 생성됨...")
                     
             except Exception as e:
                 failed_count += 1
                 if failed_count <= 3:  # 처음 3개 오류만 상세 출력
-                    print(f"   ⚠️ 자막 생성 오류 ({i+1}번째): {e}")
-                    print(f"      텍스트: {subtitle['text'][:50]}...")
+                    self.logger.warning(f"자막 생성 오류 ({i+1}번째): {e}")
+                    self.logger.warning(f"텍스트: {subtitle['text'][:50]}...")
                     import traceback
                     traceback.print_exc()
                 continue
         
         if failed_count > 0:
-            print(f"   ⚠️ {failed_count}개의 자막 생성 실패")
+            self.logger.warning(f"{failed_count}개의 자막 생성 실패")
         
         if subtitle_clips:
-            print(f"   ✅ {len(subtitle_clips)}개의 자막 클립 생성 완료")
+            self.logger.info(f"✅ {len(subtitle_clips)}개의 자막 클립 생성 완료")
             try:
                 result = CompositeVideoClip([video_clip] + subtitle_clips)
-                print(f"   ✅ 자막 오버레이 합성 완료")
+                self.logger.info("✅ 자막 오버레이 합성 완료")
                 return result
             except Exception as e:
-                print(f"   ❌ 자막 오버레이 합성 실패: {e}")
+                self.logger.error(f"자막 오버레이 합성 실패: {e}")
                 import traceback
                 traceback.print_exc()
                 return video_clip
         
-        print("   ⚠️ 생성된 자막 클립이 없습니다")
+        self.logger.warning("생성된 자막 클립이 없습니다")
         return video_clip
     
     def create_video(
@@ -1448,10 +1470,9 @@ class VideoMaker:
             summary_audio_volume: Summary 오디오 음량 배율 (기본값: 1.2, 20% 증가)
             summary_text: Summary 텍스트 (자막 생성용, 선택사항)
         """
-        print("=" * 60)
-        print("🎬 영상 제작 시작")
-        print("=" * 60)
-        print()
+        self.logger.info("=" * 60)
+        self.logger.info("🎬 영상 제작 시작")
+        self.logger.info("=" * 60)
         
         # 이미지 경로 수집
         image_dir_path = Path(image_dir)
@@ -1468,8 +1489,8 @@ class VideoMaker:
         
         # ⚠️ 표지 이미지는 저작권 문제로 사용하지 않습니다.
         if cover_path.exists():
-            print(f"⚠️ 표지 이미지 발견: {cover_path.name}")
-            print("   → 저작권 문제로 사용하지 않습니다. 무드 이미지만 사용합니다.")
+            self.logger.warning(f"표지 이미지 발견: {cover_path.name}")
+            self.logger.info("→ 저작권 문제로 사용하지 않습니다. 무드 이미지만 사용합니다.")
         
         for mood_img in mood_images:
             image_paths.append(str(mood_img))
@@ -1477,21 +1498,20 @@ class VideoMaker:
         if not image_paths:
             raise FileNotFoundError(f"이미지를 찾을 수 없습니다: {image_dir}")
         
-        print(f"🎨 무드 이미지: {len(image_paths)}개")
-        print()
+        self.logger.info(f"🎨 무드 이미지: {len(image_paths)}개")
         
         video_clips = []
         
         # 1. Summary 부분: 요약 오디오 + 이미지 슬라이드쇼
         if summary_audio_path and Path(summary_audio_path).exists():
-            print("📚 1단계: Summary 부분 영상 생성")
-            print("-" * 60)
+            self.logger.info("📚 1단계: Summary 부분 영상 생성")
+            self.logger.info("-" * 60)
             summary_audio = self.load_audio(summary_audio_path)
             summary_duration = summary_audio.duration
             
             # Summary 오디오 음량 조정
             if summary_audio_volume != 1.0:
-                print(f"   🔊 Summary 오디오 음량 조정: {summary_audio_volume}x")
+                self.logger.info(f"🔊 Summary 오디오 음량 조정: {summary_audio_volume}x")
                 try:
                     from moviepy.audio.fx.all import volumex
                     summary_audio = summary_audio.fx(volumex, summary_audio_volume)
@@ -1500,9 +1520,9 @@ class VideoMaker:
                         # 구버전 호환성
                         summary_audio = summary_audio.volumex(summary_audio_volume)
                     except AttributeError:
-                        print("   ⚠️ 음량 조정 실패, 원본 음량 사용")
+                        self.logger.warning("음량 조정 실패, 원본 음량 사용")
             
-            print(f"   요약 오디오 길이: {summary_duration:.2f}초")
+            self.logger.info(f"요약 오디오 길이: {summary_duration:.2f}초")
             
             # Summary 부분 이미지 시퀀스 생성
             summary_image_clips = self.create_image_sequence(
@@ -1514,9 +1534,9 @@ class VideoMaker:
             summary_video = summary_video.set_audio(summary_audio)
             
             # Summary 부분에 자막 추가 (텍스트가 있고 자막 옵션이 켜져 있는 경우)
-            print(f"   🔍 자막 옵션 확인: add_subtitles_flag={add_subtitles_flag}, summary_text={'있음' if summary_text else '없음'}")
+            self.logger.info(f"🔍 자막 옵션 확인: add_subtitles_flag={add_subtitles_flag}, summary_text={'있음' if summary_text else '없음'}")
             if add_subtitles_flag and summary_text:
-                print("   📝 Summary 자막 생성 중...")
+                self.logger.info("📝 Summary 자막 생성 중...")
                 summary_subtitles = self.generate_subtitles_from_text(
                     text=summary_text,
                     audio_duration=summary_duration,
@@ -1524,65 +1544,66 @@ class VideoMaker:
                     audio_path=summary_audio_path  # 실제 오디오 파일 경로 전달
                 )
                 if summary_subtitles:
-                    print(f"   📝 {len(summary_subtitles)}개의 자막 생성됨")
-                    print("   📝 Summary 자막 오버레이 추가 중...")
+                    self.logger.info(f"📝 {len(summary_subtitles)}개의 자막 생성됨")
+                    self.logger.info("📝 Summary 자막 오버레이 추가 중...")
                     summary_video = self.add_subtitles(
                         summary_video,
                         summary_subtitles,
-                        font_size=60,
+                        font_size=70,  # 개선: 60 -> 70
                         font_color="white",
                         stroke_color="black",
-                        stroke_width=2,
+                        stroke_width=3,  # 개선: 2 -> 3
                         language=language
                     )
-                    print("   ✅ Summary 자막 추가 완료")
+                    self.logger.info("✅ Summary 자막 추가 완료")
                 else:
-                    print("   ⚠️ 자막 생성 실패 또는 빈 자막")
+                    self.logger.warning("자막 생성 실패 또는 빈 자막")
             else:
                 if not add_subtitles_flag:
-                    print("   ⚠️ 자막 옵션이 비활성화되어 있습니다")
+                    self.logger.warning("자막 옵션이 비활성화되어 있습니다")
                 if not summary_text:
-                    print("   ⚠️ Summary 텍스트가 없습니다")
+                    self.logger.warning("Summary 텍스트가 없습니다")
             
             video_clips.append(summary_video)
-            print(f"   ✅ Summary 부분 완료 ({summary_duration:.2f}초)")
-            print()
+            self.logger.info(f"✅ Summary 부분 완료 ({summary_duration:.2f}초)")
         else:
-            print("📚 Summary 부분: 요약 오디오가 없어 건너뜁니다.")
-            print()
+            self.logger.info("📚 Summary 부분: 요약 오디오가 없어 건너뜁니다.")
         
         # 2. NotebookLM Video 부분
         if notebooklm_video_path and Path(notebooklm_video_path).exists():
-            print("🎥 2단계: NotebookLM Video 부분")
-            print("-" * 60)
-            print(f"   비디오 로드 중: {Path(notebooklm_video_path).name}")
+            self.logger.info("🎥 2단계: NotebookLM Video 부분")
+            self.logger.info("-" * 60)
+            self.logger.info(f"비디오 로드 중: {Path(notebooklm_video_path).name}")
             
             notebooklm_video = VideoFileClip(notebooklm_video_path)
             
             # 해상도 및 프레임레이트 통일
             if notebooklm_video.size != self.resolution:
-                print(f"   🔄 리사이즈 중: {notebooklm_video.size} -> {self.resolution}")
+                self.logger.info(f"🔄 리사이즈 중: {notebooklm_video.size} -> {self.resolution}")
                 notebooklm_video = notebooklm_video.resize(self.resolution)
             
             if notebooklm_video.fps != self.fps:
-                print(f"   🔄 프레임레이트 조정 중: {notebooklm_video.fps}fps -> {self.fps}fps")
+                self.logger.info(f"🔄 프레임레이트 조정 중: {notebooklm_video.fps}fps -> {self.fps}fps")
                 notebooklm_video = notebooklm_video.set_fps(self.fps)
             
             video_clips.append(notebooklm_video)
-            print(f"   ✅ NotebookLM Video 부분 완료 ({notebooklm_video.duration:.2f}초)")
-            print()
+            self.logger.info(f"✅ NotebookLM Video 부분 완료 ({notebooklm_video.duration:.2f}초)")
         else:
-            print("🎥 NotebookLM Video 부분: 비디오 파일이 없어 건너뜁니다.")
-            print()
+            self.logger.info("🎥 NotebookLM Video 부분: 비디오 파일이 없어 건너뜁니다.")
         
         # 3. 두 부분 연결 (각 섹션 사이에 2초 silence 추가)
         if not video_clips:
             raise ValueError("생성할 영상 클립이 없습니다.")
         
-        # 3초 silence 클립 생성 함수
-        def create_silence_clip(duration: float = 3.0):
-            """3초 검은색 무음 비디오 클립 생성"""
-            silence_video = ColorClip(size=self.resolution, color=(0, 0, 0), duration=duration)
+        # 전환 효과 강화: 섹션 전환 시 명확한 신호 제공
+        def create_transition_clip(duration: float = 1.5, section_name: str = ""):
+            """
+            섹션 전환 클립 생성 (개선: 페이드 효과 강화)
+            - 검은색 배경에 페이드 인/아웃 효과
+            - 섹션 이름 표시 (선택사항)
+            """
+            transition_video = ColorClip(size=self.resolution, color=(0, 0, 0), duration=duration)
+            
             # 무음 오디오 추가
             try:
                 from moviepy.audio.AudioClip import AudioArrayClip
@@ -1590,38 +1611,66 @@ class VideoMaker:
                 sample_rate = 44100
                 silence_array = np.zeros((int(sample_rate * duration), 2))
                 silence_audio = AudioArrayClip(silence_array, fps=sample_rate)
-                silence_video = silence_video.set_audio(silence_audio)
+                transition_video = transition_video.set_audio(silence_audio)
             except Exception as e:
-                # 오디오 추가 실패 시 비디오만 반환
                 pass
-            return silence_video
+            
+            # 페이드 효과 적용 (전환 강화)
+            if MOVIEPY_AVAILABLE and MOVIEPY_VERSION_NEW:
+                try:
+                    fade_duration = min(0.5, duration / 3)  # 전환 시간의 1/3, 최대 0.5초
+                    transition_video = transition_video.fx(fadein, fade_duration).fx(fadeout, fade_duration)
+                except Exception as e:
+                    self.logger.warning(f"전환 페이드 효과 적용 실패: {e}")
+            
+            return transition_video
         
-        # 섹션 사이에 2초 silence 추가
+        # 섹션 사이에 전환 클립 추가 (개선: 페이드 효과 강화)
         final_clips = []
-        silence_duration = 2.0
+        transition_duration = 1.5  # 개선: 2초 -> 1.5초 (더 빠른 전환)
         
         for i, clip in enumerate(video_clips):
+            # 클립 끝에 페이드 아웃 효과 추가 (전환 강화)
+            if MOVIEPY_AVAILABLE and MOVIEPY_VERSION_NEW:
+                try:
+                    fade_duration = 0.5  # 0.5초 페이드 아웃
+                    clip = clip.fx(fadeout, fade_duration)
+                except Exception as e:
+                    self.logger.warning(f"페이드 아웃 효과 적용 실패: {e}")
+            
             final_clips.append(clip)
             
-            # 마지막 클립이 아니면 3초 silence 추가
+            # 마지막 클립이 아니면 전환 클립 추가
             if i < len(video_clips) - 1:
-                print(f"   ⏸️  {silence_duration}초 silence 추가...")
-                silence_clip = create_silence_clip(silence_duration)
-                final_clips.append(silence_clip)
+                section_names = ["Summary", "NotebookLM Analysis", "Review"]
+                section_name = section_names[i] if i < len(section_names) else ""
+                self.logger.info(f"🔄 전환 효과 추가 ({transition_duration}초, 섹션: {section_name})...")
+                transition_clip = create_transition_clip(transition_duration, section_name)
+                final_clips.append(transition_clip)
+                
+                # 다음 클립에 페이드 인 효과 추가 (전환 강화)
+                if i + 1 < len(video_clips):
+                    next_clip = video_clips[i + 1]
+                    if MOVIEPY_AVAILABLE and MOVIEPY_VERSION_NEW:
+                        try:
+                            fade_duration = 0.5  # 0.5초 페이드 인
+                            next_clip = next_clip.fx(fadein, fade_duration)
+                            video_clips[i + 1] = next_clip
+                        except Exception as e:
+                            self.logger.warning(f"페이드 인 효과 적용 실패: {e}")
         
-        print("🔗 전체 영상 연결 중...")
-        print(f"   총 {len(final_clips)}개 클립 연결 (섹션 {len(video_clips)}개 + silence {len(final_clips) - len(video_clips)}개)")
+        self.logger.info("🔗 전체 영상 연결 중...")
+        self.logger.info(f"총 {len(final_clips)}개 클립 연결 (섹션 {len(video_clips)}개 + 전환 {len(final_clips) - len(video_clips)}개)")
         for i, clip in enumerate(final_clips, 1):
             if i <= len(video_clips):
-                print(f"      [{i}] {clip.duration:.2f}초")
+                self.logger.info(f"[{i}] {clip.duration:.2f}초 (섹션)")
             else:
-                print(f"      [{i}] {clip.duration:.2f}초 (silence)")
+                self.logger.info(f"[{i}] {clip.duration:.2f}초 (전환)")
         
-        # 페이드 효과로 자연스럽게 연결
+        # 페이드 효과로 자연스럽게 연결 (개선: 전환 효과 강화)
         final_video = concatenate_videoclips(final_clips, method="compose")
         total_duration = final_video.duration
-        print(f"   ✅ 연결 완료: 총 길이 {total_duration:.2f}초 ({total_duration/60:.2f}분)")
-        print()
+        self.logger.info(f"✅ 연결 완료: 총 길이 {total_duration:.2f}초 ({total_duration/60:.2f}분)")
         
         # 5. 자막 추가 (선택사항)
         # Note: Summary 부분의 자막은 이미 위에서 추가되었습니다.
@@ -1633,11 +1682,10 @@ class VideoMaker:
         output_path_obj.parent.mkdir(parents=True, exist_ok=True)
         
         # 7. 렌더링
-        print("🎞️ 영상 렌더링 중...")
-        print(f"   해상도: {self.resolution[0]}x{self.resolution[1]}")
-        print(f"   프레임레이트: {self.fps}fps")
-        print(f"   총 길이: {total_duration:.2f}초 ({total_duration/60:.2f}분)")
-        print()
+        self.logger.info("🎞️ 영상 렌더링 중...")
+        self.logger.info(f"해상도: {self.resolution[0]}x{self.resolution[1]}")
+        self.logger.info(f"프레임레이트: {self.fps}fps")
+        self.logger.info(f"총 길이: {total_duration:.2f}초 ({total_duration/60:.2f}분)")
         
         final_video.write_videofile(
             output_path,
@@ -1649,12 +1697,10 @@ class VideoMaker:
             preset='medium'
         )
         
-        print()
-        print("=" * 60)
-        print("✅ 영상 제작 완료!")
-        print("=" * 60)
-        print(f"📁 저장 위치: {output_path}")
-        print()
+        self.logger.info("=" * 60)
+        self.logger.info("✅ 영상 제작 완료!")
+        self.logger.info("=" * 60)
+        self.logger.info(f"📁 저장 위치: {output_path}")
         
         # 정리
         final_video.close()
@@ -1719,8 +1765,6 @@ def main():
         safe_title_str = safe_title(args.book_title)
         args.output = f"output/{safe_title_str}_review.mp4"
         print(f"📁 출력 파일: {args.output}")
-    
-    print()
     
     # 영상 제작
     maker = VideoMaker(

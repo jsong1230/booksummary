@@ -19,6 +19,11 @@ except ImportError:
     from src.utils.retry_utils import retry_with_backoff
 
 try:
+    from utils.logger import get_logger
+except ImportError:
+    from src.utils.logger import get_logger
+
+try:
     import openai
     OPENAI_AVAILABLE = True
 except ImportError:
@@ -49,6 +54,8 @@ class ImageDownloader:
     """이미지 다운로드 클래스"""
     
     def __init__(self):
+        self.logger = get_logger(__name__)
+        
         # API 키 로드
         self.google_books_api_key = os.getenv("GOOGLE_BOOKS_API_KEY")
         self.pexels_api_key = os.getenv("PEXELS_API_KEY")
@@ -61,7 +68,7 @@ class ImageDownloader:
             try:
                 self.books_service = build('books', 'v1', developerKey=self.google_books_api_key)
             except Exception as e:
-                print(f"⚠️ Google Books API 초기화 실패: {e}")
+                self.logger.warning(f"Google Books API 초기화 실패: {e}")
         
         # Pexels API 초기화
         self.pexels = None
@@ -69,7 +76,7 @@ class ImageDownloader:
             try:
                 self.pexels = PexelsAPI(self.pexels_api_key)
             except Exception as e:
-                print(f"⚠️ Pexels API 초기화 실패: {e}")
+                self.logger.warning(f"Pexels API 초기화 실패: {e}")
         
         # AI API 키 로드
         self.openai_api_key = os.getenv("OPENAI_API_KEY")
@@ -122,12 +129,12 @@ class ImageDownloader:
             다운로드된 파일 경로 (skip_image=True면 None)
         """
         if not self.books_service:
-            print("⚠️ Google Books API가 설정되지 않았습니다.")
+            self.logger.warning("Google Books API가 설정되지 않았습니다.")
             return None
         
-        print(f"📚 책 표지 검색 중: {book_title}")
+        self.logger.info(f"📚 책 표지 검색 중: {book_title}")
         if author:
-            print(f"   저자: {author}")
+            self.logger.info(f"   저자: {author}")
         
         try:
             # 검색 쿼리 구성 (저자 포함하여 정확도 향상)
@@ -139,7 +146,7 @@ class ImageDownloader:
             has_korean = any('\uAC00' <= c <= '\uD7A3' for c in book_title)
             lang_restrict = 'ko' if has_korean else 'en'
             
-            print(f"   검색 언어: {lang_restrict}")
+            self.logger.info(f"   검색 언어: {lang_restrict}")
             
             # Google Books API 검색
             results = self.books_service.volumes().list(
@@ -150,14 +157,14 @@ class ImageDownloader:
             
             if not results.get('items'):
                 # 언어 제한 없이 재시도
-                print("  ⚠️ 언어 제한 검색 결과가 없습니다. 언어 제한 없이 재시도...")
+                self.logger.warning("언어 제한 검색 결과가 없습니다. 언어 제한 없이 재시도...")
                 results = self.books_service.volumes().list(
                     q=query,
                     maxResults=10
                 ).execute()
             
             if not results.get('items'):
-                print("  ⚠️ 검색 결과가 없습니다.")
+                self.logger.warning("검색 결과가 없습니다.")
                 return None
             
             # 가장 관련성 높은 결과 선택 (저자명도 확인)
@@ -183,12 +190,12 @@ class ImageDownloader:
                 
                 if author_match and title_match:
                     best_book = book
-                    print(f"  ✅ 매칭된 책 발견: {volume_info.get('title')} - {', '.join(book_authors)}")
+                    self.logger.info(f"✅ 매칭된 책 발견: {volume_info.get('title')} - {', '.join(book_authors)}")
                     break
             
             if not best_book:
                 # 매칭되는 게 없으면 첫 번째 결과 사용
-                print("  ⚠️ 정확한 매칭을 찾지 못했습니다. 첫 번째 결과를 사용합니다.")
+                self.logger.warning("정확한 매칭을 찾지 못했습니다. 첫 번째 결과를 사용합니다.")
                 best_book = results['items'][0]
             
             book = best_book
@@ -214,7 +221,7 @@ class ImageDownloader:
                 # 이미지 링크 찾기
                 image_links = volume_info.get('imageLinks', {})
                 if not image_links:
-                    print("  ⚠️ 표지 이미지를 찾을 수 없습니다.")
+                    self.logger.warning("표지 이미지를 찾을 수 없습니다.")
                 else:
                     # 가장 큰 이미지 선택
                     image_url = image_links.get('large') or image_links.get('medium') or image_links.get('small') or image_links.get('thumbnail')
@@ -231,18 +238,18 @@ class ImageDownloader:
                             with open(output_path, 'wb') as f:
                                 f.write(response.content)
                             
-                            print(f"  ✅ 표지 다운로드 완료: {output_path}")
+                            self.logger.info(f"✅ 표지 다운로드 완료: {output_path}")
                         except Exception as e:
-                            print(f"  ⚠️ 이미지 다운로드 실패: {e}")
+                            self.logger.warning(f"이미지 다운로드 실패: {e}")
                             image_url = None
                     else:
-                        print("  ⚠️ 이미지 URL을 찾을 수 없습니다.")
+                        self.logger.warning("이미지 URL을 찾을 수 없습니다.")
             else:
                 # skip_image=True인 경우에도 image_url은 book_info에 포함하기 위해 가져오기
                 image_links = volume_info.get('imageLinks', {})
                 if image_links:
                     image_url = image_links.get('large') or image_links.get('medium') or image_links.get('small') or image_links.get('thumbnail')
-                print("  ℹ️ 이미지 다운로드는 건너뛰고 책 정보만 저장합니다.")
+                self.logger.info("이미지 다운로드는 건너뛰고 책 정보만 저장합니다.")
             
             # 책 정보 저장 (이미지 다운로드 여부와 관계없이 항상 저장)
             book_info = {
@@ -262,12 +269,12 @@ class ImageDownloader:
             with open(book_info_path, 'w', encoding='utf-8') as f:
                 json.dump(book_info, f, ensure_ascii=False, indent=2)
             
-            print(f"  ✅ 책 정보 저장 완료: {book_info_path}")
+            self.logger.info(f"✅ 책 정보 저장 완료: {book_info_path}")
             
             return str(output_path) if output_path else None
             
         except Exception as e:
-            print(f"  ❌ 오류: {e}")
+            self.logger.error(f"오류: {e}")
             return None
     
     @retry_with_backoff(retries=3, backoff_in_seconds=2.0)
@@ -284,7 +291,7 @@ class ImageDownloader:
             다운로드된 파일 경로 리스트
         """
         if not self.unsplash_access_key:
-            print("⚠️ Unsplash API 키가 설정되지 않았습니다.")
+            self.logger.warning("Unsplash API 키가 설정되지 않았습니다.")
             return []
         
         downloaded = []
@@ -305,7 +312,7 @@ class ImageDownloader:
                     break
                 
                 try:
-                    print(f"  🔍 검색: {keyword}")
+                    self.logger.info(f"🔍 검색: {keyword}")
                     
                     # Unsplash API 검색
                     url = "https://api.unsplash.com/search/photos"
@@ -328,7 +335,7 @@ class ImageDownloader:
                     results = data.get('results', [])
                     
                     if not results:
-                        print(f"    ⚠️ 검색 결과 없음")
+                        self.logger.warning(f"검색 결과 없음: {keyword}")
                         continue
                     
                     for photo in results:
@@ -352,7 +359,7 @@ class ImageDownloader:
                         time.sleep(0.1)  # API rate limit 방지 (최소한의 지연)
                     
                 except Exception as e:
-                    print(f"    ❌ 오류: {e}")
+                    self.logger.error(f"오류: {e}")
                     continue
             
             # 결과 수집
@@ -361,9 +368,9 @@ class ImageDownloader:
                     result = future.result()
                     if result:
                         downloaded.append(result)
-                        print(f"    ✅ {filename}")
+                        self.logger.info(f"✅ {filename}")
                 except Exception as e:
-                    print(f"    ❌ 이미지 다운로드 실패 ({filename}): {e}")
+                    self.logger.error(f"이미지 다운로드 실패 ({filename}): {e}")
         
         return downloaded
     
@@ -381,7 +388,7 @@ class ImageDownloader:
             다운로드된 파일 경로 리스트
         """
         if not self.pexels:
-            print("⚠️ Pexels API가 설정되지 않았습니다.")
+            self.logger.warning("Pexels API가 설정되지 않았습니다.")
             return []
         
         downloaded = []
@@ -400,7 +407,7 @@ class ImageDownloader:
                     break
                 
                 try:
-                    print(f"  🔍 검색: {keyword}")
+                    self.logger.info(f"🔍 검색: {keyword}")
                     
                     # Pexels API 검색
                     try:
@@ -408,11 +415,11 @@ class ImageDownloader:
                         # _search_pexels 내부에서 이미 페이지 랜덤화 처리됨
                         search_results = self._search_pexels(keyword, page=1, results_per_page=min(max_per_keyword, remaining))
                     except Exception as e:
-                        print(f"    ❌ Pexels 검색 오류: {e}")
+                        self.logger.error(f"Pexels 검색 오류: {e}")
                         continue
                     
                     if not search_results.get('photos'):
-                        print(f"    ⚠️ 검색 결과 없음")
+                        self.logger.warning(f"검색 결과 없음: {keyword}")
                         continue
                     
                     for photo in search_results['photos']:
@@ -436,7 +443,7 @@ class ImageDownloader:
                         time.sleep(0.1)  # API rate limit 방지
                     
                 except Exception as e:
-                    print(f"    ❌ 오류: {e}")
+                    self.logger.error(f"오류: {e}")
                     continue
             
             # 결과 수집
@@ -445,9 +452,9 @@ class ImageDownloader:
                     result = future.result()
                     if result:
                         downloaded.append(result)
-                        print(f"    ✅ {filename}")
+                        self.logger.info(f"✅ {filename}")
                 except Exception as e:
-                    print(f"    ❌ 이미지 다운로드 실패 ({filename}): {e}")
+                    self.logger.error(f"이미지 다운로드 실패 ({filename}): {e}")
         
         return downloaded
     
@@ -465,7 +472,7 @@ class ImageDownloader:
             다운로드된 파일 경로 리스트
         """
         if not self.pixabay_api_key:
-            print("⚠️ Pixabay API 키가 설정되지 않았습니다.")
+            self.logger.warning("Pixabay API 키가 설정되지 않았습니다.")
             return []
         
         downloaded = []
@@ -485,7 +492,7 @@ class ImageDownloader:
                     break
                 
                 try:
-                    print(f"  🔍 검색: {keyword}")
+                    self.logger.info(f"🔍 검색: {keyword}")
                     
                     # Pixabay API 검색
                     # 다양성을 위해 랜덤하게 페이지 선택
@@ -505,7 +512,7 @@ class ImageDownloader:
                     hits = data.get('hits', [])
                     
                     if not hits:
-                        print(f"    ⚠️ 검색 결과 없음")
+                        self.logger.warning(f"검색 결과 없음: {keyword}")
                         continue
                     
                     for hit in hits:
@@ -529,7 +536,7 @@ class ImageDownloader:
                         time.sleep(0.1)  # API rate limit 방지
                     
                 except Exception as e:
-                    print(f"    ❌ 오류: {e}")
+                    self.logger.error(f"오류: {e}")
                     continue
             
             # 결과 수집
@@ -538,9 +545,9 @@ class ImageDownloader:
                     result = future.result()
                     if result:
                         downloaded.append(result)
-                        print(f"    ✅ {filename}")
+                        self.logger.info(f"✅ {filename}")
                 except Exception as e:
-                    print(f"    ❌ 이미지 다운로드 실패 ({filename}): {e}")
+                    self.logger.error(f"이미지 다운로드 실패 ({filename}): {e}")
         
         return downloaded
     
@@ -557,10 +564,9 @@ class ImageDownloader:
         Returns:
             다운로드 결과 딕셔너리
         """
-        print("=" * 60)
-        print("🖼️ 이미지 다운로드 시작")
-        print("=" * 60)
-        print()
+        self.logger.info("=" * 60)
+        self.logger.info("🖼️ 이미지 다운로드 시작")
+        self.logger.info("=" * 60)
         
         # 출력 디렉토리 설정
         try:
@@ -577,24 +583,20 @@ class ImageDownloader:
         # skip_cover=True여도 book_info.json은 생성합니다.
         cover_path = None
         if skip_cover:
-            print("ℹ️ 책 표지 이미지 다운로드는 건너뛰지만, 책 정보(book_info.json)는 생성합니다.")
+            self.logger.info("책 표지 이미지 다운로드는 건너뛰지만, 책 정보(book_info.json)는 생성합니다.")
             self.download_book_cover(book_title, author, output_dir, skip_image=True)
-            print()
         else:
-            print("⚠️ 책 표지 이미지는 저작권 문제로 영상에 사용하지 않습니다.")
-            print("   표지는 참고용으로만 다운로드합니다.")
+            self.logger.warning("책 표지 이미지는 저작권 문제로 영상에 사용하지 않습니다.")
+            self.logger.info("표지는 참고용으로만 다운로드합니다.")
             cover_path = self.download_book_cover(book_title, author, output_dir, skip_image=False)
-            print()
         
         # 2. 키워드 생성 (없으면) - AI를 사용하여 책 내용 기반 키워드 생성
         if keywords is None:
-            print("📝 AI를 사용하여 책 내용 기반 이미지 검색 키워드 생성 중...")
+            self.logger.info("📝 AI를 사용하여 책 내용 기반 이미지 검색 키워드 생성 중...")
             keywords = self.generate_keywords_with_ai(book_title, author, output_dir)
-            print(f"   ✅ 생성된 키워드: {', '.join(keywords[:10])}")
-            print()
+            self.logger.info(f"✅ 생성된 키워드: {', '.join(keywords[:10])}")
         
-        print(f"🎨 무드 이미지 다운로드 중... (키워드: {', '.join(keywords)})")
-        print()
+        self.logger.info(f"🎨 무드 이미지 다운로드 중... (키워드: {', '.join(keywords)})")
         
         # 3. 무드 이미지 다운로드 (Pexels → Pixabay → Unsplash 순서)
         # 기존 이미지 확인
@@ -602,17 +604,15 @@ class ImageDownloader:
         existing_count = len(existing_images)
         
         if existing_count >= num_mood_images:
-            print(f"✅ 기존 이미지 발견: {existing_count}개 (목표: {num_mood_images}개)")
-            print(f"   이미지 다운로드를 건너뜁니다.")
-            print()
+            self.logger.info(f"✅ 기존 이미지 발견: {existing_count}개 (목표: {num_mood_images}개)")
+            self.logger.info("이미지 다운로드를 건너뜁니다.")
             return {
                 'cover_path': str(cover_path) if cover_path else None,
                 'mood_images': [str(img) for img in existing_images[:num_mood_images]],
                 'total_mood_images': existing_count
             }
         
-        print(f"📊 기존 이미지: {existing_count}개, 추가로 {num_mood_images - existing_count}개 필요")
-        print()
+        self.logger.info(f"📊 기존 이미지: {existing_count}개, 추가로 {num_mood_images - existing_count}개 필요")
         
         # 100개 이미지를 확실히 다운로드하기 위해 여러 키워드에서 충분히 수집
         mood_images = existing_images.copy()  # 기존 이미지 포함
@@ -621,31 +621,31 @@ class ImageDownloader:
         # Pexels에서 다운로드 (1순위)
         if len(mood_images) < target_count and self.pexels:
             remaining = target_count - len(mood_images)
-            print(f"  📸 Pexels에서 이미지 다운로드 중... (목표: {remaining}개)")
+            self.logger.info(f"📸 Pexels에서 이미지 다운로드 중... (목표: {remaining}개)")
             additional = self.download_mood_images_pexels(keywords, remaining, output_dir)
             mood_images.extend(additional)
-            print(f"  ✅ Pexels: {len(additional)}개 다운로드 완료")
+            self.logger.info(f"✅ Pexels: {len(additional)}개 다운로드 완료")
         
         # Pixabay에서 추가 다운로드 (2순위)
         if len(mood_images) < target_count and self.pixabay_api_key:
             remaining = target_count - len(mood_images)
-            print(f"  📸 Pixabay에서 추가 이미지 다운로드 중... (목표: {remaining}개)")
+            self.logger.info(f"📸 Pixabay에서 추가 이미지 다운로드 중... (목표: {remaining}개)")
             additional = self.download_mood_images_pixabay(keywords, remaining, output_dir)
             mood_images.extend(additional)
-            print(f"  ✅ Pixabay: {len(additional)}개 추가 다운로드 완료")
+            self.logger.info(f"✅ Pixabay: {len(additional)}개 추가 다운로드 완료")
         
         # Unsplash에서 추가 다운로드 (3순위)
         if len(mood_images) < target_count and self.unsplash_access_key:
             remaining = target_count - len(mood_images)
-            print(f"  📸 Unsplash에서 추가 이미지 다운로드 중... (목표: {remaining}개)")
+            self.logger.info(f"📸 Unsplash에서 추가 이미지 다운로드 중... (목표: {remaining}개)")
             additional = self.download_mood_images_unsplash(keywords, remaining, output_dir)
             mood_images.extend(additional)
-            print(f"  ✅ Unsplash: {len(additional)}개 추가 다운로드 완료")
+            self.logger.info(f"✅ Unsplash: {len(additional)}개 추가 다운로드 완료")
         
         # 여전히 부족하면 키워드를 순환하며 추가 다운로드
         if len(mood_images) < target_count:
             remaining = target_count - len(mood_images)
-            print(f"  🔄 추가 키워드로 이미지 다운로드 중... (목표: {remaining}개)")
+            self.logger.info(f"🔄 추가 키워드로 이미지 다운로드 중... (목표: {remaining}개)")
             
             # 키워드 순서 섞기
             shuffled_keywords = keywords.copy()
@@ -692,14 +692,12 @@ class ImageDownloader:
                 if len(mood_images) >= target_count:
                     break
         
-        print()
-        print("=" * 60)
-        print("✅ 다운로드 완료")
-        print("=" * 60)
-        print(f"📁 저장 위치: {output_dir}")
-        print(f"📚 표지: {'✅' if cover_path else '❌'}")
-        print(f"🎨 무드 이미지: {len(mood_images)}개")
-        print()
+        self.logger.info("=" * 60)
+        self.logger.info("✅ 다운로드 완료")
+        self.logger.info("=" * 60)
+        self.logger.info(f"📁 저장 위치: {output_dir}")
+        self.logger.info(f"📚 표지: {'✅' if cover_path else '❌'}")
+        self.logger.info(f"🎨 무드 이미지: {len(mood_images)}개")
         
         # mood_images가 Path 객체 리스트인 경우 문자열로 변환
         mood_images_str = [str(img) if isinstance(img, Path) else img for img in mood_images]
@@ -893,7 +891,7 @@ Format:
                 )
                 keywords_text = response.choices[0].message.content
             else:
-                print("   ⚠️ AI API 키가 없어 기본 키워드를 사용합니다.")
+                self.logger.warning("AI API 키가 없어 기본 키워드를 사용합니다.")
                 return self._generate_keywords(book_title, author)
             
             # 키워드 파싱 및 필터링
@@ -931,7 +929,7 @@ Format:
                                 keywords.append(keyword)
             
             if not keywords:
-                print("   ⚠️ AI 키워드 파싱 결과가 없어 기본 키워드를 사용합니다.")
+                self.logger.warning("AI 키워드 파싱 결과가 없어 기본 키워드를 사용합니다.")
                 return self._generate_keywords(book_title, author)
             
             # 기본 키워드와 병합 (중복 제거)
@@ -955,13 +953,13 @@ Format:
                         seen.add(kw_clean)
                         unique_keywords.append(kw_clean)
             
-            print(f"   📝 필터링된 키워드: {len(unique_keywords)}개 (일반적인 키워드 제외)")
+            self.logger.info(f"📝 필터링된 키워드: {len(unique_keywords)}개 (일반적인 키워드 제외)")
             # 100개 이미지를 다운로드하기 위해 충분한 키워드 반환
             return unique_keywords[:50]  # 최대 50개 키워드
             
         except Exception as e:
-            print(f"   ⚠️ AI 키워드 생성 중 오류: {e}")
-            print("   기본 키워드를 사용합니다.")
+            self.logger.warning(f"AI 키워드 생성 중 오류: {e}")
+            self.logger.info("기본 키워드를 사용합니다.")
             return self._generate_keywords(book_title, author)
 
 
@@ -987,10 +985,11 @@ def main():
         skip_cover=args.skip_cover
     )
     
+    logger = get_logger(__name__)
     if result['cover_path']:
-        print(f"✅ 표지: {result['cover_path']}")
+        logger.info(f"✅ 표지: {result['cover_path']}")
     if result['mood_images']:
-        print(f"✅ 무드 이미지: {len(result['mood_images'])}개")
+        logger.info(f"✅ 무드 이미지: {len(result['mood_images'])}개")
 
 
 if __name__ == "__main__":

@@ -545,6 +545,42 @@ booksummary/
   # 특정 월 리포트 생성
   python src/15_youtube_analytics.py --monthly-report --year 2025 --month 1
   ```
+### 최적 업로드 시간대 분석
+
+업로드 로그와 YouTube Analytics 데이터를 결합하여 최적의 업로드 시간대를 분석합니다.
+
+```bash
+# 최적 업로드 시간대 분석 실행
+python src/18_analyze_optimal_upload_time.py
+
+# 결과는 output/optimal_upload_time_analysis.md에 저장됩니다
+```
+
+**분석 항목:**
+- 요일별 업로드 성과
+- 시간대별 업로드 성과
+- 업로드 후 24시간/48시간 조회수 성장률
+- 최적 업로드 시간대 추천
+
+### 정기 업로드 일정 수립
+
+최적 업로드 시간대 분석 결과를 기반으로 정기 업로드 일정을 생성합니다.
+
+```bash
+# 4주간 주 2회 업로드 일정 생성
+python src/19_upload_schedule.py --weeks 4 --uploads-per-week 2
+
+# 다음 업로드 날짜 확인
+python src/19_upload_schedule.py --show-next
+
+# 특정 날짜부터 시작
+python src/19_upload_schedule.py --weeks 4 --uploads-per-week 2 --start-date 2025-01-15
+```
+
+**생성되는 파일:**
+- `output/upload_schedule.json`: JSON 형식 일정
+- `output/upload_schedule_calendar.md`: 캘린더 형식 일정
+
 - **필수 스코프**: YouTube Analytics API 사용을 위해 OAuth2 인증 시 다음 스코프가 필요합니다:
   - `https://www.googleapis.com/auth/youtube.readonly`
   - `https://www.googleapis.com/auth/yt-analytics.readonly`

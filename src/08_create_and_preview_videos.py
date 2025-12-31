@@ -38,7 +38,11 @@ from utils.translations import translate_book_title, translate_author_name, get_
 from utils.file_utils import safe_title, load_book_info, get_standard_safe_title
 
 def generate_title(book_title: str, lang: str = "both") -> str:
-    """영상 제목 생성 (두 언어 포함, 언어 표시 포함, 대체 제목 포함)"""
+    """
+    영상 제목 생성 (SEO 최적화 포함)
+    - 검색 키워드 포함 (책 제목, 저자명, "책 리뷰")
+    - 두 언어 포함, 언어 표시 포함, 대체 제목 포함
+    """
     # 괄호 안의 한글 추출 (예: "Sátántangó (사탄탱고)" -> ko_title="사탄탱고", en_title="Sátántangó")
     import re
     # 괄호 안의 한글 추출
@@ -263,6 +267,17 @@ def _generate_description_ko(book_info: Optional[Dict] = None, book_title: str =
     if timestamps:
         ko_desc += _generate_timestamps_section(timestamps, lang="ko")
         ko_desc += "\n"
+    
+    # 좋아요 유도 문구 중간 삽입 (시청자 유지율 향상)
+    ko_desc += """
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👍 이 영상이 도움이 되셨다면 좋아요를 눌러주세요!
+좋아요는 YouTube 알고리즘이 이 영상을 더 많은 사람에게 추천하는 데 큰 도움이 됩니다.
+여러분의 좋아요가 채널 성장의 원동력입니다! 💪
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+"""
+    
     if book_info:
         # 책 소개 추가 (book_info의 description이 한글인 경우만 사용)
         if book_info.get('description'):
@@ -318,7 +333,18 @@ def _generate_description_ko(book_info: Optional[Dict] = None, book_title: str =
     ko_desc += """
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔔 구독과 좋아요는 영상 제작에 큰 힘이 됩니다!
-💬 댓글로 여러분의 생각을 공유해주세요.
+
+💬 댓글을 남겨주세요!
+이 책을 읽어보셨나요? 어떤 생각이 드셨나요?
+댓글로 여러분의 생각과 감상을 공유해주시면 큰 힘이 됩니다.
+질문이나 궁금한 점도 언제든지 댓글로 남겨주세요! 💕
+
+📌 이 책에 대한 여러분의 의견이 궁금합니다:
+• 이 책을 읽어보신 분들의 솔직한 후기
+• 이 책과 비슷한 책 추천
+• 이 책의 어떤 부분이 가장 인상 깊으셨나요?
+• 작가의 다른 작품 중 추천하고 싶은 책
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 #책리뷰 #독서 #북튜버 #책추천 #BookReview #Reading
@@ -381,7 +407,18 @@ This video was automatically generated using NotebookLM and AI.
     en_desc += """
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔔 Subscribe and like to support video creation!
-💬 Share your thoughts in the comments.
+
+💬 Please leave a comment!
+Have you read this book? What are your thoughts?
+Your comments and reviews mean a lot to us!
+Feel free to share any questions or thoughts in the comments below! 💕
+
+📌 We'd love to hear your thoughts on this book:
+• Honest reviews from those who have read it
+• Book recommendations similar to this one
+• Which part of the book impressed you the most?
+• Other works by this author you'd recommend
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 #BookReview #Reading #BookTube #BookRecommendation #책리뷰 #독서
@@ -425,6 +462,16 @@ This video was automatically generated using NotebookLM and AI.
         if timestamps:
             description += _generate_timestamps_section(timestamps, lang="en")
             description += "\n"
+        
+        # 좋아요 유도 문구 중간 삽입 (시청자 유지율 향상)
+        description += """
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👍 If this video was helpful, please give it a like!
+Likes help YouTube's algorithm recommend this video to more people.
+Your likes are the driving force behind channel growth! 💪
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+"""
     
     if book_info:
         # 영어 설명 사용 (book_info의 description이 영어인 경우만 사용)
@@ -483,7 +530,18 @@ This video was automatically generated using NotebookLM and AI.
     description += """
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔔 Subscribe and like to support video creation!
-💬 Share your thoughts in the comments.
+
+💬 Please leave a comment!
+Have you read this book? What are your thoughts?
+Your comments and reviews mean a lot to us!
+Feel free to share any questions or thoughts in the comments below! 💕
+
+📌 We'd love to hear your thoughts on this book:
+• Honest reviews from those who have read it
+• Book recommendations similar to this one
+• Which part of the book impressed you the most?
+• Other works by this author you'd recommend
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 #BookReview #Reading #BookTube #BookRecommendation #책리뷰 #독서
@@ -555,7 +613,18 @@ def _generate_description_en_with_ko(book_info: Optional[Dict] = None, book_titl
     ko_desc += """
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔔 구독과 좋아요는 영상 제작에 큰 힘이 됩니다!
-💬 댓글로 여러분의 생각을 공유해주세요.
+
+💬 댓글을 남겨주세요!
+이 책을 읽어보셨나요? 어떤 생각이 드셨나요?
+댓글로 여러분의 생각과 감상을 공유해주시면 큰 힘이 됩니다.
+질문이나 궁금한 점도 언제든지 댓글로 남겨주세요! 💕
+
+📌 이 책에 대한 여러분의 의견이 궁금합니다:
+• 이 책을 읽어보신 분들의 솔직한 후기
+• 이 책과 비슷한 책 추천
+• 이 책의 어떤 부분이 가장 인상 깊으셨나요?
+• 작가의 다른 작품 중 추천하고 싶은 책
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 #책리뷰 #독서 #북튜버 #책추천 #BookReview #Reading
@@ -566,9 +635,9 @@ def _generate_description_en_with_ko(book_info: Optional[Dict] = None, book_titl
 
 def generate_tags(book_title: str = None, book_info: Optional[Dict] = None, lang: str = "both") -> list:
     """태그 생성 (책 정보 활용, 두 언어 포함)"""
-    # 기본 태그
-    ko_base_tags = ['책리뷰', '독서', '북튜버', '책추천', '일당백', '독서법', '책읽기', '리뷰영상']
-    en_base_tags = ['BookReview', 'Reading', 'BookTube', 'BookRecommendation', 'ReadingTips', 'Books', 'ReviewVideo']
+    # 기본 태그 (SEO 최적화 - 검색 키워드 중심)
+    ko_base_tags = ['책리뷰', '독서', '북튜버', '책추천', '일당백', '독서법', '책읽기', '리뷰영상', '책요약', '독서후기', '문학', '소설리뷰']
+    en_base_tags = ['BookReview', 'Reading', 'BookTube', 'BookRecommendation', 'ReadingTips', 'Books', 'ReviewVideo', 'BookSummary', 'Literature', 'BookDiscussion']
     
     # 추천 기관/상/대학 태그 (일반적으로 유용한 태그들)
     # 책의 특성에 따라 선택적으로 추가될 수 있음

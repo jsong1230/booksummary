@@ -22,6 +22,11 @@ try:
 except ImportError:
     OPENAI_AVAILABLE = False
 
+try:
+    from utils.logger import get_logger
+except ImportError:
+    from src.utils.logger import get_logger
+
 load_dotenv()
 
 
@@ -29,6 +34,7 @@ class SummaryGenerator:
     """책 요약 생성 클래스"""
     
     def __init__(self):
+        self.logger = get_logger(__name__)
         self.claude_api_key = os.getenv("CLAUDE_API_KEY")
         self.openai_api_key = os.getenv("OPENAI_API_KEY")
     
@@ -116,11 +122,15 @@ class SummaryGenerator:
 (다음 NotebookLM 분석으로 자연스럽게 넘어가는 연결 문장)
 ```
 
-**HOOK 작성 가이드:**
-- 첫 3초 안에 시청자의 호기심을 자극해야 함
+**HOOK 작성 가이드 (매우 중요 - 첫 15초 집중도 향상):**
+- **첫 3초 안에 시청자의 호기심을 자극해야 함** (이탈 방지 핵심)
 - 책의 가장 흥미롭고 충격적인 요소 활용
 - 미스터리, 반전, 중요한 장면, 논쟁적 질문 등 사용
-- 10-20초 분량의 강렬한 오프닝
+- **10-20초 분량의 강렬한 오프닝** (평균 시청 시간 향상)
+- **구체적이고 감정을 자극하는 문장 사용**
+- **"만약", "상상해보세요", "당신은 알고 있나요?" 같은 질문형 시작 권장**
+- **숫자나 구체적 사실 포함** (예: "수천만 권 팔린 이유", "5초의 선택이 5년을 결정")
+- **반전이나 충격적 사실로 시작** (예: "이 이야기는 시작부터 비극입니다")
 - 예시: {hook_examples[0] if language == "ko" else hook_examples[0]}
 
 책 제목: {book_title}
@@ -202,8 +212,8 @@ class SummaryGenerator:
                     else:
                         summary = self._ensure_intro_outro(summary, intro_text, outro_text, language)
                 except Exception as claude_error:
-                    print(f"⚠️ Claude API 오류: {claude_error}")
-                    print("🔄 OpenAI API로 대체 시도 중...")
+                    self.logger.warning(f"Claude API 오류: {claude_error}")
+                    self.logger.info("🔄 OpenAI API로 대체 시도 중...")
                     # Claude 실패 시 OpenAI로 대체
                     if OPENAI_AVAILABLE and self.openai_api_key:
                         try:
@@ -226,7 +236,7 @@ class SummaryGenerator:
                             else:
                                 summary = self._ensure_intro_outro(summary, intro_text, outro_text, language)
                         except Exception as openai_error:
-                            print(f"❌ OpenAI API 오류: {openai_error}")
+                            self.logger.error(f"OpenAI API 오류: {openai_error}")
                             raise openai_error
                     else:
                         raise claude_error
@@ -248,7 +258,7 @@ class SummaryGenerator:
                     # 인트로/아웃트로 확인 및 추가
                     summary = self._ensure_intro_outro(summary, intro_text, outro_text, language)
                 except Exception as openai_error:
-                    print(f"❌ OpenAI API 오류: {openai_error}")
+                    self.logger.error(f"OpenAI API 오류: {openai_error}")
                     raise openai_error
             else:
                 raise Exception("AI API 키가 설정되지 않았습니다.")
@@ -256,7 +266,7 @@ class SummaryGenerator:
             return summary.strip()
             
         except Exception as e:
-            print(f"❌ 요약 생성 오류: {e}")
+            self.logger.error(f"요약 생성 오류: {e}")
             raise
     
     def _ensure_intro_outro(
@@ -537,14 +547,16 @@ class SummaryGenerator:
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(full_content)
         
-        print(f"✅ 요약 저장 완료: {output_path}")
-        print(f"   📝 메타데이터 주석 처리 완료")
+        self.logger.info(f"✅ 요약 저장 완료: {output_path}")
+        self.logger.info("📝 메타데이터 주석 처리 완료")
         return output_path
 
 
 def main():
     """메인 실행 함수"""
     import argparse
+    
+    logger = get_logger(__name__)
     
     parser = argparse.ArgumentParser(description='책 요약 생성')
     parser.add_argument('--title', type=str, required=True, help='책 제목')
@@ -556,14 +568,13 @@ def main():
     
     generator = SummaryGenerator()
     
-    print("=" * 60)
-    print("📚 책 요약 생성 시작")
-    print("=" * 60)
-    print(f"책 제목: {args.title}")
-    print(f"저자: {args.author or '알 수 없음'}")
-    print(f"언어: {args.language}")
-    print(f"목표 길이: {args.duration}분")
-    print()
+    logger.info("=" * 60)
+    logger.info("📚 책 요약 생성 시작")
+    logger.info("=" * 60)
+    logger.info(f"책 제목: {args.title}")
+    logger.info(f"저자: {args.author or '알 수 없음'}")
+    logger.info(f"언어: {args.language}")
+    logger.info(f"목표 길이: {args.duration}분")
     
     try:
         summary = generator.generate_summary(
@@ -581,19 +592,17 @@ def main():
             duration_minutes=args.duration
         )
         
-        print()
-        print("=" * 60)
-        print("✅ 요약 생성 완료!")
-        print("=" * 60)
-        print(f"📁 저장 위치: {output_path}")
-        print()
-        print("📝 요약 미리보기:")
-        print("-" * 60)
-        print(summary[:500] + "..." if len(summary) > 500 else summary)
-        print("-" * 60)
+        logger.info("=" * 60)
+        logger.info("✅ 요약 생성 완료!")
+        logger.info("=" * 60)
+        logger.info(f"📁 저장 위치: {output_path}")
+        logger.info("📝 요약 미리보기:")
+        logger.info("-" * 60)
+        logger.info(summary[:500] + "..." if len(summary) > 500 else summary)
+        logger.info("-" * 60)
         
     except Exception as e:
-        print(f"❌ 오류 발생: {e}")
+        logger.error(f"오류 발생: {e}")
         return 1
     
     return 0
