@@ -39,6 +39,63 @@
     - "노인과 바다" ↔ "The Old Man and the Sea" 매핑 추가
     - "헤밍웨이" ↔ "Ernest Hemingway" 매핑 (이미 존재)
 
+### 이방인 영상 제작 및 업로드
+- **책 제목**: 이방인 (The Stranger)
+- **저자**: 알베르 카뮈 (Albert Camus)
+- **생성된 파일**:
+  - 영상: `output/The_Stranger_kr.mp4` (242.09MB), `output/The_Stranger_en.mp4` (182.51MB)
+  - 썸네일: `output/The_Stranger_thumbnail_kr.jpg`, `output/The_Stranger_thumbnail_en.jpg`
+  - 메타데이터: `output/The_Stranger_kr.metadata.json`, `output/The_Stranger_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - NotebookLM 비디오: `assets/video/The_Stranger_notebooklm_kr.mp4`, `assets/video/The_Stranger_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [한국어] 이방인 책 리뷰 | [Korean] The Stranger Book Review
+    - URL: https://www.youtube.com/watch?v=Tkto3zlCbpI
+  - [2] [English] The Stranger Book Review | [영어] 이방인 책 리뷰
+    - URL: https://www.youtube.com/watch?v=I_Y9XgI3bq4
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "이방인" ↔ "The Stranger" 매핑 추가
+    - "알베르 카뮈" ↔ "Albert Camus" 매핑 추가
+
+### 변신 영상 제작 및 업로드
+- **책 제목**: 변신 (The Metamorphosis)
+- **저자**: 프란츠 카프카 (Franz Kafka)
+- **생성된 파일**:
+  - 영상: `output/The_Metamorphosis_kr.mp4` (353.49MB), `output/The_Metamorphosis_en.mp4` (306.81MB)
+  - 썸네일: `output/The_Metamorphosis_thumbnail_kr.jpg`, `output/The_Metamorphosis_thumbnail_en.jpg`
+  - 메타데이터: `output/The_Metamorphosis_kr.metadata.json`, `output/The_Metamorphosis_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - NotebookLM 비디오: `assets/video/The_Metamorphosis_notebooklm_kr.mp4`, `assets/video/The_Metamorphosis_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [한국어] 변신 책 리뷰 | [Korean] The Metamorphosis Book Review
+    - URL: https://www.youtube.com/watch?v=pUdbmweOY0s
+  - [2] [English] The Metamorphosis Book Review | [영어] 변신 책 리뷰
+    - URL: https://www.youtube.com/watch?v=6shKy3oZHeM
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "변신" ↔ "The Metamorphosis" 매핑 추가
+    - "프란츠 카프카" ↔ "Franz Kafka" 매핑 추가
+
+### 제인 에어 영상 제작 및 업로드
+- **책 제목**: 제인 에어 (Jane Eyre)
+- **저자**: 샬럿 브론테 (Charlotte Brontë)
+- **생성된 파일**:
+  - 영상: `output/Jane_Eyre_kr.mp4` (282.02MB), `output/Jane_Eyre_en.mp4` (283.98MB)
+  - 썸네일: `output/Jane_Eyre_thumbnail_kr.jpg`, `output/Jane_Eyre_thumbnail_en.jpg`
+  - 메타데이터: `output/Jane_Eyre_kr.metadata.json`, `output/Jane_Eyre_en.metadata.json`
+  - 이미지: 100개 무드 이미지 다운로드 완료
+  - NotebookLM 비디오: `assets/video/Jane_Eyre_notebooklm_kr.mp4`, `assets/video/Jane_Eyre_notebooklm_en.mp4`
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [한국어] 제인 에어 책 리뷰 | [Korean] Jane Eyre Book Review
+    - URL: https://www.youtube.com/watch?v=bnSKi6eURFM
+  - [2] [English] Jane Eyre Book Review | [영어] 제인 에어 책 리뷰
+    - URL: https://www.youtube.com/watch?v=bEYUYAxR0Bo
+- **번역 매핑 추가**:
+  - **`src/utils/translations.py`**:
+    - "제인 에어" ↔ "Jane Eyre" 매핑 추가
+    - "샬럿 브론테" ↔ "Charlotte Brontë" 매핑 추가
+
 ## 2025-12-27
 
 ### 팩트풀니스 영문 영상 재생성 및 재업로드
@@ -1027,7 +1084,7 @@
 
 ### YouTube 업로드 완료
 - 업로드된 책: Capital_in_the_Twenty_First_Century
-- 업로드된 영상 수: 2개
+  - 업로드된 영상 수: 2개
 - [1] [English] Capital in the Twenty-First Century Book Review | [영어] 21세기 자본 책 리뷰
   - URL: https://www.youtube.com/watch?v=EJc2t41JZjg
 - [2] [한국어] 21세기 자본 책 리뷰 | [Korean] Capital in the Twenty-First Century Book Review
@@ -1037,7 +1094,7 @@
 
 ### YouTube 업로드 완료
 - 업로드된 책: The_Gene
-- 업로드된 영상 수: 2개
+  - 업로드된 영상 수: 2개
 - [1] [English] The Gene Book Review | [영어] 유전자 책 리뷰
   - URL: https://www.youtube.com/watch?v=78yfOUFfftQ
 - [2] [한국어] 유전자 책 리뷰 | [Korean] The Gene Book Review
@@ -1263,3 +1320,33 @@
   - URL: https://www.youtube.com/watch?v=_AqE6HnRJfc
 - [2] [한국어] 노인과 바다 책 리뷰 | [Korean] The Old Man and the Sea Book Review
   - URL: https://www.youtube.com/watch?v=cRcf2WF8iqo
+
+## 2025-12-31
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Stranger
+- 업로드된 영상 수: 2개
+- [1] [English] The Stranger Book Review | [영어] 이방인 책 리뷰
+  - URL: https://www.youtube.com/watch?v=I_Y9XgI3bq4
+- [2] [한국어] 이방인 책 리뷰 | [Korean] The Stranger Book Review
+  - URL: https://www.youtube.com/watch?v=Tkto3zlCbpI
+
+## 2025-12-31
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Metamorphosis
+- 업로드된 영상 수: 2개
+- [1] [English] The Metamorphosis Book Review | [영어] 변신 책 리뷰
+  - URL: https://www.youtube.com/watch?v=6shKy3oZHeM
+- [2] [한국어] 변신 책 리뷰 | [Korean] The Metamorphosis Book Review
+  - URL: https://www.youtube.com/watch?v=pUdbmweOY0s
+
+## 2025-12-31
+
+### YouTube 업로드 완료
+- 업로드된 책: Jane_Eyre
+- 업로드된 영상 수: 2개
+- [1] [English] Jane Eyre Book Review | [영어] 제인 에어 책 리뷰
+  - URL: https://www.youtube.com/watch?v=bEYUYAxR0Bo
+- [2] [한국어] 제인 에어 책 리뷰 | [Korean] Jane Eyre Book Review
+  - URL: https://www.youtube.com/watch?v=bnSKi6eURFM

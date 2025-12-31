@@ -169,6 +169,15 @@ def translate_book_title(book_title: str) -> str:
         "노인과 바다": "The Old Man and the Sea",
         "노인과_바다": "The Old Man and the Sea",
         "The Old Man and the Sea": "The Old Man and the Sea",
+        "이방인": "The Stranger",
+        "이방인_": "The Stranger",
+        "The Stranger": "The Stranger",
+        "변신": "The Metamorphosis",
+        "변신_": "The Metamorphosis",
+        "The Metamorphosis": "The Metamorphosis",
+        "제인 에어": "Jane Eyre",
+        "제인_에어": "Jane Eyre",
+        "Jane Eyre": "Jane Eyre",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -249,6 +258,9 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "The Sorrows of Young Werther": "젊은 베르테르의 슬픔",
         "Thus Spoke Zarathustra": "차라투스트라는 이렇게 말했다",
         "The Old Man and the Sea": "노인과 바다",
+        "The Stranger": "이방인",
+        "The Metamorphosis": "변신",
+        "Jane Eyre": "제인 에어",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -409,6 +421,12 @@ def translate_author_name(author: str) -> str:
         "프리드리히_니체": "Friedrich Nietzsche",
         "Friedrich Nietzsche": "Friedrich Nietzsche",
         "Nietzsche": "Friedrich Nietzsche",
+        "프란츠 카프카": "Franz Kafka",
+        "카프카": "Franz Kafka",
+        "샬럿 브론테": "Charlotte Brontë",
+        "샬럿_브론테": "Charlotte Brontë",
+        "Charlotte Brontë": "Charlotte Brontë",
+        "Charlotte Bronte": "Charlotte Brontë",
     }
     
     if author in author_map:
@@ -426,6 +444,10 @@ def translate_author_name_to_korean(author: str) -> str:
         "Yuval Noah Harari": "유발 하라리",
         "George Orwell": "조지 오웰",
         "Ernest Hemingway": "어니스트 헤밍웨이",
+        "Albert Camus": "알베르 카뮈",
+        "Camus": "알베르 카뮈",
+        "Franz Kafka": "프란츠 카프카",
+        "Kafka": "프란츠 카프카",
         "William Shakespeare": "윌리엄 셰익스피어",
         "Fyodor Dostoevsky": "표도르 도스토옙스키",
         "Hermann Hesse": "헤르만 헤세",
@@ -471,6 +493,10 @@ def translate_author_name_to_korean(author: str) -> str:
         "Nietzsche": "프리드리히 니체",
         "Johann Wolfgang von Goethe": "괴테",
         "Goethe": "괴테",
+        "Franz Kafka": "프란츠 카프카",
+        "Kafka": "프란츠 카프카",
+        "Charlotte Brontë": "샬럿 브론테",
+        "Charlotte Bronte": "샬럿 브론테",
     }
     
     if author in reverse_author_map:
