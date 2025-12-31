@@ -23,6 +23,59 @@ from utils.translations import translate_book_title, translate_author_name, tran
 logger = setup_logger(__name__)
 
 
+def contains_korean(text: str) -> bool:
+    """
+    텍스트에 한국어 문자가 포함되어 있는지 확인
+    
+    Args:
+        text: 확인할 텍스트
+        
+    Returns:
+        한국어 문자가 포함되어 있으면 True
+    """
+    import re
+    korean_pattern = re.compile(r'[가-힣]')
+    return bool(korean_pattern.search(text))
+
+
+def remove_korean_from_text(text: str) -> str:
+    """
+    텍스트에서 한국어 문자를 제거
+    
+    Args:
+        text: 처리할 텍스트
+        
+    Returns:
+        한국어가 제거된 텍스트
+    """
+    import re
+    korean_pattern = re.compile(r'[가-힣]')
+    return korean_pattern.sub('', text).strip()
+
+
+def ensure_english_only(text: str, fallback: str = "") -> str:
+    """
+    텍스트가 영어만 포함하도록 보장 (한국어가 있으면 제거)
+    
+    Args:
+        text: 확인할 텍스트
+        fallback: 한국어가 포함되어 있고 제거 후 빈 문자열이 되면 사용할 기본값
+        
+    Returns:
+        영어만 포함된 텍스트
+    """
+    if not text:
+        return fallback
+    
+    if contains_korean(text):
+        cleaned = remove_korean_from_text(text)
+        if not cleaned.strip():
+            return fallback
+        return cleaned.strip()
+    
+    return text
+
+
 def generate_episode_title(book_title: str, language: str = "ko") -> str:
     """
     에피소드 영상 제목 생성
@@ -107,8 +160,16 @@ def generate_episode_description(book_title: str, language: str = "ko", video_du
     else:  # en
         if not is_english_title(book_title):
             en_title = translate_book_title(book_title)
+            # 번역이 실패하거나 한국어가 그대로 남아있는 경우 처리
+            if not en_title or not is_english_title(en_title):
+                # 한국어가 포함되어 있으면 제거하고 기본 제목 사용
+                en_title = "This Book" if not en_title else en_title
         else:
             en_title = book_title
+        
+        # 한국어가 포함되어 있지 않은지 최종 확인
+        if not is_english_title(en_title):
+            en_title = "This Book"
         
         description = f"""📚 Complete Guide to {en_title}
 
@@ -137,12 +198,29 @@ This video combines two episodes from 1DANG100 channel into one complete guide.
             description += f"0:00 - Part 1: Author & Background\n"
             description += f"{minutes1}:{seconds1:02d} - Part 2: Novel Summary\n\n"
         
+        # 해시태그에서도 한국어 제거
+        safe_en_title = ensure_english_only(en_title.replace(' ', '').replace(':', '').replace('-', ''), "Book")
         description += f"""💡 Check out 1DANG100 channel for more literary works!
 
 🔔 Subscribe and like to support future videos!
 💬 Share your thoughts in the comments!
 
-#{en_title.replace(' ', '')} #BookReview #Literature #Novel #Author #LiteraryWork"""
+#{safe_en_title} #BookReview #Literature #Novel #Author #LiteraryWork"""
+        
+        # 최종 검증: description에서 한국어 제거
+        if language == "en":
+            # description 전체에서 한국어가 포함된 부분 제거
+            lines = description.split('\n')
+            cleaned_lines = []
+            for line in lines:
+                if contains_korean(line):
+                    # 한국어가 포함된 라인은 제거하거나 한국어만 제거
+                    cleaned_line = remove_korean_from_text(line)
+                    if cleaned_line.strip():
+                        cleaned_lines.append(cleaned_line)
+                else:
+                    cleaned_lines.append(line)
+            description = '\n'.join(cleaned_lines)
     
     return description
 
@@ -325,21 +403,41 @@ def generate_episode_tags(book_title: str, language: str = "ko") -> list:
     else:  # en
         if not is_english_title(book_title):
             en_title = translate_book_title(book_title)
+            # 번역이 실패하거나 한국어가 그대로 남아있는 경우 처리
+            if not en_title or not is_english_title(en_title):
+                en_title = "Book"  # 기본값
         else:
             en_title = book_title
+        
+        # 한국어가 포함되어 있지 않은지 최종 확인
+        if not is_english_title(en_title):
+            en_title = "Book"
         
         # 작가 이름 추출
         author_name = None
         if book_info and 'author' in book_info:
             author_name = book_info['author']
+            # 작가 이름도 영어로 변환
+            if author_name and not is_english_title(author_name):
+                author_name = translate_author_name(author_name)
+                # 번역 실패 시 None으로 설정 (한국어 작가 이름 제거)
+                if not author_name or not is_english_title(author_name):
+                    author_name = None
         
         # 책 제목에서 핵심 키워드 추출 (태그용)
         import re
-        # 영어 제목에서 핵심 키워드 추출
+        # 영어 제목에서 핵심 키워드 추출 (한국어 제외)
         en_title_clean = re.sub(r'[:\-\(\)\[\]「」]', ' ', en_title)
-        en_keywords = [word.strip() for word in en_title_clean.split() if len(word.strip()) > 1]
+        en_keywords = [word.strip() for word in en_title_clean.split() if len(word.strip()) > 1 and is_english_title(word.strip())]
         en_main_keyword = ' '.join(en_keywords[:2]) if len(en_keywords) >= 2 else ' '.join(en_keywords)
         en_main_keyword = en_main_keyword[:20]  # 최대 20자로 제한
+        
+        # en_main_keyword가 한국어를 포함하거나 비어있는 경우 처리
+        if not en_main_keyword or not is_english_title(en_main_keyword):
+            en_main_keyword = None
+        
+        # en_title도 한국어가 포함되지 않도록 확인
+        safe_en_title = en_title[:20] if is_english_title(en_title) else "Book"
         
         tags = [
             # Channel & Series
@@ -347,8 +445,8 @@ def generate_episode_tags(book_title: str, language: str = "ko") -> list:
             "1DANG100BookReview",
             "1DANG100Literature",
             
-            # Book Title (핵심 키워드만)
-            en_main_keyword if en_main_keyword else en_title[:20],
+            # Book Title (핵심 키워드만, 영어만)
+            en_main_keyword if en_main_keyword else safe_en_title,
             f"{en_main_keyword}Review" if en_main_keyword and len(en_main_keyword) + 6 <= 30 else "BookReview",
             f"{en_main_keyword}Analysis" if en_main_keyword and len(en_main_keyword) + 8 <= 30 else "BookAnalysis",
             f"{en_main_keyword}Summary" if en_main_keyword and len(en_main_keyword) + 7 <= 30 else "BookSummary",
@@ -361,17 +459,12 @@ def generate_episode_tags(book_title: str, language: str = "ko") -> list:
             "LiteraryAuthor",
         ]
         
-        # Add author name if available
-        if author_name:
-            if is_english_title(author_name):
-                author_en = author_name
-            else:
-                author_en = translate_author_name(author_name)
-            
+        # Add author name if available (영어만)
+        if author_name and is_english_title(author_name):
             tags.extend([
-                f"{author_en}",
-                f"{author_en}Book",
-                f"{author_en}Novel",
+                f"{author_name}",
+                f"{author_name}Book",
+                f"{author_name}Novel",
             ])
         
         # Base literature tags
@@ -453,10 +546,20 @@ def generate_episode_tags(book_title: str, language: str = "ko") -> list:
         
         tags.extend(base_tags)
     
-    # 태그 정리: 30자 제한 및 중복 제거
+    # 태그 정리: 30자 제한, 중복 제거, 한국어 제거 (영문일 경우)
     cleaned_tags = []
     seen = set()
     for tag in tags:
+        # 영문 메타데이터인 경우 한국어 제거
+        if language == "en":
+            if contains_korean(tag):
+                # 한국어가 포함된 태그는 제거
+                continue
+            # 한국어가 없는 경우에도 한 번 더 확인
+            tag = ensure_english_only(tag, "")
+            if not tag:
+                continue
+        
         # 30자로 자르기
         tag_cleaned = tag[:30] if len(tag) > 30 else tag
         # 중복 제거
@@ -542,6 +645,31 @@ def create_episode_metadata(
     title = generate_episode_title(book_title, language)
     description = generate_episode_description(book_title, language, video_duration)
     tags = generate_episode_tags(book_title, language)
+    
+    # 영문 메타데이터인 경우 최종 검증: description과 tags에서 한국어 제거
+    if language == "en":
+        # description에서 한국어 제거
+        if contains_korean(description):
+            logger.warning("⚠️ Description에 한국어가 포함되어 있습니다. 제거합니다.")
+            lines = description.split('\n')
+            cleaned_lines = []
+            for line in lines:
+                if contains_korean(line):
+                    cleaned_line = remove_korean_from_text(line)
+                    if cleaned_line.strip():
+                        cleaned_lines.append(cleaned_line)
+                else:
+                    cleaned_lines.append(line)
+            description = '\n'.join(cleaned_lines)
+        
+        # tags에서 한국어 제거
+        english_only_tags = []
+        for tag in tags:
+            if contains_korean(tag):
+                logger.warning(f"⚠️ Tag '{tag}'에 한국어가 포함되어 있습니다. 제거합니다.")
+                continue
+            english_only_tags.append(tag)
+        tags = english_only_tags
     
     metadata = {
         'video_path': str(video_path_obj),

@@ -1417,3 +1417,23 @@
 - 업로드된 영상 수: 1개
 - [1] The Prince: A Necessary Evil for Awakened Citizens
   - URL: https://www.youtube.com/watch?v=HchRMda0H0s
+
+## 2025-12-31
+
+### YouTube 업로드 완료
+- 업로드된 책: 솔로몬의_반지_full_episode_ko, 솔로몬의_반지_full_episode
+- 업로드된 영상 수: 2개
+- [1] Complete Guide to King Solomon's Ring | From Author & Background to Full Story
+  - URL: https://www.youtube.com/watch?v=e6ERsEe7PQI
+- [2] [일당백] 솔로몬의 반지 완전정복 | 작가와 배경부터 소설 줄거리까지
+  - URL: https://www.youtube.com/watch?v=Gqkn2b9VFPQ
+
+## 2025-12-31
+
+### YouTube 업로드 완료
+- 업로드된 책: 오이디푸스_왕_full_episode_ko, 오이디푸스_왕_full_episode
+- 업로드된 영상 수: 2개
+- [1] Complete Guide to 오이디푸스 왕 | From Author & Background to Full Story
+  - URL: https://www.youtube.com/watch?v=Q5ivHLSi_TA
+- [2] [일당백] 오이디푸스 왕 완전정복 | 작가와 배경부터 소설 줄거리까지
+  - URL: https://www.youtube.com/watch?v=NSQxPSsz3hA
