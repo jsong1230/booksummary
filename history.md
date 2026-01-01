@@ -1437,3 +1437,145 @@
   - URL: https://www.youtube.com/watch?v=Q5ivHLSi_TA
 - [2] [일당백] 오이디푸스 왕 완전정복 | 작가와 배경부터 소설 줄거리까지
   - URL: https://www.youtube.com/watch?v=NSQxPSsz3hA
+
+## 2026-01-01
+
+### YouTube 업로드 완료
+- 업로드된 책: Crime_and_Punishment_full_episode_ko, Crime_and_Punishment_full_episode
+- 업로드된 영상 수: 2개
+- [1] Complete Guide to Crime and Punishment | From Author & Background to Full Story
+  - URL: https://www.youtube.com/watch?v=QAL6D7FNj60
+- [2] [일당백] 죄와 벌 완전정복 | 작가와 배경부터 소설 줄거리까지
+  - URL: https://www.youtube.com/watch?v=NLnM6QLxQgM
+
+## 2026-01-01
+
+### YouTube 업로드 완료
+- 업로드된 책: 톰_소여의_모험_full_episode_ko
+- 업로드된 영상 수: 1개
+- [1] [일당백] 톰 소여의 모험 완전정복 | 작가와 배경부터 소설 줄거리까지
+  - URL: https://www.youtube.com/watch?v=cLBsSAYMaqw
+
+## 2026-01-01
+
+### YouTube 업로드 완료
+- 업로드된 책: 톰_소여의_모험_full_episode
+- 업로드된 영상 수: 1개
+- [1] Complete Guide to The Adventures of Tom Sawyer | From Author & Background to Full Story
+  - URL: https://www.youtube.com/watch?v=8NSM-7CNui8
+
+## 2026-01-01
+
+### YouTube 업로드 완료
+- 업로드된 책: 두_개의_한국_full_episode_ko
+- 업로드된 영상 수: 1개
+- [1] [일당백] 두 개의 한국 완전정복 | 작가와 배경부터 소설 줄거리까지
+  - URL: https://www.youtube.com/watch?v=S7DbsMrD7R0
+
+## 2026-01-01
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Two_Koreas_full_episode
+- 업로드된 영상 수: 1개
+- [1] Complete Guide to The Two Koreas | From Author & Background to Full Story
+  - URL: https://www.youtube.com/watch?v=GXtwQzzG3P4
+
+## 2026-01-01
+
+### YouTube 업로드 완료
+- 업로드된 책: 아라비안_나이트_full_episode_ko
+- 업로드된 영상 수: 1개
+- [1] [일당백] 아라비안 나이트 완전정복 | 작가와 배경부터 소설 줄거리까지
+  - URL: https://www.youtube.com/watch?v=x1yNhaTYQaI
+
+## 2026-01-01
+
+### YouTube 업로드 완료
+- 업로드된 책: Arabian_Nights_full_episode
+- 업로드된 영상 수: 1개
+- [1] Complete Guide to Arabian Nights | From Author & Background to Full Story
+  - URL: https://www.youtube.com/watch?v=U84k0BSLQ-o
+
+## 2026-01-01
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Art_of_War_full_episode, 손자병법_full_episode_ko
+- 업로드된 영상 수: 2개
+- [1] Complete Guide to The Art of War | From Author & Background to Full Story
+  - URL: https://www.youtube.com/watch?v=AzSmjYsNR1U
+- [2] [일당백] 손자병법 완전정복 | 작가와 배경부터 소설 줄거리까지
+  - URL: https://www.youtube.com/watch?v=u263sE-Veq8
+
+## 2026-01-01
+
+### 일당백 스타일 에피소드 영상 제작 및 업로드
+- **작업 내용**:
+  - 일당백 스타일 에피소드 영상 제작 워크플로우를 사용하여 여러 책의 한글/영문 영상 생성 및 업로드
+  - 번역 매핑 추가: 죄와 벌, 톰 소여의 모험, 두 개의 한국, 아라비안 나이트, 손자병법, 제4차산업혁명
+  - 영문 메타데이터 개선: 소설이 아닌 책(비소설)의 경우 태그 및 설명 수정 (Novel → Book, story → concepts)
+- **수정된 파일**:
+  - `src/utils/translations.py`: 번역 매핑 추가
+    - "죄와 벌" ↔ "Crime and Punishment"
+    - "톰 소여의 모험" ↔ "The Adventures of Tom Sawyer"
+    - "두 개의 한국" ↔ "The Two Koreas"
+    - "아라비안 나이트" ↔ "Arabian Nights"
+    - "손자병법" ↔ "The Art of War"
+    - "제4차산업혁명" ↔ "The Fourth Industrial Revolution"
+- **생성 및 업로드된 영상**:
+  - 죄와 벌 (Crime and Punishment)
+    - 한글: https://www.youtube.com/watch?v=NLnM6QLxQgM (14분 27초, 518.35MB)
+    - 영문: https://www.youtube.com/watch?v=QAL6D7FNj60 (15분 39초, 572.65MB)
+  - 톰 소여의 모험 (The Adventures of Tom Sawyer)
+    - 한글: https://www.youtube.com/watch?v=cLBsSAYMaqw (16분 16초, 584.78MB)
+    - 영문: https://www.youtube.com/watch?v=8NSM-7CNui8 (12분 52초, 476.72MB)
+  - 두 개의 한국 (The Two Koreas)
+    - 한글: https://www.youtube.com/watch?v=S7DbsMrD7R0 (15분 7초, 466.06MB)
+    - 영문: https://www.youtube.com/watch?v=GXtwQzzG3P4 (14분 36초, 484.88MB)
+  - 아라비안 나이트 (Arabian Nights)
+    - 한글: https://www.youtube.com/watch?v=x1yNhaTYQaI (14분 6초, 542.66MB)
+    - 영문: https://www.youtube.com/watch?v=U84k0BSLQ-o (13분 38초, 513.74MB)
+  - 손자병법 (The Art of War)
+    - 한글: https://www.youtube.com/watch?v=u263sE-Veq8 (15분 53초, 505.07MB)
+    - 영문: https://www.youtube.com/watch?v=AzSmjYsNR1U (13분 34초, 467.60MB)
+  - 제4차산업혁명 (The Fourth Industrial Revolution)
+    - 한글: https://www.youtube.com/watch?v=6ioZEQkdkj0 (15분 57초, 348.76MB)
+    - 영문: https://www.youtube.com/watch?v=s5xtSOl1l6E (12분 30초, 355.26MB)
+
+### YouTube 자막 추출 스크립트 개선 (쿠키 지원 추가)
+- **작업 내용**:
+  - `scripts/fetch_separate_scripts.py`에 쿠키 지원 기능 추가
+  - IP 차단 우회를 위한 쿠키 파일 사용 기능 구현
+  - `MozillaCookieJar`를 사용하여 Netscape 쿠키 형식 파일 로드
+  - `requests.Session`에 쿠키 추가 및 `YouTubeTranscriptApi`에 전달
+  - User-Agent 헤더 추가로 브라우저처럼 보이도록 개선
+- **수정된 파일**:
+  - `scripts/fetch_separate_scripts.py`: 쿠키 지원 기능 추가
+    - `load_cookies_into_session()` 함수 추가: 쿠키 파일을 로드하여 `requests.Session`에 추가
+    - `fetch_transcript()` 함수에 `cookies_path` 파라미터 추가
+    - `--cookies` 명령줄 인자 추가
+    - 에러 메시지 개선 (에러 타입 및 상세 메시지 출력)
+  - `.gitignore`: `scripts/cookies.txt` 추가 (개인 정보 보호)
+- **사용 방법**:
+  ```bash
+  # 쿠키 파일 준비:
+  # 1. Chrome 확장프로그램 "Get cookies.txt LOCALLY" 설치
+  # 2. YouTube에 로그인한 상태에서 쿠키를 cookies.txt로 다운로드
+  # 3. scripts/ 폴더에 cookies.txt 저장
+  
+  # 쿠키 사용 (자동 감지):
+  python scripts/fetch_separate_scripts.py \
+    --url1 "https://www.youtube.com/watch?v=VIDEO_ID_1" \
+    --url2 "https://www.youtube.com/watch?v=VIDEO_ID_2" \
+    --title "책 제목"
+  
+  # 쿠키 파일 경로 지정:
+  python scripts/fetch_separate_scripts.py \
+    --url1 "https://www.youtube.com/watch?v=VIDEO_ID_1" \
+    --url2 "https://www.youtube.com/watch?v=VIDEO_ID_2" \
+    --title "책 제목" \
+    --cookies "scripts/cookies.txt"
+  ```
+- **참고사항**:
+  - 쿠키 파일이 `scripts/cookies.txt`에 있으면 자동으로 사용됨
+  - 쿠키를 사용해도 IP 차단이 발생할 수 있음 (YouTube의 정책에 따라)
+  - IP 차단 시 VPN 사용 또는 다른 네트워크에서 시도 권장

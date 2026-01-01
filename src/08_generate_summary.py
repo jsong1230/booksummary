@@ -43,7 +43,8 @@ class SummaryGenerator:
         book_title: str,
         author: str = None,
         language: str = "ko",
-        duration_minutes: float = 5.0
+        duration_minutes: float = 5.0,
+        context_text: str = None
     ) -> str:
         """
         책 요약 생성
@@ -53,6 +54,7 @@ class SummaryGenerator:
             author: 저자 이름
             language: 언어 ('ko' 또는 'en')
             duration_minutes: 요약 길이 (분 단위, 기본값: 5분)
+            context_text: 참고할 컨텍스트 텍스트 (예: 유튜브 자막)
             
         Returns:
             생성된 요약 텍스트
@@ -137,11 +139,23 @@ class SummaryGenerator:
 저자: {author or "알 수 없음"}
 """
         
+        if context_text:
+            prompt += f"""
+**참고 자료 (유튜브 자막):**
+다음은 이 책과 관련된 유튜브 영상의 자막입니다. 이 내용을 바탕으로 요약을 작성해주세요.
+자막의 내용을 참고하되, 영상의 내용을 그대로 베끼지 말고 책의 핵심 내용을 잘 요약해서 구성해주세요.
+자막 내용 중 불필요한 부분(인사말, 광고 등)은 제외하고 핵심 내용 위주로 작성해주세요.
+
+---
+{context_text[:50000]}... (내용이 길어 생략될 수 있음)
+---
+"""
+        
         if book_info:
             if book_info.get('description'):
-                prompt += f"\n책 설명: {book_info['description'][:1000]}\n"
+                prompt += f"\\n책 설명: {book_info['description'][:1000]}\\n"
             if book_info.get('categories'):
-                prompt += f"카테고리: {', '.join(book_info['categories'])}\n"
+                prompt += f"카테고리: {', '.join(book_info['categories'])}\\n"
         
         # 언어별 문체 지시
         style_instruction = ""
