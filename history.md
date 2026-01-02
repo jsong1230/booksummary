@@ -2,6 +2,28 @@
 
 ## 2026-01-02
 
+### 위대한 개츠비 일당백 스타일 영상 제작 및 메타데이터 동적 Part 감지 기능 추가
+- **작업 내용**:
+  - 위대한 개츠비 "가난한 청년은 부잣집 딸과 결혼할 수 없는가?" 일당백 스타일 한글/영문 롱폼 영상 제작
+  - Part 2개 자동 처리 확인 및 검증
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **메타데이터 동적 Part 감지**: `src/20_create_episode_metadata.py`에서 Part 개수를 동적으로 감지하여 설명과 타임스탬프 자동 생성
+    - Part 1, 2만 하드코딩되어 있던 것을 동적 감지로 변경
+    - Part 개수에 따라 설명과 타임스탬프 자동 생성 (Part 1, 2, 3 이상 모두 지원)
+    - `detect_part_count()` 함수 추가: `assets/notebooklm` 폴더에서 Part 파일 자동 탐지
+  - **번역 매핑 추가**: `src/utils/translations.py`에 위대한 개츠비 및 스콧 피츠제럴드 번역 매핑 추가
+- **생성된 영상**:
+  - 한글: `output/The_Great_Gatsby_full_episode_ko.mp4` (871.36초, 약 14.52분)
+  - 영문: `output/The_Great_Gatsby_full_episode_en.mp4` (858.14초, 약 14.30분)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=2_aMxbFUBLQ
+  - 영문: https://www.youtube.com/watch?v=y5GvpwX1jdc
+- **수정된 파일**:
+  - `src/20_create_episode_metadata.py`: Part 개수 동적 감지 및 설명/타임스탬프 자동 생성 로직 추가
+  - `src/utils/translations.py`: 위대한 개츠비 및 스콧 피츠제럴드 번역 매핑 추가
+  - `data/ildangbaek_books.csv`: 위대한 개츠비 업로드 정보 업데이트
+
 ### 플라톤 대화편 일당백 스타일 영상 제작 및 배경음악 문제 수정
 - **작업 내용**:
   - 플라톤 "대화편 : 철학은 사랑이다" 일당백 스타일 한글/영문 롱폼 영상 제작
@@ -1706,3 +1728,23 @@
   - URL: https://www.youtube.com/watch?v=c_MM0EBuzZo
 - [2] [일당백] 난장이가 쏘아올린 작은 공 완전정복 | 작가와 배경부터 소설 줄거리까지
   - URL: https://www.youtube.com/watch?v=gnDFPNAH7s0
+
+## 2026-01-02
+
+### YouTube 업로드 완료
+- 업로드된 책: Platos_Dialogues_Philosophy_is_Love_full_episode, Platos_Dialogues_Philosophy_is_Love_full_episode_ko
+- 업로드된 영상 수: 2개
+- [1] Complete Guide to Plato's Dialogues: Philosophy is Love | From Author & Background to Full Story
+  - URL: https://www.youtube.com/watch?v=fdlOWCGa5po
+- [2] [일당백] 플라톤 대화편 : 철학은 사랑이다 완전정복 | 작가와 배경부터 소설 줄거리까지
+  - URL: https://www.youtube.com/watch?v=0HDaR9ZwXMA
+
+## 2026-01-02
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Great_Gatsby_full_episode_ko, The_Great_Gatsby_full_episode
+- 업로드된 영상 수: 2개
+- [1] Complete Guide to The Great Gatsby | From Author & Background to Full Story
+  - URL: https://www.youtube.com/watch?v=y5GvpwX1jdc
+- [2] [일당백] 위대한 개츠비 : 가난한 청년은 부잣집 딸과 결혼할 수 없는가? 완전정복 | 작가와 배경부터 소설 줄거리까지
+  - URL: https://www.youtube.com/watch?v=2_aMxbFUBLQ

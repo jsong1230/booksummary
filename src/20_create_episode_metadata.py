@@ -102,6 +102,34 @@ def generate_episode_title(book_title: str, language: str = "ko") -> str:
         return f"Complete Guide to {en_title} | From Author & Background to Full Story"
 
 
+def detect_part_count(book_title: str, language: str = "ko") -> int:
+    """
+    Part 개수를 동적으로 감지
+    
+    Args:
+        book_title: 책 제목
+        language: 언어 ('ko' 또는 'en')
+        
+    Returns:
+        Part 개수
+    """
+    safe_title = get_standard_safe_title(book_title)
+    lang_suffix = "_ko" if language == "ko" else "_en"
+    input_dir = Path("assets/notebooklm") / safe_title / language
+    
+    part_count = 0
+    part_num = 1
+    while True:
+        video_file = input_dir / f"part{part_num}_video{lang_suffix}.mp4"
+        if video_file.exists():
+            part_count += 1
+            part_num += 1
+        else:
+            break
+    
+    return part_count
+
+
 def generate_episode_description(book_title: str, language: str = "ko", video_duration: Optional[float] = None) -> str:
     """
     에피소드 영상 설명 생성
@@ -114,6 +142,11 @@ def generate_episode_description(book_title: str, language: str = "ko", video_du
     Returns:
         생성된 설명
     """
+    # Part 개수 동적 감지
+    part_count = detect_part_count(book_title, language)
+    if part_count == 0:
+        part_count = 2  # 기본값 (하위 호환성)
+    
     # 책 제목 번역
     if language == "ko":
         if is_english_title(book_title):
@@ -123,13 +156,32 @@ def generate_episode_description(book_title: str, language: str = "ko", video_du
             ko_title = book_title
             en_title = translate_book_title(book_title)
         
+        # Part 개수에 따라 설명 동적 생성
+        if part_count == 1:
+            part_description = "• Part 1: 작가와 배경 - 작가의 생애와 작품 배경"
+        elif part_count == 2:
+            part_description = """• Part 1: 작가와 배경 - 작가의 생애와 작품 배경
+• Part 2: 소설 줄거리 - 전체 스토리와 주요 인물"""
+        elif part_count == 3:
+            part_description = """• Part 1: 작가와 배경 - 작가의 생애와 작품 배경
+• Part 2: 소설 줄거리 (상) - 스토리 전반부와 주요 인물
+• Part 3: 소설 줄거리 (하) - 스토리 후반부와 결말"""
+        else:
+            # 4개 이상인 경우
+            part_lines = []
+            for i in range(1, part_count + 1):
+                if i == 1:
+                    part_lines.append(f"• Part {i}: 작가와 배경 - 작가의 생애와 작품 배경")
+                else:
+                    part_lines.append(f"• Part {i}: 소설 줄거리 - 스토리 {i-1}부")
+            part_description = "\n".join(part_lines)
+        
         description = f"""📚 {ko_title} ({en_title}) 완전정복
 
-이 영상은 일당백 채널의 두 편의 영상을 하나로 합친 완전판입니다.
+이 영상은 일당백 채널의 {part_count}편의 영상을 하나로 합친 완전판입니다.
 
 📖 영상 구성:
-• Part 1: 작가와 배경 - 작가의 생애와 작품 배경
-• Part 2: 소설 줄거리 - 전체 스토리와 주요 인물
+{part_description}
 
 🎯 이 영상에서 배울 수 있는 것:
 ✓ 작가의 생애와 작품 세계
@@ -142,13 +194,38 @@ def generate_episode_description(book_title: str, language: str = "ko", video_du
 """
         
         if video_duration:
-            part1_end = video_duration * 0.4  # 대략 Part 1이 40% 정도
-            minutes1 = int(part1_end // 60)
-            seconds1 = int(part1_end % 60)
-            minutes2 = int(video_duration // 60)
-            seconds2 = int(video_duration % 60)
-            description += f"0:00 - Part 1: 작가와 배경\n"
-            description += f"{minutes1}:{seconds1:02d} - Part 2: 소설 줄거리\n\n"
+            # Part 개수에 따라 타임스탬프 동적 생성
+            current_time = 0.0
+            for i in range(1, part_count + 1):
+                if i == 1:
+                    # Part 1은 대략 전체의 30-40% 정도
+                    part_duration = video_duration * (0.35 if part_count >= 2 else 1.0)
+                elif i == part_count:
+                    # 마지막 Part는 남은 시간
+                    part_duration = video_duration - current_time
+                else:
+                    # 중간 Part들은 균등 분배
+                    remaining_time = video_duration - current_time
+                    part_duration = remaining_time / (part_count - i + 1)
+                
+                minutes = int(current_time // 60)
+                seconds = int(current_time % 60)
+                
+                if i == 1:
+                    description += f"{minutes}:{seconds:02d} - Part {i}: 작가와 배경\n"
+                elif part_count == 2 and i == 2:
+                    description += f"{minutes}:{seconds:02d} - Part {i}: 소설 줄거리\n"
+                elif part_count == 3:
+                    if i == 2:
+                        description += f"{minutes}:{seconds:02d} - Part {i}: 소설 줄거리 (상)\n"
+                    elif i == 3:
+                        description += f"{minutes}:{seconds:02d} - Part {i}: 소설 줄거리 (하)\n"
+                else:
+                    description += f"{minutes}:{seconds:02d} - Part {i}: 소설 줄거리 {i-1}부\n"
+                
+                current_time += part_duration
+            
+            description += "\n"
         
         description += f"""💡 일당백 채널에서 더 많은 작품을 만나보세요!
 
@@ -171,13 +248,32 @@ def generate_episode_description(book_title: str, language: str = "ko", video_du
         if not is_english_title(en_title):
             en_title = "This Book"
         
+        # Part 개수에 따라 설명 동적 생성
+        if part_count == 1:
+            part_description = "• Part 1: Author & Background - Author's life and work context"
+        elif part_count == 2:
+            part_description = """• Part 1: Author & Background - Author's life and work context
+• Part 2: Novel Summary - Full story and main characters"""
+        elif part_count == 3:
+            part_description = """• Part 1: Author & Background - Author's life and work context
+• Part 2: Novel Summary (Part 1) - First half of the story and main characters
+• Part 3: Novel Summary (Part 2) - Second half of the story and conclusion"""
+        else:
+            # 4개 이상인 경우
+            part_lines = []
+            for i in range(1, part_count + 1):
+                if i == 1:
+                    part_lines.append(f"• Part {i}: Author & Background - Author's life and work context")
+                else:
+                    part_lines.append(f"• Part {i}: Novel Summary - Story Part {i-1}")
+            part_description = "\n".join(part_lines)
+        
         description = f"""📚 Complete Guide to {en_title}
 
-This video combines two episodes from 1DANG100 channel into one complete guide.
+This video combines {part_count} episodes from 1DANG100 channel into one complete guide.
 
 📖 Video Structure:
-• Part 1: Author & Background - Author's life and work context
-• Part 2: Novel Summary - Full story and main characters
+{part_description}
 
 🎯 What You'll Learn:
 ✓ Author's life and literary world
@@ -190,13 +286,38 @@ This video combines two episodes from 1DANG100 channel into one complete guide.
 """
         
         if video_duration:
-            part1_end = video_duration * 0.4
-            minutes1 = int(part1_end // 60)
-            seconds1 = int(part1_end % 60)
-            minutes2 = int(video_duration // 60)
-            seconds2 = int(video_duration % 60)
-            description += f"0:00 - Part 1: Author & Background\n"
-            description += f"{minutes1}:{seconds1:02d} - Part 2: Novel Summary\n\n"
+            # Part 개수에 따라 타임스탬프 동적 생성
+            current_time = 0.0
+            for i in range(1, part_count + 1):
+                if i == 1:
+                    # Part 1은 대략 전체의 30-40% 정도
+                    part_duration = video_duration * (0.35 if part_count >= 2 else 1.0)
+                elif i == part_count:
+                    # 마지막 Part는 남은 시간
+                    part_duration = video_duration - current_time
+                else:
+                    # 중간 Part들은 균등 분배
+                    remaining_time = video_duration - current_time
+                    part_duration = remaining_time / (part_count - i + 1)
+                
+                minutes = int(current_time // 60)
+                seconds = int(current_time % 60)
+                
+                if i == 1:
+                    description += f"{minutes}:{seconds:02d} - Part {i}: Author & Background\n"
+                elif part_count == 2 and i == 2:
+                    description += f"{minutes}:{seconds:02d} - Part {i}: Novel Summary\n"
+                elif part_count == 3:
+                    if i == 2:
+                        description += f"{minutes}:{seconds:02d} - Part {i}: Novel Summary (Part 1)\n"
+                    elif i == 3:
+                        description += f"{minutes}:{seconds:02d} - Part {i}: Novel Summary (Part 2)\n"
+                else:
+                    description += f"{minutes}:{seconds:02d} - Part {i}: Novel Summary Part {i-1}\n"
+                
+                current_time += part_duration
+            
+            description += "\n"
         
         # 해시태그에서도 한국어 제거
         safe_en_title = ensure_english_only(en_title.replace(' ', '').replace(':', '').replace('-', ''), "Book")

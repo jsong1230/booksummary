@@ -216,6 +216,11 @@ def translate_book_title(book_title: str) -> str:
         "플라톤_대화편_철학은_사랑이다": "Plato's Dialogues: Philosophy is Love",
         "Plato's Dialogues": "Plato's Dialogues",
         "Plato's Dialogues: Philosophy is Love": "Plato's Dialogues: Philosophy is Love",
+        "위대한 개츠비": "The Great Gatsby",
+        "위대한_개츠비": "The Great Gatsby",
+        "위대한 개츠비 : 가난한 청년은 부잣집 딸과 결혼할 수 없는가?": "The Great Gatsby",
+        "위대한_개츠비_가난한_청년은_부잣집_딸과_결혼할_수_없는가": "The Great Gatsby",
+        "The Great Gatsby": "The Great Gatsby",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -303,6 +308,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "A Small Ball Shot Up by a Dwarf": "난장이가 쏘아올린 작은 공",
         "Plato's Dialogues": "플라톤 대화편",
         "Plato's Dialogues: Philosophy is Love": "플라톤 대화편 : 철학은 사랑이다",
+        "The Great Gatsby": "위대한 개츠비",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -474,8 +480,10 @@ def translate_author_name(author: str) -> str:
         "Cho Sehee": "Cho Se-hui",
         "플라톤": "Plato",
         "Plato": "Plato",
-        "플라톤": "Plato",
-        "Plato": "Plato",
+        "스콧 피츠제럴드": "F. Scott Fitzgerald",
+        "F. Scott Fitzgerald": "F. Scott Fitzgerald",
+        "피츠제럴드": "F. Scott Fitzgerald",
+        "Fitzgerald": "F. Scott Fitzgerald",
     }
     
     if author in author_map:
@@ -551,6 +559,8 @@ def translate_author_name_to_korean(author: str) -> str:
         "Cho Se-hui": "조세희",
         "Cho Sehee": "조세희",
         "Plato": "플라톤",
+        "F. Scott Fitzgerald": "스콧 피츠제럴드",
+        "Fitzgerald": "스콧 피츠제럴드",
     }
     
     if author in reverse_author_map:
