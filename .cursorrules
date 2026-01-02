@@ -178,6 +178,31 @@
 
 ## 🎬 영상 제작 및 업로드 워크플로우
 
+### 일당백 스타일 영상 제작
+**중요: 사용자가 "일당백 스타일" 또는 "일당백스타일"이라고 요청하면 `create_full_episode.py`를 실행해야 합니다.**
+
+1. **일당백 스타일 영상 제작 규칙**
+   - 사용자가 "일당백 스타일로 영상 만들어줘", "일당백스타일 영상" 등으로 요청할 때
+   - `src/create_full_episode.py` 스크립트를 실행
+   - Part 1, Part 2 등의 비디오와 인포그래픽을 연결하여 전체 에피소드 영상 생성
+
+2. **실행 명령어**
+   ```bash
+   python src/create_full_episode.py \
+     --title "책 제목" \
+     --language ko
+   ```
+
+3. **필수 파일 위치**
+   - `assets/notebooklm/{책제목}/{언어}/part1_video_{언어}.mp4`
+   - `assets/notebooklm/{책제목}/{언어}/part1_info_{언어}.png`
+   - `assets/notebooklm/{책제목}/{언어}/part2_video_{언어}.mp4`
+   - `assets/notebooklm/{책제목}/{언어}/part2_info_{언어}.png`
+
+4. **주의사항**
+   - 일당백 스타일은 비디오 연결 방식이므로 Summary 생성이나 TTS는 필요 없음
+   - 단순히 Part 1 영상 → Part 1 인포그래픽 → Part 2 영상 → Part 2 인포그래픽 순서로 연결
+
 ### YouTube 업로드 승인 절차
 **중요: 영상 생성 후 YouTube 업로드는 반드시 사용자의 명시적 허락을 받아야 합니다.**
 

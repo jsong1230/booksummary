@@ -229,15 +229,17 @@ python scripts/fetch_separate_scripts.py \
 
 ### 3단계: 파일 준비 및 영상 합성
 
-생성한 4개 파일을 `input/` 폴더에 넣고 자동화 스크립트를 실행합니다.
+생성한 파일들을 `input/` 폴더에 넣고 자동화 스크립트를 실행합니다.
 
 ```bash
-# 1. input 폴더에 4개 파일 준비
+# 1. input 폴더에 파일 준비 (Part 2개 이상, Part 3개 이상도 지원)
 input/
 ├── part1_video.mp4    # 또는 다른 이름 (자동 인식)
 ├── part1_info.png     # 또는 다른 이름 (자동 인식)
 ├── part2_video.mp4    # 또는 다른 이름 (자동 인식)
-└── part2_info.png     # 또는 다른 이름 (자동 인식)
+├── part2_info.png     # 또는 다른 이름 (자동 인식)
+├── part3_video.mp4    # Part 3 이상도 자동 지원 (선택사항)
+└── part3_info.png     # Part 3 이상도 자동 지원 (선택사항)
 
 # 2. 자동화 스크립트 실행
 python run_episode_maker.py
@@ -261,25 +263,34 @@ python run_episode_maker.py
    - 필요 없으면 'n' 입력하여 건너뛰기
 
 4. **파일 준비 확인**
-   - 필수 파일 4개 존재 여부 자동 확인
+   - 필수 파일(Part 1 영상/인포그래픽) 존재 여부 자동 확인
+   - Part 2 이상도 자동으로 탐지하여 포함
 
 5. **영상 합성**
    - `src/create_full_episode.py` 자동 실행
    - 최종 영상 생성: `output/{책제목}_full_episode.mp4`
 
 **생성되는 영상 구조:**
-- **Clip 1 (Intro)**: Part 1 인포그래픽 (5초, Ken Burns 줌인 효과)
-- **Clip 2**: Part 1 영상
-- **Clip 3 (Bridge)**: Part 2 인포그래픽 (5초, Ken Burns 줌인 효과)
-- **Clip 4**: Part 2 영상
+- Part 1 영상 → Part 1 인포그래픽 → Part 2 영상 → Part 2 인포그래픽 → ... (Part 3 이상도 자동 지원)
 - 모든 클립 사이에 1초 Crossfade 효과 적용
+- 인포그래픽에는 배경음악 자동 추가 (자동 탐지 또는 Pixabay에서 자동 다운로드)
 
 ### 파일명 자동 인식
 
 `input/` 폴더에 파일명이 정확하지 않아도 자동으로 인식합니다:
-- `mp4` 파일 2개, `png` 파일 2개만 있으면 자동으로 part1/part2 구분
-- 파일명에 'part1', 'part2' 또는 '1', '2'가 포함되어 있으면 자동 매칭
-- 예: `video1.mp4`, `info1.png`, `video2.mp4`, `info2.png` → 자동 인식
+- `mp4` 파일과 `png` 파일만 있으면 자동으로 part1/part2/part3... 구분
+- 파일명에 'part1', 'part2', 'part3' 또는 '1', '2', '3'이 포함되어 있으면 자동 매칭
+- 예: `video1.mp4`, `info1.png`, `video2.mp4`, `info2.png`, `video3.mp4`, `info3.png` → 자동 인식
+- **Part 3개 이상도 자동 지원**: Part 번호를 증가시키면서 자동으로 모든 Part를 찾아서 연결
+
+### 배경음악 자동 처리
+
+- 배경음악 파일이 없으면 자동으로 탐지 및 다운로드:
+  1. `input/` 폴더에서 `background*.mp3`, `bgm*.mp3`, `music*.mp3` 등 검색
+  2. `assets/music/` 폴더에서 배경음악 파일 검색
+  3. 없으면 Pixabay Music에서 책 분위기에 맞는 배경음악 자동 다운로드
+- 인포그래픽 클립에만 배경음악 자동 추가 (영상 클립에는 추가하지 않음)
+- 배경음악은 인포그래픽 길이에 맞춰 자동 조정 (반복 또는 자르기)
 
 ### 전체 예시
 

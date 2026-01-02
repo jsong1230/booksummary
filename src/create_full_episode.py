@@ -7,6 +7,7 @@ Part 1과 Part 2의 인포그래픽과 영상을 순서대로 합쳐서 전체 �
 
 import argparse
 import sys
+import importlib.util
 from pathlib import Path
 from typing import Optional
 
@@ -14,7 +15,7 @@ from typing import Optional
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.utils.file_utils import get_standard_safe_title
+from src.utils.file_utils import get_standard_safe_title, load_book_info
 from src.utils.logger import setup_logger
 
 # 로거 설정
@@ -363,30 +364,109 @@ def create_full_episode(
     # 입력 파일 경로
     input_dir = Path("assets/notebooklm") / safe_title / language
     
-    # 필수 파일 확인
-    part1_info = input_dir / f"part1_info{lang_suffix}.png"
-    part1_video = input_dir / f"part1_video{lang_suffix}.mp4"
-    part2_info = input_dir / f"part2_info{lang_suffix}.png"
-    part2_video = input_dir / f"part2_video{lang_suffix}.mp4"
+    # 동적으로 모든 Part 찾기
+    parts = []
+    part_num = 1
+    while True:
+        video_file = input_dir / f"part{part_num}_video{lang_suffix}.mp4"
+        info_file = input_dir / f"part{part_num}_info{lang_suffix}.png"
+        
+        if video_file.exists():
+            parts.append({
+                "part_num": part_num,
+                "video": video_file,
+                "info": info_file if info_file.exists() else None
+            })
+            part_num += 1
+        else:
+            # 더 이상 Part가 없으면 중단
+            break
     
-    required_files = {
-        "Part 1 인포그래픽": part1_info,
-        "Part 1 영상": part1_video,
-        "Part 2 인포그래픽": part2_info,
-        "Part 2 영상": part2_video
-    }
+    if not parts:
+        logger.error(f"❌ Part 영상을 찾을 수 없습니다: {input_dir}")
+        logger.error(f"   예상 파일명: part1_video{lang_suffix}.mp4, part2_video{lang_suffix}.mp4, ...")
+        raise FileNotFoundError(f"Part 영상 파일이 없습니다: {input_dir}")
     
-    # 파일 존재 확인
-    missing_files = []
-    for name, file_path in required_files.items():
-        if not file_path.exists():
-            missing_files.append(f"{name}: {file_path}")
+    logger.info(f"✅ 총 {len(parts)}개의 Part 발견")
+    for part in parts:
+        logger.info(f"   - Part {part['part_num']}: {part['video'].name}")
+        if part['info']:
+            logger.info(f"     인포그래픽: {part['info'].name}")
+        else:
+            logger.warning(f"     ⚠️ 인포그래픽 없음: part{part['part_num']}_info{lang_suffix}.png")
+    logger.info("")
     
-    if missing_files:
-        logger.error("❌ 필수 파일을 찾을 수 없습니다:")
-        for missing in missing_files:
-            logger.error(f"   - {missing}")
-        raise FileNotFoundError(f"필수 파일이 없습니다: {input_dir}")
+    # 배경음악 자동 탐지 (지정되지 않은 경우)
+    if background_music_path is None:
+        logger.info("🔍 배경음악 자동 탐지 중...")
+        
+        # 1. input 폴더에서 배경음악 찾기
+        input_dir = Path("input")
+        bgm_files = []
+        if input_dir.exists():
+            bgm_patterns = [
+                "background*.mp3", "background*.wav", "background*.m4a",
+                "bgm*.mp3", "bgm*.wav", "bgm*.m4a",
+                "music*.mp3", "music*.wav", "music*.m4a"
+            ]
+            for pattern in bgm_patterns:
+                bgm_files.extend(list(input_dir.glob(pattern)))
+            bgm_files = list(set(bgm_files))
+        
+        # 2. assets/music 폴더에서 배경음악 찾기
+        music_dir = Path("assets/music")
+        if music_dir.exists():
+            bgm_files.extend(list(music_dir.glob("*.mp3")))
+            bgm_files.extend(list(music_dir.glob("*.wav")))
+            bgm_files.extend(list(music_dir.glob("*.m4a")))
+        
+        bgm_files = list(set(bgm_files))
+        
+        if bgm_files:
+            # 첫 번째 파일 자동 선택
+            background_music_path = str(bgm_files[0])
+            logger.info(f"   ✅ 배경음악 자동 선택: {bgm_files[0].name}")
+        else:
+            # 배경음악 파일이 없으면 자동 다운로드 시도
+            logger.info("   💡 배경음악 파일이 없습니다. 자동 다운로드를 시도합니다...")
+            logger.info("")
+            
+            try:
+                # download_background_music 함수 동적 import (파일명이 숫자로 시작)
+                download_module_path = project_root / "src" / "21_download_background_music.py"
+                if download_module_path.exists():
+                    spec = importlib.util.spec_from_file_location("download_background_music", download_module_path)
+                    download_module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(download_module)
+                    download_background_music = download_module.download_background_music
+                    
+                    # 책 정보 로드 (있는 경우)
+                    book_info_path = Path("assets/images") / safe_title / "book_info.json"
+                    book_info = None
+                    if book_info_path.exists():
+                        book_info = load_book_info(str(book_info_path))
+                    
+                    # 배경음악 다운로드
+                    downloaded_bgm = download_background_music(
+                        book_title=book_title,
+                        book_info=book_info,
+                        output_dir=Path("assets/music")
+                    )
+                    
+                    if downloaded_bgm and Path(downloaded_bgm).exists():
+                        background_music_path = downloaded_bgm
+                        logger.info(f"   ✅ 배경음악 다운로드 완료: {Path(downloaded_bgm).name}")
+                    else:
+                        logger.warning("   ⚠️ 자동 다운로드 실패. 배경음악 없이 진행합니다.")
+                        logger.warning("   💡 수동으로 배경음악을 다운로드하려면:")
+                        logger.warning(f"      python src/21_download_background_music.py --title \"{book_title}\"")
+                else:
+                    logger.warning("   ⚠️ 배경음악 다운로드 모듈을 찾을 수 없습니다.")
+                    logger.warning("   배경음악 없이 진행합니다.")
+            except Exception as e:
+                logger.warning(f"   ⚠️ 배경음악 자동 다운로드 실패: {e}")
+                logger.warning("   배경음악 없이 진행합니다.")
+        logger.info("")
     
     logger.info("=" * 60)
     logger.info("🎬 전체 에피소드 영상 생성 시작")
@@ -400,67 +480,51 @@ def create_full_episode(
     resolution = (1920, 1080)
     fps = 30
     
-    # Clip 1: Part 1 영상
-    logger.info("🎥 Clip 1: Part 1 영상 로드 중...")
-    logger.info(f"   파일: {part1_video.name}")
-    clip1 = VideoFileClip(str(part1_video))
+    # 모든 클립 생성 (각 Part마다 영상 → 인포그래픽 순서)
+    video_clips = []
+    info_clips = []  # 배경음악 처리를 위해 인포그래픽 클립 별도 저장
     
-    # 해상도 통일
-    if clip1.size != resolution:
-        logger.info(f"   🔄 리사이즈 중: {clip1.size} -> {resolution}")
-        clip1 = resize_video_clip(clip1, resolution)
-    
-    # 프레임레이트 통일
-    if clip1.fps != fps:
-        logger.info(f"   🔄 프레임레이트 조정 중: {clip1.fps}fps -> {fps}fps")
-        clip1 = clip1.set_fps(fps)
-    
-    logger.info(f"   ✅ 완료: {clip1.duration:.2f}초")
-    logger.info("")
-    
-    # Clip 2: Part 1 인포그래픽 (사용자 지정 시간, 정적 이미지)
-    logger.info("📊 Clip 2: Part 1 인포그래픽 생성 중...")
-    logger.info(f"   파일: {part1_info.name}")
-    logger.info(f"   효과: 정적 이미지 (고정, {infographic_duration}초)")
-    clip2 = ImageClip(str(part1_info), duration=infographic_duration)
-    # 해상도 통일
-    if clip2.size != resolution:
-        logger.info(f"   🔄 리사이즈 중: {clip2.size} -> {resolution}")
-        clip2 = resize_video_clip(clip2, resolution)
-    clip2 = clip2.set_fps(fps)
-    logger.info(f"   ✅ 완료: {clip2.duration:.2f}초")
-    logger.info("")
-    
-    # Clip 3: Part 2 영상
-    logger.info("🎥 Clip 3: Part 2 영상 로드 중...")
-    logger.info(f"   파일: {part2_video.name}")
-    clip3 = VideoFileClip(str(part2_video))
-    
-    # 해상도 통일
-    if clip3.size != resolution:
-        logger.info(f"   🔄 리사이즈 중: {clip3.size} -> {resolution}")
-        clip3 = resize_video_clip(clip3, resolution)
-    
-    # 프레임레이트 통일
-    if clip3.fps != fps:
-        logger.info(f"   🔄 프레임레이트 조정 중: {clip3.fps}fps -> {fps}fps")
-        clip3 = clip3.set_fps(fps)
-    
-    logger.info(f"   ✅ 완료: {clip3.duration:.2f}초")
-    logger.info("")
-    
-    # Clip 4: Part 2 인포그래픽 (사용자 지정 시간, 정적 이미지)
-    logger.info("📊 Clip 4: Part 2 인포그래픽 생성 중...")
-    logger.info(f"   파일: {part2_info.name}")
-    logger.info(f"   효과: 정적 이미지 (고정, {infographic_duration}초)")
-    clip4 = ImageClip(str(part2_info), duration=infographic_duration)
-    # 해상도 통일
-    if clip4.size != resolution:
-        logger.info(f"   🔄 리사이즈 중: {clip4.size} -> {resolution}")
-        clip4 = resize_video_clip(clip4, resolution)
-    clip4 = clip4.set_fps(fps)
-    logger.info(f"   ✅ 완료: {clip4.duration:.2f}초")
-    logger.info("")
+    for i, part in enumerate(parts, 1):
+        # 영상 클립
+        logger.info(f"🎥 Part {part['part_num']} 영상 로드 중...")
+        logger.info(f"   파일: {part['video'].name}")
+        video_clip = VideoFileClip(str(part['video']))
+        
+        # 해상도 통일
+        if video_clip.size != resolution:
+            logger.info(f"   🔄 리사이즈 중: {video_clip.size} -> {resolution}")
+            video_clip = resize_video_clip(video_clip, resolution)
+        
+        # 프레임레이트 통일
+        if video_clip.fps != fps:
+            logger.info(f"   🔄 프레임레이트 조정 중: {video_clip.fps}fps -> {fps}fps")
+            video_clip = video_clip.set_fps(fps)
+        
+        logger.info(f"   ✅ 완료: {video_clip.duration:.2f}초")
+        logger.info("")
+        
+        video_clips.append(video_clip)
+        
+        # 인포그래픽 클립 (있는 경우)
+        if part['info']:
+            logger.info(f"📊 Part {part['part_num']} 인포그래픽 생성 중...")
+            logger.info(f"   파일: {part['info'].name}")
+            logger.info(f"   효과: 정적 이미지 (고정, {infographic_duration}초)")
+            info_clip = ImageClip(str(part['info']), duration=infographic_duration)
+            
+            # 해상도 통일
+            if info_clip.size != resolution:
+                logger.info(f"   🔄 리사이즈 중: {info_clip.size} -> {resolution}")
+                info_clip = resize_video_clip(info_clip, resolution)
+            info_clip = info_clip.set_fps(fps)
+            logger.info(f"   ✅ 완료: {info_clip.duration:.2f}초")
+            logger.info("")
+            
+            video_clips.append(info_clip)
+            info_clips.append(info_clip)
+        else:
+            logger.warning(f"   ⚠️ Part {part['part_num']} 인포그래픽 없음, 건너뜀")
+            logger.info("")
     
     # Crossfade 효과 적용 (1초)
     logger.info("🎨 Crossfade 효과 적용 중...")
@@ -468,24 +532,28 @@ def create_full_episode(
     
     try:
         if MOVIEPY_VERSION_NEW:
-            # Clip 1 끝에 fadeout
-            clip1 = clip1.fx(fadeout, crossfade_duration)
-            # Clip 2 시작에 fadein
-            clip2 = clip2.fx(fadein, crossfade_duration)
-            # Clip 2 끝에 fadeout
-            clip2 = clip2.fx(fadeout, crossfade_duration)
-            # Clip 3 시작에 fadein
-            clip3 = clip3.fx(fadein, crossfade_duration)
-            # Clip 3 끝에 fadeout
-            clip3 = clip3.fx(fadeout, crossfade_duration)
-            # Clip 4 시작에 fadein
-            clip4 = clip4.fx(fadein, crossfade_duration)
+            # 각 클립에 fade 효과 적용
+            for i, clip in enumerate(video_clips):
+                if i == 0:
+                    # 첫 번째 클립: 끝에만 fadeout
+                    clip = clip.fx(fadeout, crossfade_duration)
+                elif i == len(video_clips) - 1:
+                    # 마지막 클립: 시작에만 fadein
+                    clip = clip.fx(fadein, crossfade_duration)
+                else:
+                    # 중간 클립: 양쪽에 fade 효과
+                    clip = clip.fx(fadein, crossfade_duration).fx(fadeout, crossfade_duration)
+                video_clips[i] = clip
         else:
             # 구버전 호환성
-            clip1 = clip1.fx(FadeOut, crossfade_duration)
-            clip2 = clip2.fx(FadeIn, crossfade_duration).fx(FadeOut, crossfade_duration)
-            clip3 = clip3.fx(FadeIn, crossfade_duration).fx(FadeOut, crossfade_duration)
-            clip4 = clip4.fx(FadeIn, crossfade_duration)
+            for i, clip in enumerate(video_clips):
+                if i == 0:
+                    clip = clip.fx(FadeOut, crossfade_duration)
+                elif i == len(video_clips) - 1:
+                    clip = clip.fx(FadeIn, crossfade_duration)
+                else:
+                    clip = clip.fx(FadeIn, crossfade_duration).fx(FadeOut, crossfade_duration)
+                video_clips[i] = clip
         
         logger.info(f"   ✅ Crossfade 효과 적용 완료 ({crossfade_duration}초)")
     except Exception as e:
@@ -494,17 +562,8 @@ def create_full_episode(
     
     logger.info("")
     
-    # 모든 클립 연결
-    logger.info("🔗 모든 클립 연결 중...")
-    video_clips = [clip1, clip2, clip3, clip4]
-    
-    total_duration = sum(clip.duration for clip in video_clips)
-    logger.info(f"   총 {len(video_clips)}개 클립")
-    logger.info(f"   예상 총 길이: {total_duration:.2f}초 ({total_duration/60:.2f}분)")
-    logger.info("")
-    
     # 배경음악을 인포그래픽에만 추가 (클립 연결 전에 처리)
-    if background_music_path and Path(background_music_path).exists():
+    if background_music_path and Path(background_music_path).exists() and info_clips:
         logger.info("🎵 배경음악 추가 중 (인포그래픽에만 적용)...")
         logger.info(f"   파일: {Path(background_music_path).name}")
         logger.info(f"   음량: {bgm_volume * 100:.0f}%")
@@ -522,8 +581,6 @@ def create_full_episode(
                 bgm = None
             
             if bgm is not None:
-                # 인포그래픽 총 길이 계산 (clip2 + clip4)
-                infographic_total_duration = clip2.duration + clip4.duration
                 bgm_duration = bgm.duration
                 
                 # 음량 조절
@@ -536,56 +593,69 @@ def create_full_episode(
                     except AttributeError:
                         logger.warning("   ⚠️ 음량 조절 실패, 원본 음량 사용")
                 
-                # Clip 2 (Part 1 인포그래픽)에 배경음악 추가 (fadeout 효과 포함)
-                bgm_part1 = bgm.subclip(0, min(clip2.duration, bgm_duration))
-                # fadeout 효과 추가 (마지막 2초)
-                fadeout_duration = min(2.0, clip2.duration * 0.2)  # 최대 2초 또는 클립 길이의 20%
-                try:
-                    # MoviePy의 audio fadeout 효과
-                    from moviepy.audio.fx.all import audio_fadeout
-                    bgm_part1 = bgm_part1.fx(audio_fadeout, fadeout_duration)
-                except (ImportError, AttributeError):
-                    try:
-                        # 대안: volumex를 사용한 fadeout 효과
-                        import numpy as np
-                        def make_frame(t):
-                            if t >= bgm_part1.duration - fadeout_duration:
-                                # 마지막 fadeout_duration 동안 점진적으로 음량 감소
-                                fade_progress = (t - (bgm_part1.duration - fadeout_duration)) / fadeout_duration
-                                volume_factor = 1.0 - fade_progress
-                                return bgm_part1.get_frame(t) * volume_factor
-                            return bgm_part1.get_frame(t)
-                        bgm_part1 = bgm_part1.fl(make_frame, apply_to=['audio'])
-                    except:
-                        logger.warning("   ⚠️ fadeout 효과 적용 실패, 원본 음악 사용")
-                clip2 = clip2.set_audio(bgm_part1)
-                logger.info(f"   ✅ Part 1 인포그래픽에 배경음악 추가 (fadeout {fadeout_duration:.1f}초)")
-                
-                # Clip 4 (Part 2 인포그래픽)에 배경음악 추가 (fadeout 효과 포함)
-                bgm_start_time = clip2.duration
-                bgm_part2 = bgm.subclip(bgm_start_time, min(bgm_start_time + clip4.duration, bgm_duration))
-                # fadeout 효과 추가 (마지막 2초)
-                fadeout_duration = min(2.0, clip4.duration * 0.2)  # 최대 2초 또는 클립 길이의 20%
-                try:
-                    # MoviePy의 audio fadeout 효과
-                    from moviepy.audio.fx.all import audio_fadeout
-                    bgm_part2 = bgm_part2.fx(audio_fadeout, fadeout_duration)
-                except (ImportError, AttributeError):
-                    try:
-                        # 대안: volumex를 사용한 fadeout 효과
-                        import numpy as np
-                        def make_frame(t):
-                            if t >= bgm_part2.duration - fadeout_duration:
-                                # 마지막 fadeout_duration 동안 점진적으로 음량 감소
-                                fade_progress = (t - (bgm_part2.duration - fadeout_duration)) / fadeout_duration
-                                volume_factor = 1.0 - fade_progress
-                                return bgm_part2.get_frame(t) * volume_factor
-                            return bgm_part2.get_frame(t)
-                        bgm_part2 = bgm_part2.fl(make_frame, apply_to=['audio'])
-                    except:
-                        logger.warning("   ⚠️ fadeout 효과 적용 실패, 원본 음악 사용")
-                clip4 = clip4.set_audio(bgm_part2)
-                logger.info(f"   ✅ Part 2 인포그래픽에 배경음악 추가 (fadeout {fadeout_duration:.1f}초)")
+                # 각 인포그래픽 클립에 배경음악 추가
+                bgm_start_time = 0
+                for i, info_clip in enumerate(info_clips):
+                    # video_clips에서 해당 인포그래픽 클립 찾기
+                    clip_index = None
+                    for j, clip in enumerate(video_clips):
+                        if clip == info_clip:
+                            clip_index = j
+                            break
+                    
+                    if clip_index is not None:
+                        # 배경음악 세그먼트 생성 (인포그래픽 길이에 맞춤)
+                        clip_duration = info_clip.duration
+                        bgm_end_time = min(bgm_start_time + clip_duration, bgm_duration)
+                        
+                        # 배경음악이 부족하면 처음부터 반복
+                        if bgm_end_time <= bgm_start_time:
+                            bgm_start_time = 0
+                            bgm_end_time = min(clip_duration, bgm_duration)
+                        
+                        bgm_segment = bgm.subclip(bgm_start_time, bgm_end_time)
+                        
+                        # 오디오 길이를 정확히 클립 길이에 맞춤
+                        if bgm_segment.duration < clip_duration:
+                            # 배경음악이 짧으면 반복
+                            from moviepy.audio.AudioClip import concatenate_audioclips
+                            loops_needed = int(clip_duration / bgm_segment.duration) + 1
+                            bgm_segment = concatenate_audioclips([bgm_segment] * loops_needed)
+                            bgm_segment = bgm_segment.subclip(0, clip_duration)
+                        elif bgm_segment.duration > clip_duration:
+                            # 배경음악이 길면 자르기
+                            bgm_segment = bgm_segment.subclip(0, clip_duration)
+                        
+                        # fadeout 효과 추가 (마지막 2초)
+                        fadeout_duration = min(2.0, clip_duration * 0.2)  # 최대 2초 또는 클립 길이의 20%
+                        try:
+                            from moviepy.audio.fx.all import audio_fadeout
+                            bgm_segment = bgm_segment.fx(audio_fadeout, fadeout_duration)
+                        except (ImportError, AttributeError):
+                            try:
+                                import numpy as np
+                                def make_frame(t):
+                                    if t >= bgm_segment.duration - fadeout_duration:
+                                        fade_progress = (t - (bgm_segment.duration - fadeout_duration)) / fadeout_duration
+                                        volume_factor = 1.0 - fade_progress
+                                        return bgm_segment.get_frame(t) * volume_factor
+                                    return bgm_segment.get_frame(t)
+                                bgm_segment = bgm_segment.fl(make_frame, apply_to=['audio'])
+                            except:
+                                logger.warning("   ⚠️ fadeout 효과 적용 실패, 원본 음악 사용")
+                        
+                        # 인포그래픽 클립에 배경음악 추가
+                        info_clip_with_audio = info_clip.set_audio(bgm_segment)
+                        video_clips[clip_index] = info_clip_with_audio
+                        
+                        logger.info(f"   ✅ Part {parts[i]['part_num']} 인포그래픽에 배경음악 추가")
+                        logger.info(f"      - 오디오 길이: {bgm_segment.duration:.2f}초 (클립: {clip_duration:.2f}초)")
+                        logger.info(f"      - fadeout: {fadeout_duration:.1f}초")
+                        
+                        bgm_start_time = bgm_end_time
+                        # 배경음악이 끝나면 처음부터 다시 시작
+                        if bgm_start_time >= bgm_duration:
+                            bgm_start_time = 0
                 
                 # bgm.close()는 나중에 (렌더링 후) 호출
                 logger.info("   ✅ 배경음악 추가 완료 (인포그래픽에만)")
@@ -600,7 +670,6 @@ def create_full_episode(
     
     # 모든 클립 연결
     logger.info("🔗 모든 클립 연결 중...")
-    video_clips = [clip1, clip2, clip3, clip4]
     
     total_duration = sum(clip.duration for clip in video_clips)
     logger.info(f"   총 {len(video_clips)}개 클립")
@@ -644,8 +713,8 @@ def create_full_episode(
     
     # 정리
     final_video.close()
-    clip2.close()
-    clip4.close()
+    for clip in video_clips:
+        clip.close()
     
     return output_path
 

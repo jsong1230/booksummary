@@ -205,6 +205,11 @@ def translate_book_title(book_title: str) -> str:
         "만들어진 신 : 그래서 인간은 종교를 창조했다": "The God Delusion",
         "만들어진_신_그래서_인간은_종교를_창조했다": "The God Delusion",
         "The God Delusion": "The God Delusion",
+        "난장이가 쏘아올린 작은 공": "A Small Ball Shot Up by a Dwarf",
+        "난장이가_쏘아올린_작은_공": "A Small Ball Shot Up by a Dwarf",
+        "난장이가 쏘아올린 작은 공 : 사라져버린 집을 위한 진혼곡": "A Small Ball Shot Up by a Dwarf",
+        "난장이가_쏘아올린_작은_공_사라져버린_집을_위한_진혼곡": "A Small Ball Shot Up by a Dwarf",
+        "A Small Ball Shot Up by a Dwarf": "A Small Ball Shot Up by a Dwarf",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -289,6 +294,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "The Metamorphosis": "변신",
         "Jane Eyre": "제인 에어",
         "The God Delusion": "만들어진 신",
+        "A Small Ball Shot Up by a Dwarf": "난장이가 쏘아올린 작은 공",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -455,6 +461,9 @@ def translate_author_name(author: str) -> str:
         "샬럿_브론테": "Charlotte Brontë",
         "Charlotte Brontë": "Charlotte Brontë",
         "Charlotte Bronte": "Charlotte Brontë",
+        "조세희": "Cho Se-hui",
+        "Cho Se-hui": "Cho Se-hui",
+        "Cho Sehee": "Cho Se-hui",
     }
     
     if author in author_map:
@@ -527,6 +536,8 @@ def translate_author_name_to_korean(author: str) -> str:
         "Charlotte Bronte": "샬럿 브론테",
         "리처드 도킨스": "Richard Dawkins",
         "Richard Dawkins": "Richard Dawkins",
+        "Cho Se-hui": "조세희",
+        "Cho Sehee": "조세희",
     }
     
     if author in reverse_author_map:
