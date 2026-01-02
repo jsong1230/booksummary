@@ -482,7 +482,7 @@ def create_full_episode(
     
     # 모든 클립 생성 (각 Part마다 영상 → 인포그래픽 순서)
     video_clips = []
-    info_clips = []  # 배경음악 처리를 위해 인포그래픽 클립 별도 저장
+    info_clip_indices = []  # 배경음악 처리를 위해 인포그래픽 클립의 인덱스 저장
     
     for i, part in enumerate(parts, 1):
         # 영상 클립
@@ -520,20 +520,24 @@ def create_full_episode(
             logger.info(f"   ✅ 완료: {info_clip.duration:.2f}초")
             logger.info("")
             
+            # 인포그래픽 클립의 인덱스 저장 (배경음악 추가용)
+            info_clip_indices.append(len(video_clips))
             video_clips.append(info_clip)
-            info_clips.append(info_clip)
         else:
             logger.warning(f"   ⚠️ Part {part['part_num']} 인포그래픽 없음, 건너뜀")
             logger.info("")
     
-    # Crossfade 효과 적용 (1초)
+    # Crossfade 효과 적용 (1초) - 오디오 보존
     logger.info("🎨 Crossfade 효과 적용 중...")
     crossfade_duration = 1.0
     
     try:
         if MOVIEPY_VERSION_NEW:
-            # 각 클립에 fade 효과 적용
+            # 각 클립에 fade 효과 적용 (오디오 보존)
             for i, clip in enumerate(video_clips):
+                # 기존 오디오 저장
+                original_audio = clip.audio
+                
                 if i == 0:
                     # 첫 번째 클립: 끝에만 fadeout
                     clip = clip.fx(fadeout, crossfade_duration)
@@ -543,16 +547,29 @@ def create_full_episode(
                 else:
                     # 중간 클립: 양쪽에 fade 효과
                     clip = clip.fx(fadein, crossfade_duration).fx(fadeout, crossfade_duration)
+                
+                # 오디오가 있으면 다시 추가
+                if original_audio is not None:
+                    clip = clip.set_audio(original_audio)
+                
                 video_clips[i] = clip
         else:
             # 구버전 호환성
             for i, clip in enumerate(video_clips):
+                # 기존 오디오 저장
+                original_audio = clip.audio
+                
                 if i == 0:
                     clip = clip.fx(FadeOut, crossfade_duration)
                 elif i == len(video_clips) - 1:
                     clip = clip.fx(FadeIn, crossfade_duration)
                 else:
                     clip = clip.fx(FadeIn, crossfade_duration).fx(FadeOut, crossfade_duration)
+                
+                # 오디오가 있으면 다시 추가
+                if original_audio is not None:
+                    clip = clip.set_audio(original_audio)
+                
                 video_clips[i] = clip
         
         logger.info(f"   ✅ Crossfade 효과 적용 완료 ({crossfade_duration}초)")
@@ -562,8 +579,8 @@ def create_full_episode(
     
     logger.info("")
     
-    # 배경음악을 인포그래픽에만 추가 (클립 연결 전에 처리)
-    if background_music_path and Path(background_music_path).exists() and info_clips:
+    # 배경음악을 인포그래픽에만 추가 (Crossfade 효과 적용 전에 처리)
+    if background_music_path and Path(background_music_path).exists() and info_clip_indices:
         logger.info("🎵 배경음악 추가 중 (인포그래픽에만 적용)...")
         logger.info(f"   파일: {Path(background_music_path).name}")
         logger.info(f"   음량: {bgm_volume * 100:.0f}%")
@@ -593,17 +610,11 @@ def create_full_episode(
                     except AttributeError:
                         logger.warning("   ⚠️ 음량 조절 실패, 원본 음량 사용")
                 
-                # 각 인포그래픽 클립에 배경음악 추가
+                # 각 인포그래픽 클립에 배경음악 추가 (인덱스로 직접 접근)
                 bgm_start_time = 0
-                for i, info_clip in enumerate(info_clips):
-                    # video_clips에서 해당 인포그래픽 클립 찾기
-                    clip_index = None
-                    for j, clip in enumerate(video_clips):
-                        if clip == info_clip:
-                            clip_index = j
-                            break
-                    
-                    if clip_index is not None:
+                for i, clip_index in enumerate(info_clip_indices):
+                    if clip_index < len(video_clips):
+                        info_clip = video_clips[clip_index]
                         # 배경음악 세그먼트 생성 (인포그래픽 길이에 맞춤)
                         clip_duration = info_clip.duration
                         bgm_end_time = min(bgm_start_time + clip_duration, bgm_duration)

@@ -210,6 +210,12 @@ def translate_book_title(book_title: str) -> str:
         "난장이가 쏘아올린 작은 공 : 사라져버린 집을 위한 진혼곡": "A Small Ball Shot Up by a Dwarf",
         "난장이가_쏘아올린_작은_공_사라져버린_집을_위한_진혼곡": "A Small Ball Shot Up by a Dwarf",
         "A Small Ball Shot Up by a Dwarf": "A Small Ball Shot Up by a Dwarf",
+        "플라톤 대화편": "Plato's Dialogues",
+        "플라톤_대화편": "Plato's Dialogues",
+        "플라톤 대화편 : 철학은 사랑이다": "Plato's Dialogues: Philosophy is Love",
+        "플라톤_대화편_철학은_사랑이다": "Plato's Dialogues: Philosophy is Love",
+        "Plato's Dialogues": "Plato's Dialogues",
+        "Plato's Dialogues: Philosophy is Love": "Plato's Dialogues: Philosophy is Love",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -295,6 +301,8 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Jane Eyre": "제인 에어",
         "The God Delusion": "만들어진 신",
         "A Small Ball Shot Up by a Dwarf": "난장이가 쏘아올린 작은 공",
+        "Plato's Dialogues": "플라톤 대화편",
+        "Plato's Dialogues: Philosophy is Love": "플라톤 대화편 : 철학은 사랑이다",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -464,6 +472,10 @@ def translate_author_name(author: str) -> str:
         "조세희": "Cho Se-hui",
         "Cho Se-hui": "Cho Se-hui",
         "Cho Sehee": "Cho Se-hui",
+        "플라톤": "Plato",
+        "Plato": "Plato",
+        "플라톤": "Plato",
+        "Plato": "Plato",
     }
     
     if author in author_map:
@@ -538,6 +550,7 @@ def translate_author_name_to_korean(author: str) -> str:
         "Richard Dawkins": "Richard Dawkins",
         "Cho Se-hui": "조세희",
         "Cho Sehee": "조세희",
+        "Plato": "플라톤",
     }
     
     if author in reverse_author_map:

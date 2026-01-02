@@ -2,6 +2,27 @@
 
 ## 2026-01-02
 
+### 플라톤 대화편 일당백 스타일 영상 제작 및 배경음악 문제 수정
+- **작업 내용**:
+  - 플라톤 "대화편 : 철학은 사랑이다" 일당백 스타일 한글/영문 롱폼 영상 제작
+  - Part 3개 자동 처리 확인 및 검증
+  - 배경음악이 인포그래픽에 적용되지 않는 문제 수정
+- **주요 수정사항**:
+  - **배경음악 오디오 보존**: Crossfade 효과 적용 시 배경음악 오디오가 손실되는 문제 해결
+    - Crossfade 효과 적용 전에 배경음악 추가
+    - Crossfade 효과 적용 시 기존 오디오를 보존하도록 수정
+  - **인포그래픽 클립 인덱스 관리 개선**: 클립 참조 방식에서 인덱스 기반 접근으로 변경하여 안정성 향상
+- **번역 매핑 추가**:
+  - `src/utils/translations.py`: 플라톤 "대화편 : 철학은 사랑이다" 및 "플라톤" 번역 매핑 추가
+- **생성된 영상**:
+  - 한글: `output/Platos_Dialogues_Philosophy_is_Love_full_episode_ko.mp4` (1310.37초, 약 21.84분)
+  - 영문: `output/Platos_Dialogues_Philosophy_is_Love_full_episode_en.mp4` (1333.20초, 약 22.22분)
+- **수정된 파일**:
+  - `src/create_full_episode.py`: 배경음악 오디오 보존 로직 추가, 인포그래픽 클립 인덱스 관리 개선
+  - `src/utils/translations.py`: 플라톤 대화편 번역 매핑 추가
+
+## 2026-01-02
+
 ### 일당백 스타일 영상 제작 기능 개선
 - **작업 내용**:
   - `src/create_full_episode.py`: Part 3개 이상 자동 지원 기능 추가
@@ -1675,3 +1696,13 @@
 - 업로드된 영상 수: 1개
 - [1] Complete Guide to The God Delusion | From Author & Background to Full Story
   - URL: https://www.youtube.com/watch?v=F2CZD4l8LXM
+
+## 2026-01-02
+
+### YouTube 업로드 완료
+- 업로드된 책: A_Small_Ball_Shot_Up_by_a_Dwarf_full_episode_ko, A_Small_Ball_Shot_Up_by_a_Dwarf_full_episode
+- 업로드된 영상 수: 2개
+- [1] Complete Guide to A Small Ball Shot Up by a Dwarf | From Author & Background to Full Story
+  - URL: https://www.youtube.com/watch?v=c_MM0EBuzZo
+- [2] [일당백] 난장이가 쏘아올린 작은 공 완전정복 | 작가와 배경부터 소설 줄거리까지
+  - URL: https://www.youtube.com/watch?v=gnDFPNAH7s0
