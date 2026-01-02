@@ -2,6 +2,42 @@
 
 ## 2026-01-02
 
+### 리처드 도킨스 "만들어진 신" 일당백 스타일 영상 제작 및 업로드
+- **작업 내용**:
+  - 리처드 도킨스의 "만들어진 신 : 그래서 인간은 종교를 창조했다" 일당백 스타일 한글/영문 롱폼 영상 제작
+  - 번역 매핑 추가: "만들어진 신" → "The God Delusion", "리처드 도킨스" → "Richard Dawkins"
+  - Part 1/Part 2 영상 및 인포그래픽 합성하여 전체 에피소드 영상 생성
+  - 한글/영문 메타데이터 생성 및 YouTube 업로드 완료
+- **생성된 영상**:
+  - 한글: https://www.youtube.com/watch?v=Igfe76gOXGY (293MB, 14분 11초)
+  - 영문: https://www.youtube.com/watch?v=F2CZD4l8LXM (338MB)
+- **수정된 파일**:
+  - `src/utils/translations.py`: 리처드 도킨스와 만들어진 신 번역 매핑 추가
+  - `src/09_upload_from_metadata.py`: 들여쓰기 오류 수정 (if 문 블록)
+- **업데이트된 파일**:
+  - `data/ildangbaek_books.csv`: 만들어진 신 상태를 "uploaded"로 업데이트
+
+### Analytics 기반 채널 개선 제안 기능 추가
+- **작업 내용**:
+  - `src/22_analytics_recommendations.py`: Analytics 데이터를 분석하여 채널 개선 제안을 자동 생성하는 스크립트 추가
+  - 채널 성과 분석: 조회수, 좋아요, 댓글, 참여율 등 종합 분석
+  - 영상별 성과 분석: 저성과/고성과 영상 자동 식별
+  - 개선 제안 생성: 우선순위별(높음/중간/낮음) 구체적인 액션 아이템 제안
+  - 리포트 자동 생성: Markdown 형식의 상세 분석 리포트
+- **분석 항목**:
+  - 저성과 영상 식별 및 개선 제안
+  - 고성과 영상 분석 및 전략 제안
+  - 참여율 분석 및 개선 방안
+  - 업로드 빈도 분석 및 일정 제안
+  - 조회수 분포 및 일관성 분석
+  - 콘텐츠 전략 제안
+- **새로 생성된 파일**:
+  - `src/22_analytics_recommendations.py`: Analytics 기반 개선 제안 스크립트
+- **문서 업데이트**:
+  - `README.md`: Analytics 기반 채널 개선 제안 섹션 추가
+
+## 2026-01-02
+
 ### YouTube 자막 추출 스크립트 개선
 - **작업 내용**:
   - `scripts/fetch_separate_scripts.py`: 여러 URL을 처리할 수 있도록 개선
@@ -1598,3 +1634,19 @@
   - 쿠키 파일이 `scripts/cookies.txt`에 있으면 자동으로 사용됨
   - 쿠키를 사용해도 IP 차단이 발생할 수 있음 (YouTube의 정책에 따라)
   - IP 차단 시 VPN 사용 또는 다른 네트워크에서 시도 권장
+
+## 2026-01-02
+
+### YouTube 업로드 완료
+- 업로드된 책: The_God_Delusion_full_episode_ko
+- 업로드된 영상 수: 1개
+- [1] [일당백] 만들어진 신 완전정복 | 작가와 배경부터 소설 줄거리까지
+  - URL: https://www.youtube.com/watch?v=Igfe76gOXGY
+
+## 2026-01-02
+
+### YouTube 업로드 완료
+- 업로드된 책: The_God_Delusion_full_episode
+- 업로드된 영상 수: 1개
+- [1] Complete Guide to The God Delusion | From Author & Background to Full Story
+  - URL: https://www.youtube.com/watch?v=F2CZD4l8LXM

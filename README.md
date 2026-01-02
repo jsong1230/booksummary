@@ -691,6 +691,38 @@ booksummary/
   # 특정 월 리포트 생성
   python src/15_youtube_analytics.py --monthly-report --year 2025 --month 1
   ```
+### Analytics 기반 채널 개선 제안
+
+Analytics 데이터를 분석하여 채널 성과를 평가하고 구체적인 개선 제안을 생성합니다.
+
+```bash
+# 기본 분석 (최근 30일)
+python src/22_analytics_recommendations.py
+
+# 분석 기간 지정
+python src/22_analytics_recommendations.py --days 60
+
+# 최소 조회수 필터
+python src/22_analytics_recommendations.py --min-views 500
+```
+
+**분석 항목:**
+- 채널 전체 성과 분석
+- 영상별 성과 분석 (조회수, 좋아요, 댓글, 참여율)
+- 저성과/고성과 영상 식별
+- 참여율 분석 및 개선 제안
+- 업로드 빈도 분석
+- 조회수 분포 및 일관성 분석
+- 콘텐츠 전략 제안
+
+**생성되는 리포트:**
+- `output/analytics_recommendations.md`: 상세 분석 및 우선순위별 개선 제안
+
+**제안 카테고리:**
+- 🔴 **높은 우선순위**: 즉시 개선이 필요한 항목 (저성과 영상, 낮은 참여율)
+- 🟡 **중간 우선순위**: 전략적 개선 항목 (업로드 빈도, 콘텐츠 전략)
+- 🟢 **낮은 우선순위**: 유지 관리 항목
+
 ### 최적 업로드 시간대 분석
 
 업로드 로그와 YouTube Analytics 데이터를 결합하여 최적의 업로드 시간대를 분석합니다.
