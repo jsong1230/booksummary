@@ -1,5 +1,24 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2026-01-02
+
+### YouTube 자막 추출 스크립트 개선
+- **작업 내용**:
+  - `scripts/fetch_separate_scripts.py`: 여러 URL을 처리할 수 있도록 개선
+  - `--urls` 옵션 추가: 3개 이상의 영상 URL을 한 번에 처리 가능
+  - 기존 `--url1`, `--url2` 옵션은 하위 호환성을 위해 유지
+  - Part 3 이상의 파일명 자동 생성 기능 추가
+- **수정된 파일**:
+  - `scripts/fetch_separate_scripts.py`: 여러 URL 처리 로직 추가, `save_transcript` 함수 개선
+- **사용 예시**:
+  ```bash
+  # 3개 영상 처리
+  python scripts/fetch_separate_scripts.py \
+    --urls "URL1" "URL2" "URL3" \
+    --title "책제목" \
+    --cookies "scripts/cookies.txt"
+  ```
+
 ## 2025-12-31
 
 ### 일당백 에피소드 제작 워크플로우 구현

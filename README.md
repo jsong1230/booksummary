@@ -185,16 +185,34 @@ python src/09_upload_from_metadata.py --privacy private --auto
 
 유튜브 영상에서 자막을 추출하여 NotebookLM용 텍스트 파일을 생성합니다.
 
+**2개 영상 (Part 1, Part 2):**
 ```bash
 python scripts/fetch_separate_scripts.py \
   --url1 "https://www.youtube.com/watch?v=VIDEO_ID_1" \
   --url2 "https://www.youtube.com/watch?v=VIDEO_ID_2" \
-  --title "책제목"
+  --title "책제목" \
+  --cookies "scripts/cookies.txt"
 ```
+
+**여러 영상 (3개 이상):**
+```bash
+python scripts/fetch_separate_scripts.py \
+  --urls "https://www.youtube.com/watch?v=VIDEO_ID_1" \
+         "https://www.youtube.com/watch?v=VIDEO_ID_2" \
+         "https://www.youtube.com/watch?v=VIDEO_ID_3" \
+  --title "책제목" \
+  --cookies "scripts/cookies.txt"
+```
+
+**쿠키 파일 준비 (IP 차단 우회):**
+1. 크롬 확장프로그램 "Get cookies.txt LOCALLY" 설치
+2. YouTube에 로그인한 상태에서 쿠키를 `cookies.txt`로 다운로드
+3. `scripts/` 폴더에 `cookies.txt` 저장
 
 **생성되는 파일:**
 - `data/source/{책제목}_part1_author.txt` - Part 1 자막 (작가와 배경)
 - `data/source/{책제목}_part2_novel.txt` - Part 2 자막 (소설 줄거리)
+- `data/source/{책제목}_part3.txt` - Part 3 자막 (3개 이상인 경우)
 
 ### 2단계: NotebookLM에서 수동 작업
 

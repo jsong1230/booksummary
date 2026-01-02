@@ -288,7 +288,7 @@ def save_transcript(
         transcript_text: 자막 텍스트
         book_title: 책 제목 (선택사항)
         video_id: 비디오 ID (제목이 없을 때 사용)
-        part_number: 파트 번호 (1 또는 2)
+        part_number: 파트 번호 (1, 2, 3, ...)
         output_dir: 출력 디렉토리
         
     Returns:
@@ -303,14 +303,18 @@ def save_transcript(
         safe_title = get_standard_safe_title(book_title)
         if part_number == 1:
             filename = f"{safe_title}_part1_author.txt"
-        else:
+        elif part_number == 2:
             filename = f"{safe_title}_part2_novel.txt"
+        else:
+            filename = f"{safe_title}_part{part_number}.txt"
     else:
         # 제목이 없으면 비디오 ID 사용
         if part_number == 1:
             filename = f"{video_id}_part1_author.txt"
-        else:
+        elif part_number == 2:
             filename = f"{video_id}_part2_novel.txt"
+        else:
+            filename = f"{video_id}_part{part_number}.txt"
     
     output_file = output_dir / filename
     
@@ -354,15 +358,23 @@ def main():
     parser.add_argument(
         '--url1',
         type=str,
-        required=True,
-        help='Part 1 유튜브 URL 또는 비디오 ID'
+        default=None,
+        help='Part 1 유튜브 URL 또는 비디오 ID (--urls 사용 시 선택사항)'
     )
     
     parser.add_argument(
         '--url2',
         type=str,
-        required=True,
-        help='Part 2 유튜브 URL 또는 비디오 ID'
+        default=None,
+        help='Part 2 유튜브 URL 또는 비디오 ID (--urls 사용 시 선택사항)'
+    )
+    
+    parser.add_argument(
+        '--urls',
+        type=str,
+        nargs='+',
+        default=None,
+        help='여러 유튜브 URL 또는 비디오 ID (공백으로 구분, 예: --urls URL1 URL2 URL3)'
     )
     
     parser.add_argument(
@@ -388,53 +400,53 @@ def main():
     
     args = parser.parse_args()
     
+    # URL 리스트 구성
+    urls = []
+    if args.urls:
+        urls = args.urls
+    elif args.url1 and args.url2:
+        urls = [args.url1, args.url2]
+    else:
+        logger.error("❌ --urls 또는 --url1과 --url2를 제공해주세요.")
+        sys.exit(1)
+    
     # 비디오 ID 추출
-    video_id1 = extract_video_id(args.url1)
-    video_id2 = extract_video_id(args.url2)
-    
-    if not video_id1:
-        logger.error(f"❌ Part 1 URL에서 비디오 ID를 추출할 수 없습니다: {args.url1}")
-        sys.exit(1)
-    
-    if not video_id2:
-        logger.error(f"❌ Part 2 URL에서 비디오 ID를 추출할 수 없습니다: {args.url2}")
-        sys.exit(1)
+    video_ids = []
+    for i, url in enumerate(urls, 1):
+        video_id = extract_video_id(url)
+        if not video_id:
+            logger.error(f"❌ Part {i} URL에서 비디오 ID를 추출할 수 없습니다: {url}")
+            sys.exit(1)
+        video_ids.append(video_id)
     
     if args.title:
         logger.info(f"📖 책 제목: {args.title}")
     else:
         logger.info("📖 책 제목: (없음 - 비디오 ID 사용)")
-    logger.info(f"📹 Part 1 비디오 ID: {video_id1}")
-    logger.info(f"📹 Part 2 비디오 ID: {video_id2}")
+    for i, video_id in enumerate(video_ids, 1):
+        logger.info(f"📹 Part {i} 비디오 ID: {video_id}")
     logger.info("")
     
-    # Part 1 자막 가져오기
-    logger.info("=" * 60)
-    logger.info("Part 1 자막 가져오는 중...")
-    logger.info("=" * 60)
-    transcript1 = fetch_transcript(video_id1, cookies_path=args.cookies)
+    # 각 파트별로 자막 가져오기
+    transcripts = []
+    transcript_texts = []
     
-    if not transcript1:
-        logger.error("❌ Part 1 자막을 가져올 수 없습니다.")
-        sys.exit(1)
-    
-    part1_text = format_transcript(transcript1)
-    logger.info(f"✅ Part 1 자막 길이: {len(part1_text)} 문자")
-    logger.info("")
-    
-    # Part 2 자막 가져오기
-    logger.info("=" * 60)
-    logger.info("Part 2 자막 가져오는 중...")
-    logger.info("=" * 60)
-    transcript2 = fetch_transcript(video_id2, cookies_path=args.cookies)
-    
-    if not transcript2:
-        logger.error("❌ Part 2 자막을 가져올 수 없습니다.")
-        sys.exit(1)
-    
-    part2_text = format_transcript(transcript2)
-    logger.info(f"✅ Part 2 자막 길이: {len(part2_text)} 문자")
-    logger.info("")
+    for i, video_id in enumerate(video_ids, 1):
+        logger.info("=" * 60)
+        logger.info(f"Part {i} 자막 가져오는 중...")
+        logger.info("=" * 60)
+        transcript = fetch_transcript(video_id, cookies_path=args.cookies)
+        
+        if not transcript:
+            logger.error(f"❌ Part {i} 자막을 가져올 수 없습니다.")
+            sys.exit(1)
+        
+        transcript_text = format_transcript(transcript)
+        logger.info(f"✅ Part {i} 자막 길이: {len(transcript_text)} 문자")
+        logger.info("")
+        
+        transcripts.append(transcript)
+        transcript_texts.append(transcript_text)
     
     # 각각 따로 저장
     logger.info("=" * 60)
@@ -442,20 +454,18 @@ def main():
     logger.info("=" * 60)
     output_dir = Path(args.output_dir)
     
-    # Part 1 저장
-    output_file1 = save_transcript(part1_text, args.title, video_id1, 1, output_dir)
-    
-    # Part 2 저장
-    output_file2 = save_transcript(part2_text, args.title, video_id2, 2, output_dir)
+    output_files = []
+    for i, (transcript_text, video_id) in enumerate(zip(transcript_texts, video_ids), 1):
+        output_file = save_transcript(transcript_text, args.title, video_id, i, output_dir)
+        output_files.append(output_file)
     
     logger.info("")
     logger.info("=" * 60)
     logger.info("✅ NotebookLM용 소스 파일 생성 완료")
     logger.info("=" * 60)
-    logger.info(f"📄 Part 1 파일: {output_file1}")
-    logger.info(f"📄 Part 2 파일: {output_file2}")
-    logger.info(f"📊 Part 1 길이: {len(part1_text)} 문자")
-    logger.info(f"📊 Part 2 길이: {len(part2_text)} 문자")
+    for i, (output_file, transcript_text) in enumerate(zip(output_files, transcript_texts), 1):
+        logger.info(f"📄 Part {i} 파일: {output_file}")
+        logger.info(f"📊 Part {i} 길이: {len(transcript_text)} 문자")
 
 
 if __name__ == '__main__':
