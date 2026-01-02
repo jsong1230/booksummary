@@ -221,6 +221,13 @@ def translate_book_title(book_title: str) -> str:
         "위대한 개츠비 : 가난한 청년은 부잣집 딸과 결혼할 수 없는가?": "The Great Gatsby",
         "위대한_개츠비_가난한_청년은_부잣집_딸과_결혼할_수_없는가": "The Great Gatsby",
         "The Great Gatsby": "The Great Gatsby",
+        "자본론": "Das Kapital",
+        "자본론_": "Das Kapital",
+        "카를 마르크스 자본론": "Das Kapital",
+        "카를_마르크스_자본론": "Das Kapital",
+        "카를 마르크스 자본론 : 뭉치면 살고 흩어지면 죽는다": "Das Kapital",
+        "카를_마르크스_자본론_뭉치면_살고_흩어지면_죽는다": "Das Kapital",
+        "Das Kapital": "Das Kapital",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -309,6 +316,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Plato's Dialogues": "플라톤 대화편",
         "Plato's Dialogues: Philosophy is Love": "플라톤 대화편 : 철학은 사랑이다",
         "The Great Gatsby": "위대한 개츠비",
+        "Das Kapital": "자본론",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -484,6 +492,10 @@ def translate_author_name(author: str) -> str:
         "F. Scott Fitzgerald": "F. Scott Fitzgerald",
         "피츠제럴드": "F. Scott Fitzgerald",
         "Fitzgerald": "F. Scott Fitzgerald",
+        "카를 마르크스": "Karl Marx",
+        "마르크스": "Karl Marx",
+        "Karl Marx": "Karl Marx",
+        "Marx": "Karl Marx",
     }
     
     if author in author_map:
@@ -561,6 +573,8 @@ def translate_author_name_to_korean(author: str) -> str:
         "Plato": "플라톤",
         "F. Scott Fitzgerald": "스콧 피츠제럴드",
         "Fitzgerald": "스콧 피츠제럴드",
+        "Karl Marx": "카를 마르크스",
+        "Marx": "카를 마르크스",
     }
     
     if author in reverse_author_map:

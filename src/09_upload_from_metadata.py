@@ -83,6 +83,10 @@ class YouTubeUploader:
             if not tag:
                 continue
             
+            # YouTube 태그는 공백을 허용하지 않음 - 언더스코어로 변환
+            import re
+            tag = re.sub(r'\s+', '_', tag)
+            
             # 길이 제한 (30자)
             if len(tag) > MAX_TAG_LENGTH:
                 # 너무 긴 태그는 자르거나 건너뛰기
@@ -90,8 +94,7 @@ class YouTubeUploader:
                 continue
             
             # 특수 문자 제거 (YouTube가 허용하지 않는 문자)
-            # 허용되는 문자: 알파벳, 숫자, 공백, 하이픈, 언더스코어
-            import re
+            # 허용되는 문자: 알파벳, 숫자, 하이픈, 언더스코어
             # 기본적으로는 그대로 사용하되, 문제가 될 수 있는 문자만 체크
             if any(c in tag for c in ['<', '>', '&', '"', "'", '\n', '\r', '\t']):
                 # 문제가 되는 문자 제거
@@ -746,8 +749,9 @@ def main():
         
         # 썸네일 찾기 (메타데이터에 저장된 경로 우선)
         thumbnail = metadata.get('thumbnail_path')
+        thumbnail = thumbnail if thumbnail and os.path.exists(thumbnail) else None
         
-        if thumbnail and os.path.exists(thumbnail):
+        if thumbnail:
             print(f"   📸 썸네일: {Path(thumbnail).name} (메타데이터에서)")
         else:
             # 메타데이터에 없으면 자동으로 찾기
@@ -868,7 +872,75 @@ def main():
                         break
             
             if not thumbnail_found:
-                # 5순위: 무드 이미지 사용 (기존 방식)
+                # 5순위: input 폴더에서 썸네일 검색 (PNG도 포함)
+                input_dir = Path("input")
+                if input_dir.exists():
+                    # PNG 파일 검색
+                    png_patterns = []
+                    if detected_lang == 'ko':
+                        png_patterns = ['thumbnail_kr.png', 'thumbnail_ko.png', 'thumbnail.png']
+                    else:
+                        png_patterns = ['thumbnail_en.png', 'thumbnail.png']
+                    
+                    for png_pattern in png_patterns:
+                        png_path = input_dir / png_pattern
+                        if png_path.exists():
+                            # PNG를 JPG로 변환
+                            try:
+                                from PIL import Image
+                                jpg_path = video_dir / f"{video_stem}_thumbnail_{detected_lang}.jpg"
+                                
+                                img = Image.open(png_path)
+                                # RGBA를 RGB로 변환
+                                if img.mode == 'RGBA':
+                                    background = Image.new('RGB', img.size, (255, 255, 255))
+                                    background.paste(img, mask=img.split()[3])
+                                    img = background
+                                elif img.mode != 'RGB':
+                                    img = img.convert('RGB')
+                                
+                                # YouTube 롱폼 썸네일 크기로 리사이즈 (3840x2160)
+                                img = img.resize((3840, 2160), Image.Resampling.LANCZOS)
+                                
+                                # JPG로 저장 (2MB 이하로 압축)
+                                quality = 90
+                                while quality >= 50:
+                                    img.save(jpg_path, 'JPEG', quality=quality, optimize=True)
+                                    file_size_mb = jpg_path.stat().st_size / (1024 * 1024)
+                                    if file_size_mb <= 2.0:
+                                        break
+                                    quality -= 5
+                                
+                                thumbnail = str(jpg_path)
+                                print(f"   📸 썸네일: {png_path.name} → {jpg_path.name} (input 폴더에서 변환)")
+                                thumbnail_found = True
+                                break
+                            except Exception as e:
+                                print(f"   ⚠️ PNG 변환 실패: {e}")
+                                continue
+                    
+                    # JPG 파일도 검색
+                    if not thumbnail_found:
+                        jpg_patterns = []
+                        if detected_lang == 'ko':
+                            jpg_patterns = ['thumbnail_kr.jpg', 'thumbnail_ko.jpg', 'thumbnail.jpg']
+                        else:
+                            jpg_patterns = ['thumbnail_en.jpg', 'thumbnail.jpg']
+                        
+                        for jpg_pattern in jpg_patterns:
+                            jpg_path = input_dir / jpg_pattern
+                            if jpg_path.exists():
+                                # output 폴더로 복사
+                                output_jpg = video_dir / f"{video_stem}_thumbnail_{detected_lang}.jpg"
+                                import shutil
+                                shutil.copy2(jpg_path, output_jpg)
+                                thumbnail = str(output_jpg)
+                                print(f"   📸 썸네일: {jpg_path.name} (input 폴더에서 복사)")
+                                thumbnail_found = True
+                                break
+            
+            if not thumbnail_found:
+                # 6순위: 무드 이미지 사용 (기존 방식)
                 book_title_for_assets = book_title_variants[0]  # 첫 번째 변형 사용
                 mood_images = sorted((Path("assets/images") / book_title_for_assets).glob("mood_*.jpg"))
                 if mood_images:
@@ -880,6 +952,8 @@ def main():
                     print(f"      - {book_title_variants[0]}_thumbnail_ko.jpg")
                     print(f"      - {book_title_variants[0]}_thumbnail_en.jpg")
                     print(f"      - {video_stem}_thumbnail_ko.jpg")
+                    print(f"      - input/thumbnail_kr.png (자동 변환)")
+                    print(f"      - input/thumbnail_en.png (자동 변환)")
         
         print()
         

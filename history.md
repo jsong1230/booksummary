@@ -1,5 +1,28 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2026-01-03
+
+### 카를 마르크스 자본론 일당백 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 카를 마르크스 "자본론 : 뭉치면 살고 흩어지면 죽는다" 일당백 스타일 한글/영문 롱폼 영상 제작
+  - Part 3개 자동 처리 확인 및 검증
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **YouTube 태그 검증 개선**: `src/09_upload_from_metadata.py`에서 태그 공백을 언더스코어로 변환하도록 수정
+    - YouTube 태그 규칙에 맞게 공백을 언더스코어로 자동 변환
+    - "Das Kapital" → "Das_Kapital"로 변환하여 태그 오류 해결
+  - **번역 매핑 추가**: `src/utils/translations.py`에 카를 마르크스 및 자본론 번역 매핑 추가
+- **생성된 영상**:
+  - 한글: `output/Das_Kapital_full_episode_ko.mp4` (1330.92초, 약 22.18분)
+  - 영문: `output/Das_Kapital_full_episode_en.mp4` (1381.14초, 약 23.02분)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=QP4LlM0sy2Y
+  - 영문: https://www.youtube.com/watch?v=aeUoPueRi4M
+- **수정된 파일**:
+  - `src/09_upload_from_metadata.py`: 태그 공백을 언더스코어로 변환하는 로직 추가
+  - `src/utils/translations.py`: 카를 마르크스 및 자본론 번역 매핑 추가
+  - `data/ildangbaek_books.csv`: 자본론 업로드 정보 업데이트
+
 ## 2026-01-02
 
 ### 위대한 개츠비 일당백 스타일 영상 제작 및 메타데이터 동적 Part 감지 기능 추가
@@ -1748,3 +1771,19 @@
   - URL: https://www.youtube.com/watch?v=y5GvpwX1jdc
 - [2] [일당백] 위대한 개츠비 : 가난한 청년은 부잣집 딸과 결혼할 수 없는가? 완전정복 | 작가와 배경부터 소설 줄거리까지
   - URL: https://www.youtube.com/watch?v=2_aMxbFUBLQ
+
+## 2026-01-03
+
+### YouTube 업로드 완료
+- 업로드된 책: Das_Kapital_full_episode_ko
+- 업로드된 영상 수: 1개
+- [1] [일당백] 카를 마르크스 자본론 : 뭉치면 살고 흩어지면 죽는다 완전정복 | 작가와 배경부터 소설 줄거리까지
+  - URL: https://www.youtube.com/watch?v=QP4LlM0sy2Y
+
+## 2026-01-03
+
+### YouTube 업로드 완료
+- 업로드된 책: Das_Kapital_full_episode
+- 업로드된 영상 수: 1개
+- [1] Complete Guide to Das Kapital | From Author & Background to Full Story
+  - URL: https://www.youtube.com/watch?v=aeUoPueRi4M
