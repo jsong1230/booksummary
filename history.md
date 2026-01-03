@@ -2,6 +2,25 @@
 
 ## 2026-01-03
 
+### 시의 본질과 거장들: 한국시에 대하여 일당백 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 시의 본질과 거장들: 한국시에 대하여 일당백 스타일 한글/영문 롱폼 영상 제작
+  - Part 3개 자동 처리 확인 및 검증
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 시의 본질과 거장들 번역 매핑 추가
+    - "시의 본질과 거장들: 한국시에 대하여" ↔ "The Essence of Poetry and Masters: On Korean Poetry"
+- **생성된 영상**:
+  - 한글: `output/The_Essence_of_Poetry_and_Masters_On_Korean_Poetry_full_episode_ko.mp4` (1267.67초, 약 21.13분)
+  - 영문: `output/The_Essence_of_Poetry_and_Masters_On_Korean_Poetry_full_episode_en.mp4` (1214.07초, 약 20.23분)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=s9QJEcOq74Q
+  - 영문: https://www.youtube.com/watch?v=L4MM0kjUgFk
+- **수정된 파일**:
+  - `src/utils/translations.py`: 시의 본질과 거장들 번역 매핑 추가
+  - `output/The_Essence_of_Poetry_and_Masters_On_Korean_Poetry_full_episode_en.metadata.json`: 제목 길이 100자 제한에 맞게 수정 (110자 → 83자)
+  - `data/ildangbaek_books.csv`: 시의 본질과 거장들 업로드 정보 업데이트
+
 ### 카를 마르크스 자본론 일당백 스타일 영상 제작 및 YouTube 업로드
 - **작업 내용**:
   - 카를 마르크스 "자본론 : 뭉치면 살고 흩어지면 죽는다" 일당백 스타일 한글/영문 롱폼 영상 제작
@@ -1787,3 +1806,19 @@
 - 업로드된 영상 수: 1개
 - [1] Complete Guide to Das Kapital | From Author & Background to Full Story
   - URL: https://www.youtube.com/watch?v=aeUoPueRi4M
+
+## 2026-01-03
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Essence_of_Poetry_and_Masters_On_Korean_Poetry_full_episode_ko
+- 업로드된 영상 수: 1개
+- [1] [일당백] 시의 본질과 거장들: 한국시에 대하여 완전정복 | 작가와 배경부터 소설 줄거리까지
+  - URL: https://www.youtube.com/watch?v=s9QJEcOq74Q
+
+## 2026-01-03
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Essence_of_Poetry_and_Masters_On_Korean_Poetry_full_episode
+- 업로드된 영상 수: 1개
+- [1] The Essence of Poetry and Masters: Complete Guide | Author, Background & Full Story
+  - URL: https://www.youtube.com/watch?v=L4MM0kjUgFk

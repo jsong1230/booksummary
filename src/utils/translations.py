@@ -228,6 +228,12 @@ def translate_book_title(book_title: str) -> str:
         "카를 마르크스 자본론 : 뭉치면 살고 흩어지면 죽는다": "Das Kapital",
         "카를_마르크스_자본론_뭉치면_살고_흩어지면_죽는다": "Das Kapital",
         "Das Kapital": "Das Kapital",
+        "시의 본질과 거장들": "The Essence of Poetry and Masters",
+        "시의_본질과_거장들": "The Essence of Poetry and Masters",
+        "시의 본질과 거장들: 한국시에 대하여": "The Essence of Poetry and Masters: On Korean Poetry",
+        "시의_본질과_거장들_한국시에_대하여": "The Essence of Poetry and Masters: On Korean Poetry",
+        "The Essence of Poetry and Masters": "The Essence of Poetry and Masters",
+        "The Essence of Poetry and Masters: On Korean Poetry": "The Essence of Poetry and Masters: On Korean Poetry",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -317,6 +323,8 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Plato's Dialogues: Philosophy is Love": "플라톤 대화편 : 철학은 사랑이다",
         "The Great Gatsby": "위대한 개츠비",
         "Das Kapital": "자본론",
+        "The Essence of Poetry and Masters": "시의 본질과 거장들",
+        "The Essence of Poetry and Masters: On Korean Poetry": "시의 본질과 거장들: 한국시에 대하여",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
