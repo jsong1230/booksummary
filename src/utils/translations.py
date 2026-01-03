@@ -239,6 +239,11 @@ def translate_book_title(book_title: str) -> str:
         "미시마 유키오 우국, 금각사 : 아름답게 죽어라는 일본, 어떻게든 살아라는 한국": "Yukio Mishima: Patriotism and The Temple of the Golden Pavilion",
         "미시마_유키오_우국_금각사_아름답게_죽어라는_일본_어떻게든_살아라는_한국": "Yukio_Mishima_Patriotism_and_The_Temple_of_the_Golden_Pavilion",
         "Yukio Mishima: Patriotism and The Temple of the Golden Pavilion": "Yukio Mishima: Patriotism and The Temple of the Golden Pavilion",
+        "세르반테스 돈키호테": "Don Quixote",
+        "세르반테스_돈키호테": "Don_Quixote",
+        "세르반테스 돈키호테 : 세상의 모든 소설들은 무릎꿇고 경의를 표하시오!!": "Don Quixote",
+        "세르반테스_돈키호테_세상의_모든_소설들은_무릎꿇고_경의를_표하시오": "Don_Quixote",
+        "Don Quixote": "Don Quixote",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -331,6 +336,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "The Essence of Poetry and Masters": "시의 본질과 거장들",
         "The Essence of Poetry and Masters: On Korean Poetry": "시의 본질과 거장들: 한국시에 대하여",
         "Yukio Mishima: Patriotism and The Temple of the Golden Pavilion": "미시마 유키오 우국, 금각사",
+        "Don Quixote": "세르반테스 돈키호테",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인

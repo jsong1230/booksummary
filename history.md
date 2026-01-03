@@ -2,6 +2,36 @@
 
 ## 2026-01-03
 
+### 세르반테스 돈키호테 일당백 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 세르반테스 "돈키호테 : 세상의 모든 소설들은 무릎꿇고 경의를 표하시오!!" 일당백 스타일 한글/영문 롱폼 영상 제작
+  - Part 2개 자동 처리 확인 및 검증
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 세르반테스 돈키호테 번역 매핑 추가
+    - "세르반테스 돈키호테" ↔ "Don Quixote"
+- **생성된 영상**:
+  - 한글: `output/Don_Quixote_full_episode_ko.mp4` (934.60초, 약 15.58분)
+  - 영문: `output/Don_Quixote_full_episode_en.mp4` (909.02초, 약 15.15분)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=Nr7GaQHbK9Q
+  - 영문: https://www.youtube.com/watch?v=ta9Jr2axTu8
+- **수정된 파일**:
+  - `src/utils/translations.py`: 세르반테스 돈키호테 번역 매핑 추가
+  - `data/ildangbaek_books.csv`: 돈키호테 업로드 정보 업데이트
+
+### 장르 자동 감지 로직 개선
+- **작업 내용**:
+  - 장르 감지 시 오탐지 문제 해결 (예: "경의를 표하시오"에서 "시"로 잘못 감지)
+- **주요 수정사항**:
+  - **장르 감지 우선순위 개선**: `src/20_create_episode_metadata.py`의 `detect_book_genre()` 함수 수정
+    - "소설"을 우선 체크하도록 순서 변경 (다른 단어에 포함될 수 있는 "시"보다 우선)
+    - "시" 감지는 "시집", "시인", "시선", "시화" 등 명확한 패턴만 매칭
+    - "경의", "시각" 등은 제외하여 오탐지 방지
+- **문제 해결**:
+  - "세상의 모든 소설들은 무릎꿇고 경의를 표하시오"에서 "시"로 잘못 감지되던 문제 해결
+  - 이제 "소설"이 포함된 경우 정확히 "소설"로 감지됨
+
 ### 미시마 유키오 우국, 금각사 일당백 스타일 영상 제작 및 YouTube 업로드
 - **작업 내용**:
   - 미시마 유키오 "우국, 금각사 : 아름답게 죽어라는 일본, 어떻게든 살아라는 한국" 일당백 스타일 한글/영문 롱폼 영상 제작
@@ -1879,3 +1909,13 @@
 - 업로드된 영상 수: 1개
 - [1] Yukio Mishima: Patriotism and The Golden Pavilion | Complete Guide | Author & Full Story
   - URL: https://www.youtube.com/watch?v=irJaMfCmaHA
+
+## 2026-01-03
+
+### YouTube 업로드 완료
+- 업로드된 책: Don_Quixote_full_episode, Don_Quixote_full_episode_ko
+- 업로드된 영상 수: 2개
+- [1] Complete Guide to Don Quixote | From Author & Background to Full Story
+  - URL: https://www.youtube.com/watch?v=ta9Jr2axTu8
+- [2] [일당백] 세르반테스 돈키호테 : 세상의 모든 소설들은 무릎꿇고 경의를 표하시오!! 완전정복 | 작가와 배경부터 시 줄거리까지
+  - URL: https://www.youtube.com/watch?v=Nr7GaQHbK9Q

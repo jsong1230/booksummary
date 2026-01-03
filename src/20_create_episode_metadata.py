@@ -105,12 +105,22 @@ def detect_book_genre(book_title: str, book_info: Optional[Dict] = None) -> Tupl
                 return ("작품", "Work")
     
     # 제목에서 키워드로 장르 추정
-    if '시' in book_title or 'poetry' in title_lower or 'poem' in title_lower:
-        return ("시", "Poetry")
-    elif '수필' in book_title or 'essay' in title_lower:
-        return ("수필", "Essay")
-    elif '소설' in book_title or 'novel' in title_lower:
+    # 주의: "소설"을 먼저 체크 (다른 단어에 포함될 수 있으므로)
+    # 예: "경의를 표하시오"에 "시"가 포함되지만, "소설"이 더 명확한 장르 지표
+    import re
+    
+    # 한글의 경우 단어 경계를 정확히 체크하기 어려우므로, 더 긴 패턴을 우선 체크
+    # "소설" 관련 패턴 (우선순위 높음)
+    if re.search(r'소설', book_title) or 'novel' in title_lower or 'fiction' in title_lower:
         return ("소설", "Novel")
+    # "시" 관련 패턴 - "시집", "시인", "시선" 등 명확한 패턴만 체크
+    # 단, "경의", "시각", "시장" 등은 제외하기 위해 더 긴 패턴 우선
+    elif re.search(r'시집|시인|시선|시화', book_title) or 'poetry' in title_lower or 'poem' in title_lower:
+        return ("시", "Poetry")
+    # "수필" 관련 패턴
+    elif re.search(r'수필', book_title) or 'essay' in title_lower:
+        return ("수필", "Essay")
+    # "논픽션" 관련 패턴
     elif '논픽션' in book_title or 'non-fiction' in title_lower or 'nonfiction' in title_lower:
         return ("작품", "Work")
     
