@@ -2,6 +2,47 @@
 
 ## 2026-01-03
 
+### 미시마 유키오 우국, 금각사 일당백 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 미시마 유키오 "우국, 금각사 : 아름답게 죽어라는 일본, 어떻게든 살아라는 한국" 일당백 스타일 한글/영문 롱폼 영상 제작
+  - Part 2개 자동 처리 확인 및 검증
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 미시마 유키오 우국 금각사 번역 매핑 추가
+    - "미시마 유키오 우국, 금각사" ↔ "Yukio Mishima: Patriotism and The Temple of the Golden Pavilion"
+- **생성된 영상**:
+  - 한글: `output/Yukio_Mishima_Patriotism_and_The_Temple_of_the_Golden_Pavilion_full_episode_ko.mp4` (913.01초, 약 15.22분)
+  - 영문: `output/Yukio_Mishima_Patriotism_and_The_Temple_of_the_Golden_Pavilion_full_episode_en.mp4` (835.59초, 약 13.93분)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=SwtiS91WQCQ
+  - 영문: https://www.youtube.com/watch?v=irJaMfCmaHA
+- **수정된 파일**:
+  - `src/utils/translations.py`: 미시마 유키오 우국 금각사 번역 매핑 추가
+  - `output/Yukio_Mishima_Patriotism_and_The_Temple_of_the_Golden_Pavilion_full_episode_en.metadata.json`: 제목 길이 100자 제한에 맞게 수정 (122자 → 88자)
+  - `data/ildangbaek_books.csv`: 미시마 유키오 우국 금각사 업로드 정보 업데이트
+
+### 메타데이터 생성 시 장르 자동 감지 기능 추가
+- **작업 내용**:
+  - 메타데이터 생성 시 모든 책을 "소설"로 표기하던 문제 해결
+  - 장르(소설, 시, 수필, 논픽션 등)를 자동으로 감지하여 적절한 용어 사용
+- **주요 수정사항**:
+  - **장르 감지 함수 추가**: `src/20_create_episode_metadata.py`에 `detect_book_genre()` 함수 추가
+    - `book_info.json`의 `categories` 필드에서 장르 확인
+    - 책 제목에서 키워드로 장르 추정 ("시", "수필", "소설" 등)
+    - 장르별 용어 매핑: 소설→"소설"/"Novel", 시→"시"/"Poetry", 수필→"수필"/"Essay", 기타→"작품"/"Work"
+  - **메타데이터 생성 함수 수정**:
+    - `generate_episode_title()`: 제목에서 장르 용어 사용
+    - `generate_episode_description()`: 설명 전체에서 장르 용어 사용 (Part 설명, 타임스탬프, 해시태그 등)
+- **적용 범위**:
+  - 제목: "작가와 배경부터 {장르} 줄거리까지"
+  - Part 설명: "Part 2: {장르} 줄거리"
+  - 타임스탬프: "Part 2: {장르} 줄거리"
+  - 해시태그: "#{장르}"
+- **수정된 파일**:
+  - `src/20_create_episode_metadata.py`: 장르 자동 감지 및 용어 적용 로직 추가
+
+## 2026-01-03
+
 ### 시의 본질과 거장들: 한국시에 대하여 일당백 스타일 영상 제작 및 YouTube 업로드
 - **작업 내용**:
   - 시의 본질과 거장들: 한국시에 대하여 일당백 스타일 한글/영문 롱폼 영상 제작
@@ -1822,3 +1863,19 @@
 - 업로드된 영상 수: 1개
 - [1] The Essence of Poetry and Masters: Complete Guide | Author, Background & Full Story
   - URL: https://www.youtube.com/watch?v=L4MM0kjUgFk
+
+## 2026-01-03
+
+### YouTube 업로드 완료
+- 업로드된 책: Yukio_Mishima_Patriotism_and_The_Temple_of_the_Golden_Pavilion_full_episode_ko
+- 업로드된 영상 수: 1개
+- [1] [일당백] 미시마 유키오 우국, 금각사 : 아름답게 죽어라는 일본, 어떻게든 살아라는 한국 완전정복 | 작가와 배경부터 소설 줄거리까지
+  - URL: https://www.youtube.com/watch?v=SwtiS91WQCQ
+
+## 2026-01-03
+
+### YouTube 업로드 완료
+- 업로드된 책: Yukio_Mishima_Patriotism_and_The_Temple_of_the_Golden_Pavilion_full_episode
+- 업로드된 영상 수: 1개
+- [1] Yukio Mishima: Patriotism and The Golden Pavilion | Complete Guide | Author & Full Story
+  - URL: https://www.youtube.com/watch?v=irJaMfCmaHA

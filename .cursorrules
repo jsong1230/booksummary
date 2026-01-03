@@ -227,4 +227,38 @@
    - "영상 만들고 업로드해줘" 같은 명시적 요청이 있어야 업로드 진행
    - 업로드 전 항상 사용자에게 최종 확인 요청
 
+### YouTube URL 자막 다운로드
+**중요: 사용자가 YouTube URL을 제공하고 "스크립트를 만들어달라" 또는 "스크립트 생성" 등을 요청하면 `fetch_separate_scripts.py`를 실행해야 합니다.**
+
+1. **YouTube URL 자막 다운로드 규칙**
+   - 사용자가 YouTube URL을 제공하고 스크립트/자막 다운로드를 요청할 때
+   - `scripts/fetch_separate_scripts.py` 스크립트를 실행
+   - Part 1, Part 2 등의 영상에서 자막을 가져와서 각각 별도의 텍스트 파일로 저장
+
+2. **실행 명령어**
+   ```bash
+   # 두 개의 URL이 제공된 경우
+   python scripts/fetch_separate_scripts.py \
+     --url1 "https://www.youtube.com/watch?v=VIDEO_ID_1" \
+     --url2 "https://www.youtube.com/watch?v=VIDEO_ID_2" \
+     --title "책 제목" \
+     --output-dir "data/source"
+   
+   # 여러 URL이 제공된 경우 (--urls 사용)
+   python scripts/fetch_separate_scripts.py \
+     --urls "URL1" "URL2" "URL3" \
+     --title "책 제목" \
+     --output-dir "data/source"
+   ```
+
+3. **출력 파일 위치**
+   - `data/source/{책제목}_part1_author.txt` (Part 1: 작가와 배경)
+   - `data/source/{책제목}_part2_novel.txt` (Part 2: 소설 줄거리)
+   - 추가 Part가 있으면 `part3_*.txt`, `part4_*.txt` 등으로 저장
+
+4. **주의사항**
+   - 책 제목이 제공되지 않으면 비디오 ID를 사용하여 파일명 생성
+   - IP 차단을 우회하기 위해 쿠키 파일(`scripts/cookies.txt`) 사용 가능
+   - 자막이 없는 영상의 경우 오류 메시지 표시
+
 

@@ -234,6 +234,11 @@ def translate_book_title(book_title: str) -> str:
         "시의_본질과_거장들_한국시에_대하여": "The Essence of Poetry and Masters: On Korean Poetry",
         "The Essence of Poetry and Masters": "The Essence of Poetry and Masters",
         "The Essence of Poetry and Masters: On Korean Poetry": "The Essence of Poetry and Masters: On Korean Poetry",
+        "미시마 유키오 우국, 금각사": "Yukio Mishima: Patriotism and The Temple of the Golden Pavilion",
+        "미시마_유키오_우국_금각사": "Yukio_Mishima_Patriotism_and_The_Temple_of_the_Golden_Pavilion",
+        "미시마 유키오 우국, 금각사 : 아름답게 죽어라는 일본, 어떻게든 살아라는 한국": "Yukio Mishima: Patriotism and The Temple of the Golden Pavilion",
+        "미시마_유키오_우국_금각사_아름답게_죽어라는_일본_어떻게든_살아라는_한국": "Yukio_Mishima_Patriotism_and_The_Temple_of_the_Golden_Pavilion",
+        "Yukio Mishima: Patriotism and The Temple of the Golden Pavilion": "Yukio Mishima: Patriotism and The Temple of the Golden Pavilion",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -325,6 +330,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Das Kapital": "자본론",
         "The Essence of Poetry and Masters": "시의 본질과 거장들",
         "The Essence of Poetry and Masters: On Korean Poetry": "시의 본질과 거장들: 한국시에 대하여",
+        "Yukio Mishima: Patriotism and The Temple of the Golden Pavilion": "미시마 유키오 우국, 금각사",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인

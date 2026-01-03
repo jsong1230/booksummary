@@ -470,6 +470,10 @@ python src/08_create_and_preview_videos.py \
 메타데이터 생성 시:
 
 - 썸네일 경로를 자동으로 찾아서 포함합니다
+- **장르 자동 감지**: 책의 장르(소설, 시, 수필, 논픽션 등)를 자동으로 감지하여 적절한 용어 사용
+  - `book_info.json`의 `categories` 필드 또는 책 제목에서 키워드 분석
+  - 장르별 용어: 소설→"소설"/"Novel", 시→"시"/"Poetry", 수필→"수필"/"Essay", 기타→"작품"/"Work"
+  - 제목, 설명, 타임스탬프, 해시태그 등 모든 메타데이터에 자동 적용
 - **YouTube timestamp 자동 생성**: Summary, NotebookLM Video 섹션의 시작 시간을 자동으로 계산하여 Video Chapters에 포함합니다
   - 예: `0:00 - Summary`, `1:27 - NotebookLM Detailed Analysis`
 
