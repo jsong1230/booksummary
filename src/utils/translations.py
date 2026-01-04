@@ -244,6 +244,11 @@ def translate_book_title(book_title: str) -> str:
         "세르반테스 돈키호테 : 세상의 모든 소설들은 무릎꿇고 경의를 표하시오!!": "Don Quixote",
         "세르반테스_돈키호테_세상의_모든_소설들은_무릎꿇고_경의를_표하시오": "Don_Quixote",
         "Don Quixote": "Don Quixote",
+        "시몬 드 보부아르 제2의 성": "The Second Sex",
+        "시몬_드_보부아르_제2의_성": "The_Second_Sex",
+        "시몬 드 보부아르 제2의 성 : 여성은 태어나지 않고 만들어진다": "The Second Sex",
+        "시몬_드_보부아르_제2의_성_여성은_태어나지_않고_만들어진다": "The_Second_Sex",
+        "The Second Sex": "The Second Sex",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -337,6 +342,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "The Essence of Poetry and Masters: On Korean Poetry": "시의 본질과 거장들: 한국시에 대하여",
         "Yukio Mishima: Patriotism and The Temple of the Golden Pavilion": "미시마 유키오 우국, 금각사",
         "Don Quixote": "세르반테스 돈키호테",
+        "The Second Sex": "시몬 드 보부아르 제2의 성",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인

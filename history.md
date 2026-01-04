@@ -1919,3 +1919,23 @@
   - URL: https://www.youtube.com/watch?v=ta9Jr2axTu8
 - [2] [일당백] 세르반테스 돈키호테 : 세상의 모든 소설들은 무릎꿇고 경의를 표하시오!! 완전정복 | 작가와 배경부터 시 줄거리까지
   - URL: https://www.youtube.com/watch?v=Nr7GaQHbK9Q
+
+## 2026-01-04
+
+### 시몬 드 보부아르 제2의 성 일당백 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 시몬 드 보부아르 "제2의 성 : 여성은 태어나지 않고 만들어진다" 일당백 스타일 한글/영문 롱폼 영상 제작
+  - Part 2개 자동 처리 확인 및 검증
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 시몬 드 보부아르 제2의 성 번역 매핑 추가
+    - "시몬 드 보부아르 제2의 성" ↔ "The Second Sex"
+- **생성된 영상**:
+  - 한글: `output/The_Second_Sex_full_episode_ko.mp4` (816.28초, 약 13.60분)
+  - 영문: `output/The_Second_Sex_full_episode_en.mp4` (868.08초, 약 14.47분)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=DjuwhWtrzFY
+  - 영문: https://www.youtube.com/watch?v=4xKtR72RFoM
+- **수정된 파일**:
+  - `src/utils/translations.py`: 시몬 드 보부아르 제2의 성 번역 매핑 추가
+  - `data/ildangbaek_books.csv`: 시몬 드 보부아르 제2의 성 업로드 정보 업데이트
