@@ -249,6 +249,12 @@ def translate_book_title(book_title: str) -> str:
         "시몬 드 보부아르 제2의 성 : 여성은 태어나지 않고 만들어진다": "The Second Sex",
         "시몬_드_보부아르_제2의_성_여성은_태어나지_않고_만들어진다": "The_Second_Sex",
         "The Second Sex": "The Second Sex",
+        "몽테뉴 수상록": "Essays",
+        "몽테뉴_수상록": "Essays",
+        "수상록": "Essays",
+        "수상록_": "Essays",
+        "Essays": "Essays",
+        "The Essays of Montaigne": "Essays",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -343,6 +349,8 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Yukio Mishima: Patriotism and The Temple of the Golden Pavilion": "미시마 유키오 우국, 금각사",
         "Don Quixote": "세르반테스 돈키호테",
         "The Second Sex": "시몬 드 보부아르 제2의 성",
+        "Essays": "수상록",
+        "The Essays of Montaigne": "수상록",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인

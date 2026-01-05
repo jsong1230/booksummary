@@ -1939,3 +1939,29 @@
 - **수정된 파일**:
   - `src/utils/translations.py`: 시몬 드 보부아르 제2의 성 번역 매핑 추가
   - `data/ildangbaek_books.csv`: 시몬 드 보부아르 제2의 성 업로드 정보 업데이트
+
+## 2026-01-05
+
+### 몽테뉴 수상록 롱폼 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 몽테뉴 "수상록" 롱폼 한글/영문 영상 제작
+  - Summary 오디오 + NotebookLM 비디오 합성
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 몽테뉴 수상록 번역 매핑 추가
+    - "몽테뉴 수상록" ↔ "Essays"
+    - "수상록" ↔ "Essays"
+  - **코드 버그 수정**:
+    - `src/03_make_video.py`: 들여쓰기 오류 수정 (clip 변수 초기화 문제 해결)
+    - `src/10_create_video_with_summary.py`: 들여쓰기 오류 수정
+- **생성된 영상**:
+  - 한글: `output/Essays_kr.mp4` (약 287MB)
+  - 영문: `output/Essays_en.mp4` (약 283MB)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=YAXj6EFCZ04
+  - 영문: https://www.youtube.com/watch?v=scfN0JT-4ss
+- **수정된 파일**:
+  - `src/utils/translations.py`: 몽테뉴 수상록 번역 매핑 추가 및 수정
+  - `src/03_make_video.py`: 들여쓰기 오류 수정
+  - `src/10_create_video_with_summary.py`: 들여쓰기 오류 수정
+  - `data/ildangbaek_books.csv`: 수상록 업로드 정보 업데이트

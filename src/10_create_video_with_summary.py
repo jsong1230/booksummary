@@ -280,13 +280,13 @@ class VideoWithSummaryPipeline:
             audio_dir = Path("assets/audio")
             
             if audio_dir.exists():
-            # 표준 네이밍 규칙: {책제목}_review_{언어}.{확장자}
-            for ext in ['.m4a', '.mp3', '.wav', '.mp4']:
-                test_path = audio_dir / f"{safe_title_str}_review_{lang_suffix}{ext}"
-                if test_path.exists():
-                    review_audio_path = str(test_path)
+                # 표준 네이밍 규칙: {책제목}_review_{언어}.{확장자}
+                for ext in ['.m4a', '.mp3', '.wav', '.mp4']:
+                    test_path = audio_dir / f"{safe_title_str}_review_{lang_suffix}{ext}"
+                    if test_path.exists():
+                        review_audio_path = str(test_path)
                         print(f"🎵 리뷰 오디오 발견: {test_path.name} (선택사항, 사용하지 않음)")
-                    break
+                        break
         
         # 리뷰 오디오는 선택사항이므로 없어도 계속 진행
         
