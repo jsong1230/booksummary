@@ -255,6 +255,16 @@ def translate_book_title(book_title: str) -> str:
         "수상록_": "Essays",
         "Essays": "Essays",
         "The Essays of Montaigne": "Essays",
+        "공자 논어": "The Analects",
+        "공자_논어": "The_Analects",
+        "논어": "The Analects",
+        "논어_": "The_Analects",
+        "공자 논어(論語)": "The Analects",
+        "공자_논어論語": "The_Analects",
+        "공자 논어(論語) : 세상에서 가장 오래된 베스트셀러 겸 스테디셀러": "The Analects",
+        "공자_논어論語_세상에서_가장_오래된_베스트셀러_겸_스테디셀러": "The_Analects",
+        "The Analects": "The Analects",
+        "Analects of Confucius": "The Analects",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -412,6 +422,8 @@ def translate_author_name(author: str) -> str:
         "Viktor Frankl": "Viktor Frankl",
         "빅터 E. 프랭클": "Viktor E. Frankl",
         "Viktor E. Frankl": "Viktor E. Frankl",
+        "공자": "Confucius",
+        "Confucius": "Confucius",
         "이선 몰릭": "Ethan Mollick",
         "Ethan Mollick": "Ethan Mollick",
         "제임스 클리어": "James Clear",

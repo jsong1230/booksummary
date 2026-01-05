@@ -1965,3 +1965,23 @@
   - `src/03_make_video.py`: 들여쓰기 오류 수정
   - `src/10_create_video_with_summary.py`: 들여쓰기 오류 수정
   - `data/ildangbaek_books.csv`: 수상록 업로드 정보 업데이트
+
+### 공자 논어 일당백 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 공자 논어(論語) 일당백 스타일 한글/영문 롱폼 영상 제작
+  - Part 2개 자동 처리 확인 및 검증
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 공자 논어 번역 매핑 추가
+    - "공자 논어(論語)" ↔ "The Analects"
+    - "논어" ↔ "The Analects"
+    - "공자" ↔ "Confucius"
+- **생성된 영상**:
+  - 한글: `output/The_Analects_full_episode_ko.mp4` (536MB, 약 15.20분)
+  - 영문: `output/The_Analects_full_episode_en.mp4` (485MB, 약 13.46분)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=t17dN0cqJeE
+  - 영문: https://www.youtube.com/watch?v=xAwFEtF78i4
+- **수정된 파일**:
+  - `src/utils/translations.py`: 공자 논어 번역 매핑 추가
+  - `data/ildangbaek_books.csv`: 논어 업로드 정보 업데이트
