@@ -2004,3 +2004,24 @@
 - **수정된 파일**:
   - `src/utils/translations.py`: 스토너 및 존 윌리엄스 번역 매핑 추가
   - `data/ildangbaek_books.csv`: 스토너 업로드 정보 업데이트
+
+### 푸틴-권력의 논리 일당백 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 푸틴-권력의 논리 일당백 스타일 한글/영문 롱폼 영상 제작
+  - Part 2개 자동 처리 확인 및 검증
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 푸틴 및 관련 번역 매핑 추가
+    - "푸틴-권력의 논리" ↔ "Putin: The Logic of Power"
+    - "권력의 논리" ↔ "The Logic of Power"
+    - "푸틴" ↔ "Putin"
+    - "마이클 울프" ↔ "Michael Wolff"
+- **생성된 영상**:
+  - 한글: `output/Putin_The_Logic_of_Power_full_episode_ko.mp4` (405MB, 약 14.61분)
+  - 영문: `output/Putin_The_Logic_of_Power_full_episode_en.mp4` (301MB, 약 12.67분)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=vOmpo_L2Ot4
+  - 영문: https://www.youtube.com/watch?v=sdoiM8Sa3Cw
+- **수정된 파일**:
+  - `src/utils/translations.py`: 푸틴 및 마이클 울프 번역 매핑 추가
+  - `data/ildangbaek_books.csv`: 푸틴 업로드 정보 업데이트
