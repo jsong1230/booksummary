@@ -2043,3 +2043,50 @@
 - **수정된 파일**:
   - `src/utils/translations.py`: 싯다르타 번역 매핑 추가
   - `data/ildangbaek_books.csv`: 싯다르타 업로드 정보 업데이트
+
+## 2026-01-07
+
+### YouTube 업로드 완료
+- 업로드된 책: 칼_세이건_코스모스_광활한_우주에서_나는_어떤_존재인가_full_episode_ko, 칼_세이건_코스모스_광활한_우주에서_나는_어떤_존재인가_full_episode
+- 업로드된 영상 수: 2개
+- [1] Complete Guide to 칼 세이건 코스모스 : 광활한 우주에서 나는 어떤 존재인가? | From Author & Background to Full Story
+  - URL: https://www.youtube.com/watch?v=473jUt3IwFk
+- [2] [일당백] 칼 세이건 코스모스 : 광활한 우주에서 나는 어떤 존재인가? 완전정복 | 작가와 배경부터 소설 줄거리까지
+  - URL: https://www.youtube.com/watch?v=e86Z9pdsj5M
+
+## 2026-01-07
+
+### 굿모닝 미드나잇 – 진 리스 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 진 리스 "굿모닝 미드나잇" 한글/영문 롱폼 영상 제작
+  - Summary 포함 영상 구조 (Summary + NotebookLM + Review)
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 굿모닝 미드나잇, 진 리스 번역 매핑 추가
+    - "굿모닝 미드나잇" ↔ "Good Morning, Midnight"
+    - "진 리스" ↔ "Jean Rhys"
+- **생성된 영상**:
+  - 한글: `output/Good_Morning_Midnight_kr.mp4` (278MB)
+  - 영문: `output/Good_Morning_Midnight_en.mp4` (302MB)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=OHhq_CxQO2E
+  - 영문: https://www.youtube.com/watch?v=8icEOU60Unc
+- **수정된 파일**:
+  - `src/utils/translations.py`: 굿모닝 미드나잇, 진 리스 번역 매핑 추가
+  - `data/ildangbaek_books.csv`: 굿모닝 미드나잇 업로드 정보 업데이트
+
+### 메타데이터 생성 시 오디오 리뷰 타임스탬프 제거
+- **작업 내용**:
+  - 영상 제작 시 오디오 리뷰가 포함되지 않으므로 메타데이터에서 오디오 리뷰 타임스탬프 제거
+- **주요 수정사항**:
+  - **타임스탬프 섹션 수정**: `src/08_create_and_preview_videos.py`의 `_generate_timestamps_section()` 함수 수정
+    - "오디오 리뷰 (Audio Review)" 타임스탬프 제거
+    - 이제 Summary와 NotebookLM Video 타임스탬프만 포함
+  - **YouTube 챕터 수정**: `_generate_youtube_chapters()` 함수 수정
+    - "오디오 리뷰" 챕터 제거
+    - Summary와 NotebookLM Video 챕터만 포함
+- **변경 전/후**:
+  - 변경 전: `0:00 - 요약`, `1:42 - NotebookLM 상세 분석`, `8:09 - 오디오 리뷰`
+  - 변경 후: `0:00 - 요약`, `1:42 - NotebookLM 상세 분석` (오디오 리뷰 제거)
+- **수정된 파일**:
+  - `src/08_create_and_preview_videos.py`: 오디오 리뷰 타임스탬프 제거 로직 추가

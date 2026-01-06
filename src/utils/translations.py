@@ -277,6 +277,17 @@ def translate_book_title(book_title: str) -> str:
         "싯다르타": "Siddhartha",
         "싯다르타_": "Siddhartha",
         "Siddhartha": "Siddhartha",
+        "칼 세이건 코스모스": "Cosmos",
+        "칼_세이건_코스모스": "Cosmos",
+        "코스모스": "Cosmos",
+        "코스모스 : 광활한 우주에서 나는 어떤 존재인가?": "Cosmos: What Am I in the Vast Universe?",
+        "코스모스_광활한_우주에서_나는_어떤_존재인가": "Cosmos_What_Am_I_in_the_Vast_Universe",
+        "Cosmos": "Cosmos",
+        "Cosmos: What Am I in the Vast Universe?": "Cosmos: What Am I in the Vast Universe?",
+        "굿모닝 미드나잇": "Good Morning, Midnight",
+        "굿모닝_미드나잇": "Good_Morning_Midnight",
+        "Good Morning, Midnight": "Good Morning, Midnight",
+        "Good Morning Midnight": "Good Morning, Midnight",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -556,6 +567,14 @@ def translate_author_name(author: str) -> str:
         "마르크스": "Karl Marx",
         "Karl Marx": "Karl Marx",
         "Marx": "Karl Marx",
+        "칼 세이건": "Carl Sagan",
+        "칼_세이건": "Carl Sagan",
+        "Carl Sagan": "Carl Sagan",
+        "Sagan": "Carl Sagan",
+        "진 리스": "Jean Rhys",
+        "진_리스": "Jean Rhys",
+        "Jean Rhys": "Jean Rhys",
+        "Rhys": "Jean Rhys",
     }
     
     if author in author_map:

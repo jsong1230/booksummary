@@ -179,21 +179,16 @@ def _generate_timestamps_section(timestamps: Optional[Dict] = None, lang: str = 
     # 첫 번째 timestamp: Summary 끝나고 NotebookLM Video 시작
     timestamp1 = summary_duration
     
-    # 두 번째 timestamp: NotebookLM Video 끝나고 Review Audio 시작
-    timestamp2 = summary_duration + silence_duration + notebooklm_duration
-    
     if lang == "ko":
         section = "\n⏱️ 영상 구간:\n"
         section += f"0:00 - 요약 (Summary)\n"
         if notebooklm_duration > 0:
             section += f"{_format_timestamp(timestamp1)} - NotebookLM 상세 분석\n"
-        section += f"{_format_timestamp(timestamp2)} - 오디오 리뷰 (Audio Review)\n"
     else:  # en
         section = "\n⏱️ Video Chapters:\n"
         section += f"0:00 - Summary\n"
         if notebooklm_duration > 0:
             section += f"{_format_timestamp(timestamp1)} - NotebookLM Detailed Analysis\n"
-        section += f"{_format_timestamp(timestamp2)} - Audio Review\n"
     
     return section
 
@@ -232,15 +227,6 @@ def _generate_youtube_chapters(timestamps: Optional[Dict] = None, lang: str = "k
             chapters.append(f"{timestamp1} NotebookLM 상세 분석")
         else:
             chapters.append(f"{timestamp1} NotebookLM Detailed Analysis")
-    
-    # 세 번째 챕터: Review Audio (있는 경우)
-    timestamp2 = summary_duration + silence_duration + notebooklm_duration
-    if timestamp2 > summary_duration:  # Review Audio가 있는 경우
-        timestamp2_str = _format_timestamp(timestamp2)
-        if lang == "ko":
-            chapters.append(f"{timestamp2_str} 오디오 리뷰 (Audio Review)")
-        else:
-            chapters.append(f"{timestamp2_str} Audio Review")
     
     # YouTube 챕터 형식으로 반환 (각 챕터는 새 줄에)
     return "\n".join(chapters) + "\n\n"
