@@ -1985,3 +1985,22 @@
 - **수정된 파일**:
   - `src/utils/translations.py`: 공자 논어 번역 매핑 추가
   - `data/ildangbaek_books.csv`: 논어 업로드 정보 업데이트
+
+### 스토너 롱폼 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 존 윌리엄스 "스토너" 롱폼 한글/영문 영상 제작
+  - Summary 오디오 + NotebookLM 비디오 합성
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 스토너 번역 매핑 추가
+    - "스토너" ↔ "Stoner"
+    - "존 윌리엄스" ↔ "John Williams"
+- **생성된 영상**:
+  - 한글: `output/Stoner_kr.mp4` (251MB)
+  - 영문: `output/Stoner_en.mp4` (295MB)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=RbESiTBNhn8
+  - 영문: https://www.youtube.com/watch?v=m5PvzWsdWqA
+- **수정된 파일**:
+  - `src/utils/translations.py`: 스토너 및 존 윌리엄스 번역 매핑 추가
+  - `data/ildangbaek_books.csv`: 스토너 업로드 정보 업데이트

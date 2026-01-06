@@ -265,6 +265,9 @@ def translate_book_title(book_title: str) -> str:
         "공자_논어論語_세상에서_가장_오래된_베스트셀러_겸_스테디셀러": "The_Analects",
         "The Analects": "The Analects",
         "Analects of Confucius": "The Analects",
+        "스토너": "Stoner",
+        "스토너_": "Stoner",
+        "Stoner": "Stoner",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -424,6 +427,8 @@ def translate_author_name(author: str) -> str:
         "Viktor E. Frankl": "Viktor E. Frankl",
         "공자": "Confucius",
         "Confucius": "Confucius",
+        "존 윌리엄스": "John Williams",
+        "John Williams": "John Williams",
         "이선 몰릭": "Ethan Mollick",
         "Ethan Mollick": "Ethan Mollick",
         "제임스 클리어": "James Clear",
