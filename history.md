@@ -2025,3 +2025,21 @@
 - **수정된 파일**:
   - `src/utils/translations.py`: 푸틴 및 마이클 울프 번역 매핑 추가
   - `data/ildangbaek_books.csv`: 푸틴 업로드 정보 업데이트
+
+### 싯다르타 – 헤르만 헤세 롱폼 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 싯다르타 – 헤르만 헤세 한글/영문 롱폼 영상 제작
+  - Summary(5분) + NotebookLM Video + Review 구조로 제작
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 싯다르타 번역 매핑 추가
+    - "싯다르타" ↔ "Siddhartha"
+- **생성된 영상**:
+  - 한글: `output/Siddhartha_kr.mp4` (299MB)
+  - 영문: `output/Siddhartha_en.mp4` (259MB)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=pBbcaP74Ilw
+  - 영문: https://www.youtube.com/watch?v=iWotek3rcTM
+- **수정된 파일**:
+  - `src/utils/translations.py`: 싯다르타 번역 매핑 추가
+  - `data/ildangbaek_books.csv`: 싯다르타 업로드 정보 업데이트

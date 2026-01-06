@@ -274,6 +274,9 @@ def translate_book_title(book_title: str) -> str:
         "화염과 분노-트럼프 백악관의 내부": "Fire and Fury: Inside the Trump White House",
         "화염과_분노_트럼프_백악관의_내부": "Fire_and_Fury_Inside_the_Trump_White_House",
         "화염과 분노": "Fire and Fury",
+        "싯다르타": "Siddhartha",
+        "싯다르타_": "Siddhartha",
+        "Siddhartha": "Siddhartha",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
