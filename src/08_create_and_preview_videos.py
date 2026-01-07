@@ -37,11 +37,12 @@ VideoMaker = make_video_module.VideoMaker
 from utils.translations import translate_book_title, translate_author_name, get_book_alternative_title, translate_book_title_to_korean, is_english_title, translate_author_name_to_korean
 from utils.file_utils import safe_title, load_book_info, get_standard_safe_title
 
-def generate_title(book_title: str, lang: str = "both") -> str:
+def generate_title(book_title: str, lang: str = "both", author: Optional[str] = None) -> str:
     """
     영상 제목 생성 (SEO 최적화 포함)
     - 검색 키워드 포함 (책 제목, 저자명, "책 리뷰")
     - 두 언어 포함, 언어 표시 포함, 대체 제목 포함
+    - 검색량 높은 키워드를 앞쪽에 배치하여 검색 최적화
     """
     # 괄호 안의 한글 추출 (예: "Sátántangó (사탄탱고)" -> ko_title="사탄탱고", en_title="Sátántangó")
     import re
@@ -102,19 +103,36 @@ def generate_title(book_title: str, lang: str = "both") -> str:
     
     alt_titles = get_book_alternative_title(ko_title)  # 한글 제목 기준으로 대체 제목 찾기
     
+    # 작가 이름 추가 (검색 최적화)
+    author_str = ""
+    if author:
+        if is_english_title(author):
+            ko_author = translate_author_name_to_korean(author)
+            en_author = author
+        else:
+            ko_author = author
+            en_author = translate_author_name(author)
+    else:
+        ko_author = ""
+        en_author = ""
+    
     if lang == "ko":
         # 한글 먼저, 영어 나중
-        # 한글 부분: [한국어], 영어 부분: [Korean]
+        # SEO 최적화: 검색량 높은 키워드 앞쪽 배치
+        # 형식: "[한국어] {책제목} 책 리뷰 {작가명} | [Korean] {영어제목} Book Review"
         if alt_titles.get("ko"):
             # 대체 제목 포함: "노르웨이의 숲 (상실의 시대)"
             main_title = f"{ko_title} ({alt_titles['ko']})"
         else:
             main_title = ko_title
-        return f"[한국어] {main_title} 책 리뷰 | [Korean] {en_title} Book Review"
+        
+        # 작가명 추가 (검색 최적화)
+        author_part = f" {ko_author}" if ko_author else ""
+        return f"[한국어] {main_title} 책 리뷰{author_part} | [Korean] {en_title} Book Review"
     elif lang == "en":
         # 영어 먼저, 한글 나중
-        # 영어 부분: [English], 한글 부분: [영어]
-        # 중요: 한글 부분에는 반드시 한글 제목이 들어가야 함
+        # SEO 최적화: 검색량 높은 키워드 앞쪽 배치
+        # 형식: "[English] {영어제목} Book Review {작가명} | [영어] {한글제목} 책 리뷰"
         if alt_titles.get("en"):
             # 대체 제목 포함: "Norwegian Wood (The Age of Loss)"
             en_main_title = f"{en_title} ({alt_titles['en']})"
@@ -128,7 +146,9 @@ def generate_title(book_title: str, lang: str = "both") -> str:
         else:
             ko_main_title = ko_title
         
-        return f"[English] {en_main_title} Book Review | [영어] {ko_main_title} 책 리뷰"
+        # 작가명 추가 (검색 최적화)
+        author_part = f" {en_author}" if en_author else ""
+        return f"[English] {en_main_title} Book Review{author_part} | [영어] {ko_main_title} 책 리뷰"
     else:
         return f"{ko_title} 책 리뷰 | {en_title} Book Review | 일당백 스타일"
 
@@ -238,14 +258,16 @@ def _generate_description_ko(book_info: Optional[Dict] = None, book_title: str =
     if timestamps:
         youtube_chapters = _generate_youtube_chapters(timestamps, lang="ko")
     
-    # 한글 부분
-    ko_desc = youtube_chapters + """📚 책 리뷰 영상
+    # 한글 부분 (검색 최적화: 키워드 자연스럽게 포함)
+    ko_desc = youtube_chapters + """📚 책 리뷰 영상 | 독서 | 북튜버 | 책추천
 
 이 영상은 NotebookLM과 AI를 활용하여 자동으로 생성되었습니다.
 
 📝 영상 구성:
-• GPT로 생성한 소설 요약 (약 5분)
-• NotebookLM 비디오 (상세 분석)
+• GPT로 생성한 책 요약 (약 5분) - 핵심 내용 정리
+• NotebookLM 비디오 (상세 분석) - 작가 배경 및 작품 해석
+
+이 책 리뷰 영상은 독서에 관심 있는 분들을 위해 제작되었습니다. 책을 읽기 전 미리보기나 읽은 후 정리용으로 활용하실 수 있습니다.
 
 """
     
@@ -275,8 +297,8 @@ def _generate_description_ko(book_info: Optional[Dict] = None, book_title: str =
         if "📖 책 소개:" not in ko_desc:
             # 한글 description이 없거나 영어 description만 있는 경우
             if book_title:
-                # description이 없으면 기본 메시지
-                ko_desc += f"📖 책 소개:\n{book_title}에 대한 책 리뷰 영상입니다.\n\n"
+                # description이 없으면 검색 최적화된 기본 메시지
+                ko_desc += f"📖 책 소개:\n{book_title}에 대한 상세한 책 리뷰 영상입니다. 이 영상에서는 {book_title}의 주요 내용, 작가의 배경, 작품의 의미 등을 분석합니다. 독서 전 예습이나 독서 후 복습에 활용하실 수 있습니다.\n\n"
         if book_info.get('authors'):
             # 한글과 영어 작가 이름 모두 표시
             authors_ko = []
@@ -336,14 +358,16 @@ def _generate_description_ko(book_info: Optional[Dict] = None, book_title: str =
 #책리뷰 #독서 #북튜버 #책추천 #BookReview #Reading
 """
     
-    # 영어 부분
-    en_desc = """📚 Book Review Video
+    # 영어 부분 (검색 최적화: 키워드 자연스럽게 포함)
+    en_desc = """📚 Book Review Video | Reading | BookTube | Book Recommendation
 
 This video was automatically generated using NotebookLM and AI.
 
 📝 Video Content:
-• Book summary generated by GPT (approximately 5 minutes)
-• NotebookLM Video (Detailed Analysis)
+• Book summary generated by GPT (approximately 5 minutes) - Key points and highlights
+• NotebookLM Video (Detailed Analysis) - Author background and literary interpretation
+
+This book review video is created for book lovers and reading enthusiasts. You can use it as a preview before reading or as a review after reading.
 
 """
     if book_info:
@@ -434,13 +458,15 @@ def _generate_description_en(book_info: Optional[Dict] = None, book_title: str =
     description = ""
     
     if include_header:
-        description = youtube_chapters + """📚 Book Review Video
+        description = youtube_chapters + """📚 Book Review Video | Reading | BookTube | Book Recommendation
 
 This video was automatically generated using NotebookLM and AI.
 
 📝 Video Content:
-• Book summary generated by GPT (approximately 5 minutes)
-• NotebookLM Video (Detailed Analysis)
+• Book summary generated by GPT (approximately 5 minutes) - Key points and highlights
+• NotebookLM Video (Detailed Analysis) - Author background and literary interpretation
+
+This book review video is created for book lovers and reading enthusiasts. You can use it as a preview before reading or as a review after reading.
 
 """
         
@@ -619,11 +645,91 @@ def _generate_description_en_with_ko(book_info: Optional[Dict] = None, book_titl
     # 영어 먼저, 한글 나중
     return f"{en_desc}\n\n{'='*60}\n\n{ko_desc}"
 
+def detect_genre_tags(book_info: Optional[Dict] = None, book_title: str = None) -> Tuple[list, list]:
+    """
+    책의 장르를 감지하여 장르별 특화 태그 생성
+    
+    Returns:
+        (한글_장르_태그_리스트, 영문_장르_태그_리스트)
+    """
+    ko_genre_tags = []
+    en_genre_tags = []
+    
+    if not book_info:
+        return ko_genre_tags, en_genre_tags
+    
+    description = book_info.get('description', '').lower() if book_info.get('description') else ''
+    categories = [cat.lower() for cat in book_info.get('categories', [])] if book_info.get('categories') else []
+    all_text = ' '.join([description] + categories).lower()
+    
+    # 장르별 태그 매핑
+    genre_mapping = {
+        # 소설/문학
+        ('소설', 'novel', 'fiction', 'literature', 'literary'): {
+            'ko': ['소설', '문학', '소설리뷰', '문학작품', '고전소설', '현대소설', '문학강의', '소설분석'],
+            'en': ['Novel', 'Fiction', 'Literature', 'LiteraryFiction', 'ClassicNovel', 'ModernNovel', 'LiteraryAnalysis']
+        },
+        # 논픽션
+        ('논픽션', 'non-fiction', 'nonfiction', 'essay'): {
+            'ko': ['논픽션', '에세이', '수필', '비소설', '인문학', '교양서'],
+            'en': ['NonFiction', 'Essay', 'NonFictionBook', 'Humanities', 'Educational']
+        },
+        # 철학
+        ('철학', 'philosophy', 'philosophical'): {
+            'ko': ['철학', '철학서', '철학책', '인문학', '사상서'],
+            'en': ['Philosophy', 'Philosophical', 'PhilosophyBook', 'PhilosophyDiscussion']
+        },
+        # 과학
+        ('과학', 'science', 'scientific', 'cosmos', 'physics'): {
+            'ko': ['과학', '과학서', '과학책', '과학도서', '과학강의'],
+            'en': ['Science', 'ScienceBook', 'Scientific', 'ScienceEducation', 'Cosmos']
+        },
+        # 역사
+        ('역사', 'history', 'historical'): {
+            'ko': ['역사', '역사서', '역사책', '역사도서'],
+            'en': ['History', 'Historical', 'HistoryBook', 'HistoricalBook']
+        },
+        # 심리학
+        ('심리', 'psychology', 'psychological'): {
+            'ko': ['심리학', '심리서', '심리책', '심리도서'],
+            'en': ['Psychology', 'PsychologyBook', 'Psychological', 'MentalHealth']
+        },
+        # 자기계발
+        ('자기계발', 'self-help', 'selfhelp', 'development', 'improvement'): {
+            'ko': ['자기계발', '성장', '개발서', '성공서'],
+            'en': ['SelfHelp', 'SelfDevelopment', 'PersonalGrowth', 'SuccessBook']
+        },
+        # 시
+        ('시', 'poetry', 'poem', 'poet'): {
+            'ko': ['시', '시집', '시인', '시문학'],
+            'en': ['Poetry', 'Poem', 'PoetryCollection', 'Poet']
+        },
+    }
+    
+    # 장르 감지 및 태그 추가
+    for keywords, tags in genre_mapping.items():
+        if any(keyword in all_text for keyword in keywords):
+            ko_genre_tags.extend(tags['ko'][:3])  # 최대 3개
+            en_genre_tags.extend(tags['en'][:3])  # 최대 3개
+            break  # 첫 번째 매칭 장르만 사용
+    
+    return ko_genre_tags, en_genre_tags
+
 def generate_tags(book_title: str = None, book_info: Optional[Dict] = None, lang: str = "both") -> list:
-    """태그 생성 (책 정보 활용, 두 언어 포함)"""
-    # 기본 태그 (SEO 최적화 - 검색 키워드 중심)
-    ko_base_tags = ['책리뷰', '독서', '북튜버', '책추천', '일당백', '독서법', '책읽기', '리뷰영상', '책요약', '독서후기', '문학', '소설리뷰']
-    en_base_tags = ['BookReview', 'Reading', 'BookTube', 'BookRecommendation', 'ReadingTips', 'Books', 'ReviewVideo', 'BookSummary', 'Literature', 'BookDiscussion']
+    """태그 생성 (책 정보 활용, 두 언어 포함, 검색 최적화)"""
+    # 기본 태그 (SEO 최적화 - 검색 키워드 중심, 검색량 높은 순서)
+    ko_base_tags = [
+        '책리뷰', '독서', '북튜버', '책추천', '독서법', '책읽기', 
+        '리뷰영상', '책요약', '독서후기', '문학', '소설리뷰',
+        '책분석', '독서모임', '책토론', '문학강의', '책읽는법',
+        '독서습관', '책추천채널', '북크리에이터', '독서유튜버'
+    ]
+    en_base_tags = [
+        'BookReview', 'Reading', 'BookTube', 'BookRecommendation', 'ReadingTips', 
+        'Books', 'ReviewVideo', 'BookSummary', 'Literature', 'BookDiscussion',
+        'BookAnalysis', 'BookClub', 'LiteraryAnalysis', 'ReadingHabit', 'BookYouTuber',
+        'BookCreator', 'ReadingYouTuber', 'LiteratureReview', 'BookRecommendation'
+    ]
     
     # 추천 기관/상/대학 태그 (일반적으로 유용한 태그들)
     # 책의 특성에 따라 선택적으로 추가될 수 있음
@@ -777,10 +883,35 @@ def generate_tags(book_title: str = None, book_info: Optional[Dict] = None, lang
             else:
                 ko_book_tags.append(category)
     
-    # 태그 결합 (중복 제거)
-    # 기관 태그를 기본 태그와 책 태그 사이에 추가 (우선순위 고려)
-    ko_tags = list(dict.fromkeys(ko_base_tags + institution_tags_ko + ko_book_tags))  # 순서 유지하며 중복 제거
-    en_tags = list(dict.fromkeys(en_base_tags + institution_tags_en + en_book_tags))
+    # 장르별 특화 태그 추가
+    ko_genre_tags, en_genre_tags = detect_genre_tags(book_info, book_title)
+    
+    # 트렌딩/검색량 높은 키워드 태그 추가
+    ko_trending_tags = [
+        '책추천2024', '독서챌린지', '책읽기습관', '독서모임', '문학토론',
+        '책리뷰채널', '북튜버추천', '독서법추천', '책읽는법', '독서습관만들기'
+    ]
+    en_trending_tags = [
+        'BookRecommendation2024', 'ReadingChallenge', 'BookClub', 'LiteraryDiscussion',
+        'BookReviewChannel', 'BookTubeRecommendation', 'ReadingMethod', 'HowToRead'
+    ]
+    
+    # 태그 결합 (중복 제거, 우선순위: 기본 > 장르 > 기관 > 책제목/작가 > 트렌딩)
+    # 기관 태그는 검색 최적화에 중요하므로 중간에 배치
+    ko_tags = list(dict.fromkeys(
+        ko_base_tags[:12] +  # 기본 태그 (검색량 높은 것 우선)
+        ko_genre_tags +      # 장르 태그
+        institution_tags_ko[:5] +  # 기관 태그 (최대 5개)
+        ko_book_tags +       # 책 제목/작가 태그
+        ko_trending_tags[:3]  # 트렌딩 태그 (최대 3개)
+    ))
+    en_tags = list(dict.fromkeys(
+        en_base_tags[:12] +  # 기본 태그
+        en_genre_tags +      # 장르 태그
+        institution_tags_en[:5] +  # 기관 태그 (최대 5개)
+        en_book_tags +       # 책 제목/작가 태그
+        en_trending_tags[:3]  # 트렌딩 태그 (최대 3개)
+    ))
     
     # YouTube 태그 제한 (최대 500자, 약 30-40개 태그)
     # 각 태그는 보통 10-15자이므로 최대 30개 정도로 제한
@@ -1076,7 +1207,7 @@ def main():
         video_path_ko = Path(f"output/{safe_title_str}_kr.mp4")
         
         print("📋 한글 메타데이터 생성 중...")
-        title_ko = generate_title(args.book_title, lang='ko')
+        title_ko = generate_title(args.book_title, lang='ko', author=args.author)
         # Timestamp 계산 (영상 파일이 있으면)
         timestamps_ko = None
         if video_path_ko.exists():
@@ -1102,7 +1233,7 @@ def main():
         video_path_en = Path(f"output/{safe_title_str}_en.mp4")
         
         print("\n📋 영문 메타데이터 생성 중...")
-        title_en = generate_title(args.book_title, lang='en')
+        title_en = generate_title(args.book_title, lang='en', author=args.author)
         # Timestamp 계산 (영상 파일이 있으면)
         timestamps_en = None
         if video_path_en.exists():
@@ -1197,8 +1328,8 @@ def main():
             print()
         
         # 메타데이터 생성
-        title = generate_title(args.book_title, lang="ko")
-        description = generate_description(book_info, lang="ko", book_title=args.book_title)
+        title = generate_title(args.book_title, lang="ko", author=args.author)
+        description = generate_description(book_info, lang="ko", book_title=args.book_title, author=args.author)
         tags = generate_tags(book_title=args.book_title, book_info=book_info, lang="ko")
         
         # 메타데이터 미리보기
@@ -1289,8 +1420,8 @@ def main():
             print()
         
         # 메타데이터 생성
-        title = generate_title(args.book_title, lang="en")
-        description = generate_description(book_info, lang="en", book_title=args.book_title)
+        title = generate_title(args.book_title, lang="en", author=args.author)
+        description = generate_description(book_info, lang="en", book_title=args.book_title, author=args.author)
         tags = generate_tags(book_title=args.book_title, book_info=book_info, lang="en")
         
         # 메타데이터 미리보기
