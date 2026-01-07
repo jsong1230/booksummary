@@ -1,6 +1,24 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
-## 2026-01-03
+## 2026-01-07
+
+### 어니스트 헤밍웨이 "무기여 잘 있거라" 일당백 스타일 영상 제작
+- **작업 내용**:
+  - 어니스트 헤밍웨이 "무기여 잘 있거라" 일당백 스타일 한글/영문 롱폼 영상 제작
+  - 인포그래픽 표시 시간 30초로 설정 (사용자 요청 반영)
+  - Part 2개 자동 처리 및 영상 합성 완료
+  - 한글/영문 메타데이터 및 썸네일(JPG) 생성 완료
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 "무기여 잘 있거라" ↔ "A Farewell to Arms" 매핑 추가
+  - **파일 구조화**: `input/` 폴더 내 파일을 `assets/notebooklm/A_Farewell_to_Arms/`로 이동 및 표준화
+- **생성된 영상**:
+  - 한글: `output/A_Farewell_to_Arms_full_episode_ko.mp4` (827.49초, 약 13.79분)
+  - 영문: `output/A_Farewell_to_Arms_full_episode_en.mp4` (887.79초, 약 14.80분)
+- **생성된 메타데이터**:
+  - 한글: `output/A_Farewell_to_Arms_full_episode_ko.metadata.json`
+  - 영문: `output/A_Farewell_to_Arms_full_episode_en.metadata.json`
+
+## 2026-01-07
 
 ### 세르반테스 돈키호테 일당백 스타일 영상 제작 및 YouTube 업로드
 - **작업 내용**:
@@ -2128,3 +2146,23 @@
 - **수정된 파일**:
   - `src/08_create_and_preview_videos.py`: 검색 최적화 기능 추가
   - `docs/SEARCH_OPTIMIZATION_GUIDE.md`: 검색 최적화 가이드 문서 (신규)
+
+## 2026-01-07
+
+### YouTube 업로드 완료
+- 업로드된 책: Security_Analysis
+- 업로드된 영상 수: 2개
+- [1] [Summary] Security Analysis Book Review Benjamin Graham & David Dodd | [핵심 요약] Security Analysis ...
+  - URL: https://www.youtube.com/watch?v=rqxvqqMimYw
+- [2] [핵심 요약] Security Analysis 핵심 정리 Benjamin Graham & David Dodd | [Summary] Security Analysis Book R...
+  - URL: https://www.youtube.com/watch?v=LlISSjlhWOA
+
+## 2026-01-07
+
+### YouTube 업로드 완료
+- 업로드된 책: A_Farewell_to_Arms_full_episode, A_Farewell_to_Arms_full_episode_ko
+- 업로드된 영상 수: 2개
+- [1] [English] A Farewell to Arms Book Review | [영어] 무기여 잘 있거라 책 리뷰
+  - URL: https://www.youtube.com/watch?v=6p6DNfwTKkA
+- [2] [한국어] 무기여 잘 있거라 책 리뷰 | [Korean] A Farewell to Arms Book Review
+  - URL: https://www.youtube.com/watch?v=whTVsq-_8vg

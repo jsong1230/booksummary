@@ -253,6 +253,13 @@ class MultiTTSEngine:
                 voice = "ko-KR-Neural2-A"  # 여성 음성 (기본값)
             else:
                 voice = "en-US-Neural2-A"  # 여성 음성 (기본값)
+                voice = "en-US-Neural2-A"  # 여성 음성 (기본값)
+        
+        # 길이 제한 확인 (5000 바이트)
+        # 안전하게 한글 기준 1500자, 영문 기준 4500자 정도로 설정
+        MAX_CHARS = 1500
+        if len(text) > MAX_CHARS:
+            return self._generate_google_long(text, output_path, voice, lang_code, MAX_CHARS)
         
         synthesis_input = texttospeech.SynthesisInput(text=text)
         voice_config = texttospeech.VoiceSelectionParams(
@@ -273,6 +280,87 @@ class MultiTTSEngine:
         
         with open(output_path, 'wb') as f:
             f.write(response.audio_content)
+        
+        print(f"✅ 음성 생성 완료: {output_path}")
+        return output_path
+    
+    def _generate_google_long(self, text: str, output_path: str, voice: str, lang_code: str, max_chars: int) -> str:
+        """Google TTS 긴 텍스트 처리"""
+        import re
+        sentences = re.split(r'([.!?]\s+)', text)
+        chunks = []
+        current_chunk = ""
+        
+        for i in range(0, len(sentences), 2):
+            sentence = sentences[i] + (sentences[i+1] if i+1 < len(sentences) else "")
+            if len(current_chunk) + len(sentence) <= max_chars:
+                current_chunk += sentence
+            else:
+                if current_chunk:
+                    chunks.append(current_chunk)
+                current_chunk = sentence if len(sentence) <= max_chars else sentence[:max_chars]
+        
+        if current_chunk:
+            chunks.append(current_chunk)
+        
+        print(f"   📦 {len(chunks)}개의 청크로 분할됨")
+        
+        audio_files = []
+        
+        # 음성 설정
+        voice_config = texttospeech.VoiceSelectionParams(
+            language_code=lang_code,
+            name=voice,
+        )
+        audio_config = texttospeech.AudioConfig(
+            audio_encoding=texttospeech.AudioEncoding.MP3,
+            speaking_rate=1.0,
+            pitch=0.0,
+        )
+        
+        for i, chunk in enumerate(chunks):
+            print(f"   [{i+1}/{len(chunks)}] 청크 생성 중... ({len(chunk)}자)")
+            temp_audio_path = output_path.replace('.mp3', f'_temp_{i}.mp3')
+            
+            synthesis_input = texttospeech.SynthesisInput(text=chunk)
+            
+            response = self.google_client.synthesize_speech(
+                input=synthesis_input,
+                voice=voice_config,
+                audio_config=audio_config
+            )
+            
+            with open(temp_audio_path, 'wb') as f:
+                f.write(response.audio_content)
+            
+            audio_files.append(temp_audio_path)
+        
+        # 오디오 파일 연결
+        print(f"   🔗 {len(audio_files)}개의 오디오 파일 연결 중...")
+        try:
+            from moviepy.editor import AudioFileClip, concatenate_audioclips
+            audio_clips = [AudioFileClip(f) for f in audio_files]
+            final_audio = concatenate_audioclips(audio_clips)
+            final_audio.write_audiofile(output_path, codec='mp3', bitrate='192k')
+            for f in audio_files:
+                Path(f).unlink()
+            for clip in audio_clips:
+                clip.close()
+            final_audio.close()
+        except ImportError:
+            import subprocess
+            temp_list_file = output_path.replace('.mp3', '_temp_list.txt')
+            with open(temp_list_file, 'w') as f:
+                for audio_file in audio_files:
+                    f.write(f"file '{Path(audio_file).absolute()}'\n")
+            subprocess.run([
+                'ffmpeg', '-y', '-f', 'concat', '-safe', '0',
+                '-i', temp_list_file,
+                '-c', 'copy', output_path
+            ], check=True, capture_output=True)
+            Path(temp_list_file).unlink()
+            for f in audio_files:
+                Path(f).unlink()
         
         print(f"✅ 음성 생성 완료: {output_path}")
         return output_path

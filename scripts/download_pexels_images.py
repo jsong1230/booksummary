@@ -21,7 +21,7 @@ except ImportError:
 
 load_dotenv()
 
-def download_pexels_images(book_title: str, target_count: int = 100):
+def download_pexels_images(book_title: str, target_count: int = 100, query: str = None):
     """Pexels API로 무드 이미지 다운로드"""
     from src.utils.file_utils import safe_title
     
@@ -52,28 +52,11 @@ def download_pexels_images(book_title: str, target_count: int = 100):
     print()
     
     # 키워드 리스트 (책 내용 기반)
-    keywords = [
-        "dystopian future",
-        "post-apocalyptic",
-        "survival",
-        "teenage rebellion",
-        "oppression",
-        "government control",
-        "hunger games",
-        "arena battle",
-        "young adult dystopia",
-        "resistance",
-        "tyranny",
-        "desperate fight",
-        "futuristic society",
-        "teenage warriors",
-        "life or death",
-        "televised competition",
-        "forced competition",
-        "survival instinct",
-        "rebellion",
-        "hope in darkness"
-    ]
+    if query:
+        keywords = [k.strip() for k in query.split(',')]
+    else:
+        # 기본값 (하드코딩된 리스트 대신 제목 사용 등)
+        keywords = [book_title]
     
     pexels = PexelsAPI(pexels_api_key)
     downloaded = []
@@ -151,7 +134,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Pexels API로 추가 이미지 다운로드')
     parser.add_argument('--title', type=str, default='Sunrise on the Reaping', help='책 제목')
     parser.add_argument('--target', type=int, default=100, help='목표 이미지 개수')
+    parser.add_argument('--query', type=str, help='검색 키워드 (콤마로 구분)')
     
     args = parser.parse_args()
     
-    download_pexels_images(args.title, args.target)
+    download_pexels_images(args.title, args.target, args.query)

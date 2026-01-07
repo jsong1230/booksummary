@@ -18,8 +18,8 @@ from dotenv import load_dotenv
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # 공통 유틸리티 import
-from utils.translations import translate_book_title, translate_author_name, translate_book_title_to_korean, is_english_title, translate_author_name_to_korean
-from utils.file_utils import safe_title, load_book_info
+from src.utils.translations import translate_book_title, translate_author_name, translate_book_title_to_korean, is_english_title, translate_author_name_to_korean
+from src.utils.file_utils import safe_title, load_book_info
 
 load_dotenv()
 

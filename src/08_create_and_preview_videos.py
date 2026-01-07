@@ -8,8 +8,9 @@
 
 import sys
 import json
+from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict, Tuple
+from typing import Optional, Dict, Tuple, List
 
 # 상위 디렉토리를 path에 추가
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -34,8 +35,8 @@ spec.loader.exec_module(make_video_module)
 VideoMaker = make_video_module.VideoMaker
 
 # 공통 유틸리티 import
-from utils.translations import translate_book_title, translate_author_name, get_book_alternative_title, translate_book_title_to_korean, is_english_title, translate_author_name_to_korean
-from utils.file_utils import safe_title, load_book_info, get_standard_safe_title
+from src.utils.translations import translate_book_title, translate_author_name, get_book_alternative_title, translate_book_title_to_korean, is_english_title, translate_author_name_to_korean
+from src.utils.file_utils import safe_title, load_book_info, get_standard_safe_title
 
 def generate_title(book_title: str, lang: str = "both", author: Optional[str] = None) -> str:
     """
@@ -126,13 +127,13 @@ def generate_title(book_title: str, lang: str = "both", author: Optional[str] = 
         else:
             main_title = ko_title
         
-        # 작가명 추가 (검색 최적화)
+        # 작가명 추가 (검색량 최적화)
         author_part = f" {ko_author}" if ko_author else ""
-        return f"[한국어] {main_title} 책 리뷰{author_part} | [Korean] {en_title} Book Review"
+        title = f"[핵심 요약] {main_title} 핵심 정리{author_part} | [Summary] {en_title} Book Review"
     elif lang == "en":
         # 영어 먼저, 한글 나중
         # SEO 최적화: 검색량 높은 키워드 앞쪽 배치
-        # 형식: "[English] {영어제목} Book Review {작가명} | [영어] {한글제목} 책 리뷰"
+        # 형식: "[Summary] {영어제목} Book Review {작가명} | [핵심 요약] {한글제목}"
         if alt_titles.get("en"):
             # 대체 제목 포함: "Norwegian Wood (The Age of Loss)"
             en_main_title = f"{en_title} ({alt_titles['en']})"
@@ -148,9 +149,15 @@ def generate_title(book_title: str, lang: str = "both", author: Optional[str] = 
         
         # 작가명 추가 (검색 최적화)
         author_part = f" {en_author}" if en_author else ""
-        return f"[English] {en_main_title} Book Review{author_part} | [영어] {ko_main_title} 책 리뷰"
+        title = f"[Summary] {en_main_title} Book Review{author_part} | [핵심 요약] {ko_main_title} 핵심 정리"
     else:
-        return f"{ko_title} 책 리뷰 | {en_title} Book Review | 일당백 스타일"
+        # 두 언어 혼합 (기본값)
+        title = f"[핵심 요약] {ko_title} | [Summary] {en_title} Book Review"
+
+    # YouTube 제목 최대 길이: 100자
+    if len(title) > 100:
+        title = title[:97] + "..."
+    return title
 
 def generate_description(book_info: Optional[Dict] = None, lang: str = "both", book_title: str = None, timestamps: Optional[Dict] = None, author: Optional[str] = None) -> str:
     """
@@ -258,17 +265,23 @@ def _generate_description_ko(book_info: Optional[Dict] = None, book_title: str =
     if timestamps:
         youtube_chapters = _generate_youtube_chapters(timestamps, lang="ko")
     
+    # 책 제목 준비
+    if is_english_title(book_title):
+        ko_title = translate_book_title_to_korean(book_title)
+    else:
+        ko_title = book_title
+    
     # 한글 부분 (검색 최적화: 키워드 자연스럽게 포함)
-    ko_desc = youtube_chapters + """📚 책 리뷰 영상 | 독서 | 북튜버 | 책추천
+    ko_desc = youtube_chapters + f"""📚 바쁜 현대인을 위한 핵심 요약 | {ko_title}
 
-이 영상은 NotebookLM과 AI를 활용하여 자동으로 생성되었습니다.
+이 영상은 NotebookLM과 AI를 활용하여 생성된 '핵심 요약' 영상입니다.
+바쁜 일상 속에서 잠시 시간을 내어 책의 핵심을 파악해보세요.
 
 📝 영상 구성:
-• GPT로 생성한 책 요약 (약 5분) - 핵심 내용 정리
-• NotebookLM 비디오 (상세 분석) - 작가 배경 및 작품 해석
+• 핵심 요약 (GPT 생성) - 책의 주요 메시지와 인사이트
+• 상세 심층 분석 (NotebookLM) - 작가의 의도와 깊이 있는 해석
 
-이 책 리뷰 영상은 독서에 관심 있는 분들을 위해 제작되었습니다. 책을 읽기 전 미리보기나 읽은 후 정리용으로 활용하실 수 있습니다.
-
+이 영상은 책의 내용을 빠르게 파악하고 싶거나, 읽은 내용을 정리하고 싶은 분들을 위해 제작되었습니다.
 """
     
     # Timestamp 섹션 추가 (중간에 표시용)
@@ -355,20 +368,20 @@ def _generate_description_ko(book_info: Optional[Dict] = None, book_title: str =
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-#책리뷰 #독서 #북튜버 #책추천 #BookReview #Reading
+#핵심요약 #책리뷰 #독서 #북튜버 #책추천 #지식창고 #BookSummary #Reading
 """
     
     # 영어 부분 (검색 최적화: 키워드 자연스럽게 포함)
-    en_desc = """📚 Book Review Video | Reading | BookTube | Book Recommendation
+    en_desc = """📚 5-Minute Book Summary | Reading | BookTube
 
-This video was automatically generated using NotebookLM and AI.
+This video is a 'Core Summary' generated using NotebookLM and AI.
+Grasp the essence of the book in just 5 minutes amidst your busy life.
 
 📝 Video Content:
-• Book summary generated by GPT (approximately 5 minutes) - Key points and highlights
-• NotebookLM Video (Detailed Analysis) - Author background and literary interpretation
+• 5-Minute Core Summary (GPT Generated) - Key messages and insights
+• Detailed Deep Analysis (NotebookLM) - Author's intent and in-depth interpretation
 
-This book review video is created for book lovers and reading enthusiasts. You can use it as a preview before reading or as a review after reading.
-
+This video is created for those who want to quickly grasp the book's content or organize what they've read.
 """
     if book_info:
         # 영어 책 소개 추가 (book_info의 description이 영어인 경우만 사용)
@@ -431,7 +444,7 @@ Feel free to share any questions or thoughts in the comments below! 💕
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-#BookReview #Reading #BookTube #BookRecommendation #책리뷰 #독서
+#BookSummary #Reading #BookTube #5minReading #Knowledge #책요약 #독서
 """
     
     # 한글 먼저, 영어 나중
@@ -444,6 +457,8 @@ def get_english_book_description(book_title: str) -> str:
     descriptions = {
         "노르웨이의 숲": """Norwegian Wood is a brilliant diamond in Haruki Murakami's world - the book you must read first to meet Murakami Haruki! This novel, which resonates with the sensitive and delicate emotions of youth, has been loved as an eternal must-read. Set in late 1960s Japan during the period of rapid economic growth, this novel depicts the fragile relationship between individuals and society, and the vivid moments of youth that seem within reach. Translated and introduced in more than 36 countries, it caused a worldwide 'Murakami boom' and widely publicized Murakami Haruki's literary achievements, making it a representative work of modern Japanese literature.""",
         "노르웨이의_숲": """Norwegian Wood is a brilliant diamond in Haruki Murakami's world - the book you must read first to meet Murakami Haruki! This novel, which resonates with the sensitive and delicate emotions of youth, has been loved as an eternal must-read. Set in late 1960s Japan during the period of rapid economic growth, this novel depicts the fragile relationship between individuals and society, and the vivid moments of youth that seem within reach. Translated and introduced in more than 36 countries, it caused a worldwide 'Murakami boom' and widely publicized Murakami Haruki's literary achievements, making it a representative work of modern Japanese literature.""",
+        "데미안": """Demian is a coming-of-age novel by Hermann Hesse that explores the tension between the world of illusion and the world of spiritual truth. It follows the story of Emil Sinclair, a young boy raised in a bourgeois home, who struggles to find his true self amidst the conflicting influences of his family and the mysterious Max Demian.""",
+        "사피엔스": """Sapiens: A Brief History of Humankind by Yuval Noah Harari explores how Homo sapiens came to dominate the world. The book covers the Cognitive Revolution, the Agricultural Revolution, and the Scientific Revolution, offering a thought-provoking perspective on human history and our future.""",
     }
     
     return descriptions.get(book_title, "")
@@ -458,16 +473,16 @@ def _generate_description_en(book_info: Optional[Dict] = None, book_title: str =
     description = ""
     
     if include_header:
-        description = youtube_chapters + """📚 Book Review Video | Reading | BookTube | Book Recommendation
+        description = youtube_chapters + """📚 Core Book Summary for Busy People | Reading | BookTube
 
-This video was automatically generated using NotebookLM and AI.
+This video is a 'Core Summary' generated using NotebookLM and AI.
+Grasp the essence of the book in a short time amidst your busy life.
 
 📝 Video Content:
-• Book summary generated by GPT (approximately 5 minutes) - Key points and highlights
-• NotebookLM Video (Detailed Analysis) - Author background and literary interpretation
+• Core Summary (GPT Generated) - Key messages and insights
+• Detailed Deep Analysis (NotebookLM) - Author's intent and in-depth interpretation
 
-This book review video is created for book lovers and reading enthusiasts. You can use it as a preview before reading or as a review after reading.
-
+This video is created for those who want to quickly grasp the book's content or organize what they've read.
 """
         
         # Timestamp 섹션 추가 (중간에 표시용)
@@ -556,7 +571,7 @@ Feel free to share any questions or thoughts in the comments below! 💕
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-#BookReview #Reading #BookTube #BookRecommendation #책리뷰 #독서
+#BookSummary #Reading #BookTube #CoreSummary #BookRecommendation #Knowledge
 """
     return description
 
@@ -566,13 +581,14 @@ def _generate_description_en_with_ko(book_info: Optional[Dict] = None, book_titl
     en_desc = _generate_description_en(book_info, book_title, include_header=True, timestamps=timestamps, author=author)
     
     # 한글 부분
-    ko_desc = """📚 책 리뷰 영상
+    ko_desc = """📚 5분 만에 읽는 책 | 바쁜 현대인을 위한 핵심 요약
 
-이 영상은 NotebookLM과 AI를 활용하여 자동으로 생성되었습니다.
+이 영상은 NotebookLM과 AI를 활용하여 생성된 '핵심 요약' 영상입니다.
+바쁜 일상 속에서 5분 투자로 책의 핵심을 파악해보세요.
 
 📝 영상 구성:
-• GPT로 생성한 소설 요약 (약 5분)
-• NotebookLM 비디오 (상세 분석)
+• 5분 핵심 요약 (GPT 생성) - 책의 주요 메시지와 인사이트
+• 상세 심층 분석 (NotebookLM) - 작가의 의도와 깊이 있는 해석
 
 """
     if book_info:
@@ -639,7 +655,7 @@ def _generate_description_en_with_ko(book_info: Optional[Dict] = None, book_titl
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-#책리뷰 #독서 #북튜버 #책추천 #BookReview #Reading
+#책요약 #독서 #북튜버 #5분독서 #지식창고 #BookSummary #Reading
 """
     
     # 영어 먼저, 한글 나중
@@ -719,16 +735,18 @@ def generate_tags(book_title: str = None, book_info: Optional[Dict] = None, lang
     """태그 생성 (책 정보 활용, 두 언어 포함, 검색 최적화)"""
     # 기본 태그 (SEO 최적화 - 검색 키워드 중심, 검색량 높은 순서)
     ko_base_tags = [
-        '책리뷰', '독서', '북튜버', '책추천', '독서법', '책읽기', 
-        '리뷰영상', '책요약', '독서후기', '문학', '소설리뷰',
-        '책분석', '독서모임', '책토론', '문학강의', '책읽는법',
-        '독서습관', '책추천채널', '북크리에이터', '독서유튜버'
+        '책요약', '핵심요약', '줄거리요약', '책리뷰', 
+        '독서', '북튜버', '책추천', '독서법', '책읽기', 
+        '리뷰영상', '독서후기', '인문학', '지식창고',
+        '책분석', '독서모임', '책토론', '책읽는법',
+        '독서습관', '자기계발', '북크리에이터'
     ]
     en_base_tags = [
-        'BookReview', 'Reading', 'BookTube', 'BookRecommendation', 'ReadingTips', 
-        'Books', 'ReviewVideo', 'BookSummary', 'Literature', 'BookDiscussion',
-        'BookAnalysis', 'BookClub', 'LiteraryAnalysis', 'ReadingHabit', 'BookYouTuber',
-        'BookCreator', 'ReadingYouTuber', 'LiteratureReview', 'BookRecommendation'
+        'BookSummary', 'CoreSummary', 'PlotSummary', 'BookReview',
+        'Reading', 'BookTube', 'BookRecommendation', 'ReadingTips', 
+        'Books', 'ReviewVideo', 'Literature', 'Knowledge', 
+        'BookAnalysis', 'BookClub', 'SelfImprovement', 'ReadingHabit', 
+        'BookCreator', 'LiteratureReview', 'ShortSummary'
     ]
     
     # 추천 기관/상/대학 태그 (일반적으로 유용한 태그들)
@@ -886,13 +904,16 @@ def generate_tags(book_title: str = None, book_info: Optional[Dict] = None, lang
     # 장르별 특화 태그 추가
     ko_genre_tags, en_genre_tags = detect_genre_tags(book_info, book_title)
     
+    # 현재 연도 가져오기
+    current_year = datetime.now().year
+    
     # 트렌딩/검색량 높은 키워드 태그 추가
     ko_trending_tags = [
-        '책추천2024', '독서챌린지', '책읽기습관', '독서모임', '문학토론',
+        f'책추천{current_year}', '독서챌린지', '책읽기습관', '독서모임', '문학토론',
         '책리뷰채널', '북튜버추천', '독서법추천', '책읽는법', '독서습관만들기'
     ]
     en_trending_tags = [
-        'BookRecommendation2024', 'ReadingChallenge', 'BookClub', 'LiteraryDiscussion',
+        f'BookRecommendation{current_year}', 'ReadingChallenge', 'BookClub', 'LiteraryDiscussion',
         'BookReviewChannel', 'BookTubeRecommendation', 'ReadingMethod', 'HowToRead'
     ]
     

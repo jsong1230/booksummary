@@ -32,11 +32,11 @@ generate_summary_module = importlib.util.module_from_spec(spec1)
 spec1.loader.exec_module(generate_summary_module)
 SummaryGenerator = generate_summary_module.SummaryGenerator
 
-# 09_text_to_speech 모듈 로드
-spec2 = importlib.util.spec_from_file_location("text_to_speech", Path(__file__).parent / "09_text_to_speech.py")
+# 09_text_to_speech_multi 모듈 로드
+spec2 = importlib.util.spec_from_file_location("text_to_speech_multi", Path(__file__).parent / "09_text_to_speech_multi.py")
 text_to_speech_module = importlib.util.module_from_spec(spec2)
 spec2.loader.exec_module(text_to_speech_module)
-TTSEngine = text_to_speech_module.TTSEngine
+MultiTTSEngine = text_to_speech_module.MultiTTSEngine
 
 # 03_make_video 모듈 로드
 spec3 = importlib.util.spec_from_file_location("make_video", Path(__file__).parent / "03_make_video.py")
@@ -53,7 +53,8 @@ class VideoWithSummaryPipeline:
     def __init__(self):
         self.logger = get_logger(__name__)
         self.summary_generator = SummaryGenerator()
-        self.tts_engine = TTSEngine()
+        # OpenAI TTS 사용 (MultiTTSEngine)
+        self.tts_engine = MultiTTSEngine(provider="openai")
         self.video_maker = VideoMaker(
             resolution=(1920, 1080), 
             fps=30,
@@ -255,7 +256,7 @@ class VideoWithSummaryPipeline:
                     output_path=summary_audio_path,
                     voice=voice,
                     language=language,
-                    model="tts-1-hd"  # 고품질 모델 사용
+                    model="tts-1-hd" # 고품질 모델 복구
                 )
                 print()
             else:

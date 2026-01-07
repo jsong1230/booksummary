@@ -8,8 +8,9 @@ Part 1과 Part 2로 구성된 에피소드 영상의 메타데이터를 생성�
 import sys
 import json
 import argparse
+from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict, Tuple
+from typing import Optional, Dict, Tuple, List
 
 # 프로젝트 루트를 Python 경로에 추가
 project_root = Path(__file__).parent.parent
@@ -17,7 +18,7 @@ sys.path.insert(0, str(project_root))
 
 from src.utils.file_utils import get_standard_safe_title
 from src.utils.logger import setup_logger
-from utils.translations import translate_book_title, translate_author_name, translate_book_title_to_korean, is_english_title
+from src.utils.translations import translate_book_title, translate_author_name, translate_book_title_to_korean, is_english_title
 
 # 로거 설정
 logger = setup_logger(__name__)
@@ -102,7 +103,17 @@ def detect_book_genre(book_title: str, book_info: Optional[Dict] = None) -> Tupl
             elif '수필' in category_lower or 'essay' in category_lower:
                 return ("수필", "Essay")
             elif '논픽션' in category_lower or 'non-fiction' in category_lower or 'nonfiction' in category_lower:
-                return ("작품", "Work")
+                return ("인문학", "Humanities")
+            elif '철학' in category_lower or 'philosophy' in category_lower:
+                return ("철학", "Philosophy")
+            elif '과학' in category_lower or 'science' in category_lower:
+                return ("과학", "Science")
+            elif '경제' in category_lower or 'economy' in category_lower or 'business' in category_lower:
+                return ("경제경영", "Business")
+            elif '자기계발' in category_lower or 'self-help' in category_lower:
+                return ("자기계발", "SelfHelp")
+            elif '역사' in category_lower or 'history' in category_lower:
+                return ("역사", "History")
     
     # 제목에서 키워드로 장르 추정
     # 주의: "소설"을 먼저 체크 (다른 단어에 포함될 수 있으므로)
@@ -120,9 +131,21 @@ def detect_book_genre(book_title: str, book_info: Optional[Dict] = None) -> Tupl
     # "수필" 관련 패턴
     elif re.search(r'수필', book_title) or 'essay' in title_lower:
         return ("수필", "Essay")
+    # "철학" 관련 패턴
+    elif re.search(r'철학', book_title) or 'philosophy' in title_lower:
+        return ("철학", "Philosophy")
+    # "과학" 관련 패턴
+    elif re.search(r'과학', book_title) or 'science' in title_lower:
+        return ("과학", "Science")
+    # "경제/경영" 관련 패턴
+    elif re.search(r'경제|경영|부자|돈', book_title) or 'economy' in title_lower or 'business' in title_lower or 'marketing' in title_lower:
+        return ("경제경영", "Business")
+    # "역사" 관련 패턴
+    elif re.search(r'역사', book_title) or 'history' in title_lower:
+        return ("역사", "History")
     # "논픽션" 관련 패턴
     elif '논픽션' in book_title or 'non-fiction' in title_lower or 'nonfiction' in title_lower:
-        return ("작품", "Work")
+        return ("인문학", "Humanities")
     
     # 기본값: 소설 (하위 호환성)
     return ("소설", "Novel")
@@ -147,15 +170,43 @@ def generate_episode_title(book_title: str, language: str = "ko", book_info: Opt
     if language == "ko":
         if is_english_title(book_title):
             ko_title = translate_book_title_to_korean(book_title)
+            en_title = book_title
         else:
             ko_title = book_title
-        return f"[일당백] {ko_title} 완전정복 | 작가와 배경부터 {genre_ko} 줄거리까지"
+            en_title = translate_book_title(book_title)
+            
+        # 작가 이름 가져오기
+        author_name = ""
+        if book_info and 'author' in book_info:
+            author = book_info['author']
+            # 영문 작가명이면 한글로 번역 시도
+            if is_english_title(author):
+                author_ko = translate_author_name(author)
+                author_name = f" {author_ko}"
+            else:
+                author_name = f" {author}"
+        
+        return f"[한국어] {ko_title} 책 리뷰{author_name} | [Korean] {en_title} Book Review"
     else:
         if not is_english_title(book_title):
             en_title = translate_book_title(book_title)
+            ko_title = book_title
         else:
             en_title = book_title
-        return f"Complete Guide to {en_title} | From Author & Background to Full Story"
+            ko_title = translate_book_title_to_korean(book_title)
+            
+        # 작가 이름 가져오기
+        author_name = ""
+        if book_info and 'author' in book_info:
+            author = book_info['author']
+            # 한글 작가명이면 영문으로 번역 시도
+            if not is_english_title(author):
+                author_en = translate_author_name(author)
+                author_name = f" {author_en}"
+            else:
+                author_name = f" {author}"
+                
+        return f"[English] {en_title} Book Review{author_name} | [영어] {ko_title} 책 리뷰"
 
 
 def detect_part_count(book_title: str, language: str = "ko") -> int:
@@ -216,55 +267,41 @@ def generate_episode_description(book_title: str, language: str = "ko", video_du
             ko_title = book_title
             en_title = translate_book_title(book_title)
         
+        # 작가 정보
+        author_info = ""
+        if book_info and 'author' in book_info:
+            author_info = f"저자: {book_info['author']}"
+            
         # Part 개수에 따라 설명 동적 생성
+        part_desc_list = []
         if part_count == 1:
-            part_description = "• Part 1: 작가와 배경 - 작가의 생애와 작품 배경"
+            part_desc_list.append("• Part 1: 작가와 배경 - 작가의 생애와 작품 배경")
         elif part_count == 2:
-            part_description = f"""• Part 1: 작가와 배경 - 작가의 생애와 작품 배경
-• Part 2: {genre_ko} 줄거리 - 전체 스토리와 주요 인물"""
+            part_desc_list.append("• Part 1: 작가와 배경 - 작가의 생애와 작품 배경")
+            part_desc_list.append(f"• Part 2: {genre_ko} 줄거리 - 전체 스토리와 주요 인물")
         elif part_count == 3:
-            part_description = f"""• Part 1: 작가와 배경 - 작가의 생애와 작품 배경
-• Part 2: {genre_ko} 줄거리 (상) - 스토리 전반부와 주요 인물
-• Part 3: {genre_ko} 줄거리 (하) - 스토리 후반부와 결말"""
+            part_desc_list.append("• Part 1: 작가와 배경 - 작가의 생애와 작품 배경")
+            part_desc_list.append(f"• Part 2: {genre_ko} 줄거리 (상) - 스토리 전반부와 주요 인물")
+            part_desc_list.append(f"• Part 3: {genre_ko} 줄거리 (하) - 스토리 후반부와 결말")
         else:
-            # 4개 이상인 경우
-            part_lines = []
             for i in range(1, part_count + 1):
                 if i == 1:
-                    part_lines.append(f"• Part {i}: 작가와 배경 - 작가의 생애와 작품 배경")
+                    part_desc_list.append(f"• Part {i}: 작가와 배경 - 작가의 생애와 작품 배경")
                 else:
-                    part_lines.append(f"• Part {i}: {genre_ko} 줄거리 - 스토리 {i-1}부")
-            part_description = "\n".join(part_lines)
+                    part_desc_list.append(f"• Part {i}: {genre_ko} 줄거리 - 스토리 {i-1}부")
+        part_description = "\n".join(part_desc_list)
         
-        description = f"""📚 {ko_title} ({en_title}) 완전정복
-
-이 영상은 일당백 채널의 {part_count}편의 영상을 하나로 합친 완전판입니다.
-
-📖 영상 구성:
-{part_description}
-
-🎯 이 영상에서 배울 수 있는 것:
-✓ 작가의 생애와 작품 세계
-✓ 작품의 시대적 배경과 의미
-✓ {genre_ko}의 전체 줄거리와 구조
-✓ 주요 인물의 성격과 관계
-✓ 작품의 핵심 메시지와 주제
-
-📌 타임스탬프:
-"""
-        
+        # 타임스탬프 생성
+        timestamps = ""
         if video_duration:
-            # Part 개수에 따라 타임스탬프 동적 생성
             current_time = 0.0
+            ts_lines = []
             for i in range(1, part_count + 1):
                 if i == 1:
-                    # Part 1은 대략 전체의 30-40% 정도
                     part_duration = video_duration * (0.35 if part_count >= 2 else 1.0)
                 elif i == part_count:
-                    # 마지막 Part는 남은 시간
                     part_duration = video_duration - current_time
                 else:
-                    # 중간 Part들은 균등 분배
                     remaining_time = video_duration - current_time
                     part_duration = remaining_time / (part_count - i + 1)
                 
@@ -272,118 +309,140 @@ def generate_episode_description(book_title: str, language: str = "ko", video_du
                 seconds = int(current_time % 60)
                 
                 if i == 1:
-                    description += f"{minutes}:{seconds:02d} - Part {i}: 작가와 배경\n"
+                    ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: 작가와 배경")
                 elif part_count == 2 and i == 2:
-                    description += f"{minutes}:{seconds:02d} - Part {i}: {genre_ko} 줄거리\n"
+                    ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_ko} 줄거리")
                 elif part_count == 3:
                     if i == 2:
-                        description += f"{minutes}:{seconds:02d} - Part {i}: {genre_ko} 줄거리 (상)\n"
+                        ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_ko} 줄거리 (상)")
                     elif i == 3:
-                        description += f"{minutes}:{seconds:02d} - Part {i}: {genre_ko} 줄거리 (하)\n"
+                        ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_ko} 줄거리 (하)")
                 else:
-                    description += f"{minutes}:{seconds:02d} - Part {i}: {genre_ko} 줄거리 {i-1}부\n"
+                    ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_ko} 줄거리 {i-1}부")
                 
                 current_time += part_duration
-            
-            description += "\n"
-        
-        description += f"""💡 일당백 채널에서 더 많은 작품을 만나보세요!
+            timestamps = "\n".join(ts_lines)
 
+        description = f"""{timestamps}
+
+📚 책 리뷰 영상 | 독서 | 북튜버 | 책추천
+
+📖 영상 구성:
+이 영상은 다음 내용을 포함합니다:
+{part_description}
+
+📘 책 소개:
+{ko_title} ({en_title})
+{author_info}
+
+이 영상은 일당백 채널의 {part_count}편의 영상을 하나로 합친 완전판입니다.
+NotebookLM의 심층 분석과 함께 작품을 깊이 있게 이해해보세요.
+
+🎯 주요 내용:
+✓ 작가의 생애와 작품 세계 상세 분석
+✓ 작품의 시대적 배경과 숨겨진 의미
+✓ {genre_ko}의 전체 줄거리와 핵심 메시지
+
+💡 일당백 채널에서 더 많은 작품을 만나보세요!
 🔔 구독과 좋아요는 다음 영상 제작에 큰 힘이 됩니다!
 💬 댓글로 여러분의 생각을 공유해주세요!
 
-#일당백 #{ko_title.replace(' ', '')} #책리뷰 #문학 #{genre_ko} #작가 #문학작품"""
+#일당백 #{ko_title.replace(' ', '')} #책리뷰 #문학 #{genre_ko} #작가 #{author_info.replace('저자: ', '').replace(' ', '') if author_info else '문학작품'}"""
         
     else:  # en
         if not is_english_title(book_title):
             en_title = translate_book_title(book_title)
-            # 번역이 실패하거나 한국어가 그대로 남아있는 경우 처리
             if not en_title or not is_english_title(en_title):
-                # 한국어가 포함되어 있으면 제거하고 기본 제목 사용
                 en_title = "This Book" if not en_title else en_title
         else:
             en_title = book_title
         
-        # 한국어가 포함되어 있지 않은지 최종 확인
         if not is_english_title(en_title):
             en_title = "This Book"
+
+        # Author info
+        author_info = ""
+        if book_info and 'author' in book_info:
+             author_val = book_info['author']
+             if not is_english_title(author_val):
+                 author_val = translate_author_name(author_val)
+             if author_val and is_english_title(author_val):
+                 author_info = f"Author: {author_val}"
         
-        # Part 개수에 따라 설명 동적 생성
+        # Part description
+        part_desc_list = []
         if part_count == 1:
-            part_description = "• Part 1: Author & Background - Author's life and work context"
+            part_desc_list.append("• Part 1: Author & Background - Author's life and work context")
         elif part_count == 2:
-            part_description = f"""• Part 1: Author & Background - Author's life and work context
-• Part 2: {genre_en} Summary - Full story and main characters"""
+            part_desc_list.append("• Part 1: Author & Background - Author's life and work context")
+            part_desc_list.append(f"• Part 2: {genre_en} Summary - Full story and main characters")
         elif part_count == 3:
-            part_description = f"""• Part 1: Author & Background - Author's life and work context
-• Part 2: {genre_en} Summary (Part 1) - First half of the story and main characters
-• Part 3: {genre_en} Summary (Part 2) - Second half of the story and conclusion"""
+            part_desc_list.append("• Part 1: Author & Background - Author's life and work context")
+            part_desc_list.append(f"• Part 2: {genre_en} Summary (Part 1) - First half of the story and main characters")
+            part_desc_list.append(f"• Part 3: {genre_en} Summary (Part 2) - Second half of the story and conclusion")
         else:
-            # 4개 이상인 경우
-            part_lines = []
             for i in range(1, part_count + 1):
                 if i == 1:
-                    part_lines.append(f"• Part {i}: Author & Background - Author's life and work context")
+                    part_desc_list.append(f"• Part {i}: Author & Background - Author's life and work context")
                 else:
-                    part_lines.append(f"• Part {i}: {genre_en} Summary - Story Part {i-1}")
-            part_description = "\n".join(part_lines)
-        
-        description = f"""📚 Complete Guide to {en_title}
+                    part_desc_list.append(f"• Part {i}: {genre_en} Summary - Story Part {i-1}")
+        part_description = "\n".join(part_desc_list)
 
-This video combines {part_count} episodes from 1DANG100 channel into one complete guide.
+        # Timestamps
+        timestamps = ""
+        if video_duration:
+            current_time = 0.0
+            ts_lines = []
+            for i in range(1, part_count + 1):
+                if i == 1:
+                    part_duration = video_duration * (0.35 if part_count >= 2 else 1.0)
+                elif i == part_count:
+                    part_duration = video_duration - current_time
+                else:
+                    remaining_time = video_duration - current_time
+                    part_duration = remaining_time / (part_count - i + 1)
+                
+                minutes = int(current_time // 60)
+                seconds = int(current_time % 60)
+                
+                if i == 1:
+                    ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: Author & Background")
+                elif part_count == 2 and i == 2:
+                    ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_en} Summary")
+                elif part_count == 3:
+                    if i == 2:
+                        ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_en} Summary (Part 1)")
+                    elif i == 3:
+                        ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_en} Summary (Part 2)")
+                else:
+                    ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_en} Summary Part {i-1}")
+                
+                current_time += part_duration
+            timestamps = "\n".join(ts_lines)
+        
+        safe_en_title = ensure_english_only(en_title.replace(' ', '').replace(':', '').replace('-', ''), "Book")
+        safe_genre_en = ensure_english_only(genre_en.replace(' ', ''), "Work")
+        
+        description = f"""{timestamps}
+
+📚 Book Review | Reading | BookTube | Recommendation
 
 📖 Video Structure:
 {part_description}
+
+📘 Book Info:
+{en_title}
+{author_info}
+
+This video combines {part_count} episodes from 1DANG100 channel into one complete guide.
+Deep dive into the masterpiece with NotebookLM analysis.
 
 🎯 What You'll Learn:
 ✓ Author's life and literary world
 ✓ Historical background and significance
 ✓ Complete story structure and plot
-✓ Main characters' personalities and relationships
-✓ Core messages and themes
 
-📌 Timestamps:
-"""
-        
-        if video_duration:
-            # Part 개수에 따라 타임스탬프 동적 생성
-            current_time = 0.0
-            for i in range(1, part_count + 1):
-                if i == 1:
-                    # Part 1은 대략 전체의 30-40% 정도
-                    part_duration = video_duration * (0.35 if part_count >= 2 else 1.0)
-                elif i == part_count:
-                    # 마지막 Part는 남은 시간
-                    part_duration = video_duration - current_time
-                else:
-                    # 중간 Part들은 균등 분배
-                    remaining_time = video_duration - current_time
-                    part_duration = remaining_time / (part_count - i + 1)
-                
-                minutes = int(current_time // 60)
-                seconds = int(current_time % 60)
-                
-                if i == 1:
-                    description += f"{minutes}:{seconds:02d} - Part {i}: Author & Background\n"
-                elif part_count == 2 and i == 2:
-                    description += f"{minutes}:{seconds:02d} - Part {i}: {genre_en} Summary\n"
-                elif part_count == 3:
-                    if i == 2:
-                        description += f"{minutes}:{seconds:02d} - Part {i}: {genre_en} Summary (Part 1)\n"
-                    elif i == 3:
-                        description += f"{minutes}:{seconds:02d} - Part {i}: {genre_en} Summary (Part 2)\n"
-                else:
-                    description += f"{minutes}:{seconds:02d} - Part {i}: {genre_en} Summary Part {i-1}\n"
-                
-                current_time += part_duration
-            
-            description += "\n"
-        
-        # 해시태그에서도 한국어 제거
-        safe_en_title = ensure_english_only(en_title.replace(' ', '').replace(':', '').replace('-', ''), "Book")
-        safe_genre_en = ensure_english_only(genre_en.replace(' ', ''), "Work")
-        description += f"""💡 Check out 1DANG100 channel for more literary works!
-
+💡 Check out 1DANG100 channel for more literary works!
 🔔 Subscribe and like to support future videos!
 💬 Share your thoughts in the comments!
 
@@ -407,26 +466,30 @@ This video combines {part_count} episodes from 1DANG100 channel into one complet
     return description
 
 
-def generate_episode_tags(book_title: str, language: str = "ko") -> list:
+def generate_episode_tags(book_title: str, language: str = "ko", book_info: Optional[Dict] = None) -> list:
     """
     에피소드 영상 태그 생성 (YouTube 최대치: 500자, 태그당 30자)
     
     Args:
         book_title: 책 제목
         language: 언어 ('ko' 또는 'en')
+        book_info: 책 정보 (Optional)
         
     Returns:
         생성된 태그 리스트
     """
     from src.utils.file_utils import load_book_info
     
-    # 책 정보 로드 시도
-    book_info = None
-    try:
-        safe_title = get_standard_safe_title(book_title)
-        book_info = load_book_info(safe_title)
-    except:
-        pass
+    # 책 정보 로드 시도 (인자로 전달되지 않은 경우)
+    if not book_info:
+        try:
+            safe_title = get_standard_safe_title(book_title)
+            book_info = load_book_info(safe_title)
+        except:
+            pass
+            
+    # 장르 감지
+    genre_ko, genre_en = detect_book_genre(book_title, book_info)
     
     # 책 제목 번역
     if language == "ko":
@@ -492,95 +555,43 @@ def generate_episode_tags(book_title: str, language: str = "ko") -> list:
             tags.extend([
                 f"{author_ko}",
                 f"{author_ko}작품",
-                f"{author_ko}소설",
+                f"{author_ko}{genre_ko}",
                 f"{author_en}",
                 f"{author_en}Book",
             ])
-        
-        # 기본 문학 태그
-        base_tags = [
-            # 리뷰/분석
-            "책리뷰",
-            "책추천",
-            "문학리뷰",
-            "소설리뷰",
-            "문학분석",
-            "소설분석",
-            "작품분석",
-            "문학해석",
-            "소설해석",
-            "문학비평",
-            "문학강의",
-            "문학특강",
-            "소설강의",
-            "문학수업",
             
-            # 장르
-            "문학",
-            "소설",
-            "문학작품",
-            "고전문학",
-            "현대문학",
-            "한국문학",
-            "세계문학",
-            "외국문학",
-            "번역문학",
-            "문학고전",
-            "명작소설",
-            "추천소설",
-            "베스트셀러",
-            
-            # 독서 관련
-            "독서",
-            "독서법",
-            "독서습관",
-            "독서모임",
-            "책읽기",
-            "책추천",
-            "북리뷰",
-            "북튜버",
-            "북크리에이터",
-            "책유튜버",
-            "독서유튜버",
-            "문학유튜버",
-            
-            # 학습/교육
-            "문학공부",
-            "문학공부법",
-            "문학독해",
-            "문학이해",
-            "문학감상",
-            "문학수업",
-            "문학특강",
-            "문학강좌",
-            "문학교육",
-            
-            # 콘텐츠 유형
-            "작가와배경",
-            "소설줄거리",
-            "작품줄거리",
-            "스토리리뷰",
-            "인물분석",
-            "주제분석",
-            "배경분석",
-            "시대배경",
-            "작품배경",
-            
-            # 키워드
-            "완전정복",
-            "완벽정리",
-            "총정리",
-            "핵심정리",
-            "요약",
-            "해설",
-            "강의",
-            "특강",
-            "분석",
-            "리뷰",
-            "추천",
+        # 1. 기본 태그 (검색량 높은 순)
+        basic_tags = [
+            "책리뷰", "독서", "북튜버", "책추천", "독서법", "책읽기", "서평", "독후감",
+            "BookReview", "Reading", "BookTube", "BookRecommendation"
         ]
         
-        tags.extend(base_tags)
+        # 2. 장르 태그
+        genre_tags = [
+            f"{genre_ko}", f"{genre_ko}추천", f"{genre_ko}베스트셀러",
+            "베스트셀러", "스테디셀러", "추천도서", "권장도서",
+            "인문학", "교양", "지식", "공부",
+        ]
+        if genre_ko == "소설":
+            genre_tags.extend(["문학", "소설리뷰", "문학작품", "고전문학", "세계문학"])
+        elif genre_ko == "철학":
+            genre_tags.extend(["철학책", "철학입문", "인문학강의"])
+        elif genre_ko == "경제경영":
+            genre_tags.extend(["경제공부", "주식", "투자", "성공", "부자"])
+        elif genre_ko == "자기계발":
+            genre_tags.extend(["동기부여", "성장", "성공학", "마인드셋"])
+            
+        # 현재 연도 가져오기
+        current_year = datetime.now().year
+            
+        # 3. 기관/트렌드 태그
+        trend_tags = [
+            f"책추천{current_year}", "독서챌린지", "독서모임", "일당백", "일당백책리뷰"
+        ]
+        
+        # 태그 합치기 (우선순위대로)
+        # 이미 추가된 tags(제목/작가) + 기본 + 장르 + 트렌드
+        tags = tags + basic_tags + genre_tags + trend_tags
         
     else:  # en
         if not is_english_title(book_title):
@@ -646,87 +657,37 @@ def generate_episode_tags(book_title: str, language: str = "ko") -> list:
             tags.extend([
                 f"{author_name}",
                 f"{author_name}Book",
-                f"{author_name}Novel",
+                f"{author_name}{genre_en}",
             ])
         
-        # Base literature tags
-        base_tags = [
-            # Review/Analysis
-            "BookReview",
-            "BookRecommendation",
-            "LiteratureReview",
-            "NovelReview",
-            "LiteraryAnalysis",
-            "NovelAnalysis",
-            "WorkAnalysis",
-            "LiteraryInterpretation",
-            "NovelInterpretation",
-            "LiteraryCriticism",
-            "LiteratureLecture",
-            "NovelLecture",
-            "LiteratureClass",
-            
-            # Genre
-            "Literature",
-            "Novel",
-            "LiteraryWork",
-            "ClassicLiterature",
-            "ModernLiterature",
-            "KoreanLiterature",
-            "WorldLiterature",
-            "ForeignLiterature",
-            "TranslatedLiterature",
-            "LiteraryClassic",
-            "Masterpiece",
-            "Bestseller",
-            
-            # Reading related
-            "Reading",
-            "ReadingMethod",
-            "ReadingHabit",
-            "BookClub",
-            "BookReading",
-            "BookTube",
-            "BookCreator",
-            "BookYouTuber",
-            "ReadingYouTuber",
-            "LiteratureYouTuber",
-            
-            # Learning/Education
-            "LiteratureStudy",
-            "LiteratureStudyMethod",
-            "LiteraryComprehension",
-            "LiteraryAppreciation",
-            "LiteratureClass",
-            "LiteratureLecture",
-            "LiteratureCourse",
-            "LiteratureEducation",
-            
-            # Content Type
-            "AuthorAndBackground",
-            "NovelSummary",
-            "WorkSummary",
-            "StoryReview",
-            "CharacterAnalysis",
-            "ThemeAnalysis",
-            "BackgroundAnalysis",
-            "HistoricalBackground",
-            "WorkBackground",
-            
-            # Keywords
-            "CompleteGuide",
-            "PerfectSummary",
-            "FullSummary",
-            "KeySummary",
-            "Summary",
-            "Explanation",
-            "Lecture",
-            "Analysis",
-            "Review",
-            "Recommendation",
+        # 1. Basic Tags (High Volume)
+        basic_tags = [
+            "BookReview", "Reading", "BookTube", "BookRecommendation", "Books",
+            "BookSummary", "Audiobook", "Literature", "Bestseller"
         ]
         
-        tags.extend(base_tags)
+        # 2. Genre Tags
+        genre_tags = [
+            f"{genre_en}", f"{genre_en}Review", f"{genre_en}Recommendation",
+            "ClassicLiterature", "ModernLiterature", "MustRead",
+            "SelfImprovement" if genre_en == "SelfHelp" else "Education"
+        ]
+        if genre_en == "Novel":
+            genre_tags.extend(["Fiction", "Story", "NovelReview", "LiteraryFiction"])
+        elif genre_en == "Philosophy":
+            genre_tags.extend(["PhilosophyBook", "Philosophical", "Wisdom"])
+        elif genre_en == "Business":
+            genre_tags.extend(["BusinessBook", "Finance", "Success", "Investment"])
+        
+        # 현재 연도 가져오기
+        current_year = datetime.now().year
+        
+        # 3. Trending/Institution Tags
+        trend_tags = [
+            "BookTok", "BookLover", f"ReadingChallenge{current_year}", "1DANG100"
+        ]
+        
+        tags = tags + basic_tags + genre_tags + trend_tags
     
     # 태그 정리: 30자 제한, 중복 제거, 한국어 제거 (영문일 경우)
     cleaned_tags = []
@@ -835,7 +796,7 @@ def create_episode_metadata(
     # 메타데이터 생성
     title = generate_episode_title(book_title, language, book_info)
     description = generate_episode_description(book_title, language, video_duration, book_info)
-    tags = generate_episode_tags(book_title, language)
+    tags = generate_episode_tags(book_title, language, book_info)
     
     # 영문 메타데이터인 경우 최종 검증: description과 tags에서 한국어 제거
     if language == "en":

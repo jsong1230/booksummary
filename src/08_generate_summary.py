@@ -211,7 +211,7 @@ class SummaryGenerator:
                 try:
                     client = anthropic.Anthropic(api_key=self.claude_api_key)
                     response = client.messages.create(
-                        model="claude-3-opus-20240229",
+                        model="claude-3-5-sonnet-20240620",
                         max_tokens=4096,  # Claude 최대값
                         messages=[{
                             "role": "user",
@@ -235,7 +235,7 @@ class SummaryGenerator:
                             from openai import OpenAI
                             client = OpenAI(api_key=self.openai_api_key)
                             response = client.chat.completions.create(
-                                model="gpt-4",
+                                model="gpt-4o",
                                 messages=[
                                     {"role": "system", "content": f"You are a helpful assistant that generates book summaries in {lang_name}."},
                                     {"role": "user", "content": prompt}
@@ -261,7 +261,7 @@ class SummaryGenerator:
                     from openai import OpenAI
                     client = OpenAI(api_key=self.openai_api_key)
                     response = client.chat.completions.create(
-                        model="gpt-4",
+                        model="gpt-4o",
                         messages=[
                             {"role": "system", "content": f"You are a helpful assistant that generates book summaries in {lang_name}."},
                             {"role": "user", "content": prompt}
