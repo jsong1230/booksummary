@@ -232,7 +232,7 @@ python scripts/fetch_separate_scripts.py \
 생성한 파일들을 `input/` 폴더에 넣고 자동화 스크립트를 실행합니다.
 
 ```bash
-# 1. input 폴더에 파일 준비 (Part 2개 이상, Part 3개 이상도 지원)
+# 1. input 폴더에 파일 준비 (Part 2개 이상, Part 3개 이상도 자동 지원)
 input/
 ├── part1_video.mp4    # 또는 다른 이름 (자동 인식)
 ├── part1_info.png     # 또는 다른 이름 (자동 인식)
@@ -253,10 +253,10 @@ python run_episode_maker.py
    ```
 
 2. **파일 자동 정리 및 이동**
-   - `input/` 폴더에서 4개 파일 자동 검색
-   - 파일명 자동 정규화 (part1/part2 구분)
+   - `input/` 폴더에서 모든 파일 자동 검색 및 언어별/파트별 분류
+   - 파일명 자동 정규화 (part1/part2/part3... 구분)
    - `assets/notebooklm/{책제목}/` 폴더로 자동 이동
-   - 파일명 정규화: `part1_video.mp4`, `part1_info.png`, `part2_video.mp4`, `part2_info.png`
+   - 파일명 정규화: `part1_video.mp4`, `part1_info.png` 등
 
 3. **자막 추출 (선택사항)**
    - 새로운 자막 추출이 필요한 경우에만 실행
@@ -264,16 +264,20 @@ python run_episode_maker.py
 
 4. **파일 준비 확인**
    - 필수 파일(Part 1 영상/인포그래픽) 존재 여부 자동 확인
-   - Part 2 이상도 자동으로 탐지하여 포함
+   - Part 2 이상도 자동으로 탐지하여 모두 포함
 
-5. **영상 합성**
+5. **영상 합성 및 메타데이터 생성**
    - `src/create_full_episode.py` 자동 실행
-   - 최종 영상 생성: `output/{책제목}_full_episode.mp4`
+   - **동적 Part 감지**: 실시간으로 존재하는 Part 개수를 파악하여 합성
+   - **장르 자동 감지**: 책 제목이나 정보를 바탕으로 "소설", "시", "수필" 등 장르 자동 판별
+   - 최종 영상 생성: `output/{책제목}_full_episode_{언어}.mp4`
+   - 메타데이터 생성: `output/{책제목}_full_episode_{언어}.metadata.json` (타임스탬프 자동 포함)
 
 **생성되는 영상 구조:**
-- Part 1 영상 → Part 1 인포그래픽 → Part 2 영상 → Part 2 인포그래픽 → ... (Part 3 이상도 자동 지원)
-- 모든 클립 사이에 1초 Crossfade 효과 적용
-- 인포그래픽에는 배경음악 자동 추가 (자동 탐지 또는 Pixabay에서 자동 다운로드)
+- Part 1 영상 → Part 1 인포그래픽 → Part 2 영상 → Part 2 인포그래픽 → ... (모든 Part 자동 연결)
+- 모든 클립 사이에 **1.5초 Crossfade** 및 페이드 인/아웃 효과 적용
+- 인포그래픽에는 배경음악 자동 추가 및 표시 시간 최적화 (기본 30초)
+- 자막 가독성 향상: 폰트 크기 증대(70px), 테두리 강조, 반투명 배경 박스 적용
 
 ### 파일명 자동 인식
 
@@ -660,7 +664,9 @@ booksummary/
   - 유명 대학: 서울대학교, 하버드대학교, 도쿄대학교 등
   - 문학상: 노벨문학상, 퓰리처상, 맨부커상 등
 - YouTube 태그 제한(500자)을 고려한 우선순위 기반 선택
-- **태그 자동 검증**: 업로드 시 30자 초과 태그 자동 제거 (YouTube 규칙 준수)
+- **태그 자동 검증 및 포맷팅**: 
+  - 업로드 시 30자 초과 태그 자동 제거 (YouTube 규칙 준수)
+  - 태그 내 공백을 언더스코어(`_`)로 자동 변환 (예: "Das Kapital" → "Das_Kapital")
 
 ### YouTube 메타데이터 관리
 
@@ -798,6 +804,28 @@ python src/19_upload_schedule.py --weeks 4 --uploads-per-week 2 --start-date 202
   
   # 생성 후 브라우저에서 자동 열기
   python src/16_dashboard.py --open
+  ```
+
+### 깊이 있는 채널 최적화 도구
+
+**1. Analytics 기반 개선 제안 (`src/22_analytics_recommendations.py`)**
+
+채널 데이터를 분석하여 우선순위별로 구체적인 개선안을 제시합니다.
+- 조회수, 참여율(좋아요/댓글), 업로드 빈도 등 종합 분석
+- 저성과/고성과 콘텐츠 식별 및 맞춤형 전략 제안
+- `output/analytics_recommendations.md` 리포트 생성
+
+**2. 최적 업로드 시간대 분석 (`src/18_analyze_optimal_upload_time.py`)**
+
+과거 업로드 기록과 성과를 결합하여 가장 효과적인 시간대를 찾아냅니다.
+- 요일별/시간대별 조회수 성장률 분석
+- `output/optimal_upload_time_analysis.md` 리포트 생성
+
+**3. 정기 업로드 일정 수립 (`src/19_upload_schedule.py`)**
+
+분석된 최적 시간대를 기반으로 자동화된 업로드 스케줄을 생성합니다.
+- 주당 업로드 횟수 및 기간 설정 가능
+- `output/upload_schedule_calendar.md` (캘린더 뷰) 제공
   ```
   - 채널 통계 카드 (총 영상 수, 조회수, 좋아요, 댓글 수 등)
   - 조회수 상위 10개 영상 테이블
