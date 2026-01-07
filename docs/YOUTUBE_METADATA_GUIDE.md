@@ -1,67 +1,67 @@
-# YouTube Metadata Generation Guide
+# YouTube 메타데이터 생성 가이드
 
-This document explains how to generate SEO-optimized metadata (Title, Description, Tags) for YouTube videos in the BookReview-AutoMaker project.
+이 문서는 BookReview-AutoMaker 프로젝트에서 YouTube 영상용 SEO 최적화 메타데이터(제목, 설명, 태그)를 생성하는 방법을 설명합니다.
 
-## 1. Overview
+## 1. 개요
 
-Metadata is generated in JSON format (`*.metadata.json`) which is then used by the upload script (`src/09_upload_from_metadata.py`). There are two main styles of metadata generation:
+메타데이터는 JSON 형식(`*.metadata.json`)으로 생성되며, 이는 업로드 스크립트(`src/09_upload_from_metadata.py`)에서 사용됩니다. 메타데이터 생성에는 두 가지 주요 스타일이 있습니다.
 
-1.  **Summary Style**: For standard 5-minute AI summary videos.
-2.  **Episode Style (Ildangbaek)**: For long-form videos combining NotebookLM parts and infographics.
+1.  **서머리(Summary) 스타일**: 일반적인 5분 AI 요약 영상용.
+2.  **에피소드(Episode) 스타일 (일당백)**: NotebookLM 파트와 인포그래픽을 결합한 롱폼 영상용.
 
 ---
 
-## 2. Episode Style Metadata (Ildangbaek)
+## 2. 에피소드 스타일 메타데이터 (일당백)
 
-Use `src/20_create_episode_metadata.py` for long-form episode videos.
+롱폼 에피소드 영상의 경우 `src/20_create_episode_metadata.py`를 사용합니다.
 
-### Basic Usage
+### 기본 사용법
 ```bash
-# Korean metadata
+# 한글 메타데이터 생성
 python src/20_create_episode_metadata.py --title "책제목" --language ko
 
-# English metadata
+# 영문 메타데이터 생성
 python src/20_create_episode_metadata.py --title "Book Title" --language en
 ```
 
-### Key Features
--   **Dynamic Part Detection**: Automatically detects how many parts (Part 1, Part 2, etc.) are in the video by checking `assets/notebooklm/`.
--   **Smart Timestamps**: Generates accurate timestamps based on the actual video file length.
--   **Genre Detection**: Analyzes the book title and info to categorize as Novel, Poetry, Essay, or General Work.
--   **SEO Tag Optimization**:
-    -   Includes trending tags for the current year (e.g., 2026).
-    -   English metadata automatically filters out Korean characters for international SEO.
--   **Character Limits**: Ensures titles are under YouTube's 100-character limit.
+### 주요 기능
+-   **동적 파트 감지**: `assets/notebooklm/` 폴더를 확인하여 영상에 포함된 파트(Part 1, Part 2 등) 개수를 자동으로 감지합니다.
+-   **스마트 타임스탬프**: 실제 영상 파일의 길이를 바탕으로 정확한 타임스탬프를 생성합니다.
+-   **장르 감지**: 책 제목과 정보를 분석하여 소설, 시, 수필 또는 일반 작품으로 자동 분류합니다.
+-   **SEO 태그 최적화**:
+    -   현재 연도(예: 2026)를 포함한 트렌드 태그를 포함합니다.
+    -   영문 메타데이터의 경우 글로벌 SEO를 위해 한글 문자를 자동으로 필터링합니다.
+-   **글자 수 제한**: YouTube 제목 제한인 100자 이내로 제목을 유지합니다.
 
-### Arguments
--   `--title`: The book title (required).
--   `--language`: `ko` or `en` (default: `ko`).
--   `--video-path`: Manual override for video file path.
--   `--thumbnail-path`: Manual override for thumbnail path.
--   `--preview`: Print to console without saving to file.
+### 주요 인자(Arguments)
+-   `--title`: 책 제목 (필수).
+-   `--language`: `ko` 또는 `en` (기본값: `ko`).
+-   `--video-path`: 영상 파일 경로 수동 지정.
+-   `--thumbnail-path`: 썸네일 경로 수동 지정.
+-   `--preview`: 파일로 저장하지 않고 콘솔에 미리보기만 출력.
 
 ---
 
-## 3. Summary Style Metadata
+## 3. 서머리 스타일 메타데이터
 
-Standard summary metadata is typically created during the video creation process in `src/08_create_and_preview_videos.py`.
+일반 서머리 메타데이터는 대개 `src/08_create_and_preview_videos.py` 영상 생성 과정에서 함께 생성됩니다.
 
-### Basic Usage
-When running the video creation script:
+### 기본 사용법
+영상 생성 스크립트 실행 시:
 ```bash
-python src/08_create_and_preview_videos.py --title "Book Title" --lang both
+python src/08_create_and_preview_videos.py --title "책제목" --lang both
 ```
 
-### Key Features
--   **Channel Name**: "1DANG100" (일당백).
--   **Title Format**: `[핵심 요약] {Title} 핵심 정리 | [Summary] {Title} Book Review`.
--   **Auto-Translation**: Uses `src/utils/translations.py` to map English and Korean titles/authors.
+### 주요 기능
+-   **채널명**: "1DANG100" (일당백)으로 설정.
+-   **제목 형식**: `[핵심 요약] {제목} 핵심 정리 | [Summary] {제목} Book Review`.
+-   **자동 번역**: `src/utils/translations.py`를 사용하여 한글/영문 제목 및 저자명을 매핑합니다.
 
 ---
 
-## 4. Metadata File Format
+## 4. 메타데이터 파일 형식
 
-The resulting JSON file looks like this:
+생성된 JSON 파일은 다음과 같은 구조를 가집니다:
 
 ```json
 {
@@ -78,17 +78,17 @@ The resulting JSON file looks like this:
 
 ---
 
-## 5. Troubleshooting
+## 5. 트러블슈팅
 
--   **Thumbnail Not Found**: Ensure the thumbnail is in the `output/` folder and follows the naming convention: `{SafeTitle}_thumbnail_{ko/en}.jpg`.
--   **Metadata Mismatch**: If you change the video length, regenerate the metadata to ensure timestamps are accurate.
--   **Title Too Long**: The script will truncate titles with "..." if they exceed 100 characters.
+-   **썸네일을 찾을 수 없음**: 썸네일이 `output/` 폴더에 있는지, 그리고 `{표준제목}_thumbnail_{ko/en}.jpg` 명명 규칙을 따르는지 확인하세요.
+-   **메타데이터 불일치**: 영상 길이가 변경된 경우, 타임스탬프의 정확성을 위해 메타데이터를 다시 생성하십시오.
+-   **제목이 너무 긴 경우**: 100자를 초과하면 스크립트가 자동으로 제목 끝을 "..."으로 자릅니다.
 
 ---
 
-## 6. Next Step: Uploading
+## 6. 다음 단계: 업로드
 
-Once the metadata is ready, upload it using:
+메타데이터가 준비되면 다음 명령어로 업로드합니다:
 ```bash
 python src/09_upload_from_metadata.py --privacy private --auto
 ```
