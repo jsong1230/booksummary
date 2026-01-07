@@ -247,6 +247,12 @@ def translate_book_title(book_title: str) -> str:
         "세르반테스 돈키호테 : 세상의 모든 소설들은 무릎꿇고 경의를 표하시오!!": "Don Quixote",
         "세르반테스_돈키호테_세상의_모든_소설들은_무릎꿇고_경의를_표하시오": "Don_Quixote",
         "Don Quixote": "Don Quixote",
+        "국부론": "Wealth of Nations",
+        "국부론_": "Wealth of Nations",
+        "애덤 스미스 국부론": "Wealth of Nations",
+        "애덤_스미스_국부론": "Wealth of Nations",
+        "Wealth of Nations": "Wealth of Nations",
+        "The Wealth of Nations": "Wealth of Nations",
         "시몬 드 보부아르 제2의 성": "The Second Sex",
         "시몬_드_보부아르_제2의_성": "The_Second_Sex",
         "시몬 드 보부아르 제2의 성 : 여성은 태어나지 않고 만들어진다": "The Second Sex",
@@ -291,6 +297,14 @@ def translate_book_title(book_title: str) -> str:
         "굿모닝_미드나잇": "Good_Morning_Midnight",
         "Good Morning, Midnight": "Good Morning, Midnight",
         "Good Morning Midnight": "Good Morning, Midnight",
+        "파리대왕": "Lord of the Flies",
+        "파리_대왕": "Lord of the Flies",
+        "Lord of the Flies": "Lord of the Flies",
+        "광장": "The Square",
+        "광장_": "The Square",
+        "최인훈 광장": "The Square",
+        "최인훈_광장": "The Square",
+        "The Square": "The Square",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -384,6 +398,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "The Essence of Poetry and Masters": "시의 본질과 거장들",
         "The Essence of Poetry and Masters: On Korean Poetry": "시의 본질과 거장들: 한국시에 대하여",
         "Yukio Mishima: Patriotism and The Temple of the Golden Pavilion": "미시마 유키오 우국, 금각사",
+        "Lord of the Flies": "파리대왕",
         "Don Quixote": "세르반테스 돈키호테",
         "The Second Sex": "시몬 드 보부아르 제2의 성",
         "Essays": "수상록",
@@ -579,6 +594,14 @@ def translate_author_name(author: str) -> str:
         "진_리스": "Jean Rhys",
         "Jean Rhys": "Jean Rhys",
         "Rhys": "Jean Rhys",
+        "윌리엄 골딩": "William Golding",
+        "윌리엄_골딩": "William Golding",
+        "William Golding": "William Golding",
+        "골딩": "William Golding",
+        "Golding": "William Golding",
+        "애덤 스미스": "Adam Smith",
+        "애덤_스미스": "Adam Smith",
+        "Adam Smith": "Adam Smith",
     }
     
     if author in author_map:

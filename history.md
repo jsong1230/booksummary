@@ -1,5 +1,44 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2026-01-08
+
+### 최인훈 광장 일당백 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 최인훈 "광장" 일당백 스타일 한글/영문 롱폼 영상 제작
+  - Part 2개 자동 처리 및 영상 합성 완료
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 "광장" ↔ "The Square", "최인훈" ↔ "Choi In-hoon" 매핑 추가
+  - **파일 구조화**: `input/` 폴더 내 파일을 `assets/notebooklm/The_Square/`로 이동 및 표준화
+- **생성된 영상**:
+  - 한글: `output/The_Square_full_episode_ko.mp4` (685.04초, 약 11.42분)
+  - 영문: `output/The_Square_full_episode_en.mp4` (750.61초, 약 12.51분)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=I0IQXtDebIg
+  - 영문: https://www.youtube.com/watch?v=2GfBPumLF5Y
+- **수정된 파일**:
+  - `src/utils/translations.py`: 광장, 최인훈 번역 매핑 추가
+  - `data/ildangbaek_books.csv`: 광장 업로드 정보 업데이트
+
+### 국부론 - 애덤 스미스 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 애덤 스미스 "국부론" 한글/영문 영상 제작 (Summary 스타일)
+  - Summary(5분) + NotebookLM + Review 구조로 영상 생성
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 "국부론" ↔ "Wealth of Nations", "애덤 스미스" ↔ "Adam Smith" 매핑 추가
+  - **파일 준비**: `input/` 폴더의 파일을 표준 위치로 이동 및 변환
+  - **이미지 다운로드**: 100개 무드 이미지 다운로드 완료
+- **생성된 영상**:
+  - 한글: `output/Wealth_of_Nations_kr.mp4` (205.10 MB)
+  - 영문: `output/Wealth_of_Nations_en.mp4` (275.36 MB)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=1zACX8Hsd6g
+  - 영문: https://www.youtube.com/watch?v=_R9hVoxOLGs
+- **수정된 파일**:
+  - `src/utils/translations.py`: 국부론, 애덤 스미스 번역 매핑 추가
+  - `data/ildangbaek_books.csv`: 국부론 업로드 정보 업데이트
+
 ## 2026-01-07
 
 ### 어니스트 헤밍웨이 "무기여 잘 있거라" 일당백 스타일 영상 제작
@@ -2166,3 +2205,33 @@
   - URL: https://www.youtube.com/watch?v=6p6DNfwTKkA
 - [2] [한국어] 무기여 잘 있거라 책 리뷰 | [Korean] A Farewell to Arms Book Review
   - URL: https://www.youtube.com/watch?v=whTVsq-_8vg
+
+## 2026-01-07
+
+### YouTube 업로드 완료
+- 업로드된 책: Lord_of_the_Flies_full_episode, Lord_of_the_Flies_full_episode_ko
+- 업로드된 영상 수: 2개
+- [1] [English] Lord of the Flies Book Review | [영어] 파리대왕 책 리뷰
+  - URL: https://www.youtube.com/watch?v=CYrK6XJ3pHM
+- [2] [한국어] 파리대왕 책 리뷰 | [Korean] Lord of the Flies Book Review
+  - URL: https://www.youtube.com/watch?v=kChZGbcIcZ8
+
+## 2026-01-08
+
+### YouTube 업로드 완료
+- 업로드된 책: Wealth_of_Nations
+- 업로드된 영상 수: 2개
+- [1] [Summary] Wealth of Nations Book Review Adam Smith | [핵심 요약] 국부론 핵심 정리
+  - URL: https://www.youtube.com/watch?v=_R9hVoxOLGs
+- [2] [핵심 요약] 국부론 핵심 정리 애덤 스미스 | [Summary] Wealth of Nations Book Review
+  - URL: https://www.youtube.com/watch?v=1zACX8Hsd6g
+
+## 2026-01-08
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Square_full_episode_ko, The_Square_full_episode
+- 업로드된 영상 수: 2개
+- [1] [English] The Square Book Review | [영어] 광장 책 리뷰
+  - URL: https://www.youtube.com/watch?v=2GfBPumLF5Y
+- [2] [한국어] 광장 책 리뷰 | [Korean] The Square Book Review
+  - URL: https://www.youtube.com/watch?v=I0IQXtDebIg
