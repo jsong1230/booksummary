@@ -1,5 +1,47 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2026-01-09
+
+### 세일즈맨의 죽음 - 아서 밀러 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 아서 밀러 "세일즈맨의 죽음 (Death of a Salesman)" 한글/영문 영상 제작 (Summary 스타일)
+  - Summary(5분) + NotebookLM + Review 구조로 영상 생성
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 "세일즈맨의 죽음" ↔ "Death of a Salesman", "아서 밀러" ↔ "Arthur Miller" 매핑 추가
+  - **파일 준비**: `input/` 폴더의 파일을 표준 위치로 이동 및 변환
+  - **이미지 다운로드**: 100개 무드 이미지 다운로드 완료 (Pixabay API 오류 발생, Unsplash로 대체)
+  - **TTS 오디오 생성**: 한글/영문 Summary TTS 오디오 생성 완료
+- **생성된 영상**:
+  - 한글: `output/Death_of_a_Salesman_kr.mp4` (257.09 MB)
+  - 영문: `output/Death_of_a_Salesman_en.mp4` (238.03 MB)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=Mmd9TY1we84
+  - 영문: https://www.youtube.com/watch?v=8cSwlqDiVcg
+- **수정된 파일**:
+  - `src/utils/translations.py`: 세일즈맨의 죽음, 아서 밀러 번역 매핑 추가
+  - `data/ildangbaek_books.csv`: 세일즈맨의 죽음 업로드 정보 업데이트
+
+### 4000주 - 올리버 버크먼 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 올리버 버크먼 "4000주 (Four Thousand Weeks)" 한글/영문 영상 제작 (Summary 스타일)
+  - Summary(5분) + NotebookLM + Review 구조로 영상 생성
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 "4000주" ↔ "Four Thousand Weeks", "올리버 버크먼" ↔ "Oliver Burkeman" 매핑 추가
+  - **파일 준비**: `input/` 폴더의 파일을 표준 위치로 이동 및 변환
+  - **이미지 다운로드**: 100개 무드 이미지 다운로드 완료 (Pixabay API 오류 발생, Unsplash로 대체)
+  - **TTS 오디오 생성**: 한글/영문 Summary TTS 오디오 생성 완료
+- **생성된 영상**:
+  - 한글: `output/Four_Thousand_Weeks_kr.mp4` (209.52 MB)
+  - 영문: `output/Four_Thousand_Weeks_en.mp4` (207.66 MB)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=fBzBt7W39jY
+  - 영문: https://www.youtube.com/watch?v=ZnIvEcReSLU
+- **수정된 파일**:
+  - `src/utils/translations.py`: 4000주, 올리버 버크먼 번역 매핑 추가
+  - `data/ildangbaek_books.csv`: 4000주 업로드 정보 업데이트
+
 ## 2026-01-08
 
 ### 무라카미 하루키 상실의 시대 일당백 스타일 영상 제작 및 YouTube 업로드
@@ -2309,3 +2351,23 @@
   - URL: https://www.youtube.com/watch?v=9DV5Zl7BAZg
 - [2] [한국어] 상실의 시대 책 리뷰 | [Korean] Norwegian Wood Book Review
   - URL: https://www.youtube.com/watch?v=GDnnnuT6T28
+
+## 2026-01-09
+
+### YouTube 업로드 완료
+- 업로드된 책: Death_of_a_Salesman
+- 업로드된 영상 수: 2개
+- [1] [Summary] Death of a Salesman Book Review | [핵심 요약] 세일즈맨의 죽음 핵심 정리
+  - URL: https://www.youtube.com/watch?v=8cSwlqDiVcg
+- [2] [핵심 요약] 세일즈맨의 죽음 핵심 정리 | [Summary] Death of a Salesman Book Review
+  - URL: https://www.youtube.com/watch?v=Mmd9TY1we84
+
+## 2026-01-09
+
+### YouTube 업로드 완료
+- 업로드된 책: Four_Thousand_Weeks
+- 업로드된 영상 수: 2개
+- [1] [Summary] Four Thousand Weeks Book Review | [핵심 요약] 4000주 핵심 정리
+  - URL: https://www.youtube.com/watch?v=ZnIvEcReSLU
+- [2] [핵심 요약] 4000주 핵심 정리 | [Summary] Four Thousand Weeks Book Review
+  - URL: https://www.youtube.com/watch?v=fBzBt7W39jY
