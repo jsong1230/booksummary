@@ -305,6 +305,12 @@ def translate_book_title(book_title: str) -> str:
         "최인훈 광장": "The Square",
         "최인훈_광장": "The Square",
         "The Square": "The Square",
+        "이반 일리치의 죽음": "The Death of Ivan Ilyich",
+        "이반_일리치의_죽음": "The_Death_of_Ivan_Ilyich",
+        "The Death of Ivan Ilyich": "The Death of Ivan Ilyich",
+        "과학혁명의 구조": "The Structure of Scientific Revolutions",
+        "과학혁명의_구조": "The_Structure_of_Scientific_Revolutions",
+        "The Structure of Scientific Revolutions": "The Structure of Scientific Revolutions",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -602,6 +608,19 @@ def translate_author_name(author: str) -> str:
         "애덤 스미스": "Adam Smith",
         "애덤_스미스": "Adam Smith",
         "Adam Smith": "Adam Smith",
+        "이반 일리치": "Ivan Ilyich",
+        "이반_일리치": "Ivan Ilyich",
+        "Ivan Ilyich": "Ivan Ilyich",
+        "레프 톨스토이": "Leo Tolstoy",
+        "레프_톨스토이": "Leo Tolstoy",
+        "톨스토이": "Leo Tolstoy",
+        "Leo Tolstoy": "Leo Tolstoy",
+        "Tolstoy": "Leo Tolstoy",
+        "토마스 쿤": "Thomas Kuhn",
+        "토마스_쿤": "Thomas Kuhn",
+        "Thomas Kuhn": "Thomas Kuhn",
+        "쿤": "Thomas Kuhn",
+        "Kuhn": "Thomas Kuhn",
     }
     
     if author in author_map:

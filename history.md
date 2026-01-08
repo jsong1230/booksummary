@@ -2,6 +2,22 @@
 
 ## 2026-01-08
 
+### 일연 삼국유사 일당백 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 일연 "삼국유사" 일당백 스타일 한글/영문 롱폼 영상 제작
+  - Part 2개 자동 처리 및 영상 합성 완료
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **파일 구조화**: `input/` 폴더 내 파일을 `assets/notebooklm/일연_삼국유사/`로 이동 및 표준화
+- **생성된 영상**:
+  - 한글: `output/일연_삼국유사_full_episode_ko.mp4` (904.12초, 약 15.07분)
+  - 영문: `output/일연_삼국유사_full_episode_en.mp4` (876.60초, 약 14.61분)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=f2LRK6GARS8
+  - 영문: https://www.youtube.com/watch?v=jDM1h4QxVUI
+- **수정된 파일**:
+  - `data/ildangbaek_books.csv`: 삼국유사 업로드 정보 업데이트
+
 ### 최인훈 광장 일당백 스타일 영상 제작 및 YouTube 업로드
 - **작업 내용**:
   - 최인훈 "광장" 일당백 스타일 한글/영문 롱폼 영상 제작
@@ -2235,3 +2251,33 @@
   - URL: https://www.youtube.com/watch?v=2GfBPumLF5Y
 - [2] [한국어] 광장 책 리뷰 | [Korean] The Square Book Review
   - URL: https://www.youtube.com/watch?v=I0IQXtDebIg
+
+## 2026-01-08
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Death_of_Ivan_Ilyich
+- 업로드된 영상 수: 2개
+- [1] [Summary] The_Death_of_Ivan_Ilyich Book Review Leo Tolstoy | [핵심 요약] 이반 일리치의 죽음 핵심 정리
+  - URL: https://www.youtube.com/watch?v=BTvsCzGZfM4
+- [2] [핵심 요약] 이반 일리치의 죽음 핵심 정리 레프 톨스토이 | [Summary] The_Death_of_Ivan_Ilyich Book Review
+  - URL: https://www.youtube.com/watch?v=BnovpY5w5ZM
+
+## 2026-01-08
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Structure_of_Scientific_Revolutions_full_episode, The_Structure_of_Scientific_Revolutions_full_episode_ko
+- 업로드된 영상 수: 2개
+- [1] [English] The_Structure_of_Scientific_Revolutions Book Review | [영어] 과학혁명의 구조 책 리뷰
+  - URL: https://www.youtube.com/watch?v=Gxl7cWAuzDg
+- [2] [한국어] 과학혁명의 구조 책 리뷰 | [Korean] The_Structure_of_Scientific_Revolutions Book Review
+  - URL: https://www.youtube.com/watch?v=L82iCU5KrdE
+
+## 2026-01-08
+
+### YouTube 업로드 완료
+- 업로드된 책: 일연_삼국유사_full_episode, 일연_삼국유사_full_episode_ko
+- 업로드된 영상 수: 2개
+- [1] [English] 일연 삼국유사 Book Review | [영어] 일연 삼국유사 책 리뷰
+  - URL: https://www.youtube.com/watch?v=jDM1h4QxVUI
+- [2] [한국어] 일연 삼국유사 책 리뷰 | [Korean] 일연 삼국유사 Book Review
+  - URL: https://www.youtube.com/watch?v=f2LRK6GARS8
