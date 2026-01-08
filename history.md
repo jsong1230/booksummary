@@ -2,7 +2,25 @@
 
 ## 2026-01-09
 
-### 세일즈맨의 죽음 - 아서 밀러 영상 제작 및 YouTube 업로드
+### 세일즈맨의 죽음 - 아서 밀러 영상 재생성 및 YouTube 재업로드
+- **작업 내용**:
+  - 아서 밀러 "세일즈맨의 죽음 (Death of a Salesman)" 한글/영문 영상 재생성 (Summary 스타일)
+  - Summary(5분) + NotebookLM + Review 구조로 영상 재생성
+  - YouTube 재업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **파일 준비**: `input/` 폴더의 파일을 표준 위치로 이동 및 변환 (video 파일명 수정 반영)
+  - **이미지 다운로드**: 100개 무드 이미지 다운로드 완료 (기존 이미지 재사용)
+  - **TTS 오디오 생성**: 한글/영문 Summary TTS 오디오 재생성 완료
+- **생성된 영상**:
+  - 한글: `output/Death_of_a_Salesman_kr.mp4` (448.13 MB)
+  - 영문: `output/Death_of_a_Salesman_en.mp4` (302.21 MB)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=cR0QYWgWlaY
+  - 영문: https://www.youtube.com/watch?v=YeiN06mKKug
+- **수정된 파일**:
+  - `data/ildangbaek_books.csv`: 세일즈맨의 죽음 재업로드 정보 업데이트
+
+### 세일즈맨의 죽음 - 아서 밀러 영상 제작 및 YouTube 업로드 (초기)
 - **작업 내용**:
   - 아서 밀러 "세일즈맨의 죽음 (Death of a Salesman)" 한글/영문 영상 제작 (Summary 스타일)
   - Summary(5분) + NotebookLM + Review 구조로 영상 생성
@@ -2371,3 +2389,23 @@
   - URL: https://www.youtube.com/watch?v=ZnIvEcReSLU
 - [2] [핵심 요약] 4000주 핵심 정리 | [Summary] Four Thousand Weeks Book Review
   - URL: https://www.youtube.com/watch?v=fBzBt7W39jY
+
+## 2026-01-09
+
+### YouTube 업로드 완료
+- 업로드된 책: 안데르센그림_형제페로_동화_괴롭고_힘든_어린이와_어른에게_가장_필요한_것은_full_episode_ko, 안데르센그림_형제페로_동화_괴롭고_힘든_어린이와_어른에게_가장_필요한_것은_full_episode
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] Andersen, Grimm Brothers, Perrault Fairy Tales Book Review
+  - URL: https://www.youtube.com/watch?v=AI3ike8Wuss
+- [2] [일당백] 안데르센,그림 형제,페로 동화 : 괴롭고 힘든 어린이와 어른에게 가장 필요한 것은? 책 리뷰
+  - URL: https://www.youtube.com/watch?v=N1JFwwSivQc
+
+## 2026-01-09
+
+### YouTube 업로드 완료
+- 업로드된 책: Death_of_a_Salesman
+- 업로드된 영상 수: 2개
+- [1] [Summary] Death of a Salesman Book Review | [핵심 요약] 세일즈맨의 죽음 핵심 정리
+  - URL: https://www.youtube.com/watch?v=YeiN06mKKug
+- [2] [핵심 요약] 세일즈맨의 죽음 핵심 정리 | [Summary] Death of a Salesman Book Review
+  - URL: https://www.youtube.com/watch?v=cR0QYWgWlaY
