@@ -2,6 +2,24 @@
 
 ## 2026-01-08
 
+### 무라카미 하루키 상실의 시대 일당백 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 무라카미 하루키 "상실의 시대 (Norwegian Wood)" 일당백 스타일 한글/영문 롱폼 영상 제작
+  - Part 2개 자동 처리 및 영상 합성 완료
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 "상실의 시대" ↔ "Norwegian Wood" 매핑 추가
+  - **파일 구조화**: `input/` 폴더 내 파일을 `assets/notebooklm/Norwegian_Wood/`로 이동 및 표준화
+- **생성된 영상**:
+  - 한글: `output/Norwegian_Wood_full_episode_ko.mp4` (807.57초, 약 13.46분, 433MB)
+  - 영문: `output/Norwegian_Wood_full_episode_en.mp4` (675.12초, 약 11.25분, 423MB)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=GDnnnuT6T28
+  - 영문: https://www.youtube.com/watch?v=9DV5Zl7BAZg
+- **수정된 파일**:
+  - `src/utils/translations.py`: 상실의 시대 번역 매핑 추가
+  - `data/ildangbaek_books.csv`: 상실의 시대 업로드 정보 업데이트
+
 ### 일연 삼국유사 일당백 스타일 영상 제작 및 YouTube 업로드
 - **작업 내용**:
   - 일연 "삼국유사" 일당백 스타일 한글/영문 롱폼 영상 제작
@@ -2281,3 +2299,13 @@
   - URL: https://www.youtube.com/watch?v=jDM1h4QxVUI
 - [2] [한국어] 일연 삼국유사 책 리뷰 | [Korean] 일연 삼국유사 Book Review
   - URL: https://www.youtube.com/watch?v=f2LRK6GARS8
+
+## 2026-01-08
+
+### YouTube 업로드 완료
+- 업로드된 책: Norwegian_Wood_full_episode, Norwegian_Wood_full_episode_ko
+- 업로드된 영상 수: 2개
+- [1] [English] Norwegian Wood Book Review | [영어] 상실의 시대 책 리뷰
+  - URL: https://www.youtube.com/watch?v=9DV5Zl7BAZg
+- [2] [한국어] 상실의 시대 책 리뷰 | [Korean] Norwegian Wood Book Review
+  - URL: https://www.youtube.com/watch?v=GDnnnuT6T28

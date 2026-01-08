@@ -9,6 +9,8 @@ def translate_book_title(book_title: str) -> str:
     title_map = {
         "노르웨이의 숲": "Norwegian Wood",
         "노르웨이의_숲": "Norwegian Wood",
+        "상실의 시대": "Norwegian Wood",
+        "상실의_시대": "Norwegian Wood",
         "1984": "1984",
         "사피엔스": "Sapiens",
         "21세기를 위한 21가지 제언": "21 Lessons for the 21st Century",
