@@ -2,6 +2,42 @@
 
 ## 2026-01-09
 
+### 햄릿 - 셰익스피어 일당백 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 셰익스피어 "햄릿 (Hamlet)" 한글/영문 일당백 스타일 영상 제작
+  - Part 1, Part 2 비디오와 인포그래픽을 연결하여 전체 에피소드 영상 생성
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 "햄릿" ↔ "Hamlet", "로미오와 줄리엣" ↔ "Romeo and Juliet" 매핑 추가
+  - **파일 준비**: `input/` 폴더의 파일을 표준 위치로 이동 및 처리
+- **생성된 영상**:
+  - 한글: `output/Hamlet_full_episode_kr.mp4` (415.71 MB, 13.48분)
+  - 영문: `output/Hamlet_full_episode_en.mp4` (457.93 MB, 13.44분)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=ZkINbHIM3lM
+  - 영문: https://www.youtube.com/watch?v=A3UWIsFrmQU
+- **수정된 파일**:
+  - `src/utils/translations.py`: 햄릿, 로미오와 줄리엣 번역 매핑 추가
+  - `data/ildangbaek_books.csv`: 햄릿 업로드 정보 업데이트
+
+### 슬픈 열대 - 클로드 레비스트로스 일당백 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 클로드 레비스트로스 "슬픈 열대 (Tristes Tropiques)" 한글/영문 일당백 스타일 영상 제작
+  - Part 1, Part 2 비디오와 인포그래픽을 연결하여 전체 에피소드 영상 생성
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 "슬픈 열대" ↔ "Tristes Tropiques", "클로드 레비스트로스" ↔ "Claude Lévi-Strauss" 매핑 추가
+  - **파일 준비**: `input/` 폴더의 파일을 표준 위치로 이동 및 처리
+- **생성된 영상**:
+  - 한글: `output/Tristes_Tropiques_full_episode_kr.mp4` (289.45 MB, 13.91분)
+  - 영문: `output/Tristes_Tropiques_full_episode_en.mp4` (341.97 MB, 13.34분)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=50k9QSc2-vE
+  - 영문: https://www.youtube.com/watch?v=eV3hj5E_8d8
+- **수정된 파일**:
+  - `src/utils/translations.py`: 슬픈 열대, 클로드 레비스트로스 번역 매핑 추가
+  - `data/ildangbaek_books.csv`: 슬픈 열대 업로드 정보 업데이트
+
 ### 불안의 서 - 페르난두 페소아 영상 제작 및 YouTube 업로드
 - **작업 내용**:
   - 페르난두 페소아 "불안의 서 (The Book of Disquiet)" 한글/영문 영상 제작 (Summary 스타일)
@@ -2472,3 +2508,23 @@
   - URL: https://www.youtube.com/watch?v=XuYZc6J44mM
 - [2] [핵심 요약] 불안의 서 핵심 정리 | [Summary] The Book of Disquiet Book Review
   - URL: https://www.youtube.com/watch?v=4-EOxscKOrU
+
+## 2026-01-09
+
+### YouTube 업로드 완료
+- 업로드된 책: Hamlet_full_episode
+- 업로드된 영상 수: 2개
+- [1] [English] Hamlet Book Review | [영어] 햄릿 책 리뷰
+  - URL: https://www.youtube.com/watch?v=A3UWIsFrmQU
+- [2] [한국어] 햄릿 책 리뷰 | [Korean] Hamlet Book Review
+  - URL: https://www.youtube.com/watch?v=ZkINbHIM3lM
+
+## 2026-01-09
+
+### YouTube 업로드 완료
+- 업로드된 책: Tristes_Tropiques_full_episode
+- 업로드된 영상 수: 2개
+- [1] [English] Tristes Tropiques Book Review | [영어] 슬픈 열대 책 리뷰
+  - URL: https://www.youtube.com/watch?v=eV3hj5E_8d8
+- [2] [한국어] 슬픈 열대 책 리뷰 | [Korean] Tristes Tropiques Book Review
+  - URL: https://www.youtube.com/watch?v=50k9QSc2-vE
