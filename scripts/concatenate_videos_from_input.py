@@ -21,7 +21,7 @@ from src.utils.logger import setup_logger
 logger = setup_logger(__name__)
 
 try:
-    from moviepy.editor import VideoFileClip, concatenate_videoclips
+    from moviepy.editor import VideoFileClip, concatenate_videoclips, ImageClip, AudioFileClip
     MOVIEPY_AVAILABLE = True
 except ImportError as e:
     logger.error(f"❌ MoviePy import 오류: {e}")
@@ -61,7 +61,9 @@ def concatenate_videos_from_input(
     book_title: str,
     language: str = "kr",
     output_path: Optional[str] = None,
-    infographic_duration: float = 10.0
+    infographic_duration: float = 30.0,
+    background_music_path: Optional[str] = None,
+    bgm_volume: float = 0.3
 ) -> str:
     """
     Input 폴더의 비디오 파일들을 연결하여 전체 에피소드 영상 생성
@@ -70,7 +72,9 @@ def concatenate_videos_from_input(
         book_title: 책 제목
         language: 언어 ('kr' 또는 'en')
         output_path: 출력 파일 경로 (None이면 자동 생성)
-        infographic_duration: 인포그래픽 표시 시간 (초)
+        infographic_duration: 인포그래픽 표시 시간 (초, 기본값: 30.0)
+        background_music_path: 배경음악 파일 경로 (선택사항)
+        bgm_volume: 배경음악 음량 (0.0 ~ 1.0, 기본값: 0.3)
         
     Returns:
         생성된 영상 파일 경로
@@ -106,6 +110,7 @@ def concatenate_videos_from_input(
     fps = 30
     
     video_clips = []
+    info_clip_indices = []  # 배경음악 처리를 위해 인포그래픽 클립의 인덱스 저장
     
     # 각 비디오 파일 로드 및 처리
     for i, video_file in enumerate(video_files, 1):
@@ -137,7 +142,6 @@ def concatenate_videos_from_input(
             logger.info(f"   파일: {info_file.name}")
             logger.info(f"   효과: 정적 이미지 ({infographic_duration}초)")
             
-            from moviepy.editor import ImageClip
             info_clip = ImageClip(str(info_file), duration=infographic_duration)
             
             # 해상도 통일
@@ -150,7 +154,198 @@ def concatenate_videos_from_input(
             logger.info(f"   ✅ 완료: {info_clip.duration:.2f}초")
             logger.info("")
             
+            # 인포그래픽 클립의 인덱스 저장 (배경음악 추가용)
+            info_clip_indices.append(len(video_clips))
             video_clips.append(info_clip)
+    
+    # 배경음악을 인포그래픽에만 추가
+    if background_music_path and Path(background_music_path).exists() and info_clip_indices:
+        logger.info("🎵 배경음악 추가 중 (인포그래픽에만 적용)...")
+        logger.info(f"   파일: {Path(background_music_path).name}")
+        logger.info(f"   음량: {bgm_volume * 100:.0f}%")
+        
+        try:
+            # 배경음악 파일 로드
+            logger.info(f"   📂 배경음악 파일 로드 중: {Path(background_music_path).name}")
+            try:
+                bgm = AudioFileClip(background_music_path)
+                if bgm.reader is None:
+                    raise ValueError("AudioFileClip reader가 None입니다. 파일이 손상되었거나 지원되지 않는 형식일 수 있습니다.")
+            except Exception as load_error:
+                logger.error(f"   ❌ 배경음악 파일 로드 실패: {load_error}")
+                logger.warning("   배경음악 없이 진행합니다.")
+                bgm = None
+            
+            if bgm is not None:
+                bgm_duration = bgm.duration
+                
+                # 음량 조절
+                try:
+                    from moviepy.audio.fx.all import volumex
+                    bgm = bgm.fx(volumex, bgm_volume)
+                except ImportError:
+                    try:
+                        bgm = bgm.volumex(bgm_volume)
+                    except AttributeError:
+                        logger.warning("   ⚠️ 음량 조절 실패, 원본 음량 사용")
+                
+                # 각 인포그래픽 클립에 배경음악 추가
+                bgm_start_time = 0
+                for i, clip_index in enumerate(info_clip_indices):
+                    if clip_index < len(video_clips):
+                        info_clip = video_clips[clip_index]
+                        # 배경음악 세그먼트 생성 (인포그래픽 길이에 맞춤)
+                        clip_duration = info_clip.duration
+                        bgm_end_time = min(bgm_start_time + clip_duration, bgm_duration)
+                        
+                        # 배경음악이 부족하면 처음부터 반복
+                        if bgm_end_time <= bgm_start_time:
+                            bgm_start_time = 0
+                            bgm_end_time = min(clip_duration, bgm_duration)
+                        
+                        bgm_segment = bgm.subclip(bgm_start_time, bgm_end_time)
+                        
+                        # 오디오 길이를 정확히 클립 길이에 맞춤
+                        if bgm_segment.duration < clip_duration:
+                            # 배경음악이 짧으면 반복
+                            from moviepy.audio.AudioClip import concatenate_audioclips
+                            loops_needed = int(clip_duration / bgm_segment.duration) + 1
+                            bgm_segment = concatenate_audioclips([bgm_segment] * loops_needed)
+                            bgm_segment = bgm_segment.subclip(0, clip_duration)
+                        elif bgm_segment.duration > clip_duration:
+                            # 배경음악이 길면 자르기
+                            bgm_segment = bgm_segment.subclip(0, clip_duration)
+                        
+                        # fadeout 효과 추가 (마지막 2초)
+                        fadeout_duration = min(2.0, clip_duration * 0.2)  # 최대 2초 또는 클립 길이의 20%
+                        try:
+                            from moviepy.audio.fx.all import audio_fadeout
+                            bgm_segment = bgm_segment.fx(audio_fadeout, fadeout_duration)
+                        except (ImportError, AttributeError):
+                            try:
+                                import numpy as np
+                                def make_frame(t):
+                                    if t >= bgm_segment.duration - fadeout_duration:
+                                        fade_progress = (t - (bgm_segment.duration - fadeout_duration)) / fadeout_duration
+                                        volume_factor = 1.0 - fade_progress
+                                        return bgm_segment.get_frame(t) * volume_factor
+                                    return bgm_segment.get_frame(t)
+                                bgm_segment = bgm_segment.fl(make_frame, apply_to=['audio'])
+                            except:
+                                logger.warning("   ⚠️ fadeout 효과 적용 실패, 원본 음악 사용")
+                        
+                        # 인포그래픽 클립에 배경음악 추가
+                        info_clip_with_audio = info_clip.set_audio(bgm_segment)
+                        video_clips[clip_index] = info_clip_with_audio
+                        
+                        logger.info(f"   ✅ Part {i+1} 인포그래픽에 배경음악 추가")
+                        logger.info(f"      - 오디오 길이: {bgm_segment.duration:.2f}초 (클립: {clip_duration:.2f}초)")
+                        logger.info(f"      - fadeout: {fadeout_duration:.1f}초")
+                        
+                        bgm_start_time = bgm_end_time
+                        # 배경음악이 끝나면 처음부터 다시 시작
+                        if bgm_start_time >= bgm_duration:
+                            bgm_start_time = 0
+                
+                # bgm.close()는 나중에 (렌더링 후) 호출
+                logger.info("   ✅ 배경음악 추가 완료 (인포그래픽에만)")
+        except Exception as e:
+            logger.warning(f"   ⚠️ 배경음악 추가 실패: {e}")
+            logger.warning("   배경음악 없이 진행합니다.")
+    elif background_music_path:
+        logger.warning(f"   ⚠️ 배경음악 파일을 찾을 수 없습니다: {background_music_path}")
+        logger.warning("   배경음악 없이 진행합니다.")
+    
+    logger.info("")
+    
+    # 배경음악 자동 탐지 (지정되지 않은 경우)
+    if background_music_path is None:
+        logger.info("🔍 배경음악 자동 탐지 중...")
+        
+        # 1. input 폴더에서 배경음악 찾기
+        bgm_files = []
+        if input_dir.exists():
+            bgm_patterns = [
+                "background*.mp3", "background*.wav", "background*.m4a",
+                "bgm*.mp3", "bgm*.wav", "bgm*.m4a",
+                "music*.mp3", "music*.wav", "music*.m4a"
+            ]
+            for pattern in bgm_patterns:
+                bgm_files.extend(list(input_dir.glob(pattern)))
+            bgm_files = list(set(bgm_files))
+        
+        # 2. assets/music 폴더에서 배경음악 찾기
+        music_dir = Path("assets/music")
+        if music_dir.exists():
+            bgm_files.extend(list(music_dir.glob("*.mp3")))
+            bgm_files.extend(list(music_dir.glob("*.wav")))
+            bgm_files.extend(list(music_dir.glob("*.m4a")))
+        
+        bgm_files = list(set(bgm_files))
+        
+        if bgm_files:
+            # 첫 번째 파일 자동 선택
+            background_music_path = str(bgm_files[0])
+            logger.info(f"   ✅ 배경음악 자동 선택: {bgm_files[0].name}")
+            
+            # 배경음악 추가 로직 재실행
+            if info_clip_indices:
+                try:
+                    bgm = AudioFileClip(background_music_path)
+                    bgm_duration = bgm.duration
+                    
+                    # 음량 조절
+                    try:
+                        from moviepy.audio.fx.all import volumex
+                        bgm = bgm.fx(volumex, bgm_volume)
+                    except ImportError:
+                        try:
+                            bgm = bgm.volumex(bgm_volume)
+                        except AttributeError:
+                            pass
+                    
+                    # 각 인포그래픽 클립에 배경음악 추가
+                    bgm_start_time = 0
+                    for i, clip_index in enumerate(info_clip_indices):
+                        if clip_index < len(video_clips):
+                            info_clip = video_clips[clip_index]
+                            clip_duration = info_clip.duration
+                            bgm_end_time = min(bgm_start_time + clip_duration, bgm_duration)
+                            
+                            if bgm_end_time <= bgm_start_time:
+                                bgm_start_time = 0
+                                bgm_end_time = min(clip_duration, bgm_duration)
+                            
+                            bgm_segment = bgm.subclip(bgm_start_time, bgm_end_time)
+                            
+                            if bgm_segment.duration < clip_duration:
+                                from moviepy.audio.AudioClip import concatenate_audioclips
+                                loops_needed = int(clip_duration / bgm_segment.duration) + 1
+                                bgm_segment = concatenate_audioclips([bgm_segment] * loops_needed)
+                                bgm_segment = bgm_segment.subclip(0, clip_duration)
+                            elif bgm_segment.duration > clip_duration:
+                                bgm_segment = bgm_segment.subclip(0, clip_duration)
+                            
+                            fadeout_duration = min(2.0, clip_duration * 0.2)
+                            try:
+                                from moviepy.audio.fx.all import audio_fadeout
+                                bgm_segment = bgm_segment.fx(audio_fadeout, fadeout_duration)
+                            except:
+                                pass
+                            
+                            info_clip_with_audio = info_clip.set_audio(bgm_segment)
+                            video_clips[clip_index] = info_clip_with_audio
+                            
+                            bgm_start_time = bgm_end_time
+                            if bgm_start_time >= bgm_duration:
+                                bgm_start_time = 0
+                    
+                    logger.info("   ✅ 배경음악 자동 추가 완료")
+                except Exception as e:
+                    logger.warning(f"   ⚠️ 배경음악 자동 추가 실패: {e}")
+        else:
+            logger.info("   💡 배경음악 파일을 찾을 수 없습니다. 배경음악 없이 진행합니다.")
+        logger.info("")
     
     # 모든 클립 연결
     logger.info("🔗 모든 클립 연결 중...")
@@ -239,8 +434,22 @@ def main():
     parser.add_argument(
         '--infographic-duration',
         type=float,
-        default=10.0,
-        help='인포그래픽 표시 시간 (초, 기본값: 10.0)'
+        default=30.0,
+        help='인포그래픽 표시 시간 (초, 기본값: 30.0)'
+    )
+    
+    parser.add_argument(
+        '--background-music',
+        type=str,
+        default=None,
+        help='배경음악 파일 경로 (선택사항, 자동 탐지 시도)'
+    )
+    
+    parser.add_argument(
+        '--bgm-volume',
+        type=float,
+        default=0.3,
+        help='배경음악 음량 (0.0 ~ 1.0, 기본값: 0.3)'
     )
     
     args = parser.parse_args()
@@ -250,7 +459,9 @@ def main():
             book_title=args.title,
             language=args.language,
             output_path=args.output,
-            infographic_duration=args.infographic_duration
+            infographic_duration=args.infographic_duration,
+            background_music_path=args.background_music,
+            bgm_volume=args.bgm_volume
         )
         print(f"\n✅ 성공: {output_path}")
         return 0

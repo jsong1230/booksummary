@@ -2,6 +2,29 @@
 
 ## 2026-01-09
 
+### 로미오와 줄리엣 - 셰익스피어 일당백 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 셰익스피어 "로미오와 줄리엣 (Romeo and Juliet)" 한글/영문 일당백 스타일 영상 제작
+  - Part 1, Part 2 비디오와 인포그래픽을 연결하여 전체 에피소드 영상 생성
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **일당백 스타일 영상 생성 스크립트 개선**: `scripts/concatenate_videos_from_input.py` 수정
+    - 인포그래픽 표시 시간 기본값 변경: 10초 → **30초**
+    - 백그라운드 음악 처리 기능 추가 (인포그래픽에만 적용)
+    - 배경음악 자동 탐지 기능 추가 (`input/` 또는 `assets/music/` 폴더에서 자동 탐지)
+    - 음량 조절 및 fadeout 효과 적용
+  - **번역 매핑**: 이미 "로미오와 줄리엣" ↔ "Romeo and Juliet" 매핑 존재
+  - **파일 준비**: `input/` 폴더의 파일을 표준 위치로 이동 및 처리
+- **생성된 영상**:
+  - 한글: `output/Romeo_and_Juliet_full_episode_kr.mp4` (423.30 MB, 14.14분)
+  - 영문: `output/Romeo_and_Juliet_full_episode_en.mp4` (465.40 MB, 14.11분)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=ppsrfEzbOYo
+  - 영문: https://www.youtube.com/watch?v=tOTLB-dxmls
+- **수정된 파일**:
+  - `scripts/concatenate_videos_from_input.py`: 인포그래픽 30초 유지 및 백그라운드 음악 기능 추가
+  - `data/ildangbaek_books.csv`: 로미오와 줄리엣 업로드 정보 업데이트
+
 ### 햄릿 - 셰익스피어 일당백 스타일 영상 제작 및 YouTube 업로드
 - **작업 내용**:
   - 셰익스피어 "햄릿 (Hamlet)" 한글/영문 일당백 스타일 영상 제작
@@ -2538,3 +2561,13 @@
   - URL: https://www.youtube.com/watch?v=9I8qFu3gcIQ
 - [2] [핵심 요약] 불안의 서 핵심 정리 | [Summary] The Book of Disquiet Book Review
   - URL: https://www.youtube.com/watch?v=mj7NRfJLtAw
+
+## 2026-01-09
+
+### YouTube 업로드 완료
+- 업로드된 책: Romeo_and_Juliet_full_episode
+- 업로드된 영상 수: 2개
+- [1] [English] Romeo and Juliet Book Review | [영어] 로미오와 줄리엣 책 리뷰
+  - URL: https://www.youtube.com/watch?v=tOTLB-dxmls
+- [2] [한국어] 로미오와 줄리엣 책 리뷰 | [Korean] Romeo and Juliet Book Review
+  - URL: https://www.youtube.com/watch?v=ppsrfEzbOYo
