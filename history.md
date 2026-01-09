@@ -2,6 +2,49 @@
 
 ## 2026-01-09
 
+### 불안의 서 - 페르난두 페소아 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 페르난두 페소아 "불안의 서 (The Book of Disquiet)" 한글/영문 영상 제작 (Summary 스타일)
+  - Summary(5분) + NotebookLM + Review 구조로 영상 생성
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 "불안의 서" ↔ "The Book of Disquiet", "페르난두 페소아" ↔ "Fernando Pessoa" 매핑 추가
+  - **파일 준비**: `input/` 폴더의 파일을 표준 위치로 이동 및 변환
+  - **이미지 다운로드**: 100개 무드 이미지 다운로드 완료 (Pexels 90개, Unsplash 10개, Pixabay API 오류 발생)
+  - **TTS 오디오 생성**: 한글/영문 Summary TTS 오디오 생성 완료
+- **생성된 영상**:
+  - 한글: `output/The_Book_of_Disquiet_kr.mp4` (311.02 MB)
+  - 영문: `output/The_Book_of_Disquiet_en.mp4` (288.16 MB)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=4-EOxscKOrU
+  - 영문: https://www.youtube.com/watch?v=XuYZc6J44mM
+- **수정된 파일**:
+  - `src/utils/translations.py`: 불안의 서, 페르난두 페소아 번역 매핑 추가
+  - `data/ildangbaek_books.csv`: 불안의 서 업로드 정보 업데이트
+
+### 이키가이 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - "이키가이 (Ikigai)" 한글/영문 영상 제작 (Summary 스타일)
+  - Summary(5분) + NotebookLM + Review 구조로 영상 생성
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 "이키가이" ↔ "Ikigai" 매핑 추가
+  - **파일 준비**: `input/` 폴더의 파일을 표준 위치로 이동 및 변환
+  - **이미지 다운로드**: 100개 무드 이미지 다운로드 완료 (이미지 다운로드 로직 개선: 지연 최소화)
+  - **TTS 오디오 생성**: 한글/영문 Summary TTS 오디오 생성 완료
+- **생성된 영상**:
+  - 한글: `output/Ikigai_kr.mp4` (266.72 MB)
+  - 영문: `output/Ikigai_en.mp4` (218.40 MB)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=Hj1ySsg3tn0
+  - 영문: https://www.youtube.com/watch?v=mSkAQrep1yE
+- **수정된 파일**:
+  - `src/utils/translations.py`: 이키가이 번역 매핑 추가
+  - `src/02_get_images.py`: 이미지 다운로드 로직 개선 (지연 최소화)
+  - `src/20_create_episode_metadata.py`: 일당백 영상 제목 포맷 규칙 명시 (주석 추가)
+  - `.cursorrules`: 일당백 영상 제목 포맷 규칙 추가 (명시적 요청 없이 변경 금지)
+  - `data/ildangbaek_books.csv`: 이키가이 업로드 정보 업데이트
+
 ### 세일즈맨의 죽음 - 아서 밀러 영상 재생성 및 YouTube 재업로드
 - **작업 내용**:
   - 아서 밀러 "세일즈맨의 죽음 (Death of a Salesman)" 한글/영문 영상 재생성 (Summary 스타일)
@@ -2409,3 +2452,23 @@
   - URL: https://www.youtube.com/watch?v=YeiN06mKKug
 - [2] [핵심 요약] 세일즈맨의 죽음 핵심 정리 | [Summary] Death of a Salesman Book Review
   - URL: https://www.youtube.com/watch?v=cR0QYWgWlaY
+
+## 2026-01-09
+
+### YouTube 업로드 완료
+- 업로드된 책: Ikigai
+- 업로드된 영상 수: 2개
+- [1] [Summary] Ikigai Book Review | [핵심 요약] 이키가이 핵심 정리
+  - URL: https://www.youtube.com/watch?v=mSkAQrep1yE
+- [2] [핵심 요약] 이키가이 핵심 정리 | [Summary] Ikigai Book Review
+  - URL: https://www.youtube.com/watch?v=Hj1ySsg3tn0
+
+## 2026-01-09
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Book_of_Disquiet
+- 업로드된 영상 수: 2개
+- [1] [Summary] The Book of Disquiet Book Review | [핵심 요약] 불안의 서 핵심 정리
+  - URL: https://www.youtube.com/watch?v=XuYZc6J44mM
+- [2] [핵심 요약] 불안의 서 핵심 정리 | [Summary] The Book of Disquiet Book Review
+  - URL: https://www.youtube.com/watch?v=4-EOxscKOrU

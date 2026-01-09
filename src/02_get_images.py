@@ -278,7 +278,7 @@ class ImageDownloader:
             return None
     
     @retry_with_backoff(retries=3, backoff_in_seconds=2.0)
-    def download_mood_images_unsplash(self, keywords: List[str], num_images: int = 100, output_dir: Path = None) -> List[str]:
+    def download_mood_images_unsplash(self, keywords: List[str], num_images: int = 100, output_dir: Path = None, max_per_keyword_override: Optional[int] = None) -> List[str]:
         """
         Unsplash API로 무드 이미지 다운로드
         
@@ -286,6 +286,7 @@ class ImageDownloader:
             keywords: 검색 키워드 리스트
             num_images: 다운로드할 이미지 개수
             output_dir: 저장 디렉토리
+            max_per_keyword_override: 키워드당 최대 이미지 수 오버라이드 (None이면 자동 계산)
             
         Returns:
             다운로드된 파일 경로 리스트
@@ -297,7 +298,11 @@ class ImageDownloader:
         downloaded = []
         # 각 키워드에서 가져올 이미지 수 (다양성을 위해 제한)
         # 키워드가 많으면 적게, 적으면 많이 가져옴 (최소 2개, 최대 5개)
-        max_per_keyword = max(2, min(5, num_images // (len(keywords) or 1)))
+        # 추가 다운로드 시에는 제한을 완화하여 빠르게 다운로드
+        if max_per_keyword_override is not None:
+            max_per_keyword = max_per_keyword_override
+        else:
+            max_per_keyword = max(2, min(5, num_images // (len(keywords) or 1)))
         
         # 키워드 순서 섞기 (매번 같은 키워드만 사용되지 않도록)
         shuffled_keywords = keywords.copy()
@@ -375,7 +380,7 @@ class ImageDownloader:
         return downloaded
     
     @retry_with_backoff(retries=3, backoff_in_seconds=2.0)
-    def download_mood_images_pexels(self, keywords: List[str], num_images: int = 100, output_dir: Path = None) -> List[str]:
+    def download_mood_images_pexels(self, keywords: List[str], num_images: int = 100, output_dir: Path = None, max_per_keyword_override: Optional[int] = None) -> List[str]:
         """
         Pexels API로 무드 이미지 다운로드
         
@@ -383,6 +388,7 @@ class ImageDownloader:
             keywords: 검색 키워드 리스트
             num_images: 다운로드할 이미지 개수
             output_dir: 저장 디렉토리
+            max_per_keyword_override: 키워드당 최대 이미지 수 오버라이드 (None이면 자동 계산)
             
         Returns:
             다운로드된 파일 경로 리스트
@@ -393,7 +399,11 @@ class ImageDownloader:
         
         downloaded = []
         # 키워드당 최대 이미지 수 제한 (다양성 확보)
-        max_per_keyword = max(2, min(5, num_images // (len(keywords) or 1)))
+        # 추가 다운로드 시에는 제한을 완화하여 빠르게 다운로드
+        if max_per_keyword_override is not None:
+            max_per_keyword = max_per_keyword_override
+        else:
+            max_per_keyword = max(2, min(5, num_images // (len(keywords) or 1)))
         
         # 키워드 순서 섞기
         shuffled_keywords = keywords.copy()
@@ -459,7 +469,7 @@ class ImageDownloader:
         return downloaded
     
     @retry_with_backoff(retries=3, backoff_in_seconds=2.0)
-    def download_mood_images_pixabay(self, keywords: List[str], num_images: int = 100, output_dir: Path = None) -> List[str]:
+    def download_mood_images_pixabay(self, keywords: List[str], num_images: int = 100, output_dir: Path = None, max_per_keyword_override: Optional[int] = None) -> List[str]:
         """
         Pixabay API로 무드 이미지 다운로드
         
@@ -467,6 +477,7 @@ class ImageDownloader:
             keywords: 검색 키워드 리스트
             num_images: 다운로드할 이미지 개수
             output_dir: 저장 디렉토리
+            max_per_keyword_override: 키워드당 최대 이미지 수 오버라이드 (None이면 자동 계산)
             
         Returns:
             다운로드된 파일 경로 리스트
@@ -477,7 +488,11 @@ class ImageDownloader:
         
         downloaded = []
         # 키워드당 최대 이미지 수 제한
-        max_per_keyword = max(2, min(5, num_images // (len(keywords) or 1)))
+        # 추가 다운로드 시에는 제한을 완화하여 빠르게 다운로드
+        if max_per_keyword_override is not None:
+            max_per_keyword = max_per_keyword_override
+        else:
+            max_per_keyword = max(2, min(5, num_images // (len(keywords) or 1)))
         
         # 키워드 순서 섞기
         shuffled_keywords = keywords.copy()
@@ -643,6 +658,7 @@ class ImageDownloader:
             self.logger.info(f"✅ Unsplash: {len(additional)}개 추가 다운로드 완료")
         
         # 여전히 부족하면 키워드를 순환하며 추가 다운로드
+        # 개선: 한 번에 더 많은 이미지를 가져오고, 병렬 처리를 최적화하여 지연 최소화
         if len(mood_images) < target_count:
             remaining = target_count - len(mood_images)
             self.logger.info(f"🔄 추가 키워드로 이미지 다운로드 중... (목표: {remaining}개)")
@@ -651,42 +667,71 @@ class ImageDownloader:
             shuffled_keywords = keywords.copy()
             random.shuffle(shuffled_keywords)
             
-            # 키워드를 순환하며 추가 다운로드
+            # 추가 다운로드: 한 번에 더 많은 이미지를 가져오도록 개선
+            # 키워드당 최대 개수를 늘리고, 병렬 처리를 최적화
             keyword_cycle = 0
-            while len(mood_images) < target_count and keyword_cycle < len(keywords) * 2:
-                for keyword in shuffled_keywords:
-                    if len(mood_images) >= target_count:
-                        break
+            max_cycles = 3  # 최대 3번 순환 (기존 len(keywords) * 2에서 축소)
+            
+            while len(mood_images) < target_count and keyword_cycle < max_cycles:
+                remaining = target_count - len(mood_images)
+                if remaining <= 0:
+                    break
+                
+                # 한 번에 더 많은 이미지를 가져오기 위해 키워드당 최대 개수 증가
+                # 남은 개수가 적으면 한 번에 처리
+                batch_size = min(remaining, 10)  # 한 번에 최대 10개씩 처리
+                
+                # Pexels에서 추가 시도 (1순위) - 우선적으로 더 많이 가져오기
+                if len(mood_images) < target_count and self.pexels:
                     remaining = target_count - len(mood_images)
-                    if remaining <= 0:
-                        break
-                    
-                    # Pexels에서 추가 시도 (1순위)
-                    if len(mood_images) < target_count and self.pexels:
-                        remaining = target_count - len(mood_images)
-                        try:
-                            additional = self.download_mood_images_pexels([keyword], min(remaining, 3), output_dir)
-                            mood_images.extend(additional)
-                        except:
-                            pass
-                    
-                    # Pixabay에서 추가 시도 (2순위)
-                    if len(mood_images) < target_count and self.pixabay_api_key:
-                        remaining = target_count - len(mood_images)
-                        try:
-                            additional = self.download_mood_images_pixabay([keyword], min(remaining, 3), output_dir)
-                            mood_images.extend(additional)
-                        except:
-                            pass
-                    
-                    # Unsplash에서 추가 시도 (3순위)
-                    if len(mood_images) < target_count and self.unsplash_access_key:
-                        remaining = target_count - len(mood_images)
-                        try:
-                            additional = self.download_mood_images_unsplash([keyword], min(remaining, 3), output_dir)
-                            mood_images.extend(additional)
-                        except:
-                            pass
+                    try:
+                        # 추가 다운로드 시 키워드당 제한을 완화 (최대 10개까지 허용)
+                        # 남은 개수가 적으면 한 번에 빠르게 처리
+                        additional = self.download_mood_images_pexels(
+                            shuffled_keywords[:5], 
+                            remaining, 
+                            output_dir,
+                            max_per_keyword_override=min(10, remaining)  # 키워드당 최대 10개까지 허용
+                        )
+                        mood_images.extend(additional)
+                        if len(mood_images) >= target_count:
+                            break
+                    except Exception as e:
+                        self.logger.warning(f"Pexels 추가 다운로드 실패: {e}")
+                
+                # Pixabay에서 추가 시도 (2순위)
+                if len(mood_images) < target_count and self.pixabay_api_key:
+                    remaining = target_count - len(mood_images)
+                    try:
+                        # 추가 다운로드 시 키워드당 제한을 완화
+                        additional = self.download_mood_images_pixabay(
+                            shuffled_keywords[:5], 
+                            remaining, 
+                            output_dir,
+                            max_per_keyword_override=min(10, remaining)  # 키워드당 최대 10개까지 허용
+                        )
+                        mood_images.extend(additional)
+                        if len(mood_images) >= target_count:
+                            break
+                    except Exception as e:
+                        self.logger.warning(f"Pixabay 추가 다운로드 실패: {e}")
+                
+                # Unsplash에서 추가 시도 (3순위)
+                if len(mood_images) < target_count and self.unsplash_access_key:
+                    remaining = target_count - len(mood_images)
+                    try:
+                        # 추가 다운로드 시 키워드당 제한을 완화
+                        additional = self.download_mood_images_unsplash(
+                            shuffled_keywords[:5], 
+                            remaining, 
+                            output_dir,
+                            max_per_keyword_override=min(10, remaining)  # 키워드당 최대 10개까지 허용
+                        )
+                        mood_images.extend(additional)
+                        if len(mood_images) >= target_count:
+                            break
+                    except Exception as e:
+                        self.logger.warning(f"Unsplash 추가 다운로드 실패: {e}")
                 
                 keyword_cycle += 1
                 if len(mood_images) >= target_count:

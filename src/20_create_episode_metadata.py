@@ -155,6 +155,13 @@ def generate_episode_title(book_title: str, language: str = "ko", book_info: Opt
     """
     에피소드 영상 제목 생성
     
+    ⚠️ 중요: 이 함수의 제목 포맷은 고정되어 있습니다. 명시적 요청이 없으면 절대 변경하지 마세요.
+    
+    제목 포맷 규칙 (고정):
+    - 한글 영상: "[한국어] {한글제목} 책 리뷰{작가명} | [Korean] {영문제목} Book Review"
+    - 영문 영상: "[English] {영문제목} Book Review{작가명} | [영어] {한글제목} 책 리뷰"
+    - 작가명은 선택사항이며, 있으면 공백 하나 뒤에 추가
+    
     Args:
         book_title: 책 제목
         language: 언어 ('ko' 또는 'en')
