@@ -2528,3 +2528,13 @@
   - URL: https://www.youtube.com/watch?v=eV3hj5E_8d8
 - [2] [한국어] 슬픈 열대 책 리뷰 | [Korean] Tristes Tropiques Book Review
   - URL: https://www.youtube.com/watch?v=50k9QSc2-vE
+
+## 2026-01-09
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Book_of_Disquiet
+- 업로드된 영상 수: 2개
+- [1] [Summary] The Book of Disquiet Book Review | [핵심 요약] 불안의 서 핵심 정리
+  - URL: https://www.youtube.com/watch?v=9I8qFu3gcIQ
+- [2] [핵심 요약] 불안의 서 핵심 정리 | [Summary] The Book of Disquiet Book Review
+  - URL: https://www.youtube.com/watch?v=mj7NRfJLtAw
