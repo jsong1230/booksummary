@@ -2,6 +2,24 @@
 
 ## 2026-01-11
 
+### 막스 베버 - 프로테스탄티즘의 윤리와 자본주의 정신 일당백 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 막스 베버 "프로테스탄티즘의 윤리와 자본주의 정신 (The Protestant Ethic and the Spirit of Capitalism)" 한글/영문 일당백 스타일 영상 제작
+  - Part 1, Part 2 비디오와 인포그래픽을 연결하여 전체 에피소드 영상 생성
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 "프로테스탄티즘의 윤리와 자본주의 정신" ↔ "The Protestant Ethic and the Spirit of Capitalism", "막스 베버" ↔ "Max Weber" 매핑 추가
+  - **제목 길이 제한 처리**: YouTube 100자 제한에 맞춰 제목 축약 ("The Protestant Ethic and the Spirit of Capitalism" → "Protestant Ethic & Capitalism")
+- **생성된 영상**:
+  - 한글: `output/The_Protestant_Ethic_and_the_Spirit_of_Capitalism_full_episode_kr.mp4` (224.32 MB, 12.32분)
+  - 영문: `output/The_Protestant_Ethic_and_the_Spirit_of_Capitalism_full_episode_en.mp4` (456.59 MB, 13.08분)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=Y05T3AebwVQ
+  - 영문: https://www.youtube.com/watch?v=eL05LOss05k
+- **수정된 파일**:
+  - `src/utils/translations.py`: 프로테스탄티즘의 윤리와 자본주의 정신, 막스 베버 번역 매핑 추가
+  - `data/ildangbaek_books.csv`: 프로테스탄티즘의 윤리와 자본주의 정신 업로드 정보 업데이트
+
 ### 레비스트로스 - 슬픈 열대 일당백 스타일 영상 제작 및 YouTube 업로드
 - **작업 내용**:
   - 클로드 레비스트로스 "레비스트로스 - 슬픈 열대 (Tristes Tropiques)" 한글/영문 일당백 스타일 영상 제작
@@ -2668,3 +2686,13 @@
   - URL: https://www.youtube.com/watch?v=ruhMqnEL0Wo
 - [2] [한국어] 슬픈 열대 책 리뷰 | [Korean] Tristes Tropiques Book Review
   - URL: https://www.youtube.com/watch?v=nYHyS1q5sTY
+
+## 2026-01-11
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Protestant_Ethic_and_the_Spirit_of_Capitalism_full_episode
+- 업로드된 영상 수: 2개
+- [1] [English] Protestant Ethic & Capitalism Book Review | [영어] 프로테스탄티즘의 윤리와 자본주의 정신
+  - URL: https://www.youtube.com/watch?v=eL05LOss05k
+- [2] [한국어] 프로테스탄티즘의 윤리와 자본주의 정신 | [Korean] Protestant Ethic & Capitalism Book Review
+  - URL: https://www.youtube.com/watch?v=Y05T3AebwVQ

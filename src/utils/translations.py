@@ -350,6 +350,9 @@ def translate_book_title(book_title: str) -> str:
         "겨울 나그네": "Winterreise",
         "겨울_나그네": "Winterreise",
         "Winterreise": "Winterreise",
+        "프로테스탄티즘의 윤리와 자본주의 정신": "The Protestant Ethic and the Spirit of Capitalism",
+        "프로테스탄티즘의_윤리와_자본주의_정신": "The Protestant Ethic and the Spirit of Capitalism",
+        "The Protestant Ethic and the Spirit of Capitalism": "The Protestant Ethic and the Spirit of Capitalism",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -459,6 +462,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "The Neurotic's Guide to Avoiding Enlightenment": "뇌는 어떻게 나를 조종하는가",
         "The Odyssey": "오다세이아",
         "Winterreise": "슈베르트의 겨울 나그네",
+        "The Protestant Ethic and the Spirit of Capitalism": "프로테스탄티즘의 윤리와 자본주의 정신",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -582,6 +586,8 @@ def translate_author_name(author: str) -> str:
         "Thomas Piketty": "Thomas Piketty",
         "시다르타 무케르지": "Siddhartha Mukherjee",
         "시다르타_무케르지": "Siddhartha Mukherjee",
+        "막스 베버": "Max Weber",
+        "Max Weber": "Max Weber",
         "Siddhartha Mukherjee": "Siddhartha Mukherjee",
         "더글라스 애덤스": "Douglas Adams",
         "더글라스_애덤스": "Douglas Adams",
@@ -746,6 +752,7 @@ def translate_author_name_to_korean(author: str) -> str:
         "E.T.A. Hoffmann": "E.T.A. 호프만",
         "Raymond Briggs": "레이먼드 브릭스",
         "Greg McKeown": "그렉 맥커운",
+        "Max Weber": "막스 베버",
         "Hans Rosling": "한스 로슬링",
         "Thomas Piketty": "토마 피케티",
         "Siddhartha Mukherjee": "시다르타 무케르지",
