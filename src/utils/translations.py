@@ -334,6 +334,22 @@ def translate_book_title(book_title: str) -> str:
         "과학혁명의 구조": "The Structure of Scientific Revolutions",
         "과학혁명의_구조": "The_Structure_of_Scientific_Revolutions",
         "The Structure of Scientific Revolutions": "The Structure of Scientific Revolutions",
+        "퓨처 셀프": "Future Self",
+        "퓨처_셀프": "Future Self",
+        "Future Self": "Future Self",
+        "신경증 환자를 위한 깨달음 회피 가이드": "The Neurotic's Guide to Avoiding Enlightenment",
+        "신경증_환자를_위한_깨달음_회피_가이드": "The Neurotic's Guide to Avoiding Enlightenment",
+        "뇌는 어떻게 나를 조종하는가": "The Neurotic's Guide to Avoiding Enlightenment",
+        "뇌는_어떻게_나를_조종하는가": "The Neurotic's Guide to Avoiding Enlightenment",
+        "The Neurotic's Guide to Avoiding Enlightenment": "The Neurotic's Guide to Avoiding Enlightenment",
+        "오다세이아": "The Odyssey",
+        "오다세이아_": "The Odyssey",
+        "The Odyssey": "The Odyssey",
+        "슈베르트의 겨울 나그네": "Winterreise",
+        "슈베르트의_겨울_나그네": "Winterreise",
+        "겨울 나그네": "Winterreise",
+        "겨울_나그네": "Winterreise",
+        "Winterreise": "Winterreise",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -439,6 +455,10 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "The Second Sex": "시몬 드 보부아르 제2의 성",
         "Essays": "수상록",
         "The Essays of Montaigne": "수상록",
+        "Future Self": "퓨처 셀프",
+        "The Neurotic's Guide to Avoiding Enlightenment": "뇌는 어떻게 나를 조종하는가",
+        "The Odyssey": "오다세이아",
+        "Winterreise": "슈베르트의 겨울 나그네",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -662,6 +682,17 @@ def translate_author_name(author: str) -> str:
         "레비스트로스": "Claude Lévi-Strauss",
         "Claude Lévi-Strauss": "Claude Lévi-Strauss",
         "Lévi-Strauss": "Claude Lévi-Strauss",
+        "벤저민 하디": "Benjamin Hardy",
+        "벤저민_하디": "Benjamin Hardy",
+        "Benjamin Hardy": "Benjamin Hardy",
+        "크리스 니바우어": "Chris Niebauer",
+        "크리스_니바우어": "Chris Niebauer",
+        "Chris Niebauer": "Chris Niebauer",
+        "호메로스": "Homer",
+        "Homer": "Homer",
+        "이언 보스트리지": "Ian Bostridge",
+        "이언_보스트리지": "Ian Bostridge",
+        "Ian Bostridge": "Ian Bostridge",
     }
     
     if author in author_map:
@@ -746,6 +777,10 @@ def translate_author_name_to_korean(author: str) -> str:
         "Fitzgerald": "스콧 피츠제럴드",
         "Karl Marx": "카를 마르크스",
         "Marx": "카를 마르크스",
+        "Benjamin Hardy": "벤저민 하디",
+        "Chris Niebauer": "크리스 니바우어",
+        "Homer": "호메로스",
+        "Ian Bostridge": "이언 보스트리지",
     }
     
     if author in reverse_author_map:

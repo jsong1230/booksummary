@@ -1,5 +1,46 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2026-01-11
+
+### 레비스트로스 - 슬픈 열대 일당백 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 클로드 레비스트로스 "레비스트로스 - 슬픈 열대 (Tristes Tropiques)" 한글/영문 일당백 스타일 영상 제작
+  - Part 1, Part 2 비디오와 인포그래픽을 연결하여 전체 에피소드 영상 생성
+  - YouTube 업로드 완료 (한글/영문)
+- **생성된 영상**:
+  - 한글: `output/Tristes_Tropiques_full_episode_kr.mp4` (297.08 MB, 14.57분)
+  - 영문: `output/Tristes_Tropiques_full_episode_en.mp4` (349.27 MB, 14.01분)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=nYHyS1q5sTY
+  - 영문: https://www.youtube.com/watch?v=ruhMqnEL0Wo
+- **수정된 파일**:
+  - `data/ildangbaek_books.csv`: 슬픈 열대 업로드 정보 업데이트
+
+### YouTube 자막 스크립트 생성
+- **작업 내용**:
+  - YouTube URL에서 자막을 다운로드하여 스크립트 파일 생성
+  - 두 개의 YouTube 영상에서 자막 추출 (Part 1, Part 2)
+- **생성된 파일**:
+  - `data/source/Vx26Eom_lY0_part1_author.txt` (21,355자, 706개 세그먼트)
+  - `data/source/GAZyWcG9nSc_part2_novel.txt` (25,577자, 850개 세그먼트)
+- **사용 스크립트**:
+  - `scripts/fetch_separate_scripts.py`: YouTube 자막 추출 및 분리 저장
+
+### 메타데이터 타임스탬프 생성 로직 개선
+- **작업 내용**:
+  - 일당백 스타일 영상의 메타데이터 타임스탬프 생성 로직 개선
+  - 실제 Part 비디오 파일의 길이를 기반으로 정확한 타임스탬프 생성
+- **주요 수정사항**:
+  - **`get_actual_part_durations()` 함수 추가**: 실제 Part 비디오 파일의 길이를 계산하여 각 Part의 총 길이 반환 (비디오 길이 + 인포그래픽 30초)
+  - **타임스탬프 생성 로직 개선**: 
+    - 기존: 전체 영상 길이의 35%로 Part 1을 고정 계산 (부정확)
+    - 개선: 실제 Part 비디오 파일 길이를 우선 사용, 파일을 찾을 수 없을 때만 비율 계산 (하위 호환성)
+  - `input/` 또는 `assets/notebooklm/` 폴더에서 원본 Part 비디오 파일을 찾아 실제 길이 확인
+  - 인포그래픽 길이(30초)를 고려하여 정확한 타임스탬프 생성
+  - 한글/영문 메타데이터 모두에 적용
+- **수정된 파일**:
+  - `src/20_create_episode_metadata.py`: 타임스탬프 생성 로직 개선
+
 ## 2026-01-09
 
 ### 로미오와 줄리엣 - 셰익스피어 일당백 스타일 영상 제작 및 YouTube 업로드
@@ -2571,3 +2612,59 @@
   - URL: https://www.youtube.com/watch?v=tOTLB-dxmls
 - [2] [한국어] 로미오와 줄리엣 책 리뷰 | [Korean] Romeo and Juliet Book Review
   - URL: https://www.youtube.com/watch?v=ppsrfEzbOYo
+
+## 2026-01-11
+
+### YouTube 업로드 완료
+- 업로드된 책: Future_Self
+- 업로드된 영상 수: 2개
+- [1] [Summary] Future Self Book Review | [핵심 요약] 퓨처 셀프 핵심 정리
+  - URL: https://www.youtube.com/watch?v=pZMtRafQ9ws
+- [2] [핵심 요약] 퓨처 셀프 핵심 정리 | [Summary] Future Self Book Review
+  - URL: https://www.youtube.com/watch?v=0CR4HuZaG3Q
+
+## 2026-01-11
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Neurotics_Guide_to_Avoiding_Enlightenment
+- 업로드된 영상 수: 2개
+- [1] [Summary] The Neurotic's Guide to Avoiding Enlightenment Book Review | [핵심 요약] 뇌는 어떻게 나를 조종하는가 핵심 정리
+  - URL: https://www.youtube.com/watch?v=5XVUQuyW22c
+- [2] [핵심 요약] 뇌는 어떻게 나를 조종하는가 핵심 정리 | [Summary] The Neurotic's Guide to Avoiding Enlightenment Book Review
+  - URL: https://www.youtube.com/watch?v=_gLIBAzEEDY
+
+## 2026-01-11
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Odyssey_full_episode
+- 업로드된 영상 수: 1개
+- [1] [English] The Odyssey Book Review | [영어] 오다세이아 책 리뷰
+  - URL: https://www.youtube.com/watch?v=AQZPGgiF53A
+
+## 2026-01-11
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Odyssey_full_episode
+- 업로드된 영상 수: 1개
+- [1] [한국어] 오다세이아 책 리뷰 | [Korean] The Odyssey Book Review
+  - URL: https://www.youtube.com/watch?v=J-PxEE9MV84
+
+## 2026-01-11
+
+### YouTube 업로드 완료
+- 업로드된 책: Winterreise
+- 업로드된 영상 수: 2개
+- [1] [Summary] Winterreise Book Review | [핵심 요약] 슈베르트의 겨울 나그네 핵심 정리
+  - URL: https://www.youtube.com/watch?v=b-acHG0eGvY
+- [2] [핵심 요약] 슈베르트의 겨울 나그네 핵심 정리 | [Summary] Winterreise Book Review
+  - URL: https://www.youtube.com/watch?v=PvIbaQrsqqU
+
+## 2026-01-11
+
+### YouTube 업로드 완료
+- 업로드된 책: Tristes_Tropiques_full_episode
+- 업로드된 영상 수: 2개
+- [1] [English] Tristes Tropiques Book Review | [영어] 슬픈 열대 책 리뷰
+  - URL: https://www.youtube.com/watch?v=ruhMqnEL0Wo
+- [2] [한국어] 슬픈 열대 책 리뷰 | [Korean] Tristes Tropiques Book Review
+  - URL: https://www.youtube.com/watch?v=nYHyS1q5sTY

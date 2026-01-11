@@ -244,6 +244,67 @@ def detect_part_count(book_title: str, language: str = "ko") -> int:
     return part_count
 
 
+def get_actual_part_durations(book_title: str, language: str = "ko", infographic_duration: float = 30.0) -> List[float]:
+    """
+    실제 Part 비디오 파일의 길이를 계산하여 각 Part의 총 길이 반환
+    (비디오 길이 + 인포그래픽 길이)
+    
+    Args:
+        book_title: 책 제목
+        language: 언어 ('ko' 또는 'en')
+        infographic_duration: 인포그래픽 표시 시간 (초, 기본값: 30.0)
+        
+    Returns:
+        각 Part의 총 길이 리스트 (초 단위)
+    """
+    part_durations = []
+    
+    # input 폴더에서 먼저 확인
+    input_dir = Path("input")
+    lang_suffix = "kr" if language == "ko" else "en"
+    
+    # assets/notebooklm 폴더 경로 미리 계산
+    safe_title = get_standard_safe_title(book_title)
+    lang_suffix_alt = "_ko" if language == "ko" else "_en"
+    notebooklm_dir = Path("assets/notebooklm") / safe_title / language
+    
+    part_num = 1
+    while True:
+        video_file = input_dir / f"part{part_num}_video_{lang_suffix}.mp4"
+        if not video_file.exists():
+            # assets/notebooklm 폴더에서 확인
+            video_file = notebooklm_dir / f"part{part_num}_video{lang_suffix_alt}.mp4"
+            
+            if not video_file.exists():
+                break
+        
+        try:
+            from moviepy.editor import VideoFileClip
+            clip = VideoFileClip(str(video_file))
+            video_duration = clip.duration
+            clip.close()
+            
+            # 인포그래픽 파일 확인
+            info_file = input_dir / f"part{part_num}_info_{lang_suffix}.png"
+            if not info_file.exists():
+                # assets/notebooklm 폴더에서 확인
+                info_file = notebooklm_dir / f"part{part_num}_info{lang_suffix_alt}.png"
+            
+            # 인포그래픽이 있으면 길이 추가
+            total_duration = video_duration
+            if info_file.exists():
+                total_duration += infographic_duration
+            
+            part_durations.append(total_duration)
+            part_num += 1
+            
+        except Exception as e:
+            logger.warning(f"⚠️ Part {part_num} 비디오 길이를 가져올 수 없습니다: {e}")
+            break
+    
+    return part_durations
+
+
 def generate_episode_description(book_title: str, language: str = "ko", video_duration: Optional[float] = None, book_info: Optional[Dict] = None) -> str:
     """
     에피소드 영상 설명 생성
@@ -298,36 +359,66 @@ def generate_episode_description(book_title: str, language: str = "ko", video_du
                     part_desc_list.append(f"• Part {i}: {genre_ko} 줄거리 - 스토리 {i-1}부")
         part_description = "\n".join(part_desc_list)
         
-        # 타임스탬프 생성
+        # 타임스탬프 생성 (실제 Part 길이 사용)
         timestamps = ""
         if video_duration:
+            # 실제 Part 비디오 파일의 길이 가져오기
+            actual_part_durations = get_actual_part_durations(book_title, language, infographic_duration=30.0)
+            
             current_time = 0.0
             ts_lines = []
-            for i in range(1, part_count + 1):
-                if i == 1:
-                    part_duration = video_duration * (0.35 if part_count >= 2 else 1.0)
-                elif i == part_count:
-                    part_duration = video_duration - current_time
-                else:
-                    remaining_time = video_duration - current_time
-                    part_duration = remaining_time / (part_count - i + 1)
-                
-                minutes = int(current_time // 60)
-                seconds = int(current_time % 60)
-                
-                if i == 1:
-                    ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: 작가와 배경")
-                elif part_count == 2 and i == 2:
-                    ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_ko} 줄거리")
-                elif part_count == 3:
-                    if i == 2:
-                        ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_ko} 줄거리 (상)")
-                    elif i == 3:
-                        ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_ko} 줄거리 (하)")
-                else:
-                    ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_ko} 줄거리 {i-1}부")
-                
-                current_time += part_duration
+            
+            # 실제 Part 길이가 있으면 사용, 없으면 비율로 계산
+            if actual_part_durations and len(actual_part_durations) == part_count:
+                # 실제 Part 길이 사용
+                for i in range(1, part_count + 1):
+                    minutes = int(current_time // 60)
+                    seconds = int(current_time % 60)
+                    
+                    if i == 1:
+                        ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: 작가와 배경")
+                    elif part_count == 2 and i == 2:
+                        ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_ko} 줄거리")
+                    elif part_count == 3:
+                        if i == 2:
+                            ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_ko} 줄거리 (상)")
+                        elif i == 3:
+                            ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_ko} 줄거리 (하)")
+                    else:
+                        ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_ko} 줄거리 {i-1}부")
+                    
+                    # 다음 Part 시작 시간 계산
+                    if i < len(actual_part_durations):
+                        current_time += actual_part_durations[i - 1]
+            else:
+                # 실제 Part 길이를 가져올 수 없으면 비율로 계산 (하위 호환성)
+                logger.warning("⚠️ 실제 Part 비디오 파일을 찾을 수 없어 비율로 타임스탬프를 계산합니다.")
+                for i in range(1, part_count + 1):
+                    if i == 1:
+                        part_duration = video_duration * (0.35 if part_count >= 2 else 1.0)
+                    elif i == part_count:
+                        part_duration = video_duration - current_time
+                    else:
+                        remaining_time = video_duration - current_time
+                        part_duration = remaining_time / (part_count - i + 1)
+                    
+                    minutes = int(current_time // 60)
+                    seconds = int(current_time % 60)
+                    
+                    if i == 1:
+                        ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: 작가와 배경")
+                    elif part_count == 2 and i == 2:
+                        ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_ko} 줄거리")
+                    elif part_count == 3:
+                        if i == 2:
+                            ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_ko} 줄거리 (상)")
+                        elif i == 3:
+                            ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_ko} 줄거리 (하)")
+                    else:
+                        ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_ko} 줄거리 {i-1}부")
+                    
+                    current_time += part_duration
+            
             timestamps = "\n".join(ts_lines)
 
         description = f"""{timestamps}
@@ -395,36 +486,66 @@ NotebookLM의 심층 분석과 함께 작품을 깊이 있게 이해해보세요
                     part_desc_list.append(f"• Part {i}: {genre_en} Summary - Story Part {i-1}")
         part_description = "\n".join(part_desc_list)
 
-        # Timestamps
+        # Timestamps (실제 Part 길이 사용)
         timestamps = ""
         if video_duration:
+            # 실제 Part 비디오 파일의 길이 가져오기
+            actual_part_durations = get_actual_part_durations(book_title, language, infographic_duration=30.0)
+            
             current_time = 0.0
             ts_lines = []
-            for i in range(1, part_count + 1):
-                if i == 1:
-                    part_duration = video_duration * (0.35 if part_count >= 2 else 1.0)
-                elif i == part_count:
-                    part_duration = video_duration - current_time
-                else:
-                    remaining_time = video_duration - current_time
-                    part_duration = remaining_time / (part_count - i + 1)
-                
-                minutes = int(current_time // 60)
-                seconds = int(current_time % 60)
-                
-                if i == 1:
-                    ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: Author & Background")
-                elif part_count == 2 and i == 2:
-                    ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_en} Summary")
-                elif part_count == 3:
-                    if i == 2:
-                        ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_en} Summary (Part 1)")
-                    elif i == 3:
-                        ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_en} Summary (Part 2)")
-                else:
-                    ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_en} Summary Part {i-1}")
-                
-                current_time += part_duration
+            
+            # 실제 Part 길이가 있으면 사용, 없으면 비율로 계산
+            if actual_part_durations and len(actual_part_durations) == part_count:
+                # 실제 Part 길이 사용
+                for i in range(1, part_count + 1):
+                    minutes = int(current_time // 60)
+                    seconds = int(current_time % 60)
+                    
+                    if i == 1:
+                        ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: Author & Background")
+                    elif part_count == 2 and i == 2:
+                        ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_en} Summary")
+                    elif part_count == 3:
+                        if i == 2:
+                            ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_en} Summary (Part 1)")
+                        elif i == 3:
+                            ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_en} Summary (Part 2)")
+                    else:
+                        ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_en} Summary Part {i-1}")
+                    
+                    # 다음 Part 시작 시간 계산
+                    if i < len(actual_part_durations):
+                        current_time += actual_part_durations[i - 1]
+            else:
+                # 실제 Part 길이를 가져올 수 없으면 비율로 계산 (하위 호환성)
+                logger.warning("⚠️ 실제 Part 비디오 파일을 찾을 수 없어 비율로 타임스탬프를 계산합니다.")
+                for i in range(1, part_count + 1):
+                    if i == 1:
+                        part_duration = video_duration * (0.35 if part_count >= 2 else 1.0)
+                    elif i == part_count:
+                        part_duration = video_duration - current_time
+                    else:
+                        remaining_time = video_duration - current_time
+                        part_duration = remaining_time / (part_count - i + 1)
+                    
+                    minutes = int(current_time // 60)
+                    seconds = int(current_time % 60)
+                    
+                    if i == 1:
+                        ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: Author & Background")
+                    elif part_count == 2 and i == 2:
+                        ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_en} Summary")
+                    elif part_count == 3:
+                        if i == 2:
+                            ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_en} Summary (Part 1)")
+                        elif i == 3:
+                            ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_en} Summary (Part 2)")
+                    else:
+                        ts_lines.append(f"{minutes}:{seconds:02d} - Part {i}: {genre_en} Summary Part {i-1}")
+                    
+                    current_time += part_duration
+            
             timestamps = "\n".join(ts_lines)
         
         safe_en_title = ensure_english_only(en_title.replace(' ', '').replace(':', '').replace('-', ''), "Book")
