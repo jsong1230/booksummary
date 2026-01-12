@@ -353,6 +353,9 @@ def translate_book_title(book_title: str) -> str:
         "프로테스탄티즘의 윤리와 자본주의 정신": "The Protestant Ethic and the Spirit of Capitalism",
         "프로테스탄티즘의_윤리와_자본주의_정신": "The Protestant Ethic and the Spirit of Capitalism",
         "The Protestant Ethic and the Spirit of Capitalism": "The Protestant Ethic and the Spirit of Capitalism",
+        "멋진 신세계": "Brave New World",
+        "멋진_신세계": "Brave New World",
+        "Brave New World": "Brave New World",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -463,6 +466,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "The Odyssey": "오다세이아",
         "Winterreise": "슈베르트의 겨울 나그네",
         "The Protestant Ethic and the Spirit of Capitalism": "프로테스탄티즘의 윤리와 자본주의 정신",
+        "Brave New World": "멋진 신세계",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -699,6 +703,11 @@ def translate_author_name(author: str) -> str:
         "이언 보스트리지": "Ian Bostridge",
         "이언_보스트리지": "Ian Bostridge",
         "Ian Bostridge": "Ian Bostridge",
+        "올더스 헉슬리": "Aldous Huxley",
+        "올더스_헉슬리": "Aldous Huxley",
+        "헉슬리": "Aldous Huxley",
+        "Aldous Huxley": "Aldous Huxley",
+        "Huxley": "Aldous Huxley",
     }
     
     if author in author_map:
@@ -788,6 +797,8 @@ def translate_author_name_to_korean(author: str) -> str:
         "Chris Niebauer": "크리스 니바우어",
         "Homer": "호메로스",
         "Ian Bostridge": "이언 보스트리지",
+        "Aldous Huxley": "올더스 헉슬리",
+        "Huxley": "올더스 헉슬리",
     }
     
     if author in reverse_author_map:

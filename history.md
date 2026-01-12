@@ -1,5 +1,27 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2026-01-12
+
+### 올더스 헉슬리 - 멋진 신세계 summary+video 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 올더스 헉슬리 "멋진 신세계 (Brave New World)" 한글/영문 summary+video 스타일 영상 제작
+  - input 폴더에서 파일 준비 및 표준 네이밍으로 이동
+  - 이미지 다운로드 (100개, 저자/주제 관련)
+  - TTS 오디오 생성 (한글/영문)
+  - Summary + NotebookLM Video 형태로 영상 생성
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 "멋진 신세계" ↔ "Brave New World", "올더스 헉슬리" ↔ "Aldous Huxley" 매핑 추가
+- **생성된 영상**:
+  - 한글: `output/Brave_New_World_kr.mp4` (302.07 MB)
+  - 영문: `output/Brave_New_World_en.mp4` (291.25 MB)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=iZ9rOZbLxxM
+  - 영문: https://www.youtube.com/watch?v=jUBZBe7dxIM
+- **수정된 파일**:
+  - `src/utils/translations.py`: 멋진 신세계, 올더스 헉슬리 번역 매핑 추가
+  - `data/ildangbaek_books.csv`: 멋진 신세계 업로드 정보 업데이트
+
 ## 2026-01-11
 
 ### 막스 베버 - 프로테스탄티즘의 윤리와 자본주의 정신 일당백 스타일 영상 제작 및 YouTube 업로드
@@ -2696,3 +2718,33 @@
   - URL: https://www.youtube.com/watch?v=eL05LOss05k
 - [2] [한국어] 프로테스탄티즘의 윤리와 자본주의 정신 | [Korean] Protestant Ethic & Capitalism Book Review
   - URL: https://www.youtube.com/watch?v=Y05T3AebwVQ
+
+## 2026-01-12
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Old_Man_and_the_Sea
+- 업로드된 영상 수: 2개
+- [1] [Summary] The Old Man and the Sea Book Review | [핵심 요약] 노인과 바다 핵심 정리
+  - URL: https://www.youtube.com/watch?v=6b50coYFtk8
+- [2] [핵심 요약] 노인과 바다 핵심 정리 | [Summary] The Old Man and the Sea Book Review
+  - URL: https://www.youtube.com/watch?v=K8MIWCe30D8
+
+## 2026-01-12
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Stranger
+- 업로드된 영상 수: 2개
+- [1] [Summary] The Stranger Book Review | [핵심 요약] 이방인 핵심 정리
+  - URL: https://www.youtube.com/watch?v=UpP-uhEbR1k
+- [2] [핵심 요약] 이방인 핵심 정리 | [Summary] The Stranger Book Review
+  - URL: https://www.youtube.com/watch?v=zj_xq4ROPqQ
+
+## 2026-01-12
+
+### YouTube 업로드 완료
+- 업로드된 책: Brave_New_World
+- 업로드된 영상 수: 2개
+- [1] [Summary] Brave New World Book Review | [핵심 요약] 멋진 신세계 핵심 정리
+  - URL: https://www.youtube.com/watch?v=jUBZBe7dxIM
+- [2] [핵심 요약] 멋진 신세계 핵심 정리 | [Summary] Brave New World Book Review
+  - URL: https://www.youtube.com/watch?v=iZ9rOZbLxxM
