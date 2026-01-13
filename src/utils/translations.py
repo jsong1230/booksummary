@@ -356,6 +356,9 @@ def translate_book_title(book_title: str) -> str:
         "멋진 신세계": "Brave New World",
         "멋진_신세계": "Brave New World",
         "Brave New World": "Brave New World",
+        "그릿": "Grit",
+        "그릿_": "Grit",
+        "Grit": "Grit",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -467,6 +470,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Winterreise": "슈베르트의 겨울 나그네",
         "The Protestant Ethic and the Spirit of Capitalism": "프로테스탄티즘의 윤리와 자본주의 정신",
         "Brave New World": "멋진 신세계",
+        "Grit": "그릿",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -708,6 +712,11 @@ def translate_author_name(author: str) -> str:
         "헉슬리": "Aldous Huxley",
         "Aldous Huxley": "Aldous Huxley",
         "Huxley": "Aldous Huxley",
+        "앤절라 더크워스": "Angela Duckworth",
+        "앤절라_더크워스": "Angela Duckworth",
+        "더크워스": "Angela Duckworth",
+        "Angela Duckworth": "Angela Duckworth",
+        "Duckworth": "Angela Duckworth",
     }
     
     if author in author_map:
@@ -799,6 +808,8 @@ def translate_author_name_to_korean(author: str) -> str:
         "Ian Bostridge": "이언 보스트리지",
         "Aldous Huxley": "올더스 헉슬리",
         "Huxley": "올더스 헉슬리",
+        "Angela Duckworth": "앤절라 더크워스",
+        "Duckworth": "앤절라 더크워스",
     }
     
     if author in reverse_author_map:

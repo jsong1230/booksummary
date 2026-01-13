@@ -1,5 +1,34 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2026-01-13
+
+### 앤절라 더크워스 - 그릿(Grit) summary+video 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 앤절라 더크워스 "그릿 (Grit)" 한글/영문 summary+video 스타일 영상 제작
+  - input 폴더에서 파일 준비 및 표준 네이밍으로 이동
+  - 이미지 다운로드 (100개, 저자/주제 관련)
+  - TTS 오디오 생성 (한글/영문)
+  - Summary + NotebookLM Video 형태로 영상 생성
+  - 한글 영상 재생성 (오디오 파일 재생성)
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 "그릿" ↔ "Grit", "앤절라 더크워스" ↔ "Angela Duckworth" 매핑 추가
+  - **썸네일 검색 로직 개선**: `src/09_upload_from_metadata.py`에서 한글/영문 제목 양방향 검색 기능 추가
+    - 메타데이터의 `book_title`이 영문이면 한글 번역도 자동 추가
+    - 한글이면 영문 번역도 자동 추가
+    - 한글 파일명 직접 검색 로직 강화 (한글 유니코드 범위 확인)
+    - 유사도 매칭 개선 (언더스코어, 공백, 하이픈 무시)
+- **생성된 영상**:
+  - 한글: `output/Grit_kr.mp4`
+  - 영문: `output/Grit_en.mp4`
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=NpvOHPpFnb0
+  - 영문: https://www.youtube.com/watch?v=PWjeUx3Rv40
+- **수정된 파일**:
+  - `src/utils/translations.py`: 그릿, 앤절라 더크워스 번역 매핑 추가
+  - `src/09_upload_from_metadata.py`: 썸네일 검색 로직 개선 (한글/영문 제목 양방향 검색)
+  - `data/ildangbaek_books.csv`: 그릿 업로드 정보 업데이트
+
 ## 2026-01-12
 
 ### 올더스 헉슬리 - 멋진 신세계 summary+video 스타일 영상 제작 및 YouTube 업로드
@@ -2748,3 +2777,13 @@
   - URL: https://www.youtube.com/watch?v=jUBZBe7dxIM
 - [2] [핵심 요약] 멋진 신세계 핵심 정리 | [Summary] Brave New World Book Review
   - URL: https://www.youtube.com/watch?v=iZ9rOZbLxxM
+
+## 2026-01-13
+
+### YouTube 업로드 완료
+- 업로드된 책: Grit
+- 업로드된 영상 수: 2개
+- [1] [Summary] Grit Book Review | [핵심 요약] 그릿 핵심 정리
+  - URL: https://www.youtube.com/watch?v=PWjeUx3Rv40
+- [2] [핵심 요약] 그릿 핵심 정리 | [Summary] Grit Book Review
+  - URL: https://www.youtube.com/watch?v=NpvOHPpFnb0

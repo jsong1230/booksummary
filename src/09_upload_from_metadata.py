@@ -782,22 +782,36 @@ def main():
             # 공백을 언더스코어로 변환한 버전
             book_title_variants.append(base_title.replace(' ', '_'))
             
-            # 메타데이터에서 책 제목 가져와서 한글 제목도 추가
+            # 메타데이터에서 책 제목 가져와서 한글/영문 제목 모두 추가
             metadata_book_title = metadata.get('book_title')
             if metadata_book_title:
                 from src.utils.file_utils import safe_title
-                from src.utils.translations import translate_book_title_to_korean
-                # 한글 제목 추가
-                korean_title = translate_book_title_to_korean(metadata_book_title)
-                if korean_title and korean_title != metadata_book_title:
-                    korean_safe_title = safe_title(korean_title)
-                    if korean_safe_title not in book_title_variants:
-                        book_title_variants.append(korean_safe_title)
-                # 원본 제목도 추가 (한글이면)
-                if metadata_book_title != base_title:
-                    original_safe_title = safe_title(metadata_book_title)
-                    if original_safe_title not in book_title_variants:
-                        book_title_variants.append(original_safe_title)
+                from src.utils.translations import (
+                    translate_book_title,
+                    translate_book_title_to_korean,
+                    is_english_title
+                )
+                
+                # 원본 제목을 safe_title로 변환하여 추가
+                original_safe_title = safe_title(metadata_book_title)
+                if original_safe_title not in book_title_variants:
+                    book_title_variants.append(original_safe_title)
+                
+                # 한글/영문 양방향 변환하여 모두 추가
+                if is_english_title(metadata_book_title):
+                    # 영문 제목인 경우: 한글 제목으로 변환하여 추가
+                    korean_title = translate_book_title_to_korean(metadata_book_title)
+                    if korean_title and korean_title != metadata_book_title:
+                        korean_safe_title = safe_title(korean_title)
+                        if korean_safe_title not in book_title_variants:
+                            book_title_variants.append(korean_safe_title)
+                else:
+                    # 한글 제목인 경우: 영문 제목으로 변환하여 추가
+                    english_title = translate_book_title(metadata_book_title)
+                    if english_title and english_title != metadata_book_title:
+                        english_safe_title = safe_title(english_title)
+                        if english_safe_title not in book_title_variants:
+                            book_title_variants.append(english_safe_title)
             
             # 언어 접미사 패턴
             lang_patterns = []
@@ -847,13 +861,25 @@ def main():
                 
                 for thumb in all_thumbnails:
                     thumb_name_lower = thumb.name.lower()
+                    thumb_name = thumb.name
                     # 언어 구분자가 포함된 썸네일만 검색
                     if any(pattern in thumb_name_lower for pattern in lang_patterns):
-                        # 책 제목과 유사한 이름인지 확인
+                        # 책 제목과 유사한 이름인지 확인 (정확한 매칭 우선)
                         for title_variant in book_title_variants:
-                            if title_variant.lower().replace('_', '').replace(' ', '') in thumb_name_lower.replace('_', '').replace(' ', ''):
+                            # 정확한 매칭 (언더스코어/공백 무시)
+                            title_normalized = title_variant.lower().replace('_', '').replace(' ', '').replace('-', '')
+                            thumb_normalized = thumb_name_lower.replace('_', '').replace(' ', '').replace('-', '')
+                            
+                            # 제목이 파일명에 포함되어 있는지 확인
+                            if title_normalized in thumb_normalized:
                                 matching_thumbnails.append(thumb)
                                 break
+                            # 한글 제목의 경우 원본 한글도 직접 확인
+                            if any('\uAC00' <= char <= '\uD7A3' for char in title_variant):
+                                # 한글 제목이 파일명에 직접 포함되어 있는지 확인
+                                if title_variant in thumb_name:
+                                    matching_thumbnails.append(thumb)
+                                    break
                 
                 if matching_thumbnails:
                     # 가장 최근에 수정된 파일 선택

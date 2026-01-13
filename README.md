@@ -574,7 +574,11 @@ python src/09_upload_from_metadata.py --privacy private --auto --force
 
 - 태그 자동 검증 (30자 초과 태그 제거)
 - Description 길이 검증 (5000자 제한)
-- 썸네일 자동 업로드
+- **썸네일 자동 검색 및 업로드**: 한글/영문 제목 양방향 검색 지원
+  - 메타데이터의 `book_title`이 영문이면 한글 번역도 자동 검색
+  - 한글이면 영문 번역도 자동 검색
+  - 다양한 파일명 패턴 지원 (`{책제목}_thumbnail_{언어}.jpg`, `{책제목}_{언어}_thumbnail.jpg` 등)
+  - 한글 파일명 직접 검색 및 유사도 매칭 지원
 - 업로드 로그 자동 저장 (JSON, CSV, 텍스트)
 - CSV 및 History 파일 자동 업데이트
 
