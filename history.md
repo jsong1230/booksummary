@@ -2787,3 +2787,25 @@
   - URL: https://www.youtube.com/watch?v=PWjeUx3Rv40
 - [2] [핵심 요약] 그릿 핵심 정리 | [Summary] Grit Book Review
   - URL: https://www.youtube.com/watch?v=NpvOHPpFnb0
+
+## 2026-01-14
+
+### 유발 하라리 - 넥서스(Nexus) summary+video 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 유발 하라리 "넥서스 (Nexus)" 한글/영문 summary+video 스타일 영상 제작
+  - input 폴더에서 파일 준비 및 표준 네이밍으로 이동
+  - 번역 매핑 추가 (넥서스 ↔ Nexus)
+  - 이미지 다운로드 (100개, 저자/주제 관련)
+  - Summary + NotebookLM Video 형태로 영상 생성
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 "넥서스" ↔ "Nexus" 매핑 추가
+- **생성된 영상**:
+  - 한글: `output/Nexus_kr.mp4` (200.49 MB)
+  - 영문: `output/Nexus_en.mp4` (234.26 MB)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=PBGWP4S90D4
+  - 영문: https://www.youtube.com/watch?v=Gr0kyF2wBBQ
+- **수정된 파일**:
+  - `src/utils/translations.py`: 넥서스 번역 매핑 추가
+  - `data/ildangbaek_books.csv`: 넥서스 업로드 정보 업데이트

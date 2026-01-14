@@ -359,6 +359,9 @@ def translate_book_title(book_title: str) -> str:
         "그릿": "Grit",
         "그릿_": "Grit",
         "Grit": "Grit",
+        "넥서스": "Nexus",
+        "넥서스_": "Nexus",
+        "Nexus": "Nexus",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -471,6 +474,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "The Protestant Ethic and the Spirit of Capitalism": "프로테스탄티즘의 윤리와 자본주의 정신",
         "Brave New World": "멋진 신세계",
         "Grit": "그릿",
+        "Nexus": "넥서스",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
