@@ -1,5 +1,27 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2026-01-15
+
+### 로버트 그린 - 권력의 법칙 (The 48 Laws of Power) summary+video 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 로버트 그린 "권력의 법칙 (The 48 Laws of Power)" 한글/영문 summary+video 스타일 영상 제작
+  - input 폴더에서 파일 준비 및 표준 네이밍으로 이동
+  - 이미지 다운로드 (100개, 저자/주제 관련)
+  - Summary + NotebookLM Video 형태로 영상 생성
+  - 한글 서머리 파일 수정 후 오디오 재생성 및 영상 재생성
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 "권력의 법칙" ↔ "The 48 Laws of Power", "로버트 그린" ↔ "Robert Greene" 매핑 추가
+- **생성된 영상**:
+  - 한글: `output/The_48_Laws_of_Power_kr.mp4` (340.53 MB)
+  - 영문: `output/The_48_Laws_of_Power_en.mp4` (337.61 MB)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=HlTaXreLw7c (재업로드)
+  - 영문: https://www.youtube.com/watch?v=J1dnrH8ZMR0 (재업로드)
+- **수정된 파일**:
+  - `src/utils/translations.py`: 권력의 법칙, 로버트 그린 번역 매핑 추가
+  - `data/ildangbaek_books.csv`: 권력의 법칙 업로드 정보 업데이트
+
 ## 2026-01-13
 
 ### 앤절라 더크워스 - 그릿(Grit) summary+video 스타일 영상 제작 및 YouTube 업로드
@@ -2809,3 +2831,23 @@
 - **수정된 파일**:
   - `src/utils/translations.py`: 넥서스 번역 매핑 추가
   - `data/ildangbaek_books.csv`: 넥서스 업로드 정보 업데이트
+
+## 2026-01-15
+
+### YouTube 업로드 완료
+- 업로드된 책: The_48_Laws_of_Power
+- 업로드된 영상 수: 2개
+- [1] [Summary] The 48 Laws of Power Book Review | [핵심 요약] 권력의 법칙 핵심 정리
+  - URL: https://www.youtube.com/watch?v=bMA9YaGKTzY
+- [2] [핵심 요약] 권력의 법칙 핵심 정리 | [Summary] The 48 Laws of Power Book Review
+  - URL: https://www.youtube.com/watch?v=_bSRdMpKW5U
+
+## 2026-01-15
+
+### YouTube 업로드 완료
+- 업로드된 책: The_48_Laws_of_Power
+- 업로드된 영상 수: 2개
+- [1] [Summary] The 48 Laws of Power Book Review | [핵심 요약] 권력의 법칙 핵심 정리
+  - URL: https://www.youtube.com/watch?v=J1dnrH8ZMR0
+- [2] [핵심 요약] 권력의 법칙 핵심 정리 | [Summary] The 48 Laws of Power Book Review
+  - URL: https://www.youtube.com/watch?v=HlTaXreLw7c

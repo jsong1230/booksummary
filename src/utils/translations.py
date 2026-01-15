@@ -362,6 +362,9 @@ def translate_book_title(book_title: str) -> str:
         "넥서스": "Nexus",
         "넥서스_": "Nexus",
         "Nexus": "Nexus",
+        "권력의 법칙": "The 48 Laws of Power",
+        "권력의_법칙": "The 48 Laws of Power",
+        "The 48 Laws of Power": "The 48 Laws of Power",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -475,6 +478,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Brave New World": "멋진 신세계",
         "Grit": "그릿",
         "Nexus": "넥서스",
+        "The 48 Laws of Power": "권력의 법칙",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -721,6 +725,10 @@ def translate_author_name(author: str) -> str:
         "더크워스": "Angela Duckworth",
         "Angela Duckworth": "Angela Duckworth",
         "Duckworth": "Angela Duckworth",
+        "로버트 그린": "Robert Greene",
+        "로버트_그린": "Robert Greene",
+        "Robert Greene": "Robert Greene",
+        "Greene": "Robert Greene",
     }
     
     if author in author_map:
