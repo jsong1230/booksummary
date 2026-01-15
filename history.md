@@ -2,6 +2,61 @@
 
 ## 2026-01-15
 
+### 조너던 스위프트 - 걸리버 여행기 (Gulliver's Travels) 일당백 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 조너던 스위프트 "걸리버 여행기 (Gulliver's Travels)" 한글/영문 일당백 스타일 영상 제작
+  - input 폴더에서 파일 준비 및 표준 네이밍으로 이동
+  - Part 1, Part 2 비디오와 인포그래픽을 연결하여 전체 에피소드 영상 생성
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 "걸리버 여행기" ↔ "Gulliver's Travels", "조너던 스위프트" ↔ "Jonathan Swift" 매핑 추가
+- **생성된 영상**:
+  - 한글: `output/Gullivers_Travels_full_episode_ko.mp4` (597.01 MB, 16.67분)
+  - 영문: `output/Gullivers_Travels_full_episode_en.mp4` (540.60 MB, 14.52분)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=42zz0RtDDyw
+  - 영문: https://www.youtube.com/watch?v=clUULPkveh0
+- **수정된 파일**:
+  - `src/utils/translations.py`: 걸리버 여행기, 조너던 스위프트 번역 매핑 추가
+  - `data/ildangbaek_books.csv`: 걸리버 여행기 업로드 정보 업데이트
+
+### 알베르 카뮈 - 이방인 (The Stranger) 일당백 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 알베르 카뮈 "이방인 (The Stranger)" 한글/영문 일당백 스타일 영상 제작
+  - input 폴더에서 파일 준비 및 표준 네이밍으로 이동
+  - Part 1, Part 2 비디오와 인포그래픽을 연결하여 전체 에피소드 영상 생성
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 확인**: `src/utils/translations.py`에 이미 "이방인" ↔ "The Stranger", "알베르 카뮈" ↔ "Albert Camus" 매핑이 존재함
+- **생성된 영상**:
+  - 한글: `output/The_Stranger_full_episode_ko.mp4` (555.39 MB, 15.10분)
+  - 영문: `output/The_Stranger_full_episode_en.mp4` (469.54 MB, 12.62분)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=vBO4lEBmaao
+  - 영문: https://www.youtube.com/watch?v=fWtO5G1Pswg
+- **수정된 파일**:
+  - `data/ildangbaek_books.csv`: 이방인 업로드 정보 업데이트
+
+### 에드거 앨런 포 호러 단편선 + 포와 포송령의 동서양 판타지 콜라보 일당백 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - "에드거 앨런 포 호러 단편선 + 포와 포송령의 동서양 판타지 콜라보" 한글/영문 일당백 스타일 영상 제작
+  - input 폴더에서 파일 준비 및 표준 네이밍으로 이동
+  - Part 1, Part 2 비디오와 인포그래픽을 연결하여 전체 에피소드 영상 생성
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 "에드거 앨런 포 호러 단편선" ↔ "Edgar Allan Poe Horror Stories", "포와 포송령의 동서양 판타지 콜라보" ↔ "Poe and Pu Songling's East-West Fantasy Collaboration", "에드거 앨런 포" ↔ "Edgar Allan Poe" 매핑 추가
+  - **제목 자동 축약 기능 추가**: `src/09_upload_from_metadata.py`에 YouTube 100자 제한을 초과하는 제목을 자동으로 축약하는 기능 추가
+- **생성된 영상**:
+  - 한글: `output/Edgar_Allan_Poe_Horror_Stories_and_Poe_Songryeong_Collaboration_full_episode_ko.mp4` (432.78 MB)
+  - 영문: `output/Edgar_Allan_Poe_Horror_Stories_and_Poe_Songryeong_Collaboration_full_episode_en.mp4` (526.12 MB)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=1dKsiVS6gP0 (제목 자동 축약: 161자 → 77자)
+  - 영문: https://www.youtube.com/watch?v=NqnA36-IH04 (제목 자동 축약: 161자 → 88자)
+- **수정된 파일**:
+  - `src/utils/translations.py`: 에드거 앨런 포 호러 단편선, 포와 포송령의 동서양 판타지 콜라보, 에드거 앨런 포 번역 매핑 추가
+  - `src/09_upload_from_metadata.py`: 제목 자동 축약 기능 추가 (100자 제한 초과 시 자동 축약)
+  - `data/ildangbaek_books.csv`: 에드거 앨런 포 호러 단편선 + 포와 포송령의 동서양 판타지 콜라보 업로드 정보 업데이트
+
 ### 로버트 그린 - 권력의 법칙 (The 48 Laws of Power) summary+video 스타일 영상 제작 및 YouTube 업로드
 - **작업 내용**:
   - 로버트 그린 "권력의 법칙 (The 48 Laws of Power)" 한글/영문 summary+video 스타일 영상 제작
@@ -2851,3 +2906,33 @@
   - URL: https://www.youtube.com/watch?v=J1dnrH8ZMR0
 - [2] [핵심 요약] 권력의 법칙 핵심 정리 | [Summary] The 48 Laws of Power Book Review
   - URL: https://www.youtube.com/watch?v=HlTaXreLw7c
+
+## 2026-01-15
+
+### YouTube 업로드 완료
+- 업로드된 책: Edgar_Allan_Poe_Horror_Stories_and_Poe_Songryeong_Collaboration_full_episode_ko, Edgar_Allan_Poe_Horror_Stories_and_Poe_Songryeong_Collaboration_full_episode
+- 업로드된 영상 수: 2개
+- [1] [English] Edgar_Allan_Poe_Horror_Stories_and_Poe_Songryeong_Collaboration Book Review | [영어] Edgar_Allan_Poe_Horror_Stories_and_Poe_Songryeong_Collaboration 책 리뷰
+  - URL: https://www.youtube.com/watch?v=NqnA36-IH04
+- [2] [한국어] Edgar_Allan_Poe_Horror_Stories_and_Poe_Songryeong_Collaboration 책 리뷰 | [Korean] Edgar_Allan_Poe_Horror_Stories_and_Poe_Songryeong_Collaboration Book Review
+  - URL: https://www.youtube.com/watch?v=1dKsiVS6gP0
+
+## 2026-01-15
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Stranger_full_episode_ko, The_Stranger_full_episode
+- 업로드된 영상 수: 2개
+- [1] [English] The_Stranger Book Review | [영어] The_Stranger 책 리뷰
+  - URL: https://www.youtube.com/watch?v=fWtO5G1Pswg
+- [2] [한국어] The_Stranger 책 리뷰 | [Korean] The_Stranger Book Review
+  - URL: https://www.youtube.com/watch?v=vBO4lEBmaao
+
+## 2026-01-15
+
+### YouTube 업로드 완료
+- 업로드된 책: Gullivers_Travels_full_episode_ko, Gullivers_Travels_full_episode
+- 업로드된 영상 수: 2개
+- [1] [English] Gullivers_Travels Book Review | [영어] Gullivers_Travels 책 리뷰
+  - URL: https://www.youtube.com/watch?v=clUULPkveh0
+- [2] [한국어] Gullivers_Travels 책 리뷰 | [Korean] Gullivers_Travels Book Review
+  - URL: https://www.youtube.com/watch?v=42zz0RtDDyw

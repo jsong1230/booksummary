@@ -215,9 +215,34 @@ class YouTubeUploader:
             print("❌ 제목이 비어있습니다. 업로드를 중단합니다.")
             return None
         
+        # 제목 길이 제한 (YouTube 최대 100자)
+        MAX_TITLE_LENGTH = 100
+        title_cleaned = title.strip()
+        if len(title_cleaned) > MAX_TITLE_LENGTH:
+            print(f"   ⚠️ 제목이 {MAX_TITLE_LENGTH}자를 초과합니다 ({len(title_cleaned)}자). 자동으로 축약합니다.")
+            # 제목을 100자로 축약 (뒤에서부터 자르기)
+            title_cleaned = title_cleaned[:MAX_TITLE_LENGTH]
+            # 마지막 단어가 잘리지 않도록 공백이나 구분자에서 자르기
+            if ' | ' in title_cleaned:
+                # 구분자 기준으로 앞부분만 사용
+                parts = title_cleaned.split(' | ')
+                if len(parts) > 1:
+                    # 앞부분만 사용하되, 최대 길이를 고려
+                    title_cleaned = parts[0][:MAX_TITLE_LENGTH-10] + "..."
+                else:
+                    title_cleaned = title_cleaned[:MAX_TITLE_LENGTH-3] + "..."
+            else:
+                # 공백에서 자르기
+                last_space = title_cleaned.rfind(' ', 0, MAX_TITLE_LENGTH-3)
+                if last_space > MAX_TITLE_LENGTH // 2:
+                    title_cleaned = title_cleaned[:last_space] + "..."
+                else:
+                    title_cleaned = title_cleaned[:MAX_TITLE_LENGTH-3] + "..."
+            print(f"   ✅ 축약된 제목: {title_cleaned} ({len(title_cleaned)}자)")
+        
         body = {
             'snippet': {
-                'title': title.strip(),
+                'title': title_cleaned,
                 'description': description,
                 'tags': tags,
                 'categoryId': '22'  # People & Blogs

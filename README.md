@@ -572,6 +572,7 @@ python src/09_upload_from_metadata.py --privacy private --auto --force
 
 업로드 시:
 
+- **제목 자동 축약**: YouTube 100자 제한을 초과하는 제목을 자동으로 축약 (97자 + "...")
 - 태그 자동 검증 (30자 초과 태그 제거)
 - Description 길이 검증 (5000자 제한)
 - **썸네일 자동 검색 및 업로드**: 한글/영문 제목 양방향 검색 지원
