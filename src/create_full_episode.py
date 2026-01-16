@@ -483,6 +483,8 @@ def create_full_episode(
     # 모든 클립 생성 (각 Part마다 영상 → 인포그래픽 순서)
     video_clips = []
     info_clip_indices = []  # 배경음악 처리를 위해 인포그래픽 클립의 인덱스 저장
+    clip_durations = []  # 각 클립의 실제 duration 추적 (metadata용)
+    part_clip_info = []  # 각 Part의 클립 정보 저장 (part_num, clip_type, duration)
     
     for i, part in enumerate(parts, 1):
         # 영상 클립
@@ -504,6 +506,11 @@ def create_full_episode(
         logger.info("")
         
         video_clips.append(video_clip)
+        part_clip_info.append({
+            'part_num': part['part_num'],
+            'clip_type': 'video',
+            'duration': video_clip.duration
+        })
         
         # 인포그래픽 클립 (있는 경우)
         if part['info']:
@@ -523,6 +530,11 @@ def create_full_episode(
             # 인포그래픽 클립의 인덱스 저장 (배경음악 추가용)
             info_clip_indices.append(len(video_clips))
             video_clips.append(info_clip)
+            part_clip_info.append({
+                'part_num': part['part_num'],
+                'clip_type': 'infographic',
+                'duration': info_clip.duration
+            })
         else:
             logger.warning(f"   ⚠️ Part {part['part_num']} 인포그래픽 없음, 건너뜀")
             logger.info("")
@@ -573,6 +585,11 @@ def create_full_episode(
                 video_clips[i] = clip
         
         logger.info(f"   ✅ Crossfade 효과 적용 완료 ({crossfade_duration}초)")
+        
+        # Crossfade 효과 적용 후 실제 duration 업데이트
+        for i, clip in enumerate(video_clips):
+            if i < len(part_clip_info):
+                part_clip_info[i]['duration'] = clip.duration
     except Exception as e:
         logger.warning(f"   ⚠️ Crossfade 효과 적용 실패: {e}")
         logger.warning("   효과 없이 진행합니다.")
@@ -721,6 +738,42 @@ def create_full_episode(
     logger.info("=" * 60)
     logger.info(f"📁 저장 위치: {output_path}")
     logger.info(f"📊 총 길이: {final_video.duration:.2f}초 ({final_video.duration/60:.2f}분)")
+    
+    # Part 1 video와 infographic의 종료 시간 계산 및 저장
+    try:
+        import json
+        current_time = 0.0
+        part1_video_end_time = None
+        part1_info_end_time = None
+        
+        for clip_info in part_clip_info:
+            if clip_info['part_num'] == 1:
+                if clip_info['clip_type'] == 'video' and part1_video_end_time is None:
+                    part1_video_end_time = current_time + clip_info['duration']
+                elif clip_info['clip_type'] == 'infographic' and part1_info_end_time is None:
+                    part1_info_end_time = current_time + clip_info['duration']
+            
+            current_time += clip_info['duration']
+        
+        # Part 1 시간 정보를 JSON 파일로 저장
+        timing_info = {
+            'part1_video_end_time': part1_video_end_time,
+            'part1_info_end_time': part1_info_end_time,
+            'part_clip_info': part_clip_info,
+            'total_duration': final_video.duration
+        }
+        
+        timing_info_path = output_path_obj.with_suffix('.timing.json')
+        with open(timing_info_path, 'w', encoding='utf-8') as f:
+            json.dump(timing_info, f, ensure_ascii=False, indent=2)
+        
+        if part1_video_end_time is not None:
+            logger.info(f"📊 Part 1 Video 종료 시간: {part1_video_end_time:.2f}초 ({int(part1_video_end_time//60)}:{int(part1_video_end_time%60):02d})")
+        if part1_info_end_time is not None:
+            logger.info(f"📊 Part 1 Infographic 종료 시간: {part1_info_end_time:.2f}초 ({int(part1_info_end_time//60)}:{int(part1_info_end_time%60):02d})")
+        logger.info(f"💾 시간 정보 저장: {timing_info_path.name}")
+    except Exception as e:
+        logger.warning(f"⚠️ 시간 정보 저장 실패: {e}")
     
     # 정리
     final_video.close()

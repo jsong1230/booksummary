@@ -249,6 +249,10 @@ def get_actual_part_durations(book_title: str, language: str = "ko", infographic
     실제 Part 비디오 파일의 길이를 계산하여 각 Part의 총 길이 반환
     (비디오 길이 + 인포그래픽 길이)
     
+    우선순위:
+    1. 렌더링된 영상의 timing.json 파일에서 읽기 (가장 정확)
+    2. 원본 비디오 파일의 duration 사용 (fallback)
+    
     Args:
         book_title: 책 제목
         language: 언어 ('ko' 또는 'en')
@@ -257,6 +261,35 @@ def get_actual_part_durations(book_title: str, language: str = "ko", infographic
     Returns:
         각 Part의 총 길이 리스트 (초 단위)
     """
+    safe_title = get_standard_safe_title(book_title)
+    
+    # 1. 먼저 렌더링된 영상의 timing.json 파일 확인 (가장 정확)
+    video_path = Path(f"output/{safe_title}_full_episode_{language}.mp4")
+    timing_info_path = video_path.with_suffix('.timing.json')
+    
+    if timing_info_path.exists():
+        try:
+            with open(timing_info_path, 'r', encoding='utf-8') as f:
+                timing_info = json.load(f)
+            
+            part_clip_info = timing_info.get('part_clip_info', [])
+            if part_clip_info:
+                # Part별로 그룹화하여 각 Part의 총 길이 계산
+                part_durations = {}
+                for clip_info in part_clip_info:
+                    part_num = clip_info['part_num']
+                    if part_num not in part_durations:
+                        part_durations[part_num] = 0.0
+                    part_durations[part_num] += clip_info['duration']
+                
+                # Part 번호 순서대로 리스트 반환
+                sorted_parts = sorted(part_durations.keys())
+                return [part_durations[p] for p in sorted_parts]
+        except Exception as e:
+            logger.warning(f"⚠️ timing.json 파일 읽기 실패: {e}")
+            logger.warning("원본 비디오 파일의 duration을 사용합니다.")
+    
+    # 2. Fallback: 원본 비디오 파일의 duration 사용
     part_durations = []
     
     # input 폴더에서 먼저 확인
@@ -264,7 +297,6 @@ def get_actual_part_durations(book_title: str, language: str = "ko", infographic
     lang_suffix = "kr" if language == "ko" else "en"
     
     # assets/notebooklm 폴더 경로 미리 계산
-    safe_title = get_standard_safe_title(book_title)
     lang_suffix_alt = "_ko" if language == "ko" else "_en"
     notebooklm_dir = Path("assets/notebooklm") / safe_title / language
     
@@ -963,6 +995,30 @@ def create_episode_metadata(
     
     if thumbnail_path:
         metadata['thumbnail_path'] = str(thumbnail_path_obj)
+    
+    # Part 1 video와 infographic의 종료 시간 추가 (timing.json에서 읽기)
+    timing_info_path = video_path_obj.with_suffix('.timing.json')
+    if timing_info_path.exists():
+        try:
+            with open(timing_info_path, 'r', encoding='utf-8') as f:
+                timing_info = json.load(f)
+            
+            if timing_info.get('part1_video_end_time') is not None:
+                metadata['part1_video_end_time'] = timing_info['part1_video_end_time']
+            if timing_info.get('part1_info_end_time') is not None:
+                metadata['part1_info_end_time'] = timing_info['part1_info_end_time']
+            
+            logger.info(f"📊 Part 1 시간 정보 추가:")
+            if metadata.get('part1_video_end_time'):
+                minutes = int(metadata['part1_video_end_time'] // 60)
+                seconds = int(metadata['part1_video_end_time'] % 60)
+                logger.info(f"   Part 1 Video 종료: {minutes}:{seconds:02d} ({metadata['part1_video_end_time']:.2f}초)")
+            if metadata.get('part1_info_end_time'):
+                minutes = int(metadata['part1_info_end_time'] // 60)
+                seconds = int(metadata['part1_info_end_time'] % 60)
+                logger.info(f"   Part 1 Infographic 종료: {minutes}:{seconds:02d} ({metadata['part1_info_end_time']:.2f}초)")
+        except Exception as e:
+            logger.warning(f"⚠️ timing.json 파일 읽기 실패: {e}")
     
     return metadata
 

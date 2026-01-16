@@ -2,6 +2,28 @@
 
 ## 2026-01-16
 
+### 일당백 스타일 영상 Part 1 시간 정보 정확도 개선
+- **작업 내용**:
+  - 일당백 스타일 영상 제작 시 part1 video와 infographic의 종료 시간을 정확하게 계산하여 metadata에 기록하는 기능 개선
+  - Crossfade 효과가 적용된 실제 클립 duration을 사용하여 정확한 시간 계산
+- **주요 수정사항**:
+  - **`src/create_full_episode.py`**:
+    - 각 클립의 실제 duration 추적 (`part_clip_info` 리스트 추가)
+    - Crossfade 효과 적용 후 실제 duration 업데이트
+    - Part 1 video와 infographic의 종료 시간 계산 및 `.timing.json` 파일로 저장
+    - Part 1 시간 정보를 로그에 출력
+  - **`src/20_create_episode_metadata.py`**:
+    - `get_actual_part_durations()` 함수 개선: 우선순위로 `.timing.json` 파일에서 읽기 (가장 정확)
+    - Fallback: 원본 비디오 파일의 duration 사용 (하위 호환성)
+    - `create_episode_metadata()` 함수에서 timing.json 파일을 읽어 metadata에 `part1_video_end_time`과 `part1_info_end_time` 필드 자동 추가
+- **개선 효과**:
+  - Part 1 video와 infographic의 종료 시간이 Crossfade 효과를 반영한 정확한 값으로 계산됨
+  - Metadata에 정확한 시간 정보가 자동으로 포함됨
+  - YouTube chapter markers나 타임스탬프 생성 시 정확도 향상
+- **수정된 파일**:
+  - `src/create_full_episode.py`: Part 1 시간 정보 계산 및 저장 로직 추가
+  - `src/20_create_episode_metadata.py`: timing.json 파일 읽기 및 metadata에 시간 정보 추가
+
 ### 레이 커즈와일 - 특이점이 온다 (The Singularity Is Near) summary+video 스타일 영상 제작 및 YouTube 업로드
 - **작업 내용**:
   - 레이 커즈와일 "특이점이 온다 (The Singularity Is Near)" 한글/영문 summary+video 스타일 영상 제작
