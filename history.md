@@ -1,5 +1,26 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2026-01-16
+
+### 레이 커즈와일 - 특이점이 온다 (The Singularity Is Near) summary+video 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 레이 커즈와일 "특이점이 온다 (The Singularity Is Near)" 한글/영문 summary+video 스타일 영상 제작
+  - input 폴더에서 파일 준비 및 표준 네이밍으로 이동
+  - 이미지 다운로드 (100개, 저자/주제 관련)
+  - Summary + NotebookLM Video 형태로 영상 생성
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 "특이점이 온다" ↔ "The Singularity Is Near", "레이 커즈와일" ↔ "Ray Kurzweil" 매핑 추가
+- **생성된 영상**:
+  - 한글: `output/The_Singularity_Is_Near_kr.mp4` (208.68 MB)
+  - 영문: `output/The_Singularity_Is_Near_en.mp4` (165.25 MB)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=1r_oGXMMbKY
+  - 영문: https://www.youtube.com/watch?v=zphxWm6olYc
+- **수정된 파일**:
+  - `src/utils/translations.py`: 특이점이 온다, 레이 커즈와일 번역 매핑 추가
+  - `data/ildangbaek_books.csv`: 특이점이 온다 업로드 정보 업데이트
+
 ## 2026-01-15
 
 ### 조너던 스위프트 - 걸리버 여행기 (Gulliver's Travels) 일당백 스타일 영상 제작 및 YouTube 업로드
@@ -2936,3 +2957,23 @@
   - URL: https://www.youtube.com/watch?v=clUULPkveh0
 - [2] [한국어] Gullivers_Travels 책 리뷰 | [Korean] Gullivers_Travels Book Review
   - URL: https://www.youtube.com/watch?v=42zz0RtDDyw
+
+## 2026-01-16
+
+### YouTube 업로드 완료
+- 업로드된 책: Dopamine_Nation
+- 업로드된 영상 수: 2개
+- [1] [Summary] Dopamine Nation Book Review | [핵심 요약] 도파민네이션 핵심 정리
+  - URL: https://www.youtube.com/watch?v=qKDEdGSxfbk
+- [2] [핵심 요약] 도파민네이션 핵심 정리 | [Summary] Dopamine Nation Book Review
+  - URL: https://www.youtube.com/watch?v=JWZR1VjdJCs
+
+## 2026-01-16
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Singularity_Is_Near
+- 업로드된 영상 수: 2개
+- [1] [Summary] The Singularity Is Near Book Review | [핵심 요약] 특이점이 온다 핵심 정리
+  - URL: https://www.youtube.com/watch?v=zphxWm6olYc
+- [2] [핵심 요약] 특이점이 온다 핵심 정리 | [Summary] The Singularity Is Near Book Review
+  - URL: https://www.youtube.com/watch?v=1r_oGXMMbKY
