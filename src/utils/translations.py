@@ -374,6 +374,21 @@ def translate_book_title(book_title: str) -> str:
         "권력의 법칙": "The 48 Laws of Power",
         "권력의_법칙": "The 48 Laws of Power",
         "The 48 Laws of Power": "The 48 Laws of Power",
+        "물고기는 존재하지 않는다": "Why Fish Don't Exist",
+        "물고기는_존재하지_않는다": "Why Fish Don't Exist",
+        "Why Fish Don't Exist": "Why Fish Don't Exist",
+        "인간 실격": "No Longer Human",
+        "인간_실격": "No Longer Human",
+        "No Longer Human": "No Longer Human",
+        "도둑맞은 집중력": "Stolen Focus",
+        "도둑맞은_집중력": "Stolen Focus",
+        "Stolen Focus": "Stolen Focus",
+        "열하일기": "Yolha Ilgi",
+        "열하_일기": "Yolha Ilgi",
+        "Yolha Ilgi": "Yolha Ilgi",
+        "예루살렘의 아이히만": "Eichmann in Jerusalem",
+        "예루살렘의_아이히만": "Eichmann in Jerusalem",
+        "Eichmann in Jerusalem": "Eichmann in Jerusalem",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -491,6 +506,10 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Grit": "그릿",
         "Nexus": "넥서스",
         "The 48 Laws of Power": "권력의 법칙",
+        "Why Fish Don't Exist": "물고기는 존재하지 않는다",
+        "No Longer Human": "인간 실격",
+        "Stolen Focus": "도둑맞은 집중력",
+        "Yolha Ilgi": "열하일기",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -746,6 +765,9 @@ def translate_author_name(author: str) -> str:
         "로버트_그린": "Robert Greene",
         "Robert Greene": "Robert Greene",
         "Greene": "Robert Greene",
+        "룰루 밀러": "Lulu Miller",
+        "룰루_밀러": "Lulu Miller",
+        "Lulu Miller": "Lulu Miller",
     }
     
     if author in author_map:
@@ -846,6 +868,11 @@ def translate_author_name_to_korean(author: str) -> str:
         "Huxley": "올더스 헉슬리",
         "Angela Duckworth": "앤절라 더크워스",
         "Duckworth": "앤절라 더크워스",
+        "Lulu Miller": "룰루 밀러",
+        "Osamu Dazai": "다자이 오사무",
+        "Johann Hari": "요한 하리",
+        "Yeonam Park Jiwon": "연암 박지원",
+        "Park Jiwon": "박지원",
     }
     
     if author in reverse_author_map:

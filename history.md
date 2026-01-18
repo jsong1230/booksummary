@@ -2999,3 +2999,82 @@
   - URL: https://www.youtube.com/watch?v=zphxWm6olYc
 - [2] [핵심 요약] 특이점이 온다 핵심 정리 | [Summary] The Singularity Is Near Book Review
   - URL: https://www.youtube.com/watch?v=1r_oGXMMbKY
+
+## 2026-01-18
+
+### YouTube 업로드 완료
+- 업로드된 책: Why_Fish_Dont_Exist
+- 업로드된 영상 수: 2개
+- [1] [Summary] Why Fish Don't Exist Book Review | [핵심 요약] 물고기는 존재하지 않는다 핵심 정리
+  - URL: https://www.youtube.com/watch?v=yzDjClWRXDc
+- [2] [핵심 요약] 물고기는 존재하지 않는다 핵심 정리 | [Summary] Why Fish Don't Exist Book Review
+  - URL: https://www.youtube.com/watch?v=4vkM7QlstiQ
+
+## 2026-01-18
+
+### YouTube 업로드 완료
+- 업로드된 책: No_Longer_Human
+- 업로드된 영상 수: 2개
+- [1] [Summary] No Longer Human Book Review | [핵심 요약] 인간 실격 핵심 정리
+  - URL: https://www.youtube.com/watch?v=uzpOrWu99Us
+- [2] [핵심 요약] 인간 실격 핵심 정리 | [Summary] No Longer Human Book Review
+  - URL: https://www.youtube.com/watch?v=9zTZrbFIKOA
+
+## 2026-01-18
+
+### YouTube 업로드 완료
+- 업로드된 책: Stolen_Focus
+- 업로드된 영상 수: 2개
+- [1] [Summary] Stolen Focus Book Review | [핵심 요약] 도둑맞은 집중력 핵심 정리
+  - URL: https://www.youtube.com/watch?v=4_oriZUu3WQ
+- [2] [핵심 요약] 도둑맞은 집중력 핵심 정리 | [Summary] Stolen Focus Book Review
+  - URL: https://www.youtube.com/watch?v=PLuorfku5QQ
+
+## 2026-01-18
+
+### YouTube 업로드 완료
+- 업로드된 책: No_Longer_Human
+- 업로드된 영상 수: 2개
+- [1] [Summary] No Longer Human Book Review | [핵심 요약] 인간 실격 핵심 정리
+  - URL: https://www.youtube.com/watch?v=omLyLMeBJcc
+- [2] [핵심 요약] 인간 실격 핵심 정리 | [Summary] No Longer Human Book Review
+  - URL: https://www.youtube.com/watch?v=L8FLJWGj7GE
+
+## 2026-01-18
+
+### YouTube 업로드 완료
+- 업로드된 책: Yolha_Ilgi_full_episode_ko, Yolha_Ilgi_full_episode
+- 업로드된 영상 수: 2개
+- [1] [English] Yolha Ilgi Book Review | [영어] 열하일기 책 리뷰
+  - URL: https://www.youtube.com/watch?v=oiqPw8kwQSw
+- [2] [한국어] 열하일기 책 리뷰 | [Korean] Yolha Ilgi Book Review
+  - URL: https://www.youtube.com/watch?v=vEY4hjPV5CA
+
+## 2026-01-18
+
+### YouTube 업로드 완료
+- 업로드된 책: Eichmann_in_Jerusalem_full_episode_ko, Eichmann_in_Jerusalem_full_episode
+- 업로드된 영상 수: 2개
+- [1] [English] Eichmann in Jerusalem Book Review | [영어] 예루살렘의 아이히만 책 리뷰
+  - URL: https://www.youtube.com/watch?v=ImOURyEbzPw
+- [2] [한국어] 예루살렘의 아이히만 책 리뷰 | [Korean] Eichmann in Jerusalem Book Review
+  - URL: https://www.youtube.com/watch?v=ZMzTUeOh4pY
+
+## 2026-01-18
+
+### 헤르만 헤세 - 데미안 (Demian) 일당백 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 헤르만 헤세 "데미안 (Demian)" 한글/영문 일당백 스타일 영상 제작
+  - input 폴더에서 파일 준비 및 표준 네이밍으로 이동
+  - Part 1, Part 2 비디오와 인포그래픽을 연결하여 전체 에피소드 영상 생성
+  - YouTube 업로드 완료 (한글/영문)
+- **주요 수정사항**:
+  - **번역 매핑 확인**: `src/utils/translations.py`에 이미 "데미안" ↔ "Demian", "헤르만 헤세" ↔ "Hermann Hesse" 매핑이 존재함
+- **생성된 영상**:
+  - 한글: `output/Demian_full_episode_ko.mp4` (557.92 MB, 16분 16초)
+  - 영문: `output/Demian_full_episode_en.mp4` (566.49 MB, 15분 26초)
+- **YouTube 업로드**:
+  - 한글: https://www.youtube.com/watch?v=C1VeauTb6gs
+  - 영문: https://www.youtube.com/watch?v=f8ff5TNd47U
+- **수정된 파일**:
+  - `data/ildangbaek_books.csv`: 데미안 업로드 정보 업데이트
