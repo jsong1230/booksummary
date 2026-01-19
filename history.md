@@ -2,6 +2,27 @@
 
 ## 2026-01-19
 
+### 칼 세이건 코스모스 일당백 스타일 영상 제작 및 YouTube 업로드
+- **작업 내용**:
+  - 칼 세이건 "코스모스" 한글/영문 일당백 스타일 영상 제작
+  - Part 1, Part 2 영상과 인포그래픽을 연결하여 전체 에피소드 영상 생성
+  - Crossfade 효과 및 배경음악 추가
+  - YouTube 업로드 완료 (비공개)
+- **생성된 영상**:
+  - 한글: `output/Cosmos_full_episode_ko.mp4` (582MB, 15.46분)
+  - 영문: `output/Cosmos_full_episode_en.mp4` (463MB, 14.60분)
+- **YouTube 업로드 완료 (비공개)**:
+  - [1] [한국어] 코스모스 책 리뷰 | [Korean] Cosmos Book Review
+    - URL: https://www.youtube.com/watch?v=YzI7EZmaOc8
+  - [2] [English] Cosmos Book Review | [영어] 코스모스 책 리뷰
+    - URL: https://www.youtube.com/watch?v=L1WYsstVHN8
+- **작업 파일**:
+  - `assets/notebooklm/Cosmos/ko/`: 한글 Part 1, Part 2 영상 및 인포그래픽
+  - `assets/notebooklm/Cosmos/en/`: 영문 Part 1, Part 2 영상 및 인포그래픽
+  - `output/Cosmos_full_episode_ko.metadata.json`: 한글 메타데이터
+  - `output/Cosmos_full_episode_en.metadata.json`: 영문 메타데이터
+  - `output/Cosmos_thumbnail_ko.jpg`, `output/Cosmos_thumbnail_en.jpg`: 썸네일
+
 ### 모건 하우절 - 불변의 법칙 (Same as Ever) summary+video 스타일 영상 제작
 - **작업 내용**:
   - 모건 하우절 "불변의 법칙 (Same as Ever)" 한글/영문 summary+video 스타일 영상 제작
@@ -3130,3 +3151,13 @@
   - URL: https://www.youtube.com/watch?v=zw-vURBx-b4
 - [2] [핵심 요약] 불변의 법칙 핵심 정리 모건 하우절 | [Summary] Same as Ever Book Review
   - URL: https://www.youtube.com/watch?v=ElvVq7ugy0I
+
+## 2026-01-19
+
+### YouTube 업로드 완료
+- 업로드된 책: Cosmos_full_episode_ko, Cosmos_full_episode
+- 업로드된 영상 수: 2개
+- [1] [English] Cosmos Book Review | [영어] 코스모스 책 리뷰
+  - URL: https://www.youtube.com/watch?v=L1WYsstVHN8
+- [2] [한국어] 코스모스 책 리뷰 | [Korean] Cosmos Book Review
+  - URL: https://www.youtube.com/watch?v=YzI7EZmaOc8
