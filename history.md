@@ -3161,3 +3161,13 @@
   - URL: https://www.youtube.com/watch?v=L1WYsstVHN8
 - [2] [한국어] 코스모스 책 리뷰 | [Korean] Cosmos Book Review
   - URL: https://www.youtube.com/watch?v=YzI7EZmaOc8
+
+## 2026-01-19
+
+### YouTube 업로드 완료
+- 업로드된 책: I_Am_a_Cat_full_episode, I_Am_a_Cat_full_episode_ko
+- 업로드된 영상 수: 2개
+- [1] [English] I_Am_a_Cat Book Review | [영어] 나는 고양이로소이다 책 리뷰
+  - URL: https://www.youtube.com/watch?v=xQHl6POMKWE
+- [2] [한국어] 나는 고양이로소이다 책 리뷰 | [Korean] I_Am_a_Cat Book Review
+  - URL: https://www.youtube.com/watch?v=YgmGQUZTO7M
