@@ -21,7 +21,7 @@ SCOPES = [
 def get_refresh_token():
     """OAuth2 인증을 통해 refresh token 받기"""
     # client_secret.json 파일 경로
-    client_secret_path = Path("client_secret.json")
+    client_secret_path = Path("secrets/client_secret.json")
     
     if not client_secret_path.exists():
         print("❌ client_secret.json 파일을 찾을 수 없습니다.")
@@ -76,9 +76,9 @@ def get_refresh_token():
                     'client_secret': credentials.client_secret,
                     'scopes': credentials.scopes
                 }
-                with open('credentials.json', 'w') as f:
+                with open('secrets/credentials.json', 'w') as f:
                     json.dump(creds_dict, f, indent=2)
-                print("✅ credentials.json 저장 완료")
+                print("✅ secrets/credentials.json 저장 완료")
             
             return credentials.refresh_token
         else:

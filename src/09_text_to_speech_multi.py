@@ -72,7 +72,7 @@ class MultiTTSEngine:
             google_creds_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
             if not google_creds_path:
                 # 기본 경로 확인
-                default_path = Path("google-cloud-tts-key.json")
+                default_path = Path("secrets/google-cloud-tts-key.json")
                 if default_path.exists():
                     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = str(default_path.absolute())
                 else:

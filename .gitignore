@@ -26,14 +26,17 @@ env/
 ENV/
 .venv
 
+# Secrets
+secrets/
+
 # Environment variables
 .env
 .env.local
 .env.*.local
 
 # OAuth credentials
-client_secret.json
-credentials.json
+secrets/client_secret.json
+secrets/credentials.json
 
 # IDE
 .vscode/
@@ -94,7 +97,7 @@ logs/
 *.log
 
 # Google Cloud 인증 키 파일 (민감 정보)
-google-cloud-tts-key.json
+secrets/google-cloud-tts-key.json
 
 # 쿠키 파일 (개인 정보 포함)
 scripts/cookies.txt

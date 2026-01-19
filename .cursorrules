@@ -34,13 +34,13 @@
      --num-mood 100 \
      --skip-cover
    
-   # 3단계: 롱폼 TTS 오디오 생성 (선택사항, 요약 MD가 있는 경우)
-   python src/09_text_to_speech.py \
+   # 3단계: 다중 엔진 TTS 오디오 생성 (선택사항, 요약 MD가 있는 경우)
+   python src/09_text_to_speech_multi.py \
+     --provider openai \
      --text-file "assets/summaries/{책제목}_summary_ko.md" \
      --output "assets/audio/{책제목}_longform_ko.mp3" \
      --voice nova \
-     --language ko \
-     --model tts-1-hd
+     --language ko
    
    # 4단계: 영상 제작 (한글)
    # - 구조: Summary(5분, 750단어+, Hook/Body/Bridge) + NotebookLM + Review
@@ -88,6 +88,12 @@
    - 이미지: `assets/images/{책제목}/mood_*.jpg` (100개)
    - 책 정보: `assets/images/{책제목}/book_info.json`
    - 책 커버: `assets/images/{책제목}/cover.jpg`
+
+6. **보안 및 인증 정보 확인**
+   - 모든 자격 증명 파일은 `secrets/` 폴더에 위치해야 합니다.
+   - `secrets/client_secret.json`: YouTube API 클라이언트 보안 비밀
+   - `secrets/credentials.json`: YouTube API 인증 토큰
+   - `secrets/google-cloud-tts-key.json`: Google Cloud TTS 서비스 계정 키
 
 
 ## Git 커밋 전 필수 작업

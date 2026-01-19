@@ -993,7 +993,7 @@ def preview_metadata(title: str, description: str, tags: list, lang: str):
     print()
 
 
-def calculate_timestamps_from_video(video_path: Path, safe_title_str: str, lang: str) -> Optional[Dict]:
+def calculate_timestamps_from_video(video_path: Path, safe_title_str: str, lang: str, book_title: Optional[str] = None) -> Optional[Dict]:
     """
     영상 파일과 관련 오디오/비디오 파일에서 timestamp 정보 계산
     
@@ -1017,27 +1017,30 @@ def calculate_timestamps_from_video(video_path: Path, safe_title_str: str, lang:
         }
         
         # Summary 오디오 길이 확인 (summary 또는 longform 파일 모두 확인)
+        from src.utils.file_utils import safe_title
+        korean_safe_title = safe_title(book_title) if book_title else safe_title_str
+        
         summary_audio_path = None
         possible_paths = [
             Path(f"assets/audio/{safe_title_str}_summary_{lang_suffix}.mp3"),
-            Path(f"assets/audio/{safe_title_str}_longform_{lang_suffix}.mp3")
+            Path(f"assets/audio/{safe_title_str}_longform_{lang_suffix}.mp3"),
+            Path(f"assets/audio/{korean_safe_title}_summary_{lang_suffix}.mp3"),
+            Path(f"assets/audio/{korean_safe_title}_longform_{lang_suffix}.mp3")
         ]
         
+        # 호환성을 위해 ko 패턴도 확인
+        if lang_suffix == "kr":
+            possible_paths.extend([
+                Path(f"assets/audio/{safe_title_str}_summary_ko.mp3"),
+                Path(f"assets/audio/{safe_title_str}_longform_ko.mp3"),
+                Path(f"assets/audio/{korean_safe_title}_summary_ko.mp3"),
+                Path(f"assets/audio/{korean_safe_title}_longform_ko.mp3")
+            ])
+        
         for path in possible_paths:
-            if path.exists():
+            if path and path.exists():
                 summary_audio_path = path
                 break
-        
-        # 호환성을 위해 ko 패턴도 확인
-        if not summary_audio_path and lang_suffix == "kr":
-            possible_paths_old = [
-                Path(f"assets/audio/{safe_title_str}_summary_ko.mp3"),
-                Path(f"assets/audio/{safe_title_str}_longform_ko.mp3")
-            ]
-            for path in possible_paths_old:
-                if path.exists():
-                    summary_audio_path = path
-                    break
         
         if summary_audio_path and summary_audio_path.exists():
             try:
@@ -1054,11 +1057,24 @@ def calculate_timestamps_from_video(video_path: Path, safe_title_str: str, lang:
                     timestamps['summary_duration'] = float(result.stdout.strip().split('=')[1])
         
         # NotebookLM Video 길이 확인
-        notebooklm_video_path = Path(f"assets/video/{safe_title_str}_notebooklm_{lang_suffix}.mp4")
-        if not notebooklm_video_path.exists() and lang_suffix == "kr":
-            notebooklm_video_path = Path(f"assets/video/{safe_title_str}_notebooklm_ko.mp4")
+        notebooklm_video_path = None
+        possible_video_paths = [
+            Path(f"assets/video/{safe_title_str}_notebooklm_{lang_suffix}.mp4"),
+            Path(f"assets/video/{korean_safe_title}_notebooklm_{lang_suffix}.mp4")
+        ]
         
-        if notebooklm_video_path.exists():
+        if lang_suffix == "kr":
+            possible_video_paths.extend([
+                Path(f"assets/video/{safe_title_str}_notebooklm_ko.mp4"),
+                Path(f"assets/video/{korean_safe_title}_notebooklm_ko.mp4")
+            ])
+        
+        for path in possible_video_paths:
+            if path and path.exists():
+                notebooklm_video_path = path
+                break
+        
+        if notebooklm_video_path and notebooklm_video_path.exists():
             try:
                 video = VideoFileClip(str(notebooklm_video_path))
                 timestamps['notebooklm_duration'] = video.duration
@@ -1073,19 +1089,33 @@ def calculate_timestamps_from_video(video_path: Path, safe_title_str: str, lang:
                     timestamps['notebooklm_duration'] = float(result.stdout.strip().split('=')[1])
         
         # Review 오디오 길이 확인
-        review_audio_path = Path(f"assets/audio/{safe_title_str}_review_{lang_suffix}.m4a")
-        if not review_audio_path.exists() and lang_suffix == "kr":
-            review_audio_path = Path(f"assets/audio/{safe_title_str}_review_ko.m4a")
+        review_audio_path = None
+        possible_review_paths = [
+            Path(f"assets/audio/{safe_title_str}_review_{lang_suffix}.m4a"),
+            Path(f"assets/audio/{korean_safe_title}_review_{lang_suffix}.m4a")
+        ]
         
-        if not review_audio_path.exists():
-            # 다른 확장자 시도
+        if lang_suffix == "kr":
+            possible_review_paths.extend([
+                Path(f"assets/audio/{safe_title_str}_review_ko.m4a"),
+                Path(f"assets/audio/{korean_safe_title}_review_ko.m4a")
+            ])
+        
+        # 다른 확장자 시도
+        existing_review_paths = [p for p in possible_review_paths if p.exists()]
+        if not existing_review_paths:
             for ext in ['.mp3', '.wav']:
-                test_path = Path(f"assets/audio/{safe_title_str}_review_{lang_suffix}{ext}")
-                if test_path.exists():
-                    review_audio_path = test_path
-                    break
+                possible_review_paths.extend([
+                    Path(f"assets/audio/{safe_title_str}_review_{lang_suffix}{ext}"),
+                    Path(f"assets/audio/{korean_safe_title}_review_{lang_suffix}{ext}")
+                ])
         
-        if review_audio_path.exists():
+        for path in possible_review_paths:
+            if path and path.exists():
+                review_audio_path = path
+                break
+        
+        if review_audio_path and review_audio_path.exists():
             try:
                 audio = AudioFileClip(str(review_audio_path))
                 timestamps['review_duration'] = audio.duration
@@ -1232,7 +1262,7 @@ def main():
         # Timestamp 계산 (영상 파일이 있으면)
         timestamps_ko = None
         if video_path_ko.exists():
-            timestamps_ko = calculate_timestamps_from_video(video_path_ko, safe_title_str, 'ko')
+            timestamps_ko = calculate_timestamps_from_video(video_path_ko, safe_title_str, 'ko', book_title=args.book_title)
         else:
             print(f"⚠️ 한글 영상을 찾을 수 없습니다. Timestamp 없이 메타데이터 생성: {video_path_ko}")
         
@@ -1258,7 +1288,7 @@ def main():
         # Timestamp 계산 (영상 파일이 있으면)
         timestamps_en = None
         if video_path_en.exists():
-            timestamps_en = calculate_timestamps_from_video(video_path_en, safe_title_str, 'en')
+            timestamps_en = calculate_timestamps_from_video(video_path_en, safe_title_str, 'en', book_title=args.book_title)
         else:
             print(f"⚠️ 영문 영상을 찾을 수 없습니다. Timestamp 없이 메타데이터 생성: {video_path_en}")
         

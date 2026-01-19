@@ -62,9 +62,10 @@ pip install -r requirements.txt
 - `CLAUDE_API_KEY`: Summary 생성용 (선택사항)
 - `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`, `YOUTUBE_REFRESH_TOKEN`: YouTube 업로드용
 - `YOUTUBE_CHANNEL_ID`: 업로드할 채널 ID (선택사항, 기본값: book summary 채널)
-- `GOOGLE_APPLICATION_CREDENTIALS`: Google Cloud TTS 사용 시 (선택사항, `google-cloud-tts-key.json` 파일 경로)
+- `GOOGLE_APPLICATION_CREDENTIALS`: Google Cloud TTS 사용 시 (선택사항, `secrets/google-cloud-tts-key.json` 파일 경로)
 - `REPLICATE_API_TOKEN`: Replicate TTS 사용 시 (선택사항)
 - `ELEVENLABS_API_KEY`: ElevenLabs TTS 사용 시 (선택사항)
+- `OPENROUTER_API_KEY`: ElevenLabs를 OpenRouter를 통해 사용 시 (선택사항)
 - `LOG_LEVEL`: 로그 레벨 설정 (선택사항, 기본값: INFO, 가능한 값: DEBUG, INFO, WARNING, ERROR, CRITICAL)
 
 ## 빠른 시작 가이드 (처음 시작하는 경우)
@@ -561,17 +562,16 @@ python src/09_upload_from_metadata.py --privacy private --auto --force
 - 다른 채널로 업로드: `--channel-id UCxxxxxxxxxxxxxxxxxxxxxxxxxx`
 - 또는 환경 변수: `YOUTUBE_CHANNEL_ID=UCxxxxxxxxxxxxxxxxxxxxxxxxxx`
 
-**OAuth refresh token 생성:**
-- 같은 계정의 다른 채널로 업로드하려면 해당 채널에 대한 refresh token이 필요합니다
-- `scripts/get_youtube_refresh_token.py` 스크립트를 사용하여 새 refresh token 생성:
-  ```bash
-  python scripts/get_youtube_refresh_token.py
-  ```
-- OAuth 인증 화면에서 원하는 채널을 선택하세요
-- 생성된 refresh token을 `.env` 파일의 `YOUTUBE_REFRESH_TOKEN`에 설정하세요
+- **OAuth refresh token 생성**:
+  - `secrets/client_secret.json` 파일이 필요합니다.
+  - `scripts/get_youtube_refresh_token.py` 스크립트를 사용하여 새 refresh token 생성:
+    ```bash
+    python scripts/get_youtube_refresh_token.py
+    ```
+  - OAuth 인증 화면에서 원하는 채널을 선택하세요.
+  - 생성된 refresh token을 `.env` 파일의 `YOUTUBE_REFRESH_TOKEN`에 설정하세요.
 
 업로드 시:
-
 - **제목 자동 축약**: YouTube 100자 제한을 초과하는 제목을 자동으로 축약 (97자 + "...")
 - 태그 자동 검증 (30자 초과 태그 제거)
 - Description 길이 검증 (5000자 제한)
@@ -586,12 +586,10 @@ python src/09_upload_from_metadata.py --privacy private --auto --force
 ## 프로젝트 구조
 
 ```text
-booksummary/
-├── assets/
-│   ├── audio/          # NotebookLM 오디오 및 생성된 요약 오디오
-│   ├── images/         # 책 표지 및 무드 이미지
-│   ├── video/          # NotebookLM 비디오 파일 (선택사항)
-│   └── summaries/      # 생성된 요약 텍스트
+├── secrets/            # 민감한 인증 정보 (Git 무시)
+│   ├── client_secret.json
+│   ├── credentials.json
+│   └── google-cloud-tts-key.json
 ├── docs/               # 문서
 │   └── SUMMARY_TEMPLATE.md  # 유튜브 롱폼 영상용 요약 템플릿 (Hook → Summary → Bridge)
 ├── output/             # 생성된 영상 및 썸네일
@@ -607,7 +605,7 @@ booksummary/
 │   └── ...
 ├── src/                # 소스 코드
 │   ├── 08_generate_summary.py      # 요약 텍스트 생성 (Hook → Summary → Bridge 구조)
-│   ├── 09_text_to_speech.py        # TTS 변환
+│   ├── 09_text_to_speech_multi.py  # 다중 엔진 TTS 변환
 │   ├── 10_create_video_with_summary.py  # 영상 합성 (요약+리뷰)
 │   └── ...
 └── README.md           # 이 파일

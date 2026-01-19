@@ -1,5 +1,47 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2026-01-19
+
+### 모건 하우절 - 불변의 법칙 (Same as Ever) summary+video 스타일 영상 제작
+- **작업 내용**:
+  - 모건 하우절 "불변의 법칙 (Same as Ever)" 한글/영문 summary+video 스타일 영상 제작
+  - input 폴더에서 파일 준비 및 표준 네이밍으로 이동
+  - 이미지 다운로드 (100개, 저자/주제 관련)
+  - Summary + NotebookLM Video 형태로 영상 생성 (OpenAI TTS 사용)
+  - 한글/영문 메타데이터 생성 완료
+- **주요 수정사항**:
+  - **번역 매핑 추가**: `src/utils/translations.py`에 "불변의 법칙" ↔ "Same as Ever", "모건 하우절" ↔ "Morgan Housel" 매핑 추가
+- **생성된 영상**:
+  - 한글: `output/Same_as_Ever_kr.mp4` (12.35분)
+  - 영문: `output/Same_as_Ever_en.mp4` (10.28분)
+- **수정된 파일**:
+  - `src/utils/translations.py`: 불변의 법칙, 모건 하우절 번역 매핑 추가
+  - `history.md`: 작업 내용 업데이트
+
+## 2026-01-19
+
+### 프로젝트 구조 리팩토링 및 환경 설정 관리 개선
+- **작업 내용**:
+  - 프로젝트의 보안성과 유지보수성을 높이기 위해 불필요한 파일을 정리하고 자격 증명 관리 방식을 개선했습니다.
+  - 다중 엔진 TTS 기능을 `src/09_text_to_speech_multi.py`로 단일화하고 기존 중복 스크립트를 제거했습니다.
+  - 모든 문서를 최신 코드 구조에 맞게 업데이트하여 사용자 편의성을 높였습니다.
+- **주요 수정사항**:
+  - **자격 증명 관리**:
+    - `secrets/` 디렉토리를 생성하여 `client_secret.json`, `credentials.json`, `google-cloud-tts-key.json` 등 민감한 파일을 이동.
+    - `.gitignore`를 업데이트하여 `secrets/` 폴더를 Git 추적에서 제외.
+  - **스크립트 통합**:
+    - `src/09_text_to_speech.py` 삭제 및 `src/09_text_to_speech_multi.py`로 모든 TTS 작업 통합.
+    - `scripts/generate_summary_audio.py`가 `MultiTTSEngine`을 사용하도록 업데이트.
+  - **문서화 업데이트**:
+    - `README.md`: 프로젝트 구조, 환경 변수, OAuth 설정 등 최신 정보 반영.
+    - `TODO.md`: 완료된 리팩토링 항목 반영 및 참고 문서 정리.
+    - `.env.example`: `OPENROUTER_API_KEY` 추가 및 자격 증명 경로 안내 업데이트.
+  - **기타 정리**:
+    - 사용하지 않는 테스트 스크립트 삭제 (`verify_openai_api.py`, `test_logging.py`, `test_analytics.py`).
+- **수정된 파일**:
+  - `README.md`, `TODO.md`, `.env.example`, `.gitignore`, `history.md`
+  - `src/09_text_to_speech_multi.py`, `scripts/generate_summary_audio.py`, `scripts/get_youtube_refresh_token.py`
+
 ## 2026-01-16
 
 ### 일당백 스타일 영상 Part 1 시간 정보 정확도 개선
@@ -3078,3 +3120,13 @@
   - 영문: https://www.youtube.com/watch?v=f8ff5TNd47U
 - **수정된 파일**:
   - `data/ildangbaek_books.csv`: 데미안 업로드 정보 업데이트
+
+## 2026-01-19
+
+### YouTube 업로드 완료
+- 업로드된 책: Same_as_Ever
+- 업로드된 영상 수: 2개
+- [1] [Summary] Same as Ever Book Review Morgan Housel | [핵심 요약] 불변의 법칙 핵심 정리
+  - URL: https://www.youtube.com/watch?v=zw-vURBx-b4
+- [2] [핵심 요약] 불변의 법칙 핵심 정리 모건 하우절 | [Summary] Same as Ever Book Review
+  - URL: https://www.youtube.com/watch?v=ElvVq7ugy0I

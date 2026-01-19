@@ -389,6 +389,9 @@ def translate_book_title(book_title: str) -> str:
         "예루살렘의 아이히만": "Eichmann in Jerusalem",
         "예루살렘의_아이히만": "Eichmann in Jerusalem",
         "Eichmann in Jerusalem": "Eichmann in Jerusalem",
+        "불변의 법칙": "Same as Ever",
+        "불변의_법칙": "Same as Ever",
+        "Same as Ever": "Same as Ever",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -510,6 +513,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "No Longer Human": "인간 실격",
         "Stolen Focus": "도둑맞은 집중력",
         "Yolha Ilgi": "열하일기",
+        "Same as Ever": "불변의 법칙",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -768,6 +772,7 @@ def translate_author_name(author: str) -> str:
         "룰루 밀러": "Lulu Miller",
         "룰루_밀러": "Lulu Miller",
         "Lulu Miller": "Lulu Miller",
+        "모건 하우절": "Morgan Housel",
     }
     
     if author in author_map:

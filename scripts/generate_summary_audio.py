@@ -12,11 +12,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from src.utils.file_utils import get_standard_safe_title
 
 # TTS 모듈 동적 로드
-tts_path = Path(__file__).parent.parent / "src" / "09_text_to_speech.py"
-spec = importlib.util.spec_from_file_location("text_to_speech", tts_path)
+tts_path = Path(__file__).parent.parent / "src" / "09_text_to_speech_multi.py"
+spec = importlib.util.spec_from_file_location("text_to_speech_multi", tts_path)
 tts_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(tts_module)
-TTSEngine = tts_module.TTSEngine
+MultiTTSEngine = tts_module.MultiTTSEngine
 
 def generate_summary_audio(book_title: str, language: str = "ko"):
     """Summary 오디오 생성"""
@@ -59,7 +59,7 @@ def generate_summary_audio(book_title: str, language: str = "ko"):
     print()
     
     # TTS 생성
-    tts = TTSEngine()
+    tts = MultiTTSEngine(provider="openai")
     
     print(f"🎤 {language.upper()} Summary 오디오 생성 중...")
     tts.generate_speech(

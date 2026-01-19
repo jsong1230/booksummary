@@ -83,8 +83,7 @@ _현재 알려진 이슈가 없습니다_
 
 ### Phase 2: NotebookLM 오디오 생성 (완료: 2025-11)
 
-- [x] 사용자 가이드 작성 ([NOTEBOOKLM_GUIDE.md](NOTEBOOKLM_GUIDE.md))
-- [x] NotebookLM 사용법 문서화
+- [x] NotebookLM 사용법 문서화 (README.md에 통합)
 
 ### Phase 3: 이미지 자산 확보 (완료: 2025-11)
 
@@ -137,13 +136,13 @@ _현재 알려진 이슈가 없습니다_
 - [x] 프로젝트 문서화 ([README](README.md), [TODO](TODO.md), [HISTORY](history.md), [RULES](.cursorrules))
 - [x] Git 자동 커밋/푸시 설정
 - [x] 커밋 전 필수 작업 규칙 추가 ([.cursorrules](.cursorrules))
-- [x] history 파일을 history.md로 변경
-  - history 파일을 표준화된 history.md로 변경
-  - .cursorrules에서 "history 파일"을 "history.md 파일"로 업데이트
-  - src/09_upload_from_metadata.py에서 history.md 사용하도록 수정
 - [x] TODO.md에서 history 성 데이터 제거
   - "최근 완료 작업 (최근 2주)" 섹션 전체 제거
   - TODO.md는 현재 작업과 향후 계획만 관리하도록 정리
+- [x] 코드 리팩토링 및 파일 정리
+  - src/09_text_to_speech.py 삭제 및 src/09_text_to_speech_multi.py로 통합
+  - 민감한 인증 정보들을 secrets/ 폴더로 이동 및 관리
+  - 불필요한 테스트 스크립트 삭제
 
 ---
 
@@ -151,6 +150,5 @@ _현재 알려진 이슈가 없습니다_
 
 - [README.md](README.md) - 프로젝트 개요 및 사용법
 - [HISTORY.md](history.md) - 상세 작업 이력
-- [NOTEBOOKLM_GUIDE.md](NOTEBOOKLM_GUIDE.md) - NotebookLM 사용 가이드
 - [.cursorrules](.cursorrules) - 프로젝트 규칙 및 가이드라인
 - [docs/URL_COLLECTION_PROMPT.md](docs/URL_COLLECTION_PROMPT.md) - URL 수집 프롬프트
