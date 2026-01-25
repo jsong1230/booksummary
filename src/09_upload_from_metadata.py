@@ -67,47 +67,40 @@ class YouTubeUploader:
             raise
     
     def _validate_and_clean_tags(self, tags: list) -> list:
-        """태그 검증 및 정리 (YouTube 규칙 준수)"""
-        MAX_TAG_LENGTH = 30  # YouTube 태그 최대 길이
-        MAX_TAGS = 500  # YouTube 태그 최대 개수 (실제로는 더 적지만 안전하게)
-        
+        """태그 검증 및 정리 (YouTube 규칙 준수)
+        - 개별 태그 30자, 공백→언더스코어, 특수문자 제거
+        - 전체 키워드 합계 500자 미만 (API 거부 방지, 쉼표 포함 계산)
+        """
+        import re
+        MAX_TAG_LENGTH = 30  # YouTube 개별 태그 최대 길이
+        MAX_TOTAL_CHARS = 450  # 전체 키워드 합계 상한 (공식 500자, 쉼표 포함한 여유)
+
         cleaned_tags = []
         for tag in tags:
             if not tag or not isinstance(tag, str):
                 continue
-            
-            # 공백 제거
             tag = tag.strip()
-            
-            # 빈 태그 제거
             if not tag:
                 continue
-            
-            # YouTube 태그는 공백을 허용하지 않음 - 언더스코어로 변환
-            import re
             tag = re.sub(r'\s+', '_', tag)
-            
-            # 길이 제한 (30자)
             if len(tag) > MAX_TAG_LENGTH:
-                # 너무 긴 태그는 자르거나 건너뛰기
                 print(f"   ⚠️ 태그 길이 초과 (30자): '{tag[:50]}...' (건너뜀)")
                 continue
-            
-            # 특수 문자 제거 (YouTube가 허용하지 않는 문자)
-            # 허용되는 문자: 알파벳, 숫자, 하이픈, 언더스코어
-            # 기본적으로는 그대로 사용하되, 문제가 될 수 있는 문자만 체크
             if any(c in tag for c in ['<', '>', '&', '"', "'", '\n', '\r', '\t']):
-                # 문제가 되는 문자 제거
                 tag = re.sub(r'[<>&"\'\\n\\r\\t]', '', tag)
                 if not tag.strip():
                     continue
-            
             cleaned_tags.append(tag)
-            
-            # 최대 개수 제한
-            if len(cleaned_tags) >= MAX_TAGS:
-                break
-        
+
+        # YouTube: 전체 키워드 길이(쉼표 포함) < 500자. 넘으면 앞쪽 태그만 유지
+        def total_len(lst):
+            return sum(len(t) for t in lst) + max(0, len(lst) - 1)  # 쉼표
+
+        while cleaned_tags and total_len(cleaned_tags) > MAX_TOTAL_CHARS:
+            cleaned_tags.pop()
+        if total_len(cleaned_tags) > MAX_TOTAL_CHARS:
+            cleaned_tags.clear()
+
         return cleaned_tags
     
     def upload_video(
@@ -137,12 +130,13 @@ class YouTubeUploader:
         print(f"📤 업로드 중: {title}")
         print(f"   파일 크기: {file_size / (1024*1024):.2f} MB")
         
-        # 태그 검증 및 정리
+        # 태그 검증 및 정리 (개별 30자, 전체 500자 미만)
         original_tag_count = len(tags)
         tags = self._validate_and_clean_tags(tags)
         if len(tags) < original_tag_count:
-            print(f"   ⚠️ 태그 정리: {original_tag_count}개 → {len(tags)}개 (30자 초과 태그 제거)")
-        print(f"   🏷️ 태그 개수: {len(tags)}개")
+            print(f"   ⚠️ 태그 정리: {original_tag_count}개 → {len(tags)}개 (YouTube 길이 제한 적용)")
+        total_tag_chars = sum(len(t) for t in tags) + max(0, len(tags) - 1)
+        print(f"   🏷️ 태그 {len(tags)}개 (총 {total_tag_chars}자)")
         
         # Description 검증 및 수정
         # YouTube description 최대 길이: 5000자

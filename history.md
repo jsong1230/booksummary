@@ -3189,3 +3189,13 @@
 - 업로드된 영상 수: 1개
 - [1] [핵심 요약] 생각하는 게임 핵심 정리 데미스 허사비스 | [Summary] The_Thinking_Game Book Review
   - URL: https://www.youtube.com/watch?v=TPdcuC4HU88
+
+## 2026-01-25
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Brothers_Karamazov
+- 업로드된 영상 수: 2개
+- [1] [Summary] The_Brothers_Karamazov Book Review Fyodor Dostoevsky | [핵심 요약] 까르마조프가의 형제 핵심 정리
+  - URL: https://www.youtube.com/watch?v=Tzxs5eg_m3s
+- [2] [핵심 요약] 까르마조프가의 형제 핵심 정리 표도르 도스토옙스키 | [Summary] The_Brothers_Karamazov Book Review
+  - URL: https://www.youtube.com/watch?v=Fck3XiEF2bk

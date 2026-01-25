@@ -37,6 +37,10 @@ def translate_book_title(book_title: str) -> str:
         "조르바": "Zorba the Greek",
         "죄와 벌": "Crime and Punishment",
         "죄와벌": "Crime and Punishment",
+        "까르마조프가의 형제": "The Brothers Karamazov",
+        "까르마조프가의_형제": "The_Brothers_Karamazov",
+        "The Brothers Karamazov": "The Brothers Karamazov",
+        "The_Brothers_Karamazov": "The_Brothers_Karamazov",
         "소년이 온다": "Human Acts",
         "Human Acts": "Human Acts",  # 영어 제목은 그대로 반환
         "The Boy is Coming": "Human Acts",  # 구버전 호환성
@@ -428,6 +432,8 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "The Prince": "군주론",
         "Zorba the Greek": "그리스인 조르바",
         "Crime and Punishment": "죄와 벌",
+        "The Brothers Karamazov": "까르마조프가의 형제",
+        "The_Brothers_Karamazov": "까르마조프가의_형제",
         "The Boy is Coming": "소년이 온다",
         "Farewell": "작별인사",
         "The Catcher in the Rye": "호밀밭의 파수꾼",
