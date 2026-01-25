@@ -233,6 +233,22 @@
    - "영상 만들고 업로드해줘" 같은 명시적 요청이 있어야 업로드 진행
    - 업로드 전 항상 사용자에게 최종 확인 요청
 
+### 업로드 전 썸네일 생성 (필수)
+**중요: YouTube 업로드 전에 반드시 썸네일을 생성·확인합니다.**
+
+1. **자동 동작**
+   - `src/09_upload_from_metadata.py` 실행 시, 썸네일이 없으면 **업로드 직전**에 `input/` 폴더에서 자동 생성합니다.
+   - 한글(ko): `input/` 내 `*thumbnail*kr*`, `*thumbnail*ko*`, `*gold*kr*` 등 → `output/{영상파일명}_thumbnail_ko.jpg`
+   - 영문(en): `input/` 내 `*thumbnail*en*`, `*gold*en*` 등 → `output/{영상파일명}_thumbnail_en.jpg`
+
+2. **수동으로 썸네일만 먼저 만들고 싶을 때**
+   - `input/`에 `gold_thumbnail_kr.png`, `gold_thumbnail_en.png` 또는 `thumbnail_kr.png`, `thumbnail_en.png` 등을 두고
+   - 업로드 스크립트를 실행하면 됩니다. (스크립트가 업로드 전에 위 규칙으로 JPG를 생성합니다.)
+
+3. **에이전트/작업자 유의사항**
+   - 사용자가 "업로드해줘"라고 할 때, **썸네일 생성이 선행되지 않았다면** 업로드 스크립트 하나만 실행해도 됩니다. 스크립트가 `input/` 기반 썸네일 자동 생성을 수행합니다.
+   - 일당백·핵심요약 모두 동일: `output/`에 `{영상 stem}_thumbnail_ko.jpg` / `_en.jpg` 가 없으면 `input/` 에서 생성 후 업로드합니다.
+
 ### YouTube URL 자막 다운로드
 **중요: 사용자가 YouTube URL을 제공하고 "스크립트를 만들어달라" 또는 "스크립트 생성" 등을 요청하면 `fetch_separate_scripts.py`를 실행해야 합니다.**
 

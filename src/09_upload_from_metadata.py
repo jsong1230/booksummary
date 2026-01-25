@@ -429,6 +429,76 @@ def find_metadata_files(output_dir: str = "output") -> list:
     return sorted(metadata_files)
 
 
+def ensure_thumbnail_from_input_before_upload(video_path: Path, metadata: Dict) -> None:
+    """
+    업로드 전 썸네일이 없으면 input/ 폴더에서 생성.
+    output/{video_stem}_thumbnail_{ko|en}.jpg 가 없을 때만,
+    input/ 내 *thumbnail*kr*, *thumbnail*ko*, *gold*kr* 등 언어별 이미지를
+    JPG로 변환해 output에 저장한다.
+    """
+    video_stem = video_path.stem
+    video_dir = video_path.parent
+    lang = metadata.get('language') or 'ko'
+    if lang not in ('ko', 'en'):
+        lang = 'ko'
+    lang_suffix = '_ko' if lang == 'ko' else '_en'
+    output_thumb = video_dir / f"{video_stem}_thumbnail{lang_suffix}.jpg"
+    if output_thumb.exists():
+        return
+
+    input_dir = Path("input")
+    if not input_dir.exists():
+        return
+
+    # 언어별로 검색할 패턴 (glob)
+    if lang == 'ko':
+        patterns = ['*thumbnail*kr*', '*thumbnail*ko*', '*gold*kr*', '*gold*ko*', 'thumbnail_kr.*', 'thumbnail_ko.*']
+    else:
+        patterns = ['*thumbnail*en*', '*gold*en*', 'thumbnail_en.*']
+
+    try:
+        from PIL import Image
+    except ImportError:
+        return
+
+    for pattern in patterns:
+        for candidate in input_dir.glob(pattern):
+            if candidate.suffix.lower() not in ('.png', '.jpg', '.jpeg'):
+                continue
+            try:
+                img = Image.open(candidate)
+                if img.mode == 'RGBA':
+                    background = Image.new('RGB', img.size, (255, 255, 255))
+                    background.paste(img, mask=img.split()[3])
+                    img = background
+                elif img.mode != 'RGB':
+                    img = img.convert('RGB')
+
+                target_size = (3840, 2160)
+                tw, th = target_size
+                iw, ih = img.size
+                r = tw / th
+                ir = iw / ih
+                if ir > r:
+                    nh, nw = th, int(iw * th / ih)
+                else:
+                    nw, nh = tw, int(ih * tw / iw)
+                img = img.resize((nw, nh), Image.Resampling.LANCZOS)
+                left = (nw - tw) // 2
+                top = (nh - th) // 2
+                img = img.crop((left, top, left + tw, top + th))
+
+                video_dir.mkdir(parents=True, exist_ok=True)
+                for quality in range(90, 49, -5):
+                    img.save(output_thumb, 'JPEG', quality=quality, optimize=True)
+                    if output_thumb.stat().st_size <= 2 * 1024 * 1024:
+                        break
+                print(f"   📸 썸네일 생성: {candidate.name} → {output_thumb.name} (업로드 전 자동 생성)")
+                return
+            except Exception:
+                continue
+
+
 def load_uploaded_videos() -> Set[str]:
     """이미 업로드된 영상 목록 로드 (비디오 ID 기준)"""
     uploaded = set()
@@ -765,7 +835,10 @@ def main():
         print(f"   📌 제목: {title}")
         print(f"   🌐 언어: {lang.upper()}")
         print()
-        
+
+        # 업로드 전 썸네일 없으면 input/ 에서 자동 생성
+        ensure_thumbnail_from_input_before_upload(video_path, metadata)
+
         # 썸네일 찾기 (메타데이터에 저장된 경로 우선)
         thumbnail = metadata.get('thumbnail_path')
         thumbnail = thumbnail if thumbnail and os.path.exists(thumbnail) else None

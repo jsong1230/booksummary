@@ -3199,3 +3199,33 @@
   - URL: https://www.youtube.com/watch?v=Tzxs5eg_m3s
 - [2] [핵심 요약] 까르마조프가의 형제 핵심 정리 표도르 도스토옙스키 | [Summary] The_Brothers_Karamazov Book Review
   - URL: https://www.youtube.com/watch?v=Fck3XiEF2bk
+
+## 2026-01-25
+
+### YouTube 업로드 완료
+- 업로드된 책: Jin_Ping_Mei_full_episode_ko, Jin_Ping_Mei_full_episode
+- 업로드된 영상 수: 2개
+- [1] [English] Jin Ping Mei Book Review | [영어] 금병매 책 리뷰
+  - URL: https://www.youtube.com/watch?v=ShncPlK8K9k
+- [2] [한국어] 금병매 책 리뷰 | [Korean] Jin Ping Mei Book Review
+  - URL: https://www.youtube.com/watch?v=4xQOXfkilNo
+
+## 2026-01-25
+
+### YouTube 업로드 완료
+- 업로드된 책: Mokminsimseo_full_episode, Mokminsimseo_full_episode_ko
+- 업로드된 영상 수: 2개
+- [1] [English] Mokminsimseo Book Review | [영어] 목민심서 책 리뷰
+  - URL: https://www.youtube.com/watch?v=7tEKscOZxE0
+- [2] [한국어] 목민심서 책 리뷰 | [Korean] Mokminsimseo Book Review
+  - URL: https://www.youtube.com/watch?v=Y0ErlWdnR38
+
+## 2026-01-25
+
+### YouTube 업로드 완료
+- 업로드된 책: Moby_Dick_full_episode, Moby_Dick_full_episode_ko
+- 업로드된 영상 수: 2개
+- [1] [English] Moby-Dick Book Review | [영어] 모비딕 책 리뷰
+  - URL: https://www.youtube.com/watch?v=yJfAzNMuH1s
+- [2] [한국어] 모비딕 책 리뷰 | [Korean] Moby-Dick Book Review
+  - URL: https://www.youtube.com/watch?v=CopMNCTRC5k
