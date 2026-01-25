@@ -3229,3 +3229,33 @@
   - URL: https://www.youtube.com/watch?v=yJfAzNMuH1s
 - [2] [한국어] 모비딕 책 리뷰 | [Korean] Moby-Dick Book Review
   - URL: https://www.youtube.com/watch?v=CopMNCTRC5k
+
+## 2026-01-25
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Midnight_Library
+- 업로드된 영상 수: 2개
+- [1] [Summary] The_Midnight_Library Book Review | [핵심 요약] 미드나잇 라이브러리 핵심 정리
+  - URL: https://www.youtube.com/watch?v=pVMXx-wh2cc
+- [2] [핵심 요약] 미드나잇 라이브러리 핵심 정리 | [Summary] The_Midnight_Library Book Review
+  - URL: https://www.youtube.com/watch?v=8r4Mn3Vxdc8
+
+## 2026-01-25
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Silent_Patient
+- 업로드된 영상 수: 2개
+- [1] [Summary] The_Silent_Patient Book Review | [핵심 요약] 사일런트 페이션트 핵심 정리
+  - URL: https://www.youtube.com/watch?v=BJqWbxdoyQc
+- [2] [핵심 요약] 사일런트 페이션트 핵심 정리 | [Summary] The_Silent_Patient Book Review
+  - URL: https://www.youtube.com/watch?v=JI-IuCEzslY
+
+## 2026-01-25
+
+### YouTube 업로드 완료
+- 업로드된 책: Stolen_Focus
+- 업로드된 영상 수: 2개
+- [1] [Summary] Stolen Focus Book Review | [핵심 요약] 도둑맞은 집중력 핵심 정리
+  - URL: https://www.youtube.com/watch?v=HcbwHUGEgsw
+- [2] [핵심 요약] 도둑맞은 집중력 핵심 정리 | [Summary] Stolen Focus Book Review
+  - URL: https://www.youtube.com/watch?v=HrMMs6hvLjw
