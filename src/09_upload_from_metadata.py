@@ -111,7 +111,8 @@ class YouTubeUploader:
         tags: list,
         privacy_status: str = "private",
         thumbnail_path: Optional[str] = None,
-        channel_id: Optional[str] = None
+        channel_id: Optional[str] = None,
+        localizations: Optional[Dict] = None
     ) -> Optional[Dict]:
         """영상 업로드"""
         if not os.path.exists(video_path):
@@ -269,6 +270,11 @@ class YouTubeUploader:
                 mimetype='video/*'
             )
             
+            # 다국어 메타데이터가 있으면 추가
+            if localizations:
+                body['snippet']['localizations'] = localizations
+                print(f"   🌐 다국어 메타데이터 추가: {', '.join(localizations.keys())}")
+            
             insert_request = self.youtube.videos().insert(
                 part=','.join(['snippet', 'status']),
                 body=body,
@@ -282,6 +288,25 @@ class YouTubeUploader:
             if thumbnail_path and os.path.exists(thumbnail_path):
                 print(f"   📸 썸네일 업로드 중...")
                 self.upload_thumbnail(video_id, thumbnail_path)
+            
+            # 다국어 메타데이터가 있으면 업로드 후 업데이트 (localizations는 업로드 시점에 설정)
+            # 참고: YouTube API는 업로드 시 localizations를 설정할 수 있지만,
+            # 업로드 후 별도로 업데이트하는 것이 더 안정적일 수 있습니다.
+            if localizations:
+                try:
+                    update_body = {
+                        'id': video_id,
+                        'snippet': {
+                            'localizations': localizations
+                        }
+                    }
+                    self.youtube.videos().update(
+                        part='snippet',
+                        body=update_body
+                    ).execute()
+                    print(f"   ✅ 다국어 메타데이터 업데이트 완료")
+                except Exception as e:
+                    print(f"   ⚠️ 다국어 메타데이터 업데이트 실패 (무시): {e}")
             
             result = {
                 'video_id': video_id,
@@ -831,9 +856,12 @@ def main():
         description = metadata['description']
         tags = metadata.get('tags', [])
         lang = metadata.get('language', 'ko')
+        localizations = metadata.get('localizations')
         
         print(f"   📌 제목: {title}")
         print(f"   🌐 언어: {lang.upper()}")
+        if localizations:
+            print(f"   🌍 다국어 지원: {', '.join(localizations.keys())}")
         print()
 
         # 업로드 전 썸네일 없으면 input/ 에서 자동 생성
@@ -1083,7 +1111,8 @@ def main():
             description=description,
             tags=tags,
             privacy_status=privacy,
-            thumbnail_path=thumbnail
+            thumbnail_path=thumbnail,
+            localizations=localizations
         )
         
         if result:

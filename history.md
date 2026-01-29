@@ -1,5 +1,33 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2026-01-29
+
+### 다국어 메타데이터 지원 기능 추가
+- **작업 내용**:
+  - YouTube 다국어 메타데이터(`localizations`) 기능 지원 추가
+  - 한국 시청자에게는 한국어 제목/설명만, 영어권 시청자에게는 영어 제목/설명만 자동으로 표시되도록 구현
+  - 일당백 스타일과 Summary+Video 형식 모두 다국어 메타데이터 지원
+- **주요 수정사항**:
+  - **일당백 스타일 (`src/20_create_episode_metadata.py`)**:
+    - `generate_episode_title()`: 각 언어별로 해당 언어의 제목만 반환하도록 수정
+      - 한글: `"{한글제목} 책 리뷰{작가명}"`
+      - 영문: `"{영문제목} Book Review{작가명}"`
+    - `generate_episode_description()`: 한글 설명에서 영어 제목 제거
+    - `create_episode_metadata()`: 양쪽 언어의 제목과 설명을 `localizations` 필드에 저장
+  - **Summary+Video 형식 (`src/08_create_and_preview_videos.py`)**:
+    - `generate_title()`: 각 언어별로 해당 언어의 제목만 반환하도록 수정
+      - 한글: `"[핵심 요약] {한글제목} 핵심 정리{작가명}"`
+      - 영문: `"[Summary] {영문제목} Book Review{작가명}"`
+    - `save_metadata()`: 양쪽 언어 정보를 `localizations`에 저장하도록 수정
+  - **업로드 함수 (`src/09_upload_from_metadata.py`)**:
+    - `upload_video()`: `localizations` 파라미터 추가
+    - YouTube API의 다국어 메타데이터 기능 활용
+- **수정된 파일**:
+  - `src/20_create_episode_metadata.py`: 일당백 스타일 다국어 메타데이터 지원
+  - `src/08_create_and_preview_videos.py`: Summary+Video 형식 다국어 메타데이터 지원
+  - `src/09_upload_from_metadata.py`: YouTube 업로드 시 다국어 메타데이터 적용
+  - `docs/YOUTUBE_METADATA_GUIDE.md`: 다국어 메타데이터 기능 문서화
+
 ## 2026-01-19
 
 ### 칼 세이건 코스모스 일당백 스타일 영상 제작 및 YouTube 업로드

@@ -155,11 +155,12 @@ def generate_episode_title(book_title: str, language: str = "ko", book_info: Opt
     """
     에피소드 영상 제목 생성
     
-    ⚠️ 중요: 이 함수의 제목 포맷은 고정되어 있습니다. 명시적 요청이 없으면 절대 변경하지 마세요.
+    ⚠️ 중요: 각 언어별로 해당 언어의 제목만 반환합니다.
+    YouTube의 다국어 메타데이터 기능을 사용하여 시청자의 언어 설정에 따라 자동으로 표시됩니다.
     
-    제목 포맷 규칙 (고정):
-    - 한글 영상: "[한국어] {한글제목} 책 리뷰{작가명} | [Korean] {영문제목} Book Review"
-    - 영문 영상: "[English] {영문제목} Book Review{작가명} | [영어] {한글제목} 책 리뷰"
+    제목 포맷 규칙:
+    - 한글 영상: "{한글제목} 책 리뷰{작가명}"
+    - 영문 영상: "{영문제목} Book Review{작가명}"
     - 작가명은 선택사항이며, 있으면 공백 하나 뒤에 추가
     
     Args:
@@ -168,7 +169,7 @@ def generate_episode_title(book_title: str, language: str = "ko", book_info: Opt
         book_info: 책 정보 딕셔너리 (선택사항, 장르 감지용)
         
     Returns:
-        생성된 제목
+        생성된 제목 (해당 언어만 포함)
     """
     # 장르 감지
     genre_ko, genre_en = detect_book_genre(book_title, book_info)
@@ -177,10 +178,8 @@ def generate_episode_title(book_title: str, language: str = "ko", book_info: Opt
     if language == "ko":
         if is_english_title(book_title):
             ko_title = translate_book_title_to_korean(book_title)
-            en_title = book_title
         else:
             ko_title = book_title
-            en_title = translate_book_title(book_title)
             
         # 작가 이름 가져오기
         author_name = ""
@@ -193,14 +192,12 @@ def generate_episode_title(book_title: str, language: str = "ko", book_info: Opt
             else:
                 author_name = f" {author}"
         
-        return f"[한국어] {ko_title} 책 리뷰{author_name} | [Korean] {en_title} Book Review"
+        return f"{ko_title} 책 리뷰{author_name}"
     else:
         if not is_english_title(book_title):
             en_title = translate_book_title(book_title)
-            ko_title = book_title
         else:
             en_title = book_title
-            ko_title = translate_book_title_to_korean(book_title)
             
         # 작가 이름 가져오기
         author_name = ""
@@ -213,7 +210,7 @@ def generate_episode_title(book_title: str, language: str = "ko", book_info: Opt
             else:
                 author_name = f" {author}"
                 
-        return f"[English] {en_title} Book Review{author_name} | [영어] {ko_title} 책 리뷰"
+        return f"{en_title} Book Review{author_name}"
 
 
 def detect_part_count(book_title: str, language: str = "ko") -> int:
@@ -462,7 +459,7 @@ def generate_episode_description(book_title: str, language: str = "ko", video_du
 {part_description}
 
 📘 책 소개:
-{ko_title} ({en_title})
+{ko_title}
 {author_info}
 
 이 영상은 일당백 채널의 {part_count}편의 영상을 하나로 합친 완전판입니다.
@@ -953,7 +950,7 @@ def create_episode_metadata(
     except:
         pass
     
-    # 메타데이터 생성
+    # 메타데이터 생성 (현재 언어)
     title = generate_episode_title(book_title, language, book_info)
     description = generate_episode_description(book_title, language, video_duration, book_info)
     tags = generate_episode_tags(book_title, language, book_info)
@@ -983,6 +980,25 @@ def create_episode_metadata(
             english_only_tags.append(tag)
         tags = english_only_tags
     
+    # 양쪽 언어의 제목과 설명 생성 (다국어 메타데이터용)
+    other_language = "en" if language == "ko" else "ko"
+    title_other = generate_episode_title(book_title, other_language, book_info)
+    description_other = generate_episode_description(book_title, other_language, video_duration, book_info)
+    
+    # 영문 설명에서 한국어 제거 (다국어 메타데이터용)
+    if other_language == "en":
+        if contains_korean(description_other):
+            lines = description_other.split('\n')
+            cleaned_lines = []
+            for line in lines:
+                if contains_korean(line):
+                    cleaned_line = remove_korean_from_text(line)
+                    if cleaned_line.strip():
+                        cleaned_lines.append(cleaned_line)
+                else:
+                    cleaned_lines.append(line)
+            description_other = '\n'.join(cleaned_lines)
+    
     metadata = {
         'video_path': str(video_path_obj),
         'title': title,
@@ -990,7 +1006,18 @@ def create_episode_metadata(
         'tags': tags,
         'language': language,
         'book_title': book_title,
-        'video_duration': video_duration
+        'video_duration': video_duration,
+        # 다국어 메타데이터 (YouTube localizations용)
+        'localizations': {
+            language: {
+                'title': title,
+                'description': description
+            },
+            other_language: {
+                'title': title_other,
+                'description': description_other
+            }
+        }
     }
     
     if thumbnail_path:

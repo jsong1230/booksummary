@@ -28,10 +28,14 @@ python src/20_create_episode_metadata.py --title "Book Title" --language en
 -   **동적 파트 감지**: `assets/notebooklm/` 폴더를 확인하여 영상에 포함된 파트(Part 1, Part 2 등) 개수를 자동으로 감지합니다.
 -   **스마트 타임스탬프**: 실제 영상 파일의 길이를 바탕으로 정확한 타임스탬프를 생성합니다.
 -   **장르 감지**: 책 제목과 정보를 분석하여 소설, 시, 수필 또는 일반 작품으로 자동 분류합니다.
+-   **제목 형식**:
+    - 한글: `{한글제목} 책 리뷰{작가명}`
+    - 영문: `{영문제목} Book Review{작가명}`
 -   **SEO 태그 최적화**:
     -   현재 연도(예: 2026)를 포함한 트렌드 태그를 포함합니다.
     -   영문 메타데이터의 경우 글로벌 SEO를 위해 한글 문자를 자동으로 필터링합니다.
 -   **글자 수 제한**: YouTube 제목 제한인 100자 이내로 제목을 유지합니다.
+-   **다국어 메타데이터 지원**: 양쪽 언어의 제목과 설명을 `localizations` 필드에 저장하여 YouTube의 다국어 메타데이터 기능을 활용합니다.
 
 ### 주요 인자(Arguments)
 -   `--title`: 책 제목 (필수).
@@ -54,8 +58,11 @@ python src/08_create_and_preview_videos.py --title "책제목" --lang both
 
 ### 주요 기능
 -   **채널명**: "1DANG100" (일당백)으로 설정.
--   **제목 형식**: `[핵심 요약] {제목} 핵심 정리 | [Summary] {제목} Book Review`.
+-   **제목 형식**: 
+    - 한글: `[핵심 요약] {한글제목} 핵심 정리{작가명}`
+    - 영문: `[Summary] {영문제목} Book Review{작가명}`
 -   **자동 번역**: `src/utils/translations.py`를 사용하여 한글/영문 제목 및 저자명을 매핑합니다.
+-   **다국어 메타데이터 지원**: 양쪽 언어의 제목과 설명을 `localizations` 필드에 저장하여 YouTube의 다국어 메타데이터 기능을 활용합니다.
 
 ---
 
@@ -66,15 +73,32 @@ python src/08_create_and_preview_videos.py --title "책제목" --lang both
 ```json
 {
   "video_path": "output/Book_Title_full_episode_ko.mp4",
-  "title": "[한국어] 책제목 책 리뷰 | [Korean] Book Title Book Review",
+  "title": "책제목 책 리뷰",
   "description": "0:00 - Part 1: 작가와 배경\n...",
   "tags": ["일당백", "책리뷰", "2026", ...],
   "language": "ko",
   "book_title": "책제목",
   "thumbnail_path": "output/Book_Title_thumbnail_ko.jpg",
-  "video_duration": 827.49
+  "video_duration": 827.49,
+  "localizations": {
+    "ko": {
+      "title": "책제목 책 리뷰",
+      "description": "0:00 - Part 1: 작가와 배경\n..."
+    },
+    "en": {
+      "title": "Book Title Book Review",
+      "description": "0:00 - Part 1: Author & Background\n..."
+    }
+  }
 }
 ```
+
+### 다국어 메타데이터 (`localizations`)
+
+-   **자동 생성**: 메타데이터 생성 시 양쪽 언어(한글/영문)의 제목과 설명이 자동으로 생성되어 `localizations` 필드에 저장됩니다.
+-   **YouTube 자동 표시**: YouTube는 시청자의 언어 설정에 따라 해당 언어의 제목과 설명을 자동으로 표시합니다.
+-   **한국 시청자**: 한국어 제목과 설명만 표시됩니다.
+-   **영어권 시청자**: 영어 제목과 설명만 표시됩니다.
 
 ---
 

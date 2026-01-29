@@ -35,7 +35,7 @@ spec.loader.exec_module(make_video_module)
 VideoMaker = make_video_module.VideoMaker
 
 # 공통 유틸리티 import
-from src.utils.translations import translate_book_title, translate_author_name, get_book_alternative_title, translate_book_title_to_korean, is_english_title, translate_author_name_to_korean
+from src.utils.translations import translate_book_title, translate_author_name, get_book_alternative_title, translate_book_title_to_korean, is_english_title, translate_author_name_to_korean, contains_korean, remove_korean_from_text
 from src.utils.file_utils import safe_title, load_book_info, get_standard_safe_title
 
 def generate_title(book_title: str, lang: str = "both", author: Optional[str] = None) -> str:
@@ -118,9 +118,8 @@ def generate_title(book_title: str, lang: str = "both", author: Optional[str] = 
         en_author = ""
     
     if lang == "ko":
-        # 한글 먼저, 영어 나중
-        # SEO 최적화: 검색량 높은 키워드 앞쪽 배치
-        # 형식: "[한국어] {책제목} 책 리뷰 {작가명} | [Korean] {영어제목} Book Review"
+        # Summary+Video 형식: 한글 제목만 반환
+        # 형식: "[핵심 요약] {한글제목} 핵심 정리{작가명}"
         if alt_titles.get("ko"):
             # 대체 제목 포함: "노르웨이의 숲 (상실의 시대)"
             main_title = f"{ko_title} ({alt_titles['ko']})"
@@ -129,29 +128,21 @@ def generate_title(book_title: str, lang: str = "both", author: Optional[str] = 
         
         # 작가명 추가 (검색량 최적화)
         author_part = f" {ko_author}" if ko_author else ""
-        title = f"[핵심 요약] {main_title} 핵심 정리{author_part} | [Summary] {en_title} Book Review"
+        title = f"[핵심 요약] {main_title} 핵심 정리{author_part}"
     elif lang == "en":
-        # 영어 먼저, 한글 나중
-        # SEO 최적화: 검색량 높은 키워드 앞쪽 배치
-        # 형식: "[Summary] {영어제목} Book Review {작가명} | [핵심 요약] {한글제목}"
+        # Summary+Video 형식: 영어 제목만 반환
+        # 형식: "[Summary] {영어제목} Book Review{작가명}"
         if alt_titles.get("en"):
             # 대체 제목 포함: "Norwegian Wood (The Age of Loss)"
             en_main_title = f"{en_title} ({alt_titles['en']})"
         else:
             en_main_title = en_title
         
-        # 한글 부분: ko_title 사용 (이미 한글로 변환됨)
-        if alt_titles.get("ko"):
-            # 한글 부분에도 대체 제목 포함
-            ko_main_title = f"{ko_title} ({alt_titles['ko']})"
-        else:
-            ko_main_title = ko_title
-        
         # 작가명 추가 (검색 최적화)
         author_part = f" {en_author}" if en_author else ""
-        title = f"[Summary] {en_main_title} Book Review{author_part} | [핵심 요약] {ko_main_title} 핵심 정리"
+        title = f"[Summary] {en_main_title} Book Review{author_part}"
     else:
-        # 두 언어 혼합 (기본값)
+        # 두 언어 혼합 (기본값, 하위 호환성)
         title = f"[핵심 요약] {ko_title} | [Summary] {en_title} Book Review"
 
     # YouTube 제목 최대 길이: 100자
@@ -1177,8 +1168,12 @@ def find_thumbnail_for_video(video_path: Path, lang: str, safe_title_str: str = 
     return None
 
 
-def save_metadata(video_path: Path, title: str, description: str, tags: list, lang: str, book_info: Optional[Dict] = None, thumbnail_path: Optional[str] = None, safe_title_str: str = None):
-    """메타데이터를 JSON 파일로 저장"""
+def save_metadata(video_path: Path, title: str, description: str, tags: list, lang: str, book_info: Optional[Dict] = None, thumbnail_path: Optional[str] = None, safe_title_str: str = None, book_title: Optional[str] = None, author: Optional[str] = None):
+    """
+    메타데이터를 JSON 파일로 저장 (Summary+Video 형식)
+    
+    다국어 메타데이터를 지원하여 양쪽 언어의 제목과 설명을 localizations에 저장합니다.
+    """
     # 영문 메타데이터의 경우 book_info의 authors를 영어로 변환
     if lang == "en" and book_info and book_info.get('authors'):
         # book_info를 복사해서 수정 (원본 변경 방지)
@@ -1203,6 +1198,40 @@ def save_metadata(video_path: Path, title: str, description: str, tags: list, la
     if thumbnail_path:
         metadata['thumbnail_path'] = thumbnail_path
     
+    # 양쪽 언어의 제목과 설명 생성 (다국어 메타데이터용)
+    if book_title:
+        other_language = "en" if lang == "ko" else "ko"
+        
+        # 다른 언어의 제목과 설명 생성
+        title_other = generate_title(book_title, lang=other_language, author=author)
+        description_other = generate_description(book_info, lang=other_language, book_title=book_title, author=author)
+        
+        # 영문 설명에서 한국어 제거 (다국어 메타데이터용)
+        if other_language == "en":
+            if contains_korean(description_other):
+                lines = description_other.split('\n')
+                cleaned_lines = []
+                for line in lines:
+                    if contains_korean(line):
+                        cleaned_line = remove_korean_from_text(line)
+                        if cleaned_line.strip():
+                            cleaned_lines.append(cleaned_line)
+                    else:
+                        cleaned_lines.append(line)
+                description_other = '\n'.join(cleaned_lines)
+        
+        # 다국어 메타데이터 추가
+        metadata['localizations'] = {
+            lang: {
+                'title': title,
+                'description': description
+            },
+            other_language: {
+                'title': title_other,
+                'description': description_other
+            }
+        }
+    
     metadata_path = video_path.with_suffix('.metadata.json')
     with open(metadata_path, 'w', encoding='utf-8') as f:
         json.dump(metadata, f, ensure_ascii=False, indent=2)
@@ -1210,6 +1239,8 @@ def save_metadata(video_path: Path, title: str, description: str, tags: list, la
     print(f"💾 메타데이터 저장: {metadata_path.name}")
     if thumbnail_path:
         print(f"   📸 썸네일: {Path(thumbnail_path).name}")
+    if metadata.get('localizations'):
+        print(f"   🌍 다국어 지원: {', '.join(metadata['localizations'].keys())}")
     return metadata_path
 
 
@@ -1277,7 +1308,9 @@ def main():
             'ko',
             book_info,
             thumbnail_path=None,  # 자동으로 찾기
-            safe_title_str=safe_title_str
+            safe_title_str=safe_title_str,
+            book_title=args.book_title,
+            author=args.author
         )
         
         # 영문 메타데이터 생성 (영상 파일이 없어도 생성)
@@ -1303,7 +1336,9 @@ def main():
             'en',
             book_info,
             thumbnail_path=None,  # 자동으로 찾기
-            safe_title_str=safe_title_str
+            safe_title_str=safe_title_str,
+            book_title=args.book_title,
+            author=args.author
         )
         
         print("\n✅ 메타데이터 생성 완료!")
@@ -1412,7 +1447,7 @@ def main():
         
         # 메타데이터 저장
         if output_path.exists():
-            metadata_path = save_metadata(output_path, title, description, tags, "ko", book_info, thumbnail_path, safe_title_str=safe_title_str)
+            metadata_path = save_metadata(output_path, title, description, tags, "ko", book_info, thumbnail_path, safe_title_str=safe_title_str, book_title=args.book_title, author=args.author)
             # 저장된 메타데이터에서 썸네일 경로 읽기
             if metadata_path.exists():
                 with open(metadata_path, 'r', encoding='utf-8') as f:
@@ -1504,7 +1539,7 @@ def main():
         
         # 메타데이터 저장
         if output_path.exists():
-            metadata_path = save_metadata(output_path, title, description, tags, "en", book_info, thumbnail_path, safe_title_str=safe_title_str)
+            metadata_path = save_metadata(output_path, title, description, tags, "en", book_info, thumbnail_path, safe_title_str=safe_title_str, book_title=args.book_title, author=args.author)
             # 저장된 메타데이터에서 썸네일 경로 읽기
             if metadata_path.exists():
                 with open(metadata_path, 'r', encoding='utf-8') as f:
