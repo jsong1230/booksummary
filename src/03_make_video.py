@@ -1536,10 +1536,12 @@ class VideoMaker:
             
             # 영상 시각화 개선: 동적 자막, 파형 등 추가 (정지 화면 방어)
             try:
+                import os
                 from src.utils.video_enhancements import enhance_video_with_visuals
                 self.logger.info("🎨 영상 시각화 개선 적용 중...")
                 self.logger.info("   - 동적 자막 (Kinetic Typography): 핵심 키워드 강조")
                 self.logger.info("   - 파형 시각화: 오디오 스펙트럼 표시")
+                enable_waveform = os.getenv("ENABLE_WAVEFORM", "1").lower() not in ("0", "false", "no")
                 
                 summary_video = enhance_video_with_visuals(
                     video_clip=summary_video,
@@ -1547,7 +1549,7 @@ class VideoMaker:
                     text=summary_text,
                     language=language,
                     enable_kinetic_typography=True,  # 동적 자막 활성화
-                    enable_waveform=True,  # 파형 활성화
+                    enable_waveform=enable_waveform,  # 기본 ON (ENABLE_WAVEFORM=0 로 끄기)
                     enable_footage=False  # 푸티지는 선택사항 (Pexels API 키 필요)
                 )
                 self.logger.info("✅ 영상 시각화 개선 완료")

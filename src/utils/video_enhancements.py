@@ -234,6 +234,15 @@ def create_waveform_visualization(
         import numpy as np
         from PIL import Image, ImageDraw
         
+        import os
+
+        # 환경 변수로 파형 크기/강도 튜닝 (기본값: 더 크게/더 다이나믹하게)
+        # - ENABLE_WAVEFORM=0/false/no 이면 상위 레벨에서 파형 자체를 끄는 것을 권장
+        height = int(os.getenv("WAVEFORM_HEIGHT", str(height)))
+        boost = float(os.getenv("WAVEFORM_BOOST", "12.0"))  # 진폭 증폭
+        gamma = float(os.getenv("WAVEFORM_GAMMA", "0.60"))  # 다이내믹 레인지(낮을수록 더 역동적)
+        alpha = int(os.getenv("WAVEFORM_ALPHA", "220"))     # 0~255
+
         # 오디오 로드
         audio = AudioFileClip(audio_path)
         audio_fps = audio.fps  # 오디오 샘플레이트 저장
@@ -241,14 +250,19 @@ def create_waveform_visualization(
         
         # 오디오를 numpy array로 변환 (한 번만 로드)
         try:
-            audio_array = audio.to_soundarray(fps=audio_fps)
+            raw = audio.to_soundarray(fps=audio_fps)
+            # moviepy 버전에 따라 list/ndarray 등으로 올 수 있어 방어적으로 처리
+            if isinstance(raw, list):
+                raw = np.concatenate(raw, axis=0)
+            audio_array = np.asarray(raw)
             # 스테레오인 경우 모노로 변환
-            if len(audio_array.shape) > 1:
+            if audio_array.ndim > 1:
                 audio_array = audio_array.mean(axis=1)
+            audio_array = audio_array.astype(np.float32, copy=False).reshape(-1)
         except Exception as e:
             print(f"⚠️ 오디오 배열 변환 실패, 더미 데이터 사용: {e}")
             # 폴백: 간단한 더미 데이터
-            audio_array = np.random.rand(int(audio_fps * duration)) * 0.1
+            audio_array = (np.random.rand(int(audio_fps * duration)).astype(np.float32) * 0.1)
         
         # 오디오 리소스 정리
         audio.close()
@@ -268,7 +282,7 @@ def create_waveform_visualization(
             draw = ImageDraw.Draw(img)
 
             # 샘플을 시각화할 바 개수
-            num_bars = 60
+            num_bars = 90  # 더 촘촘하게 → 더 역동적으로 보임
             bar_width = max(1, resolution[0] // num_bars)
 
             # 주변 샘플을 분석하여 파형 생성 (시간에 따라 변화)
@@ -276,7 +290,8 @@ def create_waveform_visualization(
 
             for i in range(num_bars):
                 # 각 바에 해당하는 샘플 범위 (시간에 따라 스크롤)
-                time_offset = int(t * 10) % window_size  # 스크롤 효과
+                # 스크롤 효과(샘플 기준): 너무 정적이지 않게 약간 더 빠르게
+                time_offset = int(t * audio_fps * 0.02) % window_size
                 start_idx = max(
                     0,
                     sample_idx
@@ -288,12 +303,22 @@ def create_waveform_visualization(
 
                 if start_idx < len(audio_array) and end_idx > start_idx:
                     chunk = audio_array[start_idx:end_idx]
-                    amplitude = float(np.abs(chunk).mean()) if len(chunk) > 0 else 0.0
+                    if len(chunk) > 0:
+                        abs_chunk = np.abs(chunk)
+                        # mean(abs)는 너무 작게 나오는 경향 → peak/rms 기반으로 더 다이나믹하게
+                        peak95 = float(np.percentile(abs_chunk, 95))
+                        rms = float(np.sqrt(np.mean(chunk * chunk)))
+                        amplitude = max(peak95, rms)
+                    else:
+                        amplitude = 0.0
                 else:
                     amplitude = 0.0
 
                 # 진폭을 높이로 변환 (0~height)
-                bar_height = int(amplitude * height * 3)  # 증폭
+                amp = min(1.0, amplitude * boost)
+                # 감마로 다이내믹 레인지 조절(작은 소리도 더 커 보이게)
+                amp = pow(max(0.0, amp), gamma)
+                bar_height = int(amp * (height - 2))
                 bar_height = min(bar_height, height)
 
                 # 바 그리기 (중앙 기준, 대칭)
@@ -305,14 +330,25 @@ def create_waveform_visualization(
 
                 # 색상 설정 (반투명)
                 if color == "cyan":
-                    fill_color = (0, 255, 255, 180)  # 시안색, 반투명
+                    fill_color = (0, 255, 255, max(0, min(255, alpha)))  # 시안색
                 elif color == "white":
-                    fill_color = (255, 255, 255, 180)
+                    fill_color = (255, 255, 255, max(0, min(255, alpha)))
                 else:
-                    fill_color = (255, 255, 255, 180)
+                    fill_color = (255, 255, 255, max(0, min(255, alpha)))
 
                 if bar_height > 2:  # 최소 높이 이상일 때만 그리기
                     draw.rectangle([x1, y1, x2, y2], fill=fill_color)
+
+            # 기준선(은은하게)
+            try:
+                line_alpha = max(40, min(160, alpha // 3))
+                if color == "cyan":
+                    line_color = (0, 255, 255, line_alpha)
+                else:
+                    line_color = (255, 255, 255, line_alpha)
+                draw.line([(0, height // 2), (resolution[0], height // 2)], fill=line_color, width=2)
+            except Exception:
+                pass
 
             return np.array(img)
 
@@ -545,12 +581,14 @@ def enhance_video_with_visuals(
     # 파형 추가 (화면 하단에 표시)
     if enable_waveform and audio_path:
         try:
+            import os
+            waveform_height = int(os.getenv("WAVEFORM_HEIGHT", "120"))  # 기본값: 기존(80)보다 큼
             waveform_clip = create_waveform_visualization(
                 audio_path=audio_path,
                 duration=video_clip.duration,
                 resolution=video_clip.size if hasattr(video_clip, 'size') else (1920, 1080),
                 position="bottom",
-                height=80,  # 파형 높이
+                height=waveform_height,
                 color="cyan"  # 시안색 파형
             )
             if waveform_clip:
