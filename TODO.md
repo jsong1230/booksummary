@@ -65,6 +65,12 @@ _현재 알려진 이슈가 없습니다_
   - [x] YouTube 챕터 마커 자동 생성 기능 구현
   - [x] 메타데이터의 timestamp를 YouTube 챕터 형식으로 변환
   - [x] description 맨 앞에 챕터 마커 자동 추가
+- [x] 영상 시각화 개선 (Summary+Video 파이프라인)
+  - [x] 동적 자막(Kinetic Typography): 키워드 추출 + Whisper 타이밍, 팝 효과
+  - [x] 파형(Waveform) 시각화: 오디오 스펙트럼 하단 시각화(실시간 스크롤)
+  - [x] Pexels API 푸티지: 키워드 기반 관련 영상 검색·다운로드 (`PEXELS_API_KEY` 사용)
+- [x] 제목 전략 개선: AI 언급 대신 가치·인간적 호기심 강조 (`src/utils/title_generator.py`)
+- [x] 고정 댓글 활용: 챕터 타임스탬프 + 참여 유도 질문 자동 생성, 업로드 시 댓글 등록 (`src/utils/pinned_comment.py`, 수동 고정은 YouTube UI에서)
 - [ ] 다국어 지원 확대 (일본어, 중국어 등)
 
 ---

@@ -118,29 +118,43 @@ def generate_title(book_title: str, lang: str = "both", author: Optional[str] = 
         en_author = ""
     
     if lang == "ko":
-        # Summary+Video 형식: 한글 제목만 반환
-        # 형식: "[핵심 요약] {한글제목} 핵심 정리{작가명}"
-        if alt_titles.get("ko"):
-            # 대체 제목 포함: "노르웨이의 숲 (상실의 시대)"
-            main_title = f"{ko_title} ({alt_titles['ko']})"
-        else:
-            main_title = ko_title
-        
-        # 작가명 추가 (검색량 최적화)
-        author_part = f" {ko_author}" if ko_author else ""
-        title = f"[핵심 요약] {main_title} 핵심 정리{author_part}"
+        # Summary+Video 형식: 인문학적 가치 강조 제목 생성
+        # AI 강조를 피하고 인문학적 호기심을 자극하는 제목 사용
+        try:
+            from src.utils.title_generator import generate_value_focused_title
+            title = generate_value_focused_title(
+                book_title=book_title_clean if not ko_title_from_bracket else book_title,
+                author=ko_author if ko_author else None,
+                language="ko",
+                use_ai_title=False  # 인문학적 가치 강조
+            )
+        except ImportError:
+            # 폴백: 기존 형식 유지
+            if alt_titles.get("ko"):
+                main_title = f"{ko_title} ({alt_titles['ko']})"
+            else:
+                main_title = ko_title
+            author_part = f" {ko_author}" if ko_author else ""
+            title = f"{main_title} 깊이 읽기{author_part}"
     elif lang == "en":
-        # Summary+Video 형식: 영어 제목만 반환
-        # 형식: "[Summary] {영어제목} Book Review{작가명}"
-        if alt_titles.get("en"):
-            # 대체 제목 포함: "Norwegian Wood (The Age of Loss)"
-            en_main_title = f"{en_title} ({alt_titles['en']})"
-        else:
-            en_main_title = en_title
-        
-        # 작가명 추가 (검색 최적화)
-        author_part = f" {en_author}" if en_author else ""
-        title = f"[Summary] {en_main_title} Book Review{author_part}"
+        # Summary+Video 형식: 인문학적 가치 강조 제목 생성
+        # AI 강조를 피하고 인문학적 호기심을 자극하는 제목 사용
+        try:
+            from src.utils.title_generator import generate_value_focused_title
+            title = generate_value_focused_title(
+                book_title=book_title_clean,
+                author=en_author if en_author else None,
+                language="en",
+                use_ai_title=False  # 인문학적 가치 강조
+            )
+        except ImportError:
+            # 폴백: 기존 형식 유지
+            if alt_titles.get("en"):
+                en_main_title = f"{en_title} ({alt_titles['en']})"
+            else:
+                en_main_title = en_title
+            author_part = f" {en_author}" if en_author else ""
+            title = f"{en_main_title} Deep Dive{author_part}"
     else:
         # 두 언어 혼합 (기본값, 하위 호환성)
         title = f"[핵심 요약] {ko_title} | [Summary] {en_title} Book Review"

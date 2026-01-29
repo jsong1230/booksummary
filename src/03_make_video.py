@@ -1534,6 +1534,31 @@ class VideoMaker:
             summary_video = concatenate_videoclips(summary_image_clips, method="compose")
             summary_video = summary_video.set_audio(summary_audio)
             
+            # 영상 시각화 개선: 동적 자막, 파형 등 추가 (정지 화면 방어)
+            try:
+                from src.utils.video_enhancements import enhance_video_with_visuals
+                self.logger.info("🎨 영상 시각화 개선 적용 중...")
+                self.logger.info("   - 동적 자막 (Kinetic Typography): 핵심 키워드 강조")
+                self.logger.info("   - 파형 시각화: 오디오 스펙트럼 표시")
+                
+                summary_video = enhance_video_with_visuals(
+                    video_clip=summary_video,
+                    audio_path=summary_audio_path,
+                    text=summary_text,
+                    language=language,
+                    enable_kinetic_typography=True,  # 동적 자막 활성화
+                    enable_waveform=True,  # 파형 활성화
+                    enable_footage=False  # 푸티지는 선택사항 (Pexels API 키 필요)
+                )
+                self.logger.info("✅ 영상 시각화 개선 완료")
+            except ImportError as e:
+                self.logger.warning(f"영상 시각화 개선 모듈을 찾을 수 없습니다: {e}")
+                self.logger.warning("기본 영상만 사용합니다.")
+            except Exception as e:
+                self.logger.warning(f"영상 시각화 개선 실패 (기본 영상 사용): {e}")
+                import traceback
+                traceback.print_exc()
+            
             # Summary 부분에 자막 추가 (텍스트가 있고 자막 옵션이 켜져 있는 경우)
             self.logger.info(f"🔍 자막 옵션 확인: add_subtitles_flag={add_subtitles_flag}, summary_text={'있음' if summary_text else '없음'}")
             if add_subtitles_flag and summary_text:

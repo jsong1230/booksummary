@@ -183,6 +183,7 @@ def generate_episode_title(book_title: str, language: str = "ko", book_info: Opt
             
         # 작가 이름 가져오기
         author_name = ""
+        author = None
         if book_info and 'author' in book_info:
             author = book_info['author']
             # 영문 작가명이면 한글로 번역 시도
@@ -192,7 +193,19 @@ def generate_episode_title(book_title: str, language: str = "ko", book_info: Opt
             else:
                 author_name = f" {author}"
         
-        return f"{ko_title} 책 리뷰{author_name}"
+        # 인문학적 가치 강조 제목 생성
+        try:
+            from src.utils.title_generator import generate_value_focused_title
+            return generate_value_focused_title(
+                book_title=book_title,
+                author=author,
+                language="ko",
+                book_info=book_info,
+                use_ai_title=False  # 인문학적 가치 강조
+            )
+        except ImportError:
+            # 폴백: 기존 형식 유지
+            return f"{ko_title} 책 리뷰{author_name}"
     else:
         if not is_english_title(book_title):
             en_title = translate_book_title(book_title)
@@ -201,6 +214,7 @@ def generate_episode_title(book_title: str, language: str = "ko", book_info: Opt
             
         # 작가 이름 가져오기
         author_name = ""
+        author = None
         if book_info and 'author' in book_info:
             author = book_info['author']
             # 한글 작가명이면 영문으로 번역 시도
@@ -209,8 +223,20 @@ def generate_episode_title(book_title: str, language: str = "ko", book_info: Opt
                 author_name = f" {author_en}"
             else:
                 author_name = f" {author}"
-                
-        return f"{en_title} Book Review{author_name}"
+        
+        # 인문학적 가치 강조 제목 생성
+        try:
+            from src.utils.title_generator import generate_value_focused_title
+            return generate_value_focused_title(
+                book_title=book_title,
+                author=author,
+                language="en",
+                book_info=book_info,
+                use_ai_title=False  # 인문학적 가치 강조
+            )
+        except ImportError:
+            # 폴백: 기존 형식 유지
+            return f"{en_title} Book Review{author_name}"
 
 
 def detect_part_count(book_title: str, language: str = "ko") -> int:

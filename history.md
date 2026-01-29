@@ -28,6 +28,18 @@
   - `src/09_upload_from_metadata.py`: YouTube 업로드 시 다국어 메타데이터 적용
   - `docs/YOUTUBE_METADATA_GUIDE.md`: 다국어 메타데이터 기능 문서화
 
+### 영상 시각화 개선, 제목 전략, 고정 댓글
+- **영상 시각화 개선** (`src/utils/video_enhancements.py`, `src/03_make_video.py`):
+  - 동적 자막(Kinetic Typography): 텍스트 키워드 추출 + Whisper로 오디오 내 언급 시점 추출, 큰 글씨 팝 효과
+  - 파형(Waveform) 시각화: 오디오 스펙트럼을 화면 하단에 시안색 파형(80px)으로 표시, 시간에 따른 스크롤
+  - Pexels API 푸티지: 영상 텍스트 키워드로 관련 영상 검색·다운로드 (`PEXELS_API_KEY` 필요 시 푸티지 활성화)
+- **제목 전략 개선** (`src/utils/title_generator.py`):
+  - AI 언급 대신 "가치"와 "인간적 호기심" 강조
+  - `src/20_create_episode_metadata.py`(에피소드), `src/08_create_and_preview_videos.py`(Summary+Video)에 적용
+- **고정 댓글 활용** (`src/utils/pinned_comment.py`, `src/09_upload_from_metadata.py`):
+  - 챕터 타임스탬프 + 참여 유도 질문으로 댓글 문자열 자동 생성
+  - 업로드 시 해당 댓글 자동 등록 (실제 "고정"은 YouTube UI에서 수동 처리)
+
 ## 2026-01-19
 
 ### 칼 세이건 코스모스 일당백 스타일 영상 제작 및 YouTube 업로드

@@ -9,7 +9,7 @@ NotebookLM 기반 책 리뷰 영상 자동 생성기
 
 **생성되는 영상 구조:**
 
-- Summary (요약 오디오 + 이미지 슬라이드쇼)
+- Summary (요약 오디오 + 이미지 슬라이드쇼; 동적 자막·파형 시각화·관련 푸티지 선택 적용)
 - 2초 silence (검은 화면)
 - NotebookLM Video (선택사항, 있으면 자동 포함)
 
@@ -55,7 +55,7 @@ pip install -r requirements.txt
 **필수 API 키:**
 
 - `GOOGLE_BOOKS_API_KEY`: 책 표지 이미지 다운로드용
-- `PEXELS_API_KEY`: 무드 이미지 다운로드용 (1순위)
+- `PEXELS_API_KEY`: 무드 이미지 다운로드용 (1순위), 영상 푸티지 검색용 (선택, 시각화 개선 시)
 - `PIXABAY_API_KEY`: 무드 이미지 다운로드용 (2순위, 선택사항)
 - `UNSPLASH_ACCESS_KEY`: 무드 이미지 다운로드용 (3순위, 선택사항)
 - `OPENAI_API_KEY`: Summary 생성 및 TTS용
@@ -622,6 +622,13 @@ python src/09_upload_from_metadata.py --privacy private --auto --force
 자세한 템플릿 가이드는 `docs/SUMMARY_TEMPLATE.md`를 참고하세요.
 
 ## 주요 기능
+
+### 영상 시각화·제목·고정 댓글
+- **동적 자막(Kinetic Typography)**: 키워드 추출 + Whisper 타이밍, 팝 효과
+- **파형(Waveform) 시각화**: 오디오 스펙트럼 하단 시각화 (실시간 스크롤)
+- **Pexels 푸티지**: 키워드 기반 관련 영상 검색·다운로드 (`PEXELS_API_KEY` 설정 시)
+- **제목 전략**: AI 언급 대신 가치·인간적 호기심 강조 (`src/utils/title_generator.py`)
+- **고정 댓글**: 챕터 타임스탬프 + 참여 유도 질문 자동 생성, 업로드 시 댓글 등록 (고정은 YouTube UI에서 수동)
 
 ### 고해상도 썸네일 생성
 

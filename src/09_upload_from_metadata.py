@@ -27,7 +27,7 @@ except ImportError:
 
 load_dotenv()
 
-SCOPES = ['https://www.googleapis.com/auth/youtube.upload']
+SCOPES = ['https://www.googleapis.com/auth/youtube.upload', 'https://www.googleapis.com/auth/youtube.force-ssl']
 
 
 class YouTubeUploader:
@@ -112,7 +112,8 @@ class YouTubeUploader:
         privacy_status: str = "private",
         thumbnail_path: Optional[str] = None,
         channel_id: Optional[str] = None,
-        localizations: Optional[Dict] = None
+        localizations: Optional[Dict] = None,
+        pinned_comment: Optional[str] = None
     ) -> Optional[Dict]:
         """영상 업로드"""
         if not os.path.exists(video_path):
@@ -318,6 +319,15 @@ class YouTubeUploader:
             }
             
             print(f"✅ 업로드 완료: {result['url']}")
+            
+            # 고정 댓글 추가 (있는 경우)
+            if pinned_comment:
+                try:
+                    self.add_pinned_comment(video_id, pinned_comment)
+                    print(f"   ✅ 고정 댓글 추가 완료")
+                except Exception as e:
+                    print(f"   ⚠️ 고정 댓글 추가 실패 (무시): {e}")
+            
             return result
             
         except HttpError as e:
@@ -436,6 +446,48 @@ class YouTubeUploader:
                     continue
                 print(f"   ⚠️ 썸네일 업로드 실패: {e}")
                 return
+    
+    def add_pinned_comment(self, video_id: str, comment_text: str):
+        """
+        고정 댓글 추가
+        
+        Args:
+            video_id: YouTube 비디오 ID
+            comment_text: 댓글 텍스트
+        """
+        try:
+            # 댓글 작성
+            comment_response = self.youtube.commentThreads().insert(
+                part='snippet',
+                body={
+                    'snippet': {
+                        'videoId': video_id,
+                        'topLevelComment': {
+                            'snippet': {
+                                'textOriginal': comment_text
+                            }
+                        }
+                    }
+                }
+            ).execute()
+            
+            comment_id = comment_response['id']
+            
+            # 고정 댓글로 설정 (YouTube API v3는 직접적인 고정 기능이 없지만,
+            # 댓글을 작성하고 수동으로 고정할 수 있도록 안내)
+            print(f"   💬 댓글 작성 완료 (수동으로 고정 필요): {comment_id}")
+            print(f"   💡 YouTube 스튜디오에서 이 댓글을 고정해주세요.")
+            
+            return comment_id
+            
+        except HttpError as e:
+            error_status = e.resp.status if hasattr(e.resp, 'status') else None
+            if error_status == 403:
+                print(f"   ⚠️ 댓글 작성 권한이 없습니다. YouTube API 스코프를 확인하세요.")
+            raise
+        except Exception as e:
+            print(f"   ⚠️ 댓글 작성 실패: {e}")
+            raise
 
 
 def load_metadata(metadata_path: Path) -> Optional[Dict]:
@@ -857,11 +909,49 @@ def main():
         tags = metadata.get('tags', [])
         lang = metadata.get('language', 'ko')
         localizations = metadata.get('localizations')
+        book_title = metadata.get('book_title')
+        book_info = metadata.get('book_info')
+        video_duration = metadata.get('video_duration')
+        
+        # 고정 댓글 생성
+        pinned_comment = None
+        try:
+            from src.utils.pinned_comment import generate_pinned_comment
+            
+            # 타임스탬프 정보 추출 (description에서 추출하거나 video_duration 사용)
+            timestamps = None
+            if video_duration:
+                # 간단한 타임스탬프 추정 (실제로는 description에서 파싱하는 것이 더 정확)
+                # Summary 부분은 보통 전체의 30-40% 정도
+                summary_duration = video_duration * 0.35
+                notebooklm_duration = video_duration - summary_duration
+                timestamps = {
+                    'summary_duration': summary_duration,
+                    'notebooklm_duration': notebooklm_duration
+                }
+            
+            author = None
+            if book_info and 'author' in book_info:
+                author = book_info['author']
+            elif book_info and 'authors' in book_info and book_info['authors']:
+                author = book_info['authors'][0]
+            
+            pinned_comment = generate_pinned_comment(
+                book_title=book_title or title,
+                timestamps=timestamps,
+                language=lang,
+                book_info=book_info,
+                author=author
+            )
+        except Exception as e:
+            print(f"   ⚠️ 고정 댓글 생성 실패 (무시): {e}")
         
         print(f"   📌 제목: {title}")
         print(f"   🌐 언어: {lang.upper()}")
         if localizations:
             print(f"   🌍 다국어 지원: {', '.join(localizations.keys())}")
+        if pinned_comment:
+            print(f"   💬 고정 댓글: 준비됨")
         print()
 
         # 업로드 전 썸네일 없으면 input/ 에서 자동 생성
@@ -1112,7 +1202,8 @@ def main():
             tags=tags,
             privacy_status=privacy,
             thumbnail_path=thumbnail,
-            localizations=localizations
+            localizations=localizations,
+            pinned_comment=pinned_comment
         )
         
         if result:
