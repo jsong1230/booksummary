@@ -230,7 +230,7 @@ def create_waveform_visualization(
         VideoClip 또는 None
     """
     try:
-        from moviepy.editor import AudioFileClip, VideoClip, ColorClip, CompositeVideoClip
+        from moviepy.editor import AudioFileClip, VideoClip
         import numpy as np
         from PIL import Image, ImageDraw
         
@@ -253,72 +253,90 @@ def create_waveform_visualization(
         # 오디오 리소스 정리
         audio.close()
         
-        # 파형을 그리는 함수
-        def make_waveform_frame(t):
-            """특정 시간의 파형 프레임 생성"""
+        # MoviePy CompositeVideoClip는 기본적으로 RGB(3채널) 프레임을 기대합니다.
+        # 투명도를 유지하려면 RGBA 프레임을 그대로 반환하지 말고,
+        # RGB 프레임 + 별도 mask(알파) 클립으로 분리해야 합니다.
+        def render_waveform_rgba_frame(t: float) -> np.ndarray:
+            """특정 시간의 RGBA 파형 프레임 생성 (H, W, 4)"""
+            # 해당 시간의 오디오 샘플 인덱스 계산
+            sample_idx = int(t * audio_fps)
+            if sample_idx >= len(audio_array):
+                sample_idx = len(audio_array) - 1
+
+            # 파형 이미지 생성 (투명 배경)
+            img = Image.new('RGBA', (resolution[0], height), (0, 0, 0, 0))
+            draw = ImageDraw.Draw(img)
+
+            # 샘플을 시각화할 바 개수
+            num_bars = 60
+            bar_width = max(1, resolution[0] // num_bars)
+
+            # 주변 샘플을 분석하여 파형 생성 (시간에 따라 변화)
+            window_size = max(100, len(audio_array) // num_bars)
+
+            for i in range(num_bars):
+                # 각 바에 해당하는 샘플 범위 (시간에 따라 스크롤)
+                time_offset = int(t * 10) % window_size  # 스크롤 효과
+                start_idx = max(
+                    0,
+                    sample_idx
+                    - window_size // 2
+                    + (i - num_bars // 2) * window_size // num_bars
+                    + time_offset,
+                )
+                end_idx = min(len(audio_array), start_idx + window_size // num_bars)
+
+                if start_idx < len(audio_array) and end_idx > start_idx:
+                    chunk = audio_array[start_idx:end_idx]
+                    amplitude = float(np.abs(chunk).mean()) if len(chunk) > 0 else 0.0
+                else:
+                    amplitude = 0.0
+
+                # 진폭을 높이로 변환 (0~height)
+                bar_height = int(amplitude * height * 3)  # 증폭
+                bar_height = min(bar_height, height)
+
+                # 바 그리기 (중앙 기준, 대칭)
+                x1 = i * bar_width
+                x2 = min(resolution[0], (i + 1) * bar_width)
+                center_y = height // 2
+                y1 = center_y - bar_height // 2
+                y2 = center_y + bar_height // 2
+
+                # 색상 설정 (반투명)
+                if color == "cyan":
+                    fill_color = (0, 255, 255, 180)  # 시안색, 반투명
+                elif color == "white":
+                    fill_color = (255, 255, 255, 180)
+                else:
+                    fill_color = (255, 255, 255, 180)
+
+                if bar_height > 2:  # 최소 높이 이상일 때만 그리기
+                    draw.rectangle([x1, y1, x2, y2], fill=fill_color)
+
+            return np.array(img)
+
+        def make_waveform_frame(t: float) -> np.ndarray:
+            """RGB 프레임 (H, W, 3)"""
             try:
-                # 해당 시간의 오디오 샘플 인덱스 계산
-                sample_idx = int(t * audio_fps)
-                if sample_idx >= len(audio_array):
-                    sample_idx = len(audio_array) - 1
-                
-                # 파형 이미지 생성
-                img = Image.new('RGBA', (resolution[0], height), (0, 0, 0, 0))
-                draw = ImageDraw.Draw(img)
-                
-                # 샘플을 시각화할 바 개수
-                num_bars = 60
-                bar_width = resolution[0] // num_bars
-                
-                # 주변 샘플을 분석하여 파형 생성 (시간에 따라 변화)
-                window_size = max(100, len(audio_array) // num_bars)
-                
-                for i in range(num_bars):
-                    # 각 바에 해당하는 샘플 범위 (시간에 따라 스크롤)
-                    # 실시간 파형 효과: 현재 시간 기준으로 샘플 선택
-                    time_offset = int(t * 10) % window_size  # 스크롤 효과
-                    start_idx = max(0, sample_idx - window_size // 2 + (i - num_bars // 2) * window_size // num_bars + time_offset)
-                    end_idx = min(len(audio_array), start_idx + window_size // num_bars)
-                    
-                    if start_idx < len(audio_array) and end_idx > start_idx:
-                        chunk = audio_array[start_idx:end_idx]
-                        amplitude = np.abs(chunk).mean() if len(chunk) > 0 else 0.0
-                    else:
-                        amplitude = 0.0
-                    
-                    # 진폭을 높이로 변환 (0~height)
-                    bar_height = int(amplitude * height * 3)  # 증폭
-                    bar_height = min(bar_height, height)
-                    
-                    # 바 그리기 (중앙 기준, 대칭)
-                    x1 = i * bar_width
-                    x2 = (i + 1) * bar_width
-                    center_y = height // 2
-                    y1 = center_y - bar_height // 2
-                    y2 = center_y + bar_height // 2
-                    
-                    # 색상 설정
-                    if color == "cyan":
-                        fill_color = (0, 255, 255, 180)  # 시안색, 반투명
-                    elif color == "white":
-                        fill_color = (255, 255, 255, 180)
-                    else:
-                        fill_color = (255, 255, 255, 180)
-                    
-                    if bar_height > 2:  # 최소 높이 이상일 때만 그리기
-                        draw.rectangle([x1, y1, x2, y2], fill=fill_color)
-                
-                # PIL Image를 numpy array로 변환
-                img_array = np.array(img)
-                return img_array
-                
-            except Exception as e:
-                # 오류 시 빈 프레임 반환
-                return np.zeros((height, resolution[0], 4), dtype=np.uint8)
-        
-        # VideoClip 생성
-        waveform_clip = VideoClip(make_waveform_frame, duration=duration)
-        waveform_clip = waveform_clip.set_fps(fps)
+                rgba = render_waveform_rgba_frame(t)
+                return rgba[:, :, :3]
+            except Exception:
+                return np.zeros((height, resolution[0], 3), dtype=np.uint8)
+
+        def make_waveform_mask(t: float) -> np.ndarray:
+            """Mask 프레임 (H, W), float 0..1"""
+            try:
+                rgba = render_waveform_rgba_frame(t)
+                alpha = rgba[:, :, 3].astype(np.float32) / 255.0
+                return alpha
+            except Exception:
+                return np.zeros((height, resolution[0]), dtype=np.float32)
+
+        # VideoClip 생성 (RGB + mask)
+        waveform_clip = VideoClip(make_waveform_frame, duration=duration).set_fps(fps)
+        mask_clip = VideoClip(make_waveform_mask, ismask=True, duration=duration).set_fps(fps)
+        waveform_clip = waveform_clip.set_mask(mask_clip)
         
         # 위치 설정
         if position == "bottom":

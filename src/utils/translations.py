@@ -11,6 +11,12 @@ def translate_book_title(book_title: str) -> str:
         "노르웨이의_숲": "Norwegian Wood",
         "상실의 시대": "Norwegian Wood",
         "상실의_시대": "Norwegian Wood",
+        "쇼펜하우어의 아포리즘 (소품과 부록)": "Aphorisms on the Wisdom of Life (Parerga and Paralipomena)",
+        "쇼펜하우어의_아포리즘_(소품과_부록)": "Aphorisms on the Wisdom of Life (Parerga and Paralipomena)",
+        "쇼펜하우어의 아포리즘": "Aphorisms on the Wisdom of Life",
+        "쇼펜하우어의_아포리즘": "Aphorisms on the Wisdom of Life",
+        "아포리즘 (소품과 부록)": "Aphorisms on the Wisdom of Life (Parerga and Paralipomena)",
+        "아포리즘_(소품과_부록)": "Aphorisms on the Wisdom of Life (Parerga and Paralipomena)",
         "세일즈맨의 죽음": "Death of a Salesman",
         "세일즈맨의_죽음": "Death of a Salesman",
         "4000주": "Four Thousand Weeks",
@@ -590,6 +596,36 @@ def is_english_title(book_title: str) -> bool:
     return True
 
 
+def contains_korean(text: str) -> bool:
+    """
+    텍스트에 한국어 문자가 포함되어 있는지 확인
+
+    Args:
+        text: 확인할 텍스트
+
+    Returns:
+        한국어 문자가 포함되어 있으면 True
+    """
+    import re
+    korean_pattern = re.compile(r"[가-힣]")
+    return bool(korean_pattern.search(text or ""))
+
+
+def remove_korean_from_text(text: str) -> str:
+    """
+    텍스트에서 한국어 문자를 제거
+
+    Args:
+        text: 처리할 텍스트
+
+    Returns:
+        한국어가 제거된 텍스트
+    """
+    import re
+    korean_pattern = re.compile(r"[가-힣]")
+    return korean_pattern.sub("", text or "").strip()
+
+
 def translate_author_name(author: str) -> str:
     """작가 이름을 영어로 변환"""
     author_map = {
@@ -599,6 +635,9 @@ def translate_author_name(author: str) -> str:
         "조지 오웰": "George Orwell",
         "어니스트 헤밍웨이": "Ernest Hemingway",
         "아서 밀러": "Arthur Miller",
+        "아르투어 쇼펜하우어": "Arthur Schopenhauer",
+        "쇼펜하우어": "Arthur Schopenhauer",
+        "Arthur Schopenhauer": "Arthur Schopenhauer",
         "Arthur Miller": "Arthur Miller",
         "올리버 버크먼": "Oliver Burkeman",
         "Oliver Burkeman": "Oliver Burkeman",
@@ -845,6 +884,7 @@ def translate_author_name_to_korean(author: str) -> str:
         "George Orwell": "조지 오웰",
         "Ernest Hemingway": "어니스트 헤밍웨이",
         "Arthur Miller": "아서 밀러",
+        "Arthur Schopenhauer": "아르투어 쇼펜하우어",
         "Oliver Burkeman": "올리버 버크먼",
         "Fernando Pessoa": "페르난두 페소아",
         "Claude Lévi-Strauss": "클로드 레비스트로스",
