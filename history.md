@@ -3317,3 +3317,13 @@
   - URL: https://www.youtube.com/watch?v=JMcHV1fwXSA
 - [2] 아르투어 쇼펜하우어이(가) 경고한 미래가 현실이 되었다 (쇼펜하우어의 아포리즘 (소품과 부록) 깊이 읽기)
   - URL: https://www.youtube.com/watch?v=6IoONF8-BtA
+
+## 2026-01-30
+
+### YouTube 업로드 완료
+- 업로드된 책: 세계의_단편_귀여운_여인_행복한_왕자_外_full_episode, 세계의_단편_귀여운_여인_행복한_왕자_外_full_episode_ko
+- 업로드된 영상 수: 2개
+- [1] 세계의 단편 귀여운 여인, 행복한 왕자 外이(가) 예언한 미래가 현실이 되었다
+  - URL: https://www.youtube.com/watch?v=Fx_Tvrye2JM
+- [2] The Future 세계의 단편 귀여운 여인, 행복한 왕자 外 Predicted
+  - URL: https://www.youtube.com/watch?v=taCsaG7YD9k
