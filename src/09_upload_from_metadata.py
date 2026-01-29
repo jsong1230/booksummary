@@ -27,7 +27,11 @@ except ImportError:
 
 load_dotenv()
 
-SCOPES = ['https://www.googleapis.com/auth/youtube.upload', 'https://www.googleapis.com/auth/youtube.force-ssl']
+UPLOAD_SCOPES = ['https://www.googleapis.com/auth/youtube.upload']
+# 댓글 작성(commentThreads.insert) 등 일부 기능은 force-ssl 스코프가 필요합니다.
+# 다만 기존 refresh token에 해당 스코프가 포함되지 않은 경우 token refresh 단계에서
+# invalid_scope 에러가 발생할 수 있어, 인증 단계에서 자동 폴백을 제공합니다.
+FULL_SCOPES = ['https://www.googleapis.com/auth/youtube.upload', 'https://www.googleapis.com/auth/youtube.force-ssl']
 
 
 class YouTubeUploader:
@@ -49,20 +53,40 @@ class YouTubeUploader:
     
     def _authenticate(self):
         """OAuth2 인증"""
-        try:
+        self.scopes = FULL_SCOPES
+        self.can_post_comments = True
+
+        def _build_with_scopes(scopes: list):
             credentials = Credentials(
                 token=None,
                 refresh_token=self.refresh_token,
                 token_uri="https://oauth2.googleapis.com/token",
                 client_id=self.client_id,
                 client_secret=self.client_secret,
-                scopes=SCOPES
+                scopes=scopes,
             )
-            
             credentials.refresh(Request())
-            self.youtube = build('youtube', 'v3', credentials=credentials)
-            print("✅ YouTube API 인증 성공")
+            return build("youtube", "v3", credentials=credentials)
+
+        try:
+            self.youtube = _build_with_scopes(FULL_SCOPES)
+            print("✅ YouTube API 인증 성공 (업로드+댓글 권한)")
+            return
         except Exception as e:
+            # refresh token이 FULL_SCOPES를 포함하지 않으면 invalid_scope가 발생할 수 있음
+            if "invalid_scope" in str(e):
+                print(f"⚠️ 댓글 권한 스코프 인증 실패(폴백): {e}")
+                print("   → 업로드 전용 스코프로 재시도합니다. (댓글 작성은 건너뜁니다)")
+                self.scopes = UPLOAD_SCOPES
+                self.can_post_comments = False
+                try:
+                    self.youtube = _build_with_scopes(UPLOAD_SCOPES)
+                    print("✅ YouTube API 인증 성공 (업로드 전용)")
+                    return
+                except Exception as e2:
+                    print(f"❌ 인증 실패: {e2}")
+                    raise
+
             print(f"❌ 인증 실패: {e}")
             raise
     
@@ -321,12 +345,14 @@ class YouTubeUploader:
             print(f"✅ 업로드 완료: {result['url']}")
             
             # 고정 댓글 추가 (있는 경우)
-            if pinned_comment:
+            if pinned_comment and getattr(self, "can_post_comments", True):
                 try:
                     self.add_pinned_comment(video_id, pinned_comment)
                     print(f"   ✅ 고정 댓글 추가 완료")
                 except Exception as e:
                     print(f"   ⚠️ 고정 댓글 추가 실패 (무시): {e}")
+            elif pinned_comment:
+                print("   ℹ️ 고정 댓글: OAuth 스코프 부족으로 이번 업로드에서는 생략됨")
             
             return result
             
