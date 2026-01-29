@@ -3309,3 +3309,11 @@
   - URL: https://www.youtube.com/watch?v=DffbVt-zfYc
 - [2] 아르투어 쇼펜하우어이(가) 경고한 미래가 현실이 되었다 (쇼펜하우어의 아포리즘 (소품과 부록) 깊이 읽기)
   - URL: https://www.youtube.com/watch?v=370P3gRKvJE
+
+### YouTube 업로드 완료 (재업로드)
+- 업로드된 책: Aphorisms_on_the_Wisdom_of_Life_Parerga_and_Paralipomena
+- 업로드된 영상 수: 2개
+- [1] The Question Aphorisms on the Wisdom of Life Asks: Can We Answer?
+  - URL: https://www.youtube.com/watch?v=JMcHV1fwXSA
+- [2] 아르투어 쇼펜하우어이(가) 경고한 미래가 현실이 되었다 (쇼펜하우어의 아포리즘 (소품과 부록) 깊이 읽기)
+  - URL: https://www.youtube.com/watch?v=6IoONF8-BtA
