@@ -3327,3 +3327,23 @@
   - URL: https://www.youtube.com/watch?v=Fx_Tvrye2JM
 - [2] The Future 세계의 단편 귀여운 여인, 행복한 왕자 外 Predicted
   - URL: https://www.youtube.com/watch?v=taCsaG7YD9k
+
+## 2026-01-30
+
+### YouTube 업로드 완료
+- 업로드된 책: 한국의_단편_선구자최정상_외_full_episode
+- 업로드된 영상 수: 2개
+- [1] 한국의 단편 선구자·최정상 외이(가) 예언한 미래가 현실이 되었다
+  - URL: https://www.youtube.com/watch?v=suCP220CwKc
+- [2] The Future 한국의 단편 선구자·최정상 외 Predicted
+  - URL: https://www.youtube.com/watch?v=_MC6JS9QR1k
+
+## 2026-01-30
+
+### YouTube 업로드 완료 (Summary+Video)
+- 업로드된 책: Small_Things_Like_These
+- 업로드된 영상 수: 2개
+- [1] 클레어 키건이(가) 경고한 미래가 현실이 되었다 (이처럼 사소한 것들 깊이 읽기)
+  - URL: https://www.youtube.com/watch?v=r6RuSTRjjmU
+- [2] The Future Claire Keegan Warned Us About (Small Things Like These Deep Dive)
+  - URL: https://www.youtube.com/watch?v=m_aT4L2LBHI
