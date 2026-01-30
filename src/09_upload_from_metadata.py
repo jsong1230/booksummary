@@ -844,6 +844,13 @@ def main():
     parser.add_argument('--auto', action='store_true', help='자동 업로드 (확인 없이)')
     parser.add_argument('--channel-id', type=str, help='업로드할 채널 ID (선택사항, 환경 변수 YOUTUBE_CHANNEL_ID로도 설정 가능)')
     parser.add_argument('--force', action='store_true', help='강제 업로드 (중복 체크 무시)')
+    parser.add_argument(
+        '--metadata-files',
+        type=str,
+        nargs='+',
+        default=None,
+        help='업로드할 메타데이터 파일 경로 목록 (지정 시 output/ 스캔 대신 이 목록만 업로드)'
+    )
     
     args = parser.parse_args()
     
@@ -862,12 +869,18 @@ def main():
         print(f"❌ 초기화 실패: {e}")
         return
     
-    # 메타데이터 파일 찾기
-    metadata_files = find_metadata_files()
+    # 메타데이터 파일 찾기 (기본: output/ 스캔, 옵션: 특정 파일만)
+    if args.metadata_files:
+        metadata_files = [Path(p) for p in args.metadata_files]
+    else:
+        metadata_files = find_metadata_files()
     
     if not metadata_files:
         print("📭 메타데이터 파일을 찾을 수 없습니다.")
-        print("   output/ 폴더에 *.metadata.json 파일이 있는지 확인하세요.")
+        if args.metadata_files:
+            print("   --metadata-files 로 전달한 경로를 확인하세요.")
+        else:
+            print("   output/ 폴더에 *.metadata.json 파일이 있는지 확인하세요.")
         return
     
     print(f"📹 발견된 메타데이터: {len(metadata_files)}개\n")
