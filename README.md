@@ -203,6 +203,9 @@ python src/09_upload_from_metadata.py \
     - `summary+video (en)`: `[Summary] Book Title: Author (Subtitle)`
     - `일당백(full_episode) (en)`: `[1DANG100] Book Title: Author (Subtitle)`
   - 참고: 영문에서는 한국어 혼입을 막기 위해 **영문 부제목만** 자동 반영되며, 저자/원제 매핑이 없으면 에러로 막습니다.
+  - 참고: `(부제목)`은 SEO를 위해 자동 생성될 수 있습니다.
+    - ko: `(원래 부제목이 있으면 그 부제목 · SEO 키워드)` / `(원래 부제목이 없으면 SEO 키워드)` 형태
+    - en: `(SEO keywords)` 형태 (완전 영어만 허용)
 - **제목 직접 지정(가장 확실)**: “한글 제목=…, 영문 제목=… 으로 고정”
 
 #### 요청 템플릿 (복붙용)

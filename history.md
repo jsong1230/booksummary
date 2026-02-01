@@ -3364,3 +3364,4 @@
   - Summary+Video(en): `[Summary] Book Title: Author (Subtitle)` (영문은 영어만 허용)
   - 일당백(ko): `[일당백] 책제목: 작가 (부제목)`
   - 일당백(en): `[1DANG100] Book Title: Author (Subtitle)` (영문은 영어만 허용)
+- (부제목)에 SEO 키워드 자동 생성 로직 추가 (장르 추정 기반 템플릿)

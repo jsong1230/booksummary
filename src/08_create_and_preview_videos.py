@@ -61,6 +61,14 @@ def generate_title(book_title: str, lang: str = "both", author: Optional[str] = 
 
     prefix = "[핵심 요약]" if lang != "en" else "[Summary]"
 
+    # (부제목) SEO 생성에 사용할 book_info (있으면 활용)
+    book_info = None
+    try:
+        # book_info.json은 통상 assets/images/{표준영문SafeTitle}/book_info.json에 저장됨
+        book_info = load_book_info(get_standard_safe_title(book_title_main), author=author)
+    except Exception:
+        book_info = None
+
     # 1) 원본 입력에서 (부제목) 분리
     book_title_main, subtitle_from_input = _split_trailing_parenthetical(book_title)
 
@@ -103,18 +111,46 @@ def generate_title(book_title: str, lang: str = "both", author: Optional[str] = 
         ko_author = ""
         en_author = ""
 
-    # 4) 부제목 결정 규칙
-    # - 입력에 (부제목)이 있으면 우선 사용
-    # - 없으면, 반대 언어 제목을 부제목으로 사용 (가능하고 유의미할 때)
-    subtitle_ko = subtitle_from_input
-    if not subtitle_ko:
-        if en_title and en_title != ko_title and is_english_title(en_title):
-            subtitle_ko = en_title
+    # 4) 부제목(괄호) = "실제 부제 + 검색에 유리한 키워드" 자동 생성
+    try:
+        from src.utils.title_generator import generate_seo_subtitle
+    except Exception:
+        generate_seo_subtitle = None
 
-    subtitle_en = None
-    # 영어 제목은 가급적 한국어 섞임을 피합니다.
+    def _unique_keep_order(items: List[str]) -> List[str]:
+        seen = set()
+        out: List[str] = []
+        for it in items:
+            it2 = (it or "").strip()
+            if not it2:
+                continue
+            if it2 in seen:
+                continue
+            seen.add(it2)
+            out.append(it2)
+        return out
+
+    subtitle_ko_parts: List[str] = []
+    if subtitle_from_input:
+        subtitle_ko_parts.append(subtitle_from_input)
+    # 한국어 제목에서는 "원래 부제목이 없을 때만" 영문 원제를 함께 넣어 검색을 돕습니다.
+    # (부제가 이미 있으면 길이만 늘고 CTR/가독성을 해칠 수 있어 기본적으로 생략)
+    if not subtitle_from_input:
+        if en_title and en_title != ko_title and is_english_title(en_title):
+            subtitle_ko_parts.append(en_title)
+    if generate_seo_subtitle:
+        subtitle_ko_parts.append(generate_seo_subtitle("ko", ko_title, author=ko_author or None, book_info=book_info))
+    subtitle_ko_parts = _unique_keep_order(subtitle_ko_parts)
+    subtitle_ko = " · ".join(subtitle_ko_parts) if subtitle_ko_parts else None
+
+    subtitle_en_parts: List[str] = []
+    # 영어 제목은 한국어 혼입을 피하기 위해 "영문 부제"만 반영
     if subtitle_from_input and is_english_title(subtitle_from_input):
-        subtitle_en = subtitle_from_input
+        subtitle_en_parts.append(subtitle_from_input)
+    if generate_seo_subtitle:
+        subtitle_en_parts.append(generate_seo_subtitle("en", en_title, author=en_author or None, book_info=book_info))
+    subtitle_en_parts = _unique_keep_order(subtitle_en_parts)
+    subtitle_en = " · ".join(subtitle_en_parts) if subtitle_en_parts else None
 
     # 5) 최종 조립
     if lang == "ko":

@@ -203,7 +203,25 @@ def generate_episode_title(
     if not resolved_author and author:
         resolved_author = author.strip()
 
-    # 3) 제목/작가 번역
+    # 3) 제목/작가 번역 + SEO 부제목 생성
+    try:
+        from src.utils.title_generator import generate_seo_subtitle
+    except Exception:
+        generate_seo_subtitle = None
+
+    def _unique_keep_order(items: List[str]) -> List[str]:
+        seen = set()
+        out: List[str] = []
+        for it in items:
+            it2 = (it or "").strip()
+            if not it2:
+                continue
+            if it2 in seen:
+                continue
+            seen.add(it2)
+            out.append(it2)
+        return out
+
     if language == "ko":
         if is_english_title(book_title_main):
             ko_title = translate_book_title_to_korean(book_title_main)
@@ -224,10 +242,18 @@ def generate_episode_title(
             else:
                 ko_author = resolved_author
 
-        # 부제목(ko): 입력 괄호가 있으면 우선, 없으면 영문 원제(가능할 때)
-        subtitle_ko = subtitle_from_input
-        if not subtitle_ko and en_title and en_title != ko_title and is_english_title(en_title):
-            subtitle_ko = en_title
+        # 부제목(ko): 실제 부제 + 영문 원제 + SEO 키워드
+        subtitle_ko_parts: List[str] = []
+        if subtitle_from_input:
+            subtitle_ko_parts.append(subtitle_from_input)
+        # 한국어 제목에서는 "원래 부제목이 없을 때만" 영문 원제를 함께 넣어 검색을 돕습니다.
+        if not subtitle_from_input:
+            if en_title and en_title != ko_title and is_english_title(en_title):
+                subtitle_ko_parts.append(en_title)
+        if generate_seo_subtitle:
+            subtitle_ko_parts.append(generate_seo_subtitle("ko", ko_title, author=ko_author or None, book_info=book_info))
+        subtitle_ko_parts = _unique_keep_order(subtitle_ko_parts)
+        subtitle_ko = " · ".join(subtitle_ko_parts) if subtitle_ko_parts else None
 
         author_part = f": {ko_author}" if ko_author else ""
         subtitle_part = f" ({subtitle_ko})" if subtitle_ko else ""
@@ -262,10 +288,14 @@ def generate_episode_title(
                 "저자 영문 표기를 함께 입력하거나, src/utils/translations.py에 매핑을 추가하세요."
             )
 
-    # 부제목(en): 입력 괄호가 있고 영어면만 사용 (한국어 혼입 방지)
-    subtitle_en = None
+    # 부제목(en): 영문 부제(있다면) + SEO 키워드 (완전 영어만)
+    subtitle_en_parts: List[str] = []
     if subtitle_from_input and is_english_title(subtitle_from_input):
-        subtitle_en = subtitle_from_input
+        subtitle_en_parts.append(subtitle_from_input)
+    if generate_seo_subtitle:
+        subtitle_en_parts.append(generate_seo_subtitle("en", en_title, author=en_author or None, book_info=book_info))
+    subtitle_en_parts = _unique_keep_order(subtitle_en_parts)
+    subtitle_en = " · ".join(subtitle_en_parts) if subtitle_en_parts else None
 
     author_part = f": {en_author}" if en_author else ""
     subtitle_part = f" ({subtitle_en})" if subtitle_en else ""

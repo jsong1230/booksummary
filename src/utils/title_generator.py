@@ -9,6 +9,100 @@ from typing import Optional, Dict
 import re
 
 
+def generate_seo_subtitle(
+    language: str,
+    book_title: str,
+    author: Optional[str] = None,
+    book_info: Optional[Dict] = None,
+) -> str:
+    """
+    제목의 괄호 '(부제목)'에 들어갈 SEO용 짧은 문구를 생성합니다.
+
+    - language='ko' 또는 'en'
+    - 반환값은 괄호 없이 "..." 형태의 짧은 문구입니다.
+    - 영문(en)은 "완전 영어(한글 0)"만을 목표로 하며, 템플릿/출력에 한글을 포함하지 않습니다.
+    - book_info(선택): Google Books의 categories/description 등을 힌트로 장르 추정에 사용합니다.
+    """
+
+    def _category_text() -> str:
+        if not book_info:
+            return ""
+        cats = book_info.get("categories") or []
+        if isinstance(cats, str):
+            cats = [cats]
+        cat_str = " ".join([c for c in cats if isinstance(c, str)])
+        desc = book_info.get("description") if isinstance(book_info.get("description"), str) else ""
+        return f"{cat_str}\n{desc}".lower()
+
+    def _guess_genre() -> str:
+        text = _category_text()
+        title_lower = (book_title or "").lower()
+
+        # 제목 기반 힌트 (book_info가 없을 때도 동작)
+        if "아포리즘" in (book_title or "") or "aphorism" in title_lower:
+            return "philosophy"
+
+        # category/description 기반 힌트
+        if any(k in text for k in ["philosophy", "철학"]):
+            return "philosophy"
+        if any(k in text for k in ["psychology", "self-help", "self help", "자기계발", "심리"]):
+            return "psychology"
+        if any(k in text for k in ["business", "economics", "management", "경제", "경영"]):
+            return "business"
+        if any(k in text for k in ["history", "역사"]):
+            return "history"
+        if any(k in text for k in ["science", "과학"]):
+            return "science"
+        if any(k in text for k in ["poetry", "시"]):
+            return "poetry"
+        if any(k in text for k in ["essay", "수필", "에세이"]):
+            return "essay"
+        if any(k in text for k in ["fiction", "novel", "소설"]):
+            return "fiction"
+        return "general"
+
+    genre = _guess_genre()
+
+    if language == "ko":
+        # 너무 길지 않게, 검색/관심 키워드 중심으로 고정 템플릿
+        if genre == "philosophy":
+            return "삶의 지혜·행복·고독"
+        if genre == "psychology":
+            return "습관·감정·성장"
+        if genre == "business":
+            return "핵심 전략·실전 적용"
+        if genre == "history":
+            return "핵심 사건·맥락·교훈"
+        if genre == "science":
+            return "핵심 개념·의미·영향"
+        if genre == "poetry":
+            return "시어·감정·해석"
+        if genre == "essay":
+            return "문장·사유·인사이트"
+        if genre == "fiction":
+            return "줄거리·핵심 주제·인물"
+        return "핵심 주제·인사이트·정리"
+
+    # en
+    if genre == "philosophy":
+        return "Wisdom, Happiness & Solitude"
+    if genre == "psychology":
+        return "Habits, Mindset & Growth"
+    if genre == "business":
+        return "Key Strategies & Takeaways"
+    if genre == "history":
+        return "Key Events & Lessons"
+    if genre == "science":
+        return "Key Ideas & Impact"
+    if genre == "poetry":
+        return "Imagery, Emotion & Interpretation"
+    if genre == "essay":
+        return "Quotes, Ideas & Insights"
+    if genre == "fiction":
+        return "Plot, Themes & Characters"
+    return "Key Ideas & Takeaways"
+
+
 def generate_engaging_title(
     book_title: str,
     author: Optional[str] = None,
