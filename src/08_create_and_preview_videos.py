@@ -40,38 +40,37 @@ from src.utils.file_utils import safe_title, load_book_info, get_standard_safe_t
 
 def generate_title(book_title: str, lang: str = "both", author: Optional[str] = None) -> str:
     """
-    영상 제목 생성 (SEO 최적화 포함)
-    - 검색 키워드 포함 (책 제목, 저자명, "책 리뷰")
-    - 두 언어 포함, 언어 표시 포함, 대체 제목 포함
-    - 검색량 높은 키워드를 앞쪽에 배치하여 검색 최적화
+    영상 제목 생성 (고정 포맷)
+    - summary+video: [핵심 요약] 책제목: 작가 (부제목)
+    - 부제목은 있으면만 추가합니다. (괄호/대체 제목)
+    - lang은 'ko' 또는 'en'을 권장합니다. (both는 하위 호환용)
     """
-    # 괄호 안의 한글 추출 (예: "Sátántangó (사탄탱고)" -> ko_title="사탄탱고", en_title="Sátántangó")
     import re
-    # 괄호 안의 한글 추출
-    bracket_match = re.search(r'\(([^)]+)\)', book_title)
-    ko_title_from_bracket = None
-    if bracket_match:
-        bracket_content = bracket_match.group(1)
-        # 괄호 안 내용이 한글인지 확인
-        if not is_english_title(bracket_content):
-            ko_title_from_bracket = bracket_content
-    
-    # 괄호 제거한 제목
-    book_title_clean = re.sub(r'\s*\([^)]*\)\s*$', '', book_title).strip()
-    
-    # book_title이 영어인지 한글인지 판단
-    if is_english_title(book_title_clean):
-        # 영어 제목이 들어온 경우: 한글 제목으로 변환
-        ko_title = translate_book_title_to_korean(book_title_clean)
-        en_title = book_title_clean  # 이미 영어
-        
-        # 괄호에서 추출한 한글 제목이 있으면 우선 사용
-        if ko_title_from_bracket:
-            ko_title = ko_title_from_bracket
-        
-        # ko_title이 여전히 영어인 경우 (번역 실패), 한글 발음으로 변환 시도
+
+    def _split_trailing_parenthetical(text: str) -> Tuple[str, Optional[str]]:
+        """
+        제목이 '메인 (부제목)' 형태로 끝나면 분리합니다.
+        예: '쇼펜하우어의 아포리즘 (소품과 부록)' -> ('쇼펜하우어의 아포리즘', '소품과 부록')
+        """
+        m = re.search(r"\s*\(([^)]+)\)\s*$", text or "")
+        if not m:
+            return (text or "").strip(), None
+        main = re.sub(r"\s*\([^)]*\)\s*$", "", text or "").strip()
+        sub = (m.group(1) or "").strip() or None
+        return main, sub
+
+    prefix = "[핵심 요약]" if lang != "en" else "[Summary]"
+
+    # 1) 원본 입력에서 (부제목) 분리
+    book_title_main, subtitle_from_input = _split_trailing_parenthetical(book_title)
+
+    # 2) 언어별 메인 제목(ko/en) 결정
+    if is_english_title(book_title_main):
+        en_title = book_title_main
+        ko_title = translate_book_title_to_korean(book_title_main)
+
+        # 번역 실패 시(ko_title가 여전히 영어) 간단 발음 폴백
         if is_english_title(ko_title):
-            # 간단한 발음 변환 매핑 (추가 필요시 확장)
             pronunciation_map = {
                 "Buckeye": "벅아이",
                 "Animal Farm": "애니멀 팜",
@@ -82,82 +81,65 @@ def generate_title(book_title: str, lang: str = "both", author: Optional[str] = 
             }
             ko_title = pronunciation_map.get(ko_title, ko_title)
     else:
-        # 한글 제목이 들어온 경우: 영어 제목으로 변환
-        ko_title = book_title  # 이미 한글
-        en_title = translate_book_title(book_title)
-        
-        # en_title이 여전히 한글인 경우 (번역 실패), 에러 발생
+        ko_title = book_title_main
+        en_title = translate_book_title(book_title_main)
+
+        # en_title이 여전히 한글이면 에러 (매핑 추가 유도)
         if not is_english_title(en_title):
-            # 매핑에 없는 경우, pronunciation_map에서 찾기
-            pronunciation_map = {
-                "벅아이": "Buckeye",
-                "애니멀 팜": "Animal Farm",
-                "햄릿": "Hamlet",
-                "선라이즈 온 더 리핑": "Sunrise on the Reaping",
-                "불안 세대": "The Anxious Generation",
-            }
-            en_title = pronunciation_map.get(ko_title, en_title)
-            
-            # 여전히 한글이면 에러
-            if not is_english_title(en_title):
-                raise ValueError(f"책 제목 '{book_title}'의 영어 번역을 찾을 수 없습니다. src/utils/translations.py에 매핑을 추가하세요.")
-    
-    alt_titles = get_book_alternative_title(ko_title)  # 한글 제목 기준으로 대체 제목 찾기
-    
-    # 작가 이름 추가 (검색 최적화)
-    author_str = ""
+            raise ValueError(
+                f"책 제목 '{book_title}'의 영어 번역을 찾을 수 없습니다. "
+                f"src/utils/translations.py에 매핑을 추가하거나, 영문 원제를 함께 입력하세요."
+            )
+
+    # 3) 작가명(ko/en) 결정
     if author:
         if is_english_title(author):
-            ko_author = translate_author_name_to_korean(author)
+            ko_author = translate_author_name_to_korean(author) or author
             en_author = author
         else:
             ko_author = author
-            en_author = translate_author_name(author)
+            en_author = translate_author_name(author) or author
     else:
         ko_author = ""
         en_author = ""
-    
+
+    # 4) 부제목 결정 규칙
+    # - 입력에 (부제목)이 있으면 우선 사용
+    # - 없으면, 반대 언어 제목을 부제목으로 사용 (가능하고 유의미할 때)
+    subtitle_ko = subtitle_from_input
+    if not subtitle_ko:
+        if en_title and en_title != ko_title and is_english_title(en_title):
+            subtitle_ko = en_title
+
+    subtitle_en = None
+    # 영어 제목은 가급적 한국어 섞임을 피합니다.
+    if subtitle_from_input and is_english_title(subtitle_from_input):
+        subtitle_en = subtitle_from_input
+
+    # 5) 최종 조립
     if lang == "ko":
-        # Summary+Video 형식: 인문학적 가치 강조 제목 생성
-        # AI 강조를 피하고 인문학적 호기심을 자극하는 제목 사용
-        try:
-            from src.utils.title_generator import generate_value_focused_title
-            title = generate_value_focused_title(
-                book_title=book_title_clean if not ko_title_from_bracket else book_title,
-                author=ko_author if ko_author else None,
-                language="ko",
-                use_ai_title=False  # 인문학적 가치 강조
-            )
-        except ImportError:
-            # 폴백: 기존 형식 유지
-            if alt_titles.get("ko"):
-                main_title = f"{ko_title} ({alt_titles['ko']})"
-            else:
-                main_title = ko_title
-            author_part = f" {ko_author}" if ko_author else ""
-            title = f"{main_title} 깊이 읽기{author_part}"
+        main_title = ko_title
+        author_part = f": {ko_author}" if ko_author else ""
+        subtitle_part = f" ({subtitle_ko})" if subtitle_ko else ""
+        title = f"{prefix} {main_title}{author_part}{subtitle_part}"
     elif lang == "en":
-        # Summary+Video 형식: 인문학적 가치 강조 제목 생성
-        # AI 강조를 피하고 인문학적 호기심을 자극하는 제목 사용
-        try:
-            from src.utils.title_generator import generate_value_focused_title
-            title = generate_value_focused_title(
-                book_title=book_title_clean,
-                author=en_author if en_author else None,
-                language="en",
-                use_ai_title=False  # 인문학적 가치 강조
+        main_title = en_title
+        author_part = f": {en_author}" if en_author else ""
+        subtitle_part = f" ({subtitle_en})" if subtitle_en else ""
+        title = f"{prefix} {main_title}{author_part}{subtitle_part}"
+        # 영문 제목은 "완전 영어"만 허용
+        if contains_korean(title):
+            raise ValueError(
+                "영문 제목에 한글이 포함되어 있습니다. "
+                "영문 원제/저자 영문 표기를 함께 입력하거나, "
+                "src/utils/translations.py에 번역 매핑을 추가하세요."
             )
-        except ImportError:
-            # 폴백: 기존 형식 유지
-            if alt_titles.get("en"):
-                en_main_title = f"{en_title} ({alt_titles['en']})"
-            else:
-                en_main_title = en_title
-            author_part = f" {en_author}" if en_author else ""
-            title = f"{en_main_title} Deep Dive{author_part}"
     else:
-        # 두 언어 혼합 (기본값, 하위 호환성)
-        title = f"[핵심 요약] {ko_title} | [Summary] {en_title} Book Review"
+        # 하위 호환: 한국어 포맷 우선
+        main_title = ko_title
+        author_part = f": {ko_author}" if ko_author else ""
+        subtitle_part = f" ({subtitle_ko})" if subtitle_ko else ""
+        title = f"{prefix} {main_title}{author_part}{subtitle_part}"
 
     # YouTube 제목 최대 길이: 100자
     if len(title) > 100:

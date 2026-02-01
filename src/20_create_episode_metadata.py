@@ -151,7 +151,12 @@ def detect_book_genre(book_title: str, book_info: Optional[Dict] = None) -> Tupl
     return ("소설", "Novel")
 
 
-def generate_episode_title(book_title: str, language: str = "ko", book_info: Optional[Dict] = None) -> str:
+def generate_episode_title(
+    book_title: str,
+    language: str = "ko",
+    book_info: Optional[Dict] = None,
+    author: Optional[str] = None
+) -> str:
     """
     에피소드 영상 제목 생성
     
@@ -159,84 +164,120 @@ def generate_episode_title(book_title: str, language: str = "ko", book_info: Opt
     YouTube의 다국어 메타데이터 기능을 사용하여 시청자의 언어 설정에 따라 자동으로 표시됩니다.
     
     제목 포맷 규칙:
-    - 한글 영상: "{한글제목} 책 리뷰{작가명}"
-    - 영문 영상: "{영문제목} Book Review{작가명}"
-    - 작가명은 선택사항이며, 있으면 공백 하나 뒤에 추가
+    - 일당백 스타일: [일당백] 책제목: 작가 (부제목)
+    - 부제목은 있으면만 추가합니다.
     
     Args:
         book_title: 책 제목
         language: 언어 ('ko' 또는 'en')
         book_info: 책 정보 딕셔너리 (선택사항, 장르 감지용)
+        author: 작가명 (선택사항, book_info에 없을 때 사용)
         
     Returns:
         생성된 제목 (해당 언어만 포함)
     """
-    # 장르 감지
-    genre_ko, genre_en = detect_book_genre(book_title, book_info)
-    
-    # 책 제목 번역
+    import re
+
+    def _split_trailing_parenthetical(text: str):
+        m = re.search(r"\s*\(([^)]+)\)\s*$", text or "")
+        if not m:
+            return (text or "").strip(), None
+        main = re.sub(r"\s*\([^)]*\)\s*$", "", text or "").strip()
+        sub = (m.group(1) or "").strip() or None
+        return main, sub
+
+    prefix = "[일당백]" if language != "en" else "[1DANG100]"
+
+    # 1) 입력에서 메인/부제목 분리
+    book_title_main, subtitle_from_input = _split_trailing_parenthetical(book_title)
+
+    # 2) 작가명 결정 (book_info 우선, 없으면 args.author)
+    resolved_author = None
+    if book_info:
+        if isinstance(book_info.get("author"), str) and book_info.get("author").strip():
+            resolved_author = book_info.get("author").strip()
+        elif isinstance(book_info.get("authors"), list) and book_info.get("authors"):
+            first = book_info.get("authors")[0]
+            if isinstance(first, str) and first.strip():
+                resolved_author = first.strip()
+    if not resolved_author and author:
+        resolved_author = author.strip()
+
+    # 3) 제목/작가 번역
     if language == "ko":
-        if is_english_title(book_title):
-            ko_title = translate_book_title_to_korean(book_title)
+        if is_english_title(book_title_main):
+            ko_title = translate_book_title_to_korean(book_title_main)
+            en_title = book_title_main
         else:
-            ko_title = book_title
-            
-        # 작가 이름 가져오기
-        author_name = ""
-        author = None
-        if book_info and 'author' in book_info:
-            author = book_info['author']
-            # 영문 작가명이면 한글로 번역 시도
-            if is_english_title(author):
-                author_ko = translate_author_name(author)
-                author_name = f" {author_ko}"
+            ko_title = book_title_main
+            en_title = translate_book_title(book_title_main)
+            if not is_english_title(en_title):
+                raise ValueError(
+                    f"책 제목 '{book_title}'의 영어 번역을 찾을 수 없습니다. "
+                    f"src/utils/translations.py에 매핑을 추가하거나, 영문 원제를 함께 입력하세요."
+                )
+
+        ko_author = ""
+        if resolved_author:
+            if is_english_title(resolved_author):
+                ko_author = translate_author_name_to_korean(resolved_author) or resolved_author
             else:
-                author_name = f" {author}"
-        
-        # 인문학적 가치 강조 제목 생성
-        try:
-            from src.utils.title_generator import generate_value_focused_title
-            return generate_value_focused_title(
-                book_title=book_title,
-                author=author,
-                language="ko",
-                book_info=book_info,
-                use_ai_title=False  # 인문학적 가치 강조
+                ko_author = resolved_author
+
+        # 부제목(ko): 입력 괄호가 있으면 우선, 없으면 영문 원제(가능할 때)
+        subtitle_ko = subtitle_from_input
+        if not subtitle_ko and en_title and en_title != ko_title and is_english_title(en_title):
+            subtitle_ko = en_title
+
+        author_part = f": {ko_author}" if ko_author else ""
+        subtitle_part = f" ({subtitle_ko})" if subtitle_ko else ""
+        title = f"{prefix} {ko_title}{author_part}{subtitle_part}"
+        if len(title) > 100:
+            title = title[:97] + "..."
+        return title
+
+    # language == "en"
+    if not is_english_title(book_title_main):
+        en_title = translate_book_title(book_title_main)
+        if not is_english_title(en_title):
+            raise ValueError(
+                f"책 제목 '{book_title}'의 영어 번역을 찾을 수 없습니다. "
+                f"src/utils/translations.py에 매핑을 추가하거나, 영문 원제를 함께 입력하세요."
             )
-        except ImportError:
-            # 폴백: 기존 형식 유지
-            return f"{ko_title} 책 리뷰{author_name}"
+        ko_title = book_title_main
     else:
-        if not is_english_title(book_title):
-            en_title = translate_book_title(book_title)
+        en_title = book_title_main
+        ko_title = translate_book_title_to_korean(book_title_main)
+
+    en_author = ""
+    if resolved_author:
+        if not is_english_title(resolved_author):
+            en_author = translate_author_name(resolved_author) or resolved_author
         else:
-            en_title = book_title
-            
-        # 작가 이름 가져오기
-        author_name = ""
-        author = None
-        if book_info and 'author' in book_info:
-            author = book_info['author']
-            # 한글 작가명이면 영문으로 번역 시도
-            if not is_english_title(author):
-                author_en = translate_author_name(author)
-                author_name = f" {author_en}"
-            else:
-                author_name = f" {author}"
-        
-        # 인문학적 가치 강조 제목 생성
-        try:
-            from src.utils.title_generator import generate_value_focused_title
-            return generate_value_focused_title(
-                book_title=book_title,
-                author=author,
-                language="en",
-                book_info=book_info,
-                use_ai_title=False  # 인문학적 가치 강조
+            en_author = resolved_author
+        # 영문 제목은 "완전 영어"만 허용
+        if contains_korean(en_author):
+            raise ValueError(
+                "영문 작가명에 한글이 포함되어 있습니다. "
+                "저자 영문 표기를 함께 입력하거나, src/utils/translations.py에 매핑을 추가하세요."
             )
-        except ImportError:
-            # 폴백: 기존 형식 유지
-            return f"{en_title} Book Review{author_name}"
+
+    # 부제목(en): 입력 괄호가 있고 영어면만 사용 (한국어 혼입 방지)
+    subtitle_en = None
+    if subtitle_from_input and is_english_title(subtitle_from_input):
+        subtitle_en = subtitle_from_input
+
+    author_part = f": {en_author}" if en_author else ""
+    subtitle_part = f" ({subtitle_en})" if subtitle_en else ""
+    title = f"{prefix} {en_title}{author_part}{subtitle_part}"
+    if contains_korean(title):
+        raise ValueError(
+            "영문 제목에 한글이 포함되어 있습니다. "
+            "영문 원제/저자 영문 표기를 함께 입력하거나, src/utils/translations.py에 번역 매핑을 추가하세요."
+        )
+    if len(title) > 100:
+        title = title[:97] + "..."
+    return title
 
 
 def detect_part_count(book_title: str, language: str = "ko") -> int:
@@ -917,7 +958,8 @@ def create_episode_metadata(
     language: str = "ko",
     video_path: Optional[str] = None,
     thumbnail_path: Optional[str] = None,
-    video_duration: Optional[float] = None
+    video_duration: Optional[float] = None,
+    author: Optional[str] = None
 ) -> Dict:
     """
     에피소드 영상 메타데이터 생성
@@ -977,7 +1019,7 @@ def create_episode_metadata(
         pass
     
     # 메타데이터 생성 (현재 언어)
-    title = generate_episode_title(book_title, language, book_info)
+    title = generate_episode_title(book_title, language, book_info, author=author)
     description = generate_episode_description(book_title, language, video_duration, book_info)
     tags = generate_episode_tags(book_title, language, book_info)
     
@@ -1008,7 +1050,7 @@ def create_episode_metadata(
     
     # 양쪽 언어의 제목과 설명 생성 (다국어 메타데이터용)
     other_language = "en" if language == "ko" else "ko"
-    title_other = generate_episode_title(book_title, other_language, book_info)
+    title_other = generate_episode_title(book_title, other_language, book_info, author=author)
     description_other = generate_episode_description(book_title, other_language, video_duration, book_info)
     
     # 영문 설명에서 한국어 제거 (다국어 메타데이터용)
@@ -1123,6 +1165,13 @@ def main():
         required=True,
         help='책 제목'
     )
+
+    parser.add_argument(
+        '--author',
+        type=str,
+        default=None,
+        help='작가명 (선택, book_info.json에 없을 때 제목에 사용)'
+    )
     
     parser.add_argument(
         '--language',
@@ -1167,7 +1216,8 @@ def main():
             book_title=args.title,
             language=args.language,
             video_path=args.video_path,
-            thumbnail_path=args.thumbnail_path
+            thumbnail_path=args.thumbnail_path,
+            author=args.author
         )
         
         # 미리보기 출력

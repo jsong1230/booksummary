@@ -3347,3 +3347,20 @@
   - URL: https://www.youtube.com/watch?v=r6RuSTRjjmU
 - [2] The Future Claire Keegan Warned Us About (Small Things Like These Deep Dive)
   - URL: https://www.youtube.com/watch?v=m_aT4L2LBHI
+
+## 2026-02-01
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Good_Son
+- 업로드된 영상 수: 2개
+- [1] 정유정이(가) 경고한 미래가 현실이 되었다 (종의 기원 깊이 읽기)
+  - URL: https://www.youtube.com/watch?v=sV-qZxxjR0g
+- [2] The Future Jeong You-jeong Warned Us About (The Good Son Deep Dive)
+  - URL: https://www.youtube.com/watch?v=XjeWNLXhvnk
+
+### 변경 사항
+- 제목 생성 포맷을 고정 포맷으로 변경
+  - Summary+Video(ko): `[핵심 요약] 책제목: 작가 (부제목)`
+  - Summary+Video(en): `[Summary] Book Title: Author (Subtitle)` (영문은 영어만 허용)
+  - 일당백(ko): `[일당백] 책제목: 작가 (부제목)`
+  - 일당백(en): `[1DANG100] Book Title: Author (Subtitle)` (영문은 영어만 허용)
