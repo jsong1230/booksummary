@@ -47,6 +47,46 @@ def generate_title(book_title: str, lang: str = "both", author: Optional[str] = 
     """
     import re
 
+    def _truncate_with_ellipsis(text: str, max_len: int = 100) -> str:
+        if len(text) <= max_len:
+            return text
+        if max_len <= 3:
+            return text[:max_len]
+        return text[: max_len - 3] + "..."
+
+    def _shrink_subtitle_to_fit(prefix_: str, main_: str, author_part_: str, subtitle: Optional[str]) -> str:
+        """
+        100자 제한을 맞추기 위해 부제목을 우선 축소합니다.
+        - subtitle이 ' · '로 구분되어 있으면 오른쪽부터 하나씩 제거
+        - 그래도 길면 subtitle 전체 제거
+        - 마지막 수단으로 전체를 ...로 자름
+        """
+        def _compose(sub: Optional[str]) -> str:
+            sub_part = f" ({sub})" if sub else ""
+            return f"{prefix_} {main_}{author_part_}{sub_part}"
+
+        # 1) 그대로 시도
+        cand = _compose(subtitle)
+        if len(cand) <= 100:
+            return cand
+
+        # 2) ' · ' 단위로 오른쪽부터 축소
+        if subtitle and " · " in subtitle:
+            parts = [p.strip() for p in subtitle.split(" · ") if p.strip()]
+            for k in range(len(parts) - 1, 0, -1):
+                sub2 = " · ".join(parts[:k])
+                cand2 = _compose(sub2)
+                if len(cand2) <= 100:
+                    return cand2
+
+        # 3) subtitle 제거
+        cand3 = _compose(None)
+        if len(cand3) <= 100:
+            return cand3
+
+        # 4) 마지막 수단: 전체 절단
+        return _truncate_with_ellipsis(cand3, 100)
+
     def _split_trailing_parenthetical(text: str) -> Tuple[str, Optional[str]]:
         """
         제목이 '메인 (부제목)' 형태로 끝나면 분리합니다.
@@ -61,16 +101,15 @@ def generate_title(book_title: str, lang: str = "both", author: Optional[str] = 
 
     prefix = "[핵심 요약]" if lang != "en" else "[Summary]"
 
+    # 1) 원본 입력에서 (부제목) 분리
+    book_title_main, subtitle_from_input = _split_trailing_parenthetical(book_title)
+
     # (부제목) SEO 생성에 사용할 book_info (있으면 활용)
     book_info = None
     try:
-        # book_info.json은 통상 assets/images/{표준영문SafeTitle}/book_info.json에 저장됨
-        book_info = load_book_info(get_standard_safe_title(book_title_main), author=author)
+        book_info = load_book_info(book_title_main, author=author)
     except Exception:
         book_info = None
-
-    # 1) 원본 입력에서 (부제목) 분리
-    book_title_main, subtitle_from_input = _split_trailing_parenthetical(book_title)
 
     # 2) 언어별 메인 제목(ko/en) 결정
     if is_english_title(book_title_main):
@@ -139,7 +178,15 @@ def generate_title(book_title: str, lang: str = "both", author: Optional[str] = 
         if en_title and en_title != ko_title and is_english_title(en_title):
             subtitle_ko_parts.append(en_title)
     if generate_seo_subtitle:
-        subtitle_ko_parts.append(generate_seo_subtitle("ko", ko_title, author=ko_author or None, book_info=book_info))
+        subtitle_ko_parts.append(
+            generate_seo_subtitle(
+                "ko",
+                ko_title,
+                author=ko_author or None,
+                book_info=book_info,
+                content_type="summary_video",
+            )
+        )
     subtitle_ko_parts = _unique_keep_order(subtitle_ko_parts)
     subtitle_ko = " · ".join(subtitle_ko_parts) if subtitle_ko_parts else None
 
@@ -148,7 +195,15 @@ def generate_title(book_title: str, lang: str = "both", author: Optional[str] = 
     if subtitle_from_input and is_english_title(subtitle_from_input):
         subtitle_en_parts.append(subtitle_from_input)
     if generate_seo_subtitle:
-        subtitle_en_parts.append(generate_seo_subtitle("en", en_title, author=en_author or None, book_info=book_info))
+        subtitle_en_parts.append(
+            generate_seo_subtitle(
+                "en",
+                en_title,
+                author=en_author or None,
+                book_info=book_info,
+                content_type="summary_video",
+            )
+        )
     subtitle_en_parts = _unique_keep_order(subtitle_en_parts)
     subtitle_en = " · ".join(subtitle_en_parts) if subtitle_en_parts else None
 
@@ -156,13 +211,11 @@ def generate_title(book_title: str, lang: str = "both", author: Optional[str] = 
     if lang == "ko":
         main_title = ko_title
         author_part = f": {ko_author}" if ko_author else ""
-        subtitle_part = f" ({subtitle_ko})" if subtitle_ko else ""
-        title = f"{prefix} {main_title}{author_part}{subtitle_part}"
+        title = _shrink_subtitle_to_fit(prefix, main_title, author_part, subtitle_ko)
     elif lang == "en":
         main_title = en_title
         author_part = f": {en_author}" if en_author else ""
-        subtitle_part = f" ({subtitle_en})" if subtitle_en else ""
-        title = f"{prefix} {main_title}{author_part}{subtitle_part}"
+        title = _shrink_subtitle_to_fit(prefix, main_title, author_part, subtitle_en)
         # 영문 제목은 "완전 영어"만 허용
         if contains_korean(title):
             raise ValueError(
@@ -174,12 +227,7 @@ def generate_title(book_title: str, lang: str = "both", author: Optional[str] = 
         # 하위 호환: 한국어 포맷 우선
         main_title = ko_title
         author_part = f": {ko_author}" if ko_author else ""
-        subtitle_part = f" ({subtitle_ko})" if subtitle_ko else ""
-        title = f"{prefix} {main_title}{author_part}{subtitle_part}"
-
-    # YouTube 제목 최대 길이: 100자
-    if len(title) > 100:
-        title = title[:97] + "..."
+        title = _shrink_subtitle_to_fit(prefix, main_title, author_part, subtitle_ko)
     return title
 
 def generate_description(book_info: Optional[Dict] = None, lang: str = "both", book_title: str = None, timestamps: Optional[Dict] = None, author: Optional[str] = None) -> str:

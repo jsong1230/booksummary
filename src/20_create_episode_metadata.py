@@ -178,6 +178,36 @@ def generate_episode_title(
     """
     import re
 
+    def _truncate_with_ellipsis(text: str, max_len: int = 100) -> str:
+        if len(text) <= max_len:
+            return text
+        if max_len <= 3:
+            return text[:max_len]
+        return text[: max_len - 3] + "..."
+
+    def _shrink_subtitle_to_fit(prefix_: str, main_: str, author_part_: str, subtitle: Optional[str]) -> str:
+        def _compose(sub: Optional[str]) -> str:
+            sub_part = f" ({sub})" if sub else ""
+            return f"{prefix_} {main_}{author_part_}{sub_part}"
+
+        cand = _compose(subtitle)
+        if len(cand) <= 100:
+            return cand
+
+        if subtitle and " · " in subtitle:
+            parts = [p.strip() for p in subtitle.split(" · ") if p.strip()]
+            for k in range(len(parts) - 1, 0, -1):
+                sub2 = " · ".join(parts[:k])
+                cand2 = _compose(sub2)
+                if len(cand2) <= 100:
+                    return cand2
+
+        cand3 = _compose(None)
+        if len(cand3) <= 100:
+            return cand3
+
+        return _truncate_with_ellipsis(cand3, 100)
+
     def _split_trailing_parenthetical(text: str):
         m = re.search(r"\s*\(([^)]+)\)\s*$", text or "")
         if not m:
@@ -251,15 +281,20 @@ def generate_episode_title(
             if en_title and en_title != ko_title and is_english_title(en_title):
                 subtitle_ko_parts.append(en_title)
         if generate_seo_subtitle:
-            subtitle_ko_parts.append(generate_seo_subtitle("ko", ko_title, author=ko_author or None, book_info=book_info))
+            subtitle_ko_parts.append(
+                generate_seo_subtitle(
+                    "ko",
+                    ko_title,
+                    author=ko_author or None,
+                    book_info=book_info,
+                    content_type="full_episode",
+                )
+            )
         subtitle_ko_parts = _unique_keep_order(subtitle_ko_parts)
         subtitle_ko = " · ".join(subtitle_ko_parts) if subtitle_ko_parts else None
 
         author_part = f": {ko_author}" if ko_author else ""
-        subtitle_part = f" ({subtitle_ko})" if subtitle_ko else ""
-        title = f"{prefix} {ko_title}{author_part}{subtitle_part}"
-        if len(title) > 100:
-            title = title[:97] + "..."
+        title = _shrink_subtitle_to_fit(prefix, ko_title, author_part, subtitle_ko)
         return title
 
     # language == "en"
@@ -293,20 +328,25 @@ def generate_episode_title(
     if subtitle_from_input and is_english_title(subtitle_from_input):
         subtitle_en_parts.append(subtitle_from_input)
     if generate_seo_subtitle:
-        subtitle_en_parts.append(generate_seo_subtitle("en", en_title, author=en_author or None, book_info=book_info))
+        subtitle_en_parts.append(
+            generate_seo_subtitle(
+                "en",
+                en_title,
+                author=en_author or None,
+                book_info=book_info,
+                content_type="full_episode",
+            )
+        )
     subtitle_en_parts = _unique_keep_order(subtitle_en_parts)
     subtitle_en = " · ".join(subtitle_en_parts) if subtitle_en_parts else None
 
     author_part = f": {en_author}" if en_author else ""
-    subtitle_part = f" ({subtitle_en})" if subtitle_en else ""
-    title = f"{prefix} {en_title}{author_part}{subtitle_part}"
+    title = _shrink_subtitle_to_fit(prefix, en_title, author_part, subtitle_en)
     if contains_korean(title):
         raise ValueError(
             "영문 제목에 한글이 포함되어 있습니다. "
             "영문 원제/저자 영문 표기를 함께 입력하거나, src/utils/translations.py에 번역 매핑을 추가하세요."
         )
-    if len(title) > 100:
-        title = title[:97] + "..."
     return title
 
 

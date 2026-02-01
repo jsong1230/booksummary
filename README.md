@@ -205,7 +205,13 @@ python src/09_upload_from_metadata.py \
   - 참고: 영문에서는 한국어 혼입을 막기 위해 **영문 부제목만** 자동 반영되며, 저자/원제 매핑이 없으면 에러로 막습니다.
   - 참고: `(부제목)`은 SEO를 위해 자동 생성될 수 있습니다.
     - ko: `(원래 부제목이 있으면 그 부제목 · SEO 키워드)` / `(원래 부제목이 없으면 SEO 키워드)` 형태
+      - `summary+video`: `5분 핵심 요약·AI 심층 분석 · (장르/키워드)`
+      - `일당백(full_episode)`: `배경지식·인포그래픽·책 분석`
     - en: `(SEO keywords)` 형태 (완전 영어만 허용)
+      - `summary+video`: `5-min Summary · AI Deep Dive · (genre keywords)`
+      - `일당백(full_episode)`: `Background · Infographics · Analysis`
+  - 참고: YouTube 제목은 **항상 100자 이내**여야 합니다.
+    - 길이가 초과되면 `(부제목)`을 우선 **오른쪽부터 단계적으로 줄여서** 100자 이내로 맞춥니다.
 - **제목 직접 지정(가장 확실)**: “한글 제목=…, 영문 제목=… 으로 고정”
 
 #### 요청 템플릿 (복붙용)

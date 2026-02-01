@@ -14,6 +14,7 @@ def generate_seo_subtitle(
     book_title: str,
     author: Optional[str] = None,
     book_info: Optional[Dict] = None,
+    content_type: str = "summary_video",
 ) -> str:
     """
     제목의 괄호 '(부제목)'에 들어갈 SEO용 짧은 문구를 생성합니다.
@@ -21,8 +22,23 @@ def generate_seo_subtitle(
     - language='ko' 또는 'en'
     - 반환값은 괄호 없이 "..." 형태의 짧은 문구입니다.
     - 영문(en)은 "완전 영어(한글 0)"만을 목표로 하며, 템플릿/출력에 한글을 포함하지 않습니다.
+    - content_type:
+      - "summary_video": Summary + Deep Dive (5분 핵심 요약 + AI 심층 분석)
+      - "full_episode": 일당백 Style Deep Dive (배경지식 → 인포그래픽 → 책 분석)
     - book_info(선택): Google Books의 categories/description 등을 힌트로 장르 추정에 사용합니다.
     """
+
+    # Beyond Page 채널 포맷을 먼저 반영한 "기본 부제"를 만들고,
+    # summary_video는 장르 키워드를 덧붙여 SEO를 강화합니다.
+    if content_type == "summary_video":
+        base_ko = "5분 핵심 요약·AI 심층 분석"
+        base_en = "5-min Summary · AI Deep Dive"
+    else:  # full_episode (일당백)
+        base_ko = "배경지식·인포그래픽·책 분석"
+        base_en = "Background · Infographics · Analysis"
+
+        # 일당백은 구조가 고정이라 장르 키워드보다 구조 키워드를 우선합니다.
+        return base_ko if language == "ko" else base_en
 
     def _category_text() -> str:
         if not book_info:
@@ -66,41 +82,41 @@ def generate_seo_subtitle(
     if language == "ko":
         # 너무 길지 않게, 검색/관심 키워드 중심으로 고정 템플릿
         if genre == "philosophy":
-            return "삶의 지혜·행복·고독"
+            return f"{base_ko} · 삶의 지혜·행복·고독"
         if genre == "psychology":
-            return "습관·감정·성장"
+            return f"{base_ko} · 습관·감정·성장"
         if genre == "business":
-            return "핵심 전략·실전 적용"
+            return f"{base_ko} · 핵심 전략·실전 적용"
         if genre == "history":
-            return "핵심 사건·맥락·교훈"
+            return f"{base_ko} · 핵심 사건·맥락·교훈"
         if genre == "science":
-            return "핵심 개념·의미·영향"
+            return f"{base_ko} · 핵심 개념·의미·영향"
         if genre == "poetry":
-            return "시어·감정·해석"
+            return f"{base_ko} · 시어·감정·해석"
         if genre == "essay":
-            return "문장·사유·인사이트"
+            return f"{base_ko} · 문장·사유·인사이트"
         if genre == "fiction":
-            return "줄거리·핵심 주제·인물"
-        return "핵심 주제·인사이트·정리"
+            return f"{base_ko} · 줄거리·핵심 주제·인물"
+        return f"{base_ko} · 핵심 주제·인사이트·정리"
 
     # en
     if genre == "philosophy":
-        return "Wisdom, Happiness & Solitude"
+        return f"{base_en} · Wisdom, Happiness & Solitude"
     if genre == "psychology":
-        return "Habits, Mindset & Growth"
+        return f"{base_en} · Habits, Mindset & Growth"
     if genre == "business":
-        return "Key Strategies & Takeaways"
+        return f"{base_en} · Key Strategies & Takeaways"
     if genre == "history":
-        return "Key Events & Lessons"
+        return f"{base_en} · Key Events & Lessons"
     if genre == "science":
-        return "Key Ideas & Impact"
+        return f"{base_en} · Key Ideas & Impact"
     if genre == "poetry":
-        return "Imagery, Emotion & Interpretation"
+        return f"{base_en} · Imagery, Emotion & Interpretation"
     if genre == "essay":
-        return "Quotes, Ideas & Insights"
+        return f"{base_en} · Quotes, Ideas & Insights"
     if genre == "fiction":
-        return "Plot, Themes & Characters"
-    return "Key Ideas & Takeaways"
+        return f"{base_en} · Plot, Themes & Characters"
+    return f"{base_en} · Key Ideas & Takeaways"
 
 
 def generate_engaging_title(

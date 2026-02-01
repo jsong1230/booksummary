@@ -3365,3 +3365,7 @@
   - 일당백(ko): `[일당백] 책제목: 작가 (부제목)`
   - 일당백(en): `[1DANG100] Book Title: Author (Subtitle)` (영문은 영어만 허용)
 - (부제목)에 SEO 키워드 자동 생성 로직 추가 (장르 추정 기반 템플릿)
+- 채널(Beyond Page) 콘텐츠 포맷 기반 부제 템플릿 적용
+  - Summary+Deep Dive: `5분 핵심 요약·AI 심층 분석` / `5-min Summary · AI Deep Dive`
+  - 일당백 Style Deep Dive: `배경지식·인포그래픽·책 분석` / `Background · Infographics · Analysis`
+- 제목 100자 제한 강화: 초과 시 부제목을 우선 축소 후 100자 이내로 조정
