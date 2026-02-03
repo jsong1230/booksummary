@@ -251,13 +251,20 @@ class VideoWithSummaryPipeline:
                 # 한국어는 nova (더 자연스러운 여성 음성), 영어는 alloy 추천
                 voice = "nova" if language == "ko" else "alloy"
                 
-                self.tts_engine.generate_speech(
-                    text=existing_summary_text,
-                    output_path=summary_audio_path,
-                    voice=voice,
-                    language=language,
-                    model="tts-1-hd" # 고품질 모델 복구
-                )
+                try:
+                    self.tts_engine.generate_speech(
+                        text=existing_summary_text,
+                        output_path=summary_audio_path,
+                        voice=voice,
+                        language=language,
+                        model="tts-1-hd"  # 고품질 모델
+                    )
+                except Exception as e:
+                    raise ValueError(
+                        f"TTS 요약 오디오 생성 실패: {e}\n"
+                        f"- 해결: OPENAI_API_KEY 설정 확인 또는 TTS 제공자 설정 확인\n"
+                        f"- 또는 요약 오디오 파일을 직접 준비: {summary_audio_path}"
+                    )
                 print()
             else:
                 print("=" * 60)
@@ -337,20 +344,16 @@ class VideoWithSummaryPipeline:
             lang_suffix = "kr" if language == "ko" else "en"
             output_path = f"output/{safe_title_str}_{lang_suffix}.mp4"
         
-        # 7. 요약 오디오 최종 확인
+        # 7. 요약 오디오 최종 확인 (필수)
+        # - Summary+Video는 Summary 오디오가 핵심이므로, 없으면 즉시 중단합니다.
+        # - 비대화형 환경에서도 멈추지 않도록 input()은 사용하지 않습니다.
         if summary_audio_path is None:
-            print("=" * 60)
-            print("❌ 요약 오디오가 없습니다!")
-            print("=" * 60)
-            print("   요약이 포함된 영상을 생성하려면 요약 오디오가 필요합니다.")
-            print("   요약 없이 영상을 생성하면 나중에 다시 만들어야 합니다.")
-            print()
-            try:
-                user_input = input("요약 없이 계속 진행하시겠습니까? (y/n): ").strip().lower()
-                if user_input != 'y':
-                    raise ValueError("영상 생성을 취소했습니다. 요약 오디오를 준비한 후 다시 시도하세요.")
-            except (EOFError, KeyboardInterrupt):
-                raise ValueError("영상 생성이 취소되었습니다. 요약 오디오를 준비한 후 다시 시도하세요.")
+            raise ValueError(
+                "요약 오디오가 없습니다. Summary+Video 제작을 중단합니다.\n"
+                "- 해결: Summary 텍스트(assets/summaries/...)가 존재하는지 확인\n"
+                "- 해결: TTS가 정상 동작하도록 OPENAI_API_KEY 등 환경 변수 확인\n"
+                "- 또는 assets/audio/에 요약 오디오(mp3)를 미리 준비하세요."
+            )
         
         # 8. 영상 제작
         print("=" * 60)

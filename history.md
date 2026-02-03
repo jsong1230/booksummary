@@ -1,5 +1,26 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2026-02-03
+
+### 일당백·summary+video 영상 제작 및 YouTube 업로드
+- **사피엔스의 미래 (알랭 드 보통·말콤 글래드웰 Vs. 스티븐 핑커·매트 리들리)**:
+  - 일당백 스타일 한글/영문 영상 생성 (input → assets/notebooklm/Future_of_Sapiens)
+  - YouTube 비공개 업로드 완료
+  - 한글: https://www.youtube.com/watch?v=PHLj19WSrHc
+  - 영문: https://www.youtube.com/watch?v=LVC14uQKM1o
+- **생각의 지도 (리처드 니스벳)**:
+  - 일당백 스타일 한글/영문 영상 생성 (input → assets/notebooklm/The_Geography_of_Thought)
+  - YouTube 비공개 업로드 완료
+  - 한글: https://www.youtube.com/watch?v=RDNIT8kttxo
+  - 영문: https://www.youtube.com/watch?v=sDEPeLiKF14
+- **프로젝트 헤일메리 (앤디 위어)**:
+  - summary+video 한글/영문 영상 생성 (input prepare, 이미지 프로젝트_헤일메리 사용)
+  - YouTube 비공개 업로드 완료
+- **번역 매핑 추가** (`src/utils/translations.py`):
+  - 사피엔스의 미래 ↔ Future of Sapiens
+  - 생각의 지도 ↔ The Geography of Thought
+- **문서·데이터**: README.md, TODO.md, history.md, ildangbaek_books.csv 업데이트
+
 ## 2026-01-29
 
 ### 다국어 메타데이터 지원 기능 추가
@@ -3369,3 +3390,43 @@
   - Summary+Deep Dive: `5분 핵심 요약·AI 심층 분석` / `5-min Summary · AI Deep Dive`
   - 일당백 Style Deep Dive: `배경지식·인포그래픽·책 분석` / `Background · Infographics · Analysis`
 - 제목 100자 제한 강화: 초과 시 부제목을 우선 축소 후 100자 이내로 조정
+
+## 2026-02-02
+
+### YouTube 업로드 완료
+- 업로드된 책: Project_Hail_Mary
+- 업로드된 영상 수: 2개
+- [1] [핵심 요약] 프로젝트 헤일메리: 앤디 위어 (Project Hail Mary · 5분 핵심 요약·AI 심층 분석 · 핵심 개념·의미·영향)
+  - URL: https://www.youtube.com/watch?v=UYhFKJloWJM
+- [2] [Summary] Project Hail Mary: Andy Weir (5-min Summary · AI Deep Dive · Key Ideas & Impact)
+  - URL: https://www.youtube.com/watch?v=s9xMKGmyl94
+
+## 2026-02-03
+
+### YouTube 업로드 완료
+- 업로드된 책: Project_Hail_Mary
+- 업로드된 영상 수: 2개
+- [1] [Summary] Project Hail Mary: Andy Weir (5-min Summary · AI Deep Dive · Key Ideas & Impact)
+  - URL: https://www.youtube.com/watch?v=n-G3oEJN-Dg
+- [2] [핵심 요약] 프로젝트 헤일메리: 앤디 위어 (Project Hail Mary · 5분 핵심 요약·AI 심층 분석 · 핵심 개념·의미·영향)
+  - URL: https://www.youtube.com/watch?v=dG-7yL-qLHc
+
+## 2026-02-03
+
+### YouTube 업로드 완료
+- 업로드된 책: Future_of_Sapiens_full_episode_ko, Future_of_Sapiens_full_episode
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] Future of Sapiens (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=LVC14uQKM1o
+- [2] [일당백] 사피엔스의 미래 (Future of Sapiens · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=PHLj19WSrHc
+
+## 2026-02-03
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Geography_of_Thought_full_episode_ko, The_Geography_of_Thought_full_episode
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] The Geography of Thought (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=sDEPeLiKF14
+- [2] [일당백] 생각의 지도 (The Geography of Thought · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=RDNIT8kttxo

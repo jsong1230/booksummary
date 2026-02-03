@@ -20,7 +20,10 @@ _현재 낮은 우선순위 작업이 없습니다_
 
 ## 🐛 알려진 이슈
 
-_현재 알려진 이슈가 없습니다_
+- [ ] YouTube 업로드 시 `localizations`(다국어 제목/설명) 및 고정 댓글 등록이 `insufficientPermissions`로 실패할 수 있음  
+  - 원인: OAuth refresh token에 `youtube.force-ssl` 스코프가 포함되지 않은 경우  
+  - 현 상태: 업로드 스크립트가 자동 폴백(업로드 전용 스코프)하여 업로드는 성공하나, 다국어/댓글은 생략됨  
+  - 해결: `YOUTUBE_REFRESH_TOKEN`을 `youtube.upload` + `youtube.force-ssl` 스코프로 재발급
 
 ## 🔮 향후 계획
 

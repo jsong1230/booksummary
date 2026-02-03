@@ -20,7 +20,7 @@ NotebookLM 기반 책 리뷰 영상 자동 생성기
    - 비디오가 없어도 Summary만으로 영상 생성 가능
 2. **관련 이미지 확보**: 책 제목과 관련된 고품질 무드 이미지를 **100개** 자동으로 수집합니다. (`assets/images/{책제목}/` 폴더)
 3. **Summary 오디오 생성**: 5분 분량의 책 요약(한글/영문)을 생성하고 TTS로 MP3 변환합니다. 생성된 Summary 오디오는 `assets/audio/{책제목}_summary_{언어}.mp3` 형식으로 저장됩니다.
-4. **영상 합성**: Summary 오디오 + 2초 silence + NotebookLM Video (선택사항) 순서로 영상을 생성합니다. Summary 부분에는 자막이 자동으로 추가됩니다. 생성된 영상은 `output/{책제목}_review_with_summary_{언어}.mp4` 형식으로 저장됩니다.
+4. **영상 합성**: Summary 오디오 + 2초 silence + NotebookLM Video (선택사항) 순서로 영상을 생성합니다. Summary 자막은 옵션(`--subtitles`)이며 기본은 비활성화입니다. 생성된 영상은 `output/{표준제목}_{kr/en}.mp4` 형식으로 저장됩니다.
 5. **배포 준비**: 썸네일과 메타데이터를 생성합니다. 썸네일은 자동으로 찾아서 메타데이터에 포함됩니다.
 6. **유튜브 업로드**: 메타데이터 파일을 기반으로 유튜브에 자동 업로드합니다.
 
@@ -125,7 +125,7 @@ python scripts/run_full_pipeline_from_downloads.py \
 1. ✅ input 폴더에서 파일 찾기 및 표준 네이밍으로 이동
 2. ✅ 이미지 다운로드 (100개, 기존 이미지가 있으면 건너뜀)
 3. ✅ Summary 생성 (파일이 없으면 AI가 자동 생성)
-4. ✅ TTS로 Summary 오디오 생성
+4. ✅ TTS로 Summary 오디오 생성 (**필수**: 실패 시 중단)
 5. ✅ 영상 생성 (Summary + NotebookLM Video)
 6. ✅ 메타데이터 생성 (timestamp 자동 포함)
 
@@ -133,8 +133,8 @@ python scripts/run_full_pipeline_from_downloads.py \
 
 생성된 파일들은 `output/` 폴더에 저장됩니다:
 
-- **영상**: `output/{책제목}_review_with_summary_{언어}.mp4`
-- **메타데이터**: `output/{책제목}_review_with_summary_{언어}.metadata.json`
+- **영상**: `output/{표준제목}_{kr/en}.mp4`
+- **메타데이터**: `output/{표준제목}_{kr/en}.metadata.json`
 - **썸네일**: `output/{책제목}_thumbnail_{언어}.jpg`
 
 ### 📤 4단계: YouTube 업로드 (선택사항)
