@@ -42,6 +42,8 @@ def translate_book_title(book_title: str) -> str:
         "사피엔스의 미래": "Future of Sapiens",
         "사피엔스의_미래": "Future of Sapiens",
         "Future of Sapiens": "Future of Sapiens",
+        "The Shift": "The Shift",
+        "더 시프트": "The Shift",
         "21세기를 위한 21가지 제언": "21 Lessons for the 21st Century",
         "호모 데우스": "Homo Deus",
         "데미안": "Demian",
@@ -721,6 +723,11 @@ def translate_author_name(author: str) -> str:
         "Alex Michaelides": "Alex Michaelides",
         "요한 하리": "Johann Hari",
         "Johann Hari": "Johann Hari",
+        "박지원": "Park Jiwon",
+        "연암 박지원": "Park Jiwon",
+        "Park Jiwon": "Park Jiwon",
+        "웨인 다이어": "Wayne Dyer",
+        "Wayne Dyer": "Wayne Dyer",
         "나발 라비칸트": "Naval Ravikant",
         "Naval Ravikant": "Naval Ravikant",
         "엠제이 드마코": "MJ DeMarco",
@@ -1006,6 +1013,7 @@ def translate_author_name_to_korean(author: str) -> str:
         "Johann Hari": "요한 하리",
         "Yeonam Park Jiwon": "연암 박지원",
         "Park Jiwon": "박지원",
+        "Wayne Dyer": "웨인 다이어",
     }
     
     if author in reverse_author_map:

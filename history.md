@@ -3430,3 +3430,17 @@
   - URL: https://www.youtube.com/watch?v=sDEPeLiKF14
 - [2] [일당백] 생각의 지도 (The Geography of Thought · 배경지식·인포그래픽·책 분석)
   - URL: https://www.youtube.com/watch?v=RDNIT8kttxo
+
+## 2026-02-04
+
+### The Shift (웨인 다이어) summary+video 및 YouTube 업로드
+- **The Shift (Wayne Dyer)**: 에고(야망)에서 의미(Meaning)로의 전환 — summary+video 한글/영문 영상 생성 및 비공개 업로드
+- **번역 매핑** (`src/utils/translations.py`): The Shift·더 시프트, 웨인 다이어 ↔ Wayne Dyer; 열하일기·박지원 ↔ Yolha Ilgi·Park Jiwon
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Shift
+- 업로드된 영상 수: 2개
+- [1] [Summary] The Shift: Wayne Dyer (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=GSvgSHLEQ3k
+- [2] [핵심 요약] The Shift: 웨인 다이어 (5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=eqA7hxHqx-4
