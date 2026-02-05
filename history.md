@@ -3444,3 +3444,13 @@
   - URL: https://www.youtube.com/watch?v=GSvgSHLEQ3k
 - [2] [핵심 요약] The Shift: 웨인 다이어 (5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
   - URL: https://www.youtube.com/watch?v=eqA7hxHqx-4
+
+## 2026-02-04
+
+### YouTube 업로드 완료
+- 업로드된 책: Mother_Courage_and_Her_Children_full_episode, Mother_Courage_and_Her_Children_full_episode_ko
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] Mother Courage and Her Children: Bertolt Brecht (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=3zWEeyqVvcs
+- [2] [일당백] 살아남은 자의 슬픔, 억척어멈과 그 자식들: 베르톨트 브레히트 (Mother Courage and Her Children · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=BSU9G6lW0fU

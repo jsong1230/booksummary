@@ -44,6 +44,10 @@ def translate_book_title(book_title: str) -> str:
         "Future of Sapiens": "Future of Sapiens",
         "The Shift": "The Shift",
         "더 시프트": "The Shift",
+        "억척어멈과 그 자식들": "Mother Courage and Her Children",
+        "억척어멈과_그_자식들": "Mother Courage and Her Children",
+        "살아남은 자의 슬픔, 억척어멈과 그 자식들": "Mother Courage and Her Children",
+        "Mother Courage and Her Children": "Mother Courage and Her Children",
         "21세기를 위한 21가지 제언": "21 Lessons for the 21st Century",
         "호모 데우스": "Homo Deus",
         "데미안": "Demian",
@@ -728,6 +732,8 @@ def translate_author_name(author: str) -> str:
         "Park Jiwon": "Park Jiwon",
         "웨인 다이어": "Wayne Dyer",
         "Wayne Dyer": "Wayne Dyer",
+        "베르톨트 브레히트": "Bertolt Brecht",
+        "Bertolt Brecht": "Bertolt Brecht",
         "나발 라비칸트": "Naval Ravikant",
         "Naval Ravikant": "Naval Ravikant",
         "엠제이 드마코": "MJ DeMarco",
@@ -1014,6 +1020,7 @@ def translate_author_name_to_korean(author: str) -> str:
         "Yeonam Park Jiwon": "연암 박지원",
         "Park Jiwon": "박지원",
         "Wayne Dyer": "웨인 다이어",
+        "Bertolt Brecht": "베르톨트 브레히트",
     }
     
     if author in reverse_author_map:
