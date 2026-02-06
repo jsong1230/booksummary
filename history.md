@@ -3454,3 +3454,33 @@
   - URL: https://www.youtube.com/watch?v=3zWEeyqVvcs
 - [2] [일당백] 살아남은 자의 슬픔, 억척어멈과 그 자식들: 베르톨트 브레히트 (Mother Courage and Her Children · 배경지식·인포그래픽·책 분석)
   - URL: https://www.youtube.com/watch?v=BSU9G6lW0fU
+
+## 2026-02-05
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Smiling_Proud_Wanderer_full_episode_ko, The_Smiling_Proud_Wanderer_full_episode
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] The Smiling Proud Wanderer: Jin Yong (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=hnKNyhKluBg
+- [2] [일당백] 소호강호: 김용 (The Smiling Proud Wanderer · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=aALzBxkebg0
+
+## 2026-02-06
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Comfort_Crisis
+- 업로드된 영상 수: 2개
+- [1] [Summary] The Comfort Crisis (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=6979rL1-xCM
+- [2] [핵심 요약] 편안함의 습격 (The Comfort Crisis · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=CQxDsEUWAXE
+
+## 2026-02-06
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Age_of_Revolutions
+- 업로드된 영상 수: 2개
+- [1] [Summary] The Age of Revolutions (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=XdMCUTUi6ZY
+- [2] [핵심 요약] 역사는 어떻게 진보하고 왜 퇴보하는가 (The Age of Revolutions · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=cCsk6IGNxJY
