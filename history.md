@@ -3484,3 +3484,19 @@
   - URL: https://www.youtube.com/watch?v=XdMCUTUi6ZY
 - [2] [핵심 요약] 역사는 어떻게 진보하고 왜 퇴보하는가 (The Age of Revolutions · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
   - URL: https://www.youtube.com/watch?v=cCsk6IGNxJY
+
+## 2026-02-09
+
+### YouTube 업로드 완료
+- 업로드된 책: 한국전쟁_full_episode
+- 업로드된 영상 수: 1개
+- [1] [일당백] 한국전쟁: 브루스 커밍스 (The Korean War · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=nmPXRzETpxQ
+
+## 2026-02-09
+
+### YouTube 업로드 완료
+- 업로드된 책: 한국전쟁_full_episode
+- 업로드된 영상 수: 1개
+- [1] [1DANG100] The Korean War: Bruce Cumings (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=o783QMoPGGo

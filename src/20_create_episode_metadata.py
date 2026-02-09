@@ -353,17 +353,20 @@ def generate_episode_title(
 def detect_part_count(book_title: str, language: str = "ko") -> int:
     """
     Part 개수를 동적으로 감지
-    
+
     Args:
         book_title: 책 제목
-        language: 언어 ('ko' 또는 'en')
-        
+        language: 언어 ('ko', 'kr' 또는 'en')
+
     Returns:
         Part 개수
     """
     safe_title = get_standard_safe_title(book_title)
-    lang_suffix = "_ko" if language == "ko" else "_en"
-    input_dir = Path("assets/notebooklm") / safe_title / language
+    # 언어 정규화
+    normalized_language = "ko" if language in ["ko", "kr"] else "en"
+    lang_suffix = "_kr" if language in ["ko", "kr"] else "_en"
+    dir_lang = "kr" if language in ["ko", "kr"] else "en"
+    input_dir = Path("assets/notebooklm") / safe_title / dir_lang
     
     part_count = 0
     part_num = 1
@@ -382,23 +385,26 @@ def get_actual_part_durations(book_title: str, language: str = "ko", infographic
     """
     실제 Part 비디오 파일의 길이를 계산하여 각 Part의 총 길이 반환
     (비디오 길이 + 인포그래픽 길이)
-    
+
     우선순위:
     1. 렌더링된 영상의 timing.json 파일에서 읽기 (가장 정확)
     2. 원본 비디오 파일의 duration 사용 (fallback)
-    
+
     Args:
         book_title: 책 제목
-        language: 언어 ('ko' 또는 'en')
+        language: 언어 ('ko', 'kr' 또는 'en')
         infographic_duration: 인포그래픽 표시 시간 (초, 기본값: 30.0)
-        
+
     Returns:
         각 Part의 총 길이 리스트 (초 단위)
     """
     safe_title = get_standard_safe_title(book_title)
-    
+
+    # 언어 정규화 (파일명용)
+    lang_suffix_file = "kr" if language in ["ko", "kr"] else "en"
+
     # 1. 먼저 렌더링된 영상의 timing.json 파일 확인 (가장 정확)
-    video_path = Path(f"output/{safe_title}_full_episode_{language}.mp4")
+    video_path = Path(f"output/{safe_title}_full_episode_{lang_suffix_file}.mp4")
     timing_info_path = video_path.with_suffix('.timing.json')
     
     if timing_info_path.exists():
@@ -425,14 +431,15 @@ def get_actual_part_durations(book_title: str, language: str = "ko", infographic
     
     # 2. Fallback: 원본 비디오 파일의 duration 사용
     part_durations = []
-    
+
     # input 폴더에서 먼저 확인
     input_dir = Path("input")
-    lang_suffix = "kr" if language == "ko" else "en"
-    
+    lang_suffix = "kr" if language in ["ko", "kr"] else "en"
+
     # assets/notebooklm 폴더 경로 미리 계산
-    lang_suffix_alt = "_ko" if language == "ko" else "_en"
-    notebooklm_dir = Path("assets/notebooklm") / safe_title / language
+    lang_suffix_alt = "_kr" if language in ["ko", "kr"] else "_en"
+    dir_lang = "kr" if language in ["ko", "kr"] else "en"
+    notebooklm_dir = Path("assets/notebooklm") / safe_title / dir_lang
     
     part_num = 1
     while True:
@@ -1033,22 +1040,26 @@ def create_episode_metadata(
 ) -> Dict:
     """
     에피소드 영상 메타데이터 생성
-    
+
     Args:
         book_title: 책 제목
-        language: 언어 ('ko' 또는 'en')
+        language: 언어 ('ko', 'kr' 또는 'en')
         video_path: 영상 파일 경로 (선택사항)
         thumbnail_path: 썸네일 파일 경로 (선택사항)
         video_duration: 영상 길이 (초, 선택사항)
-        
+
     Returns:
         메타데이터 딕셔너리
     """
     safe_title = get_standard_safe_title(book_title)
-    
+
+    # 언어 정규화 (파일명용)
+    normalized_language = "ko" if language in ["ko", "kr"] else "en"
+    lang_suffix_file = "kr" if language in ["ko", "kr"] else "en"
+
     # 영상 경로가 없으면 자동으로 찾기
     if not video_path:
-        video_path = f"output/{safe_title}_full_episode_{language}.mp4"
+        video_path = f"output/{safe_title}_full_episode_{lang_suffix_file}.mp4"
     
     video_path_obj = Path(video_path)
     
@@ -1059,7 +1070,7 @@ def create_episode_metadata(
     
     # 썸네일 경로가 없으면 자동으로 찾기
     if not thumbnail_path:
-        thumbnail_path = f"output/{safe_title}_thumbnail_{language}.jpg"
+        thumbnail_path = f"output/{safe_title}_thumbnail_{lang_suffix_file}.jpg"
     
     thumbnail_path_obj = Path(thumbnail_path)
     
@@ -1088,13 +1099,13 @@ def create_episode_metadata(
     except:
         pass
     
-    # 메타데이터 생성 (현재 언어)
-    title = generate_episode_title(book_title, language, book_info, author=author)
-    description = generate_episode_description(book_title, language, video_duration, book_info)
-    tags = generate_episode_tags(book_title, language, book_info)
-    
+    # 메타데이터 생성 (현재 언어) - normalized_language 사용
+    title = generate_episode_title(book_title, normalized_language, book_info, author=author)
+    description = generate_episode_description(book_title, normalized_language, video_duration, book_info)
+    tags = generate_episode_tags(book_title, normalized_language, book_info)
+
     # 영문 메타데이터인 경우 최종 검증: description과 tags에서 한국어 제거
-    if language == "en":
+    if normalized_language == "en":
         # description에서 한국어 제거
         if contains_korean(description):
             logger.warning("⚠️ Description에 한국어가 포함되어 있습니다. 제거합니다.")
@@ -1119,7 +1130,7 @@ def create_episode_metadata(
         tags = english_only_tags
     
     # 양쪽 언어의 제목과 설명 생성 (다국어 메타데이터용)
-    other_language = "en" if language == "ko" else "ko"
+    other_language = "en" if normalized_language == "ko" else "ko"
     title_other = generate_episode_title(book_title, other_language, book_info, author=author)
     description_other = generate_episode_description(book_title, other_language, video_duration, book_info)
     
@@ -1142,12 +1153,12 @@ def create_episode_metadata(
         'title': title,
         'description': description,
         'tags': tags,
-        'language': language,
+        'language': normalized_language,
         'book_title': book_title,
         'video_duration': video_duration,
         # 다국어 메타데이터 (YouTube localizations용)
         'localizations': {
-            language: {
+            normalized_language: {
                 'title': title,
                 'description': description
             },
@@ -1247,8 +1258,8 @@ def main():
         '--language',
         type=str,
         default='ko',
-        choices=['ko', 'en'],
-        help='언어 (기본값: ko)'
+        choices=['ko', 'kr', 'en'],
+        help='언어 (기본값: ko, kr도 ko로 처리됨)'
     )
     
     parser.add_argument(

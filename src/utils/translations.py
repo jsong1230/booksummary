@@ -457,6 +457,10 @@ def translate_book_title(book_title: str) -> str:
         "불변의 법칙": "Same as Ever",
         "불변의_법칙": "Same as Ever",
         "Same as Ever": "Same as Ever",
+        "한국전쟁": "The Korean War",
+        "한국전쟁의 기원": "The Origins of the Korean War",
+        "The Korean War": "The Korean War",
+        "The Origins of the Korean War": "The Origins of the Korean War",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -908,6 +912,8 @@ def translate_author_name(author: str) -> str:
         "더크워스": "Angela Duckworth",
         "Angela Duckworth": "Angela Duckworth",
         "Duckworth": "Angela Duckworth",
+        "브루스 커밍스": "Bruce Cumings",
+        "Bruce Cumings": "Bruce Cumings",
         "로버트 그린": "Robert Greene",
         "로버트_그린": "Robert Greene",
         "Robert Greene": "Robert Greene",

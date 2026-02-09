@@ -347,22 +347,26 @@ def create_full_episode(
 ) -> str:
     """
     NotebookLM 영상과 인포그래픽을 합쳐서 전체 에피소드 영상 생성
-    
+
     Args:
         book_title: 책 제목
         output_path: 출력 파일 경로 (None이면 자동 생성)
-        
+
     Returns:
         생성된 영상 파일 경로
     """
     # 안전한 파일명 생성
     safe_title = get_standard_safe_title(book_title)
-    
-    # 언어 접미사
-    lang_suffix = "_ko" if language == "ko" else "_en"
-    
-    # 입력 파일 경로
-    input_dir = Path("assets/notebooklm") / safe_title / language
+
+    # 언어 정규화 (kr → ko)
+    normalized_language = "ko" if language in ["ko", "kr"] else "en"
+
+    # 언어 접미사 (파일명용, 사용자가 kr을 사용하므로 kr 유지)
+    lang_suffix = "_kr" if language in ["ko", "kr"] else "_en"
+
+    # 입력 파일 경로 (디렉토리명은 kr/en 사용)
+    dir_lang = "kr" if language in ["ko", "kr"] else "en"
+    input_dir = Path("assets/notebooklm") / safe_title / dir_lang
     
     # 동적으로 모든 Part 찾기
     parts = []
@@ -805,8 +809,8 @@ def main():
         '--language',
         type=str,
         default='ko',
-        choices=['ko', 'en'],
-        help='언어 (기본값: ko)'
+        choices=['ko', 'kr', 'en'],
+        help='언어 (기본값: ko, kr도 ko로 처리됨)'
     )
     
     parser.add_argument(
