@@ -3500,3 +3500,29 @@
 - 업로드된 영상 수: 1개
 - [1] [1DANG100] The Korean War: Bruce Cumings (Background · Infographics · Analysis)
   - URL: https://www.youtube.com/watch?v=o783QMoPGGo
+
+## 2026-02-10
+
+### YouTube 업로드 완료
+- 업로드된 책: 원칙
+- 업로드된 영상 수: 1개
+- [1] [일당백] 원칙: 레이 달리오 (Principles · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=BpMRBC3B2aI
+
+## 2026-02-10
+
+### YouTube 업로드 완료
+- 업로드된 책: 원칙
+- 업로드된 영상 수: 1개
+- [1] [1DANG100] Principles: Ray Dalio (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=Zq-0lXcQ2B4
+
+## 2026-02-10
+
+### YouTube 업로드 완료
+- 업로드된 책: 원칙
+- 업로드된 영상 수: 2개
+- [1] [핵심요약] 원칙: 레이 달리오 (Principles · 5분 요약 + NotebookLM 리뷰)
+  - URL: https://www.youtube.com/watch?v=oOIDQBvn8x0
+- [2] [Summary] Principles: Ray Dalio (5-Min Summary + NotebookLM Review)
+  - URL: https://www.youtube.com/watch?v=wNdNJAvWZ6s

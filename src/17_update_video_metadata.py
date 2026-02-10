@@ -20,9 +20,9 @@ except ImportError:
 
 load_dotenv()
 
-# YouTube 영상 메타데이터 업데이트를 위해서는 youtube.upload 스코프가 필요합니다
-# 기존 영상 업데이트는 youtube.upload 스코프로 가능합니다
-SCOPES = ['https://www.googleapis.com/auth/youtube.upload']
+# YouTube 영상 메타데이터 업데이트를 위해서는 youtube 스코프가 필요합니다
+# youtube.upload 스코프는 업로드만 가능하고 기존 영상 수정은 불가능합니다
+SCOPES = ['https://www.googleapis.com/auth/youtube']
 
 
 class YouTubeMetadataUpdater:

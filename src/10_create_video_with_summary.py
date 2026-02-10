@@ -49,14 +49,14 @@ load_dotenv()
 
 class VideoWithSummaryPipeline:
     """요약 포함 영상 제작 파이프라인"""
-    
-    def __init__(self):
+
+    def __init__(self, tts_provider: str = "openai"):
         self.logger = get_logger(__name__)
         self.summary_generator = SummaryGenerator()
-        # OpenAI TTS 사용 (MultiTTSEngine)
-        self.tts_engine = MultiTTSEngine(provider="openai")
+        # TTS 엔진 (MultiTTSEngine)
+        self.tts_engine = MultiTTSEngine(provider=tts_provider)
         self.video_maker = VideoMaker(
-            resolution=(1920, 1080), 
+            resolution=(1920, 1080),
             fps=30,
             bitrate="5000k",
             audio_bitrate="320k"
@@ -74,7 +74,8 @@ class VideoWithSummaryPipeline:
         skip_summary: bool = False,
         notebooklm_video_path: Optional[str] = None,
         summary_audio_volume: float = 1.2,
-        add_subtitles: Optional[bool] = None  # None이면 언어에 따라 자동 결정
+        add_subtitles: Optional[bool] = None,  # None이면 언어에 따라 자동 결정
+        tts_voice: Optional[str] = None  # TTS 음성 선택
     ) -> str:
         """
         요약 포함 영상 제작 (Summary → NotebookLM Video → Audio 순서)
@@ -97,7 +98,11 @@ class VideoWithSummaryPipeline:
         """
         from utils.file_utils import get_standard_safe_title
         from utils.translations import translate_book_title, translate_author_name
-        
+
+        # 언어 정규화 (kr → ko)
+        if language == "kr":
+            language = "ko"
+
         # 언어에 따라 자막 기본값 설정 (기본: 자막 없음)
         if add_subtitles is None:
             add_subtitles = False  # 기본적으로 자막 없음
@@ -248,9 +253,13 @@ class VideoWithSummaryPipeline:
                 summary_audio_path = f"assets/audio/{safe_title_str}_summary_{lang_suffix}.mp3"
                 
                 # summary 파일은 이미 정리되었으므로 그대로 사용
-                # 한국어는 nova (더 자연스러운 여성 음성), 영어는 alloy 추천
-                voice = "nova" if language == "ko" else "alloy"
-                
+                # TTS 음성 설정: tts_voice가 있으면 사용, 없으면 기본값
+                if tts_voice:
+                    voice = tts_voice
+                else:
+                    # 한국어는 nova (더 자연스러운 여성 음성), 영어는 alloy 추천
+                    voice = "nova" if language == "ko" else "alloy"
+
                 try:
                     self.tts_engine.generate_speech(
                         text=existing_summary_text,
@@ -493,7 +502,7 @@ def main():
     parser.add_argument('--book-title', type=str, required=True, help='책 제목')
     parser.add_argument('--author', type=str, help='저자 이름')
     parser.add_argument('--review-audio', type=str, help='NotebookLM 리뷰 오디오 경로')
-    parser.add_argument('--language', type=str, default='ko', choices=['ko', 'en'], help='언어 (기본값: ko)')
+    parser.add_argument('--language', type=str, default='ko', choices=['ko', 'kr', 'en'], help='언어 (기본값: ko)')
     parser.add_argument('--summary-duration', type=float, default=5.0, help='요약 길이 (분 단위, 기본값: 5.0)')
     parser.add_argument('--image-dir', type=str, help='이미지 디렉토리')
     parser.add_argument('--output', type=str, help='출력 영상 경로')
@@ -502,10 +511,20 @@ def main():
     parser.add_argument('--summary-audio-volume', type=float, default=1.2, help='Summary 오디오 음량 배율 (기본값: 1.2, 20%% 증가)')
     parser.add_argument('--no-subtitles', action='store_true', help='Summary 부분 자막 추가 안 함 (언어 기본값 무시)')
     parser.add_argument('--subtitles', action='store_true', help='Summary 부분 자막 추가 (언어 기본값 무시)')
-    
+    parser.add_argument('--tts-provider', type=str, default='openai', choices=['openai', 'google'], help='TTS 제공자 (기본값: openai)')
+    parser.add_argument('--tts-voice', type=str, help='TTS 음성 선택 (제공자별로 다름)')
+    parser.add_argument('--prefix', type=str, help='input 폴더의 파일명 접두사 (파일 찾기용)')
+
     args = parser.parse_args()
-    
-    pipeline = VideoWithSummaryPipeline()
+
+    # TTS 제공자 매핑 (google → google_cloud)
+    tts_provider_map = {
+        'openai': 'openai',
+        'google': 'google'
+    }
+    tts_provider = tts_provider_map.get(args.tts_provider, 'openai')
+
+    pipeline = VideoWithSummaryPipeline(tts_provider=tts_provider)
     
     # 자막 설정: 플래그가 있으면 우선, 없으면 언어에 따라 자동 (None 전달)
     add_subtitles = None
@@ -527,7 +546,8 @@ def main():
             skip_summary=args.skip_summary,
             notebooklm_video_path=args.notebooklm_video,
             summary_audio_volume=args.summary_audio_volume,
-            add_subtitles=add_subtitles
+            add_subtitles=add_subtitles,
+            tts_voice=args.tts_voice
         )
         return 0
     except Exception as e:
