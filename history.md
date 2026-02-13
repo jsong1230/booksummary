@@ -3526,3 +3526,13 @@
   - URL: https://www.youtube.com/watch?v=oOIDQBvn8x0
 - [2] [Summary] Principles: Ray Dalio (5-Min Summary + NotebookLM Review)
   - URL: https://www.youtube.com/watch?v=wNdNJAvWZ6s
+
+## 2026-02-13
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Doctrine_of_the_Mean
+- 업로드된 영상 수: 2개
+- [1] [Summary] The Doctrine of the Mean (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=D37xF1TNL94
+- [2] [핵심 요약] 자사의 중용 (The Doctrine of the Mean · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=G7_BMwQh-2E

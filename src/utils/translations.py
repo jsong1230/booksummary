@@ -463,6 +463,11 @@ def translate_book_title(book_title: str) -> str:
         "한국전쟁의 기원": "The Origins of the Korean War",
         "The Korean War": "The Korean War",
         "The Origins of the Korean War": "The Origins of the Korean War",
+        "자사의 중용": "The Doctrine of the Mean",
+        "자사의_중용": "The Doctrine of the Mean",
+        "중용": "The Doctrine of the Mean",
+        "중용_": "The Doctrine of the Mean",
+        "The Doctrine of the Mean": "The Doctrine of the Mean",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -926,11 +931,14 @@ def translate_author_name(author: str) -> str:
         "룰루_밀러": "Lulu Miller",
         "Lulu Miller": "Lulu Miller",
         "모건 하우절": "Morgan Housel",
+        "자사": "Zisi",
+        "Zisi": "Zisi",
+        "공자의 손자": "Zisi",
     }
-    
+
     if author in author_map:
         return author_map[author]
-    
+
     return author
 
 
