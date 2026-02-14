@@ -18,16 +18,16 @@ def generate_pinned_comment(
 ) -> str:
     """
     고정 댓글 생성
-    
-    챕터 타임스탬프와 질문을 포함한 고정 댓글을 생성합니다.
-    
+
+    챕터 타임스탬프, 제휴 링크, 질문을 포함한 고정 댓글을 생성합니다.
+
     Args:
         book_title: 책 제목
         timestamps: 타임스탬프 딕셔너리 (예: {'summary_duration': 300, 'notebooklm_duration': 600})
         language: 언어 ('ko' 또는 'en')
         book_info: 책 정보 딕셔너리 (선택사항)
         author: 저자 이름 (선택사항)
-        
+
     Returns:
         생성된 고정 댓글 텍스트
     """
@@ -37,6 +37,7 @@ def generate_pinned_comment(
         translate_author_name,
         is_english_title
     )
+    from src.utils.affiliate_links import generate_affiliate_section
     
     # 책 제목 번역
     if language == "ko":
@@ -57,7 +58,34 @@ def generate_pinned_comment(
         if author_ko:
             comment += f" - {author_ko}"
         comment += "\n\n"
-        
+
+        # 제휴 링크 추가
+        if is_english_title(book_title):
+            en_title = book_title
+            ko_title_for_link = ko_title
+        else:
+            en_title = translate_book_title(book_title)
+            ko_title_for_link = ko_title
+
+        author_en = ""
+        if author:
+            if is_english_title(author):
+                author_en = author
+            else:
+                author_en = translate_author_name(author)
+
+        affiliate_section = generate_affiliate_section(
+            book_title_ko=ko_title_for_link,
+            book_title_en=en_title,
+            author_ko=author_ko,
+            author_en=author_en,
+            language='ko'
+        )
+
+        if affiliate_section:
+            # 제휴 링크 앞뒤 공백 제거 후 추가
+            comment += affiliate_section.strip() + "\n\n"
+
         # 챕터 타임스탬프 추가
         if timestamps:
             comment += "⏱️ 영상 챕터:\n"
@@ -108,7 +136,31 @@ def generate_pinned_comment(
         if author_en:
             comment += f" - {author_en}"
         comment += "\n\n"
-        
+
+        # 제휴 링크 추가
+        if not is_english_title(book_title):
+            ko_title_for_link = book_title
+        else:
+            ko_title_for_link = translate_book_title_to_korean(book_title)
+
+        author_ko = ""
+        if author:
+            if not is_english_title(author):
+                author_ko = author
+            # 영문→한글 저자명 번역은 현재 지원 안 됨
+
+        affiliate_section = generate_affiliate_section(
+            book_title_ko=ko_title_for_link,
+            book_title_en=en_title,
+            author_ko=author_ko,
+            author_en=author_en,
+            language='en'
+        )
+
+        if affiliate_section:
+            # 제휴 링크 앞뒤 공백 제거 후 추가
+            comment += affiliate_section.strip() + "\n\n"
+
         # 챕터 타임스탬프 추가
         if timestamps:
             comment += "⏱️ Video Chapters:\n"

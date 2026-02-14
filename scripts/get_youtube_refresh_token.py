@@ -12,9 +12,11 @@ from google.auth.transport.requests import Request
 
 # YouTube API 스코프
 # Analytics API를 사용하려면 yt-analytics.readonly 스코프도 필요합니다
+# 기존 영상 메타데이터 수정을 위해 youtube.force-ssl 스코프도 필요합니다
 SCOPES = [
     'https://www.googleapis.com/auth/youtube.upload',
     'https://www.googleapis.com/auth/youtube.readonly',
+    'https://www.googleapis.com/auth/youtube.force-ssl',
     'https://www.googleapis.com/auth/yt-analytics.readonly'
 ]
 

@@ -42,18 +42,27 @@ def generate_affiliate_section(
     if not amazon_tag and not aladin_id and not yes24_id:
         return ""
 
-    # 검색어 생성 (책 제목 + 저자명)
-    if language == "ko":
-        search_term = book_title_ko
-        if author_ko:
-            search_term += f" {author_ko}"
-    else:
-        search_term = book_title_en
-        if author_en:
-            search_term += f" {author_en}"
+    # 검색어 생성
+    # Amazon: 영문 제목/저자 사용 (영문 검색이 더 정확)
+    # 알라딘/Yes24: 한글 제목/저자 사용
 
-    # URL 인코딩
-    encoded_term = quote_plus(search_term)
+    # Amazon용 영문 검색어
+    amazon_search_term = ""
+    if book_title_en and book_title_en.strip():
+        amazon_search_term = book_title_en
+        if author_en and author_en.strip():
+            amazon_search_term += f" {author_en}"
+    elif book_title_ko:  # 영문 제목이 없으면 한글 사용 (폴백)
+        amazon_search_term = book_title_ko
+        if author_ko:
+            amazon_search_term += f" {author_ko}"
+
+    # 알라딘/Yes24용 한글 검색어
+    korean_search_term = ""
+    if book_title_ko:
+        korean_search_term = book_title_ko
+        if author_ko:
+            korean_search_term += f" {author_ko}"
 
     links = []
     header = ""
@@ -61,26 +70,33 @@ def generate_affiliate_section(
 
     # 한글 영상: 알라딘 + Yes24 + Amazon
     if language == "ko":
-        if aladin_id:
-            aladin_url = f"https://www.aladin.co.kr/search/wsearchresult.aspx?SearchWord={encoded_term}&partner={aladin_id}"
+        # 알라딘: 한글 검색어
+        if aladin_id and korean_search_term:
+            encoded_korean = quote_plus(korean_search_term)
+            aladin_url = f"https://www.aladin.co.kr/search/wsearchresult.aspx?SearchWord={encoded_korean}&partner={aladin_id}"
             links.append(f"  알라딘: {aladin_url}")
 
-        if yes24_id:
-            yes24_url = f"https://www.yes24.com/Product/Search?domain=ALL&query={encoded_term}&partner={yes24_id}"
+        # Yes24: 한글 검색어
+        if yes24_id and korean_search_term:
+            encoded_korean = quote_plus(korean_search_term)
+            yes24_url = f"https://www.yes24.com/Product/Search?domain=ALL&query={encoded_korean}&partner={yes24_id}"
             links.append(f"  Yes24: {yes24_url}")
 
-        if amazon_tag:
-            amazon_url = f"https://www.amazon.com/s?k={encoded_term}&tag={amazon_tag}"
+        # Amazon: 영문 검색어
+        if amazon_tag and amazon_search_term:
+            encoded_amazon = quote_plus(amazon_search_term)
+            amazon_url = f"https://www.amazon.com/s?k={encoded_amazon}&tag={amazon_tag}"
             links.append(f"  Amazon: {amazon_url}")
 
         if links:
             header = "📖 이 책 구매하기:"
             footer = "(위 링크를 통해 구매하시면 채널 운영에 도움이 됩니다)"
 
-    # 영문 영상: Amazon만
+    # 영문 영상: Amazon만 (영문 검색어)
     else:
-        if amazon_tag:
-            amazon_url = f"https://www.amazon.com/s?k={encoded_term}&tag={amazon_tag}"
+        if amazon_tag and amazon_search_term:
+            encoded_amazon = quote_plus(amazon_search_term)
+            amazon_url = f"https://www.amazon.com/s?k={encoded_amazon}&tag={amazon_tag}"
             links.append(f"  Amazon: {amazon_url}")
 
         if links:

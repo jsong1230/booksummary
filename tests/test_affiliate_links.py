@@ -73,7 +73,7 @@ class TestAffiliateLinks:
             assert "yes24.com" not in result
 
     def test_url_encoding_works(self):
-        """URL 인코딩이 정상 동작"""
+        """URL 인코딩이 정상 동작 (Amazon은 영문 제목 사용)"""
         with patch.dict(os.environ, {
             "AMAZON_ASSOCIATE_TAG": "test-amazon-20"
         }):
@@ -84,8 +84,9 @@ class TestAffiliateLinks:
                 author_en="Author Name",
                 language="ko"
             )
-            # 한글이 URL 인코딩되어야 함
-            assert "%ED%85%8C%EC%8A%A4%ED%8A%B8" in result  # '테스트' 인코딩
+            # Amazon은 영문 제목으로 검색해야 함
+            assert "Test+Book+Title" in result or "Test%20Book%20Title" in result
+            assert "Author+Name" in result or "Author%20Name" in result
             # 공백이 + 또는 %20으로 인코딩되어야 함
             assert "+" in result or "%20" in result
 
@@ -107,7 +108,7 @@ class TestAffiliateLinks:
             assert "Yes24:" not in result
 
     def test_with_author_names(self):
-        """저자명이 포함된 검색어 생성"""
+        """저자명이 포함된 검색어 생성 (Amazon은 영문 제목/저자 사용)"""
         with patch.dict(os.environ, {
             "AMAZON_ASSOCIATE_TAG": "test-amazon-20"
         }):
@@ -118,9 +119,9 @@ class TestAffiliateLinks:
                 author_en="Ernest Hemingway",
                 language="ko"
             )
-            # 책 제목과 저자명이 모두 URL에 포함되어야 함
-            assert "%EB%85%B8%EC%9D%B8%EA%B3%BC" in result  # '노인과' 인코딩
-            assert "%ED%97%A4%EB%B0%8D%EC%9B%A8%EC%9D%B4" in result  # '헤밍웨이' 인코딩
+            # Amazon은 영문 제목과 저자명으로 검색해야 함
+            assert "The+Old+Man+and+the+Sea" in result or "The%20Old%20Man%20and%20the%20Sea" in result
+            assert "Ernest+Hemingway" in result or "Ernest%20Hemingway" in result
 
     def test_without_author_names(self):
         """저자명이 없을 때도 정상 동작"""

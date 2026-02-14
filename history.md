@@ -2,12 +2,13 @@
 
 ## 2026-02-15
 
-### 제휴 링크(Affiliate Link) 자동 삽입 기능 구현
+### 제휴 링크(Affiliate Link) 자동 삽입 기능 구현 및 기존 영상 일괄 업데이트
 - **주요 기능**:
   - Amazon Associates 제휴 링크 자동 생성 및 description 삽입
   - 한글 영상: Amazon 링크 포함 (알라딘, Yes24 제휴도 지원 가능)
   - 영문 영상: Amazon 링크 포함
   - ISBN 불필요, 검색 URL 방식으로 간단하게 구현
+  - **Amazon 검색어 개선**: 영문 제목/저자 사용으로 책 검색 정확도 향상
 - **구현 파일**:
   - `src/utils/affiliate_links.py`: 제휴 링크 생성 핵심 모듈
   - `src/08_create_and_preview_videos.py`: Summary+Video description 4곳에 제휴 섹션 삽입
@@ -28,13 +29,32 @@
   # 기존 영상 일괄 업데이트
   python src/24_batch_update_affiliate_links.py --dry-run  # 미리보기
   python src/24_batch_update_affiliate_links.py --apply --limit 50  # 실제 적용
+  python src/24_batch_update_affiliate_links.py --apply --force  # 기존 링크 재업데이트
   ```
 - **안전 장치**:
   - `--dry-run` 기본값 (미리보기만)
   - `--apply` 플래그 필요 (실제 업데이트)
   - `--limit N` 영상 개수 제한 (YouTube API 쿼터 고려)
-  - 멱등성: 이미 제휴 링크가 있는 영상은 건너뜀
+  - `--force` 플래그로 기존 제휴 링크 재업데이트 가능
+  - 멱등성: 이미 제휴 링크가 있는 영상은 건너뜀 (force 모드 제외)
 - **테스트**: pytest 8개 테스트 모두 통과
+
+### 기존 영상 제휴 링크 일괄 업데이트 완료
+- **작업 내용**:
+  - 전체 242개 영상 중 151개가 업데이트 대상
+  - **126개 영상 업데이트 완료** (3차 진행 중 API 쿼터 초과)
+    - 1차: 15개 (limit 50)
+    - 2차: 47개 (limit 100)
+    - 3차: 64개 (전체 대상, 쿼터 초과로 중단)
+  - **남은 작업**: 약 25개 영상 (내일 쿼터 리셋 후 완료 예정)
+- **API 쿼터 사용량**:
+  - YouTube API 일일 쿼터: 10,000 units
+  - videos.update: 50 units/건
+  - 오늘 사용: 약 6,300 units (126건 × 50)
+- **개선 사항**:
+  - `--force` 플래그 구현으로 기존 제휴 링크 재업데이트 가능
+  - `remove_existing_affiliate_links()` 메서드로 기존 링크 정확히 제거
+  - Amazon 검색어를 영문 제목/저자로 변경하여 검색 정확도 향상
 
 ## 2026-02-03
 

@@ -38,7 +38,11 @@ from src.utils.translations import translate_book_title, translate_author_name, 
 load_dotenv()
 
 # YouTube API 스코프 (영상 메타데이터 수정 권한 필요)
-SCOPES = ['https://www.googleapis.com/auth/youtube']
+# youtube.force-ssl 스코프는 업로드 및 기존 영상 수정 권한을 포함합니다
+SCOPES = [
+    'https://www.googleapis.com/auth/youtube.upload',
+    'https://www.googleapis.com/auth/youtube.force-ssl'
+]
 
 # 제휴 링크 마커 (description에 이미 있는지 확인용)
 AFFILIATE_MARKERS = [
@@ -236,7 +240,27 @@ class AffiliateLinksUpdater:
 
         return None
 
-    def insert_affiliate_links(self, description: str, book_info: Dict, language: str) -> str:
+    def remove_existing_affiliate_links(self, description: str) -> str:
+        """
+        Description에서 기존 제휴 링크 섹션 제거
+
+        Args:
+            description: YouTube 영상 설명
+
+        Returns:
+            제휴 링크가 제거된 description
+        """
+        # 제휴 링크 섹션 패턴 (한글/영문)
+        # 📖 이 책 구매하기: 또는 📖 Get this book: 부터 다음 빈 줄까지
+        pattern_ko = r'\n?📖 이 책 구매하기:.*?(?=\n\n|\n#|$)'
+        pattern_en = r'\n?📖 Get this book:.*?(?=\n\n|\n#|$)'
+
+        description = re.sub(pattern_ko, '', description, flags=re.DOTALL)
+        description = re.sub(pattern_en, '', description, flags=re.DOTALL)
+
+        return description
+
+    def insert_affiliate_links(self, description: str, book_info: Dict, language: str, force: bool = False) -> str:
         """
         Description에 제휴 링크 삽입 (해시태그 앞)
 
@@ -244,10 +268,15 @@ class AffiliateLinksUpdater:
             description: 기존 YouTube 영상 설명
             book_info: 책 정보 딕셔너리
             language: 'ko' 또는 'en'
+            force: True면 기존 제휴 링크를 삭제하고 새로 추가
 
         Returns:
             제휴 링크가 삽입된 description
         """
+        # force 모드면 기존 제휴 링크 제거
+        if force:
+            description = self.remove_existing_affiliate_links(description)
+
         # 해시태그 위치 찾기
         hashtag_pattern = r'#[^\s#]+'
         matches = list(re.finditer(hashtag_pattern, description))
@@ -313,13 +342,14 @@ class AffiliateLinksUpdater:
             print(f"   ❌ 업데이트 실패: {e}")
             return False
 
-    def process_videos(self, video_ids: Optional[List[str]] = None, limit: Optional[int] = None):
+    def process_videos(self, video_ids: Optional[List[str]] = None, limit: Optional[int] = None, force: bool = False):
         """
         영상들을 처리하여 제휴 링크 추가
 
         Args:
             video_ids: 처리할 영상 ID 목록 (None이면 전체 채널)
             limit: 최대 처리 개수
+            force: True면 기존 제휴 링크를 삭제하고 새로 추가
         """
         if video_ids:
             # 특정 영상만 처리
@@ -365,8 +395,8 @@ class AffiliateLinksUpdater:
                 current_title = snippet.get('title', video_title)
                 current_tags = snippet.get('tags', [])
 
-                # 1. 이미 제휴 링크가 있는지 확인
-                if self.has_affiliate_links(current_description):
+                # 1. 이미 제휴 링크가 있는지 확인 (force 모드가 아닐 때만)
+                if not force and self.has_affiliate_links(current_description):
                     print("   ✅ 이미 제휴 링크가 있습니다. (건너뜀)")
                     skipped_count += 1
                     continue
@@ -391,7 +421,7 @@ class AffiliateLinksUpdater:
                     continue
 
                 # 4. 제휴 링크 삽입
-                new_description = self.insert_affiliate_links(current_description, book_info, language)
+                new_description = self.insert_affiliate_links(current_description, book_info, language, force=force)
 
                 if new_description == current_description:
                     print("   ⚠️ 제휴 링크 생성 실패 (제휴 ID 미설정?). (건너뜀)")
@@ -445,10 +475,14 @@ def main():
   # API 호출 간격 조절 (초)
   python src/24_batch_update_affiliate_links.py --apply --delay 2.0
 
+  # 기존 제휴 링크 재업데이트 (force 모드)
+  python src/24_batch_update_affiliate_links.py --apply --force
+
 주의사항:
   - YouTube API 일일 쿼터: videos.update 1건 = 50 units (일 10,000 units 제한 → 약 200건/일)
   - --apply 플래그 없이는 미리보기만 수행됩니다.
   - 이미 제휴 링크가 있는 영상은 건너뜁니다 (멱등성).
+  - --force 플래그를 사용하면 기존 제휴 링크를 삭제하고 새로 추가합니다.
         """
     )
 
@@ -485,6 +519,12 @@ def main():
         help='처리할 특정 영상 ID (여러 개 지정 가능)'
     )
 
+    parser.add_argument(
+        '--force',
+        action='store_true',
+        help='기존 제휴 링크를 삭제하고 새로 추가 (재업데이트)'
+    )
+
     args = parser.parse_args()
 
     # --apply 플래그가 있으면 dry_run=False
@@ -496,7 +536,7 @@ def main():
 
     try:
         updater = AffiliateLinksUpdater(dry_run=dry_run, delay=args.delay)
-        updater.process_videos(video_ids=args.video_id, limit=args.limit)
+        updater.process_videos(video_ids=args.video_id, limit=args.limit, force=args.force)
     except Exception as e:
         print(f"❌ 오류 발생: {e}")
         sys.exit(1)
