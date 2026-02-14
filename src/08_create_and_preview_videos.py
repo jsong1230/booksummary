@@ -37,6 +37,7 @@ VideoMaker = make_video_module.VideoMaker
 # 공통 유틸리티 import
 from src.utils.translations import translate_book_title, translate_author_name, get_book_alternative_title, translate_book_title_to_korean, is_english_title, translate_author_name_to_korean, contains_korean, remove_korean_from_text
 from src.utils.file_utils import safe_title, load_book_info, get_standard_safe_title
+from src.utils.affiliate_links import generate_affiliate_section
 
 def generate_title(book_title: str, lang: str = "both", author: Optional[str] = None) -> str:
     """
@@ -438,10 +439,42 @@ def _generate_description_ko(book_info: Optional[Dict] = None, book_title: str =
 • 작가의 다른 작품 중 추천하고 싶은 책
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+"""
 
+    # 제휴 링크 삽입 (한글)
+    if book_title:
+        # 영문 책 제목 준비
+        if is_english_title(book_title):
+            en_title = book_title
+            ko_title_for_link = translate_book_title_to_korean(book_title)
+        else:
+            en_title = translate_book_title(book_title)
+            ko_title_for_link = book_title
+
+        # author 정보 준비
+        ko_author = ""
+        en_author = ""
+        if author:
+            if is_english_title(author):
+                en_author = author
+                ko_author = translate_author_name_to_korean(author)
+            else:
+                ko_author = author
+                en_author = translate_author_name(author)
+
+        affiliate_section = generate_affiliate_section(
+            book_title_ko=ko_title_for_link,
+            book_title_en=en_title,
+            author_ko=ko_author,
+            author_en=en_author,
+            language='ko'
+        )
+        ko_desc += affiliate_section
+
+    ko_desc += """
 #핵심요약 #책리뷰 #독서 #북튜버 #책추천 #지식창고 #BookSummary #Reading
 """
-    
+
     # 영어 부분 (검색 최적화: 키워드 자연스럽게 포함)
     en_desc = """📚 5-Minute Book Summary | Reading | BookTube
 
@@ -514,10 +547,42 @@ Feel free to share any questions or thoughts in the comments below! 💕
 • Other works by this author you'd recommend
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+"""
 
+    # 제휴 링크 삽입 (영문)
+    if book_title:
+        # 영문 책 제목 준비
+        if is_english_title(book_title):
+            en_title = book_title
+            ko_title_for_link = translate_book_title_to_korean(book_title)
+        else:
+            en_title = translate_book_title(book_title)
+            ko_title_for_link = book_title
+
+        # author 정보 준비
+        ko_author = ""
+        en_author = ""
+        if author:
+            if is_english_title(author):
+                en_author = author
+                ko_author = translate_author_name_to_korean(author)
+            else:
+                ko_author = author
+                en_author = translate_author_name(author)
+
+        affiliate_section = generate_affiliate_section(
+            book_title_ko=ko_title_for_link,
+            book_title_en=en_title,
+            author_ko=ko_author,
+            author_en=en_author,
+            language='en'
+        )
+        en_desc += affiliate_section
+
+    en_desc += """
 #BookSummary #Reading #BookTube #5minReading #Knowledge #책요약 #독서
 """
-    
+
     # 한글 먼저, 영어 나중
     return f"{ko_desc}\n\n{'='*60}\n\n{en_desc}"
 
@@ -641,7 +706,39 @@ Feel free to share any questions or thoughts in the comments below! 💕
 • Other works by this author you'd recommend
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+"""
 
+    # 제휴 링크 삽입 (영문)
+    if book_title:
+        # 영문 책 제목 준비
+        if is_english_title(book_title):
+            en_title = book_title
+            ko_title_for_link = translate_book_title_to_korean(book_title)
+        else:
+            en_title = translate_book_title(book_title)
+            ko_title_for_link = book_title
+
+        # author 정보 준비
+        ko_author = ""
+        en_author = ""
+        if author:
+            if is_english_title(author):
+                en_author = author
+                ko_author = translate_author_name_to_korean(author)
+            else:
+                ko_author = author
+                en_author = translate_author_name(author)
+
+        affiliate_section = generate_affiliate_section(
+            book_title_ko=ko_title_for_link,
+            book_title_en=en_title,
+            author_ko=ko_author,
+            author_en=en_author,
+            language='en'
+        )
+        description += affiliate_section
+
+    description += """
 #BookSummary #Reading #BookTube #CoreSummary #BookRecommendation #Knowledge
 """
     return description

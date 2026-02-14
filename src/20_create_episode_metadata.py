@@ -19,6 +19,7 @@ sys.path.insert(0, str(project_root))
 from src.utils.file_utils import get_standard_safe_title
 from src.utils.logger import setup_logger
 from src.utils.translations import translate_book_title, translate_author_name, translate_book_title_to_korean, is_english_title
+from src.utils.affiliate_links import generate_affiliate_section
 
 # 로거 설정
 logger = setup_logger(__name__)
@@ -617,9 +618,42 @@ NotebookLM의 심층 분석과 함께 작품을 깊이 있게 이해해보세요
 💡 일당백 채널에서 더 많은 작품을 만나보세요!
 🔔 구독과 좋아요는 다음 영상 제작에 큰 힘이 됩니다!
 💬 댓글로 여러분의 생각을 공유해주세요!
+"""
 
+        # 제휴 링크 삽입 (한글)
+        # 영문 책 제목 준비
+        if is_english_title(book_title):
+            en_title_for_link = book_title
+            ko_title_for_link = translate_book_title_to_korean(book_title)
+        else:
+            en_title_for_link = translate_book_title(book_title)
+            ko_title_for_link = book_title
+
+        # author 정보 준비
+        ko_author = ""
+        en_author = ""
+        if book_info and 'author' in book_info:
+            author_val = book_info['author']
+            if is_english_title(author_val):
+                en_author = author_val
+                # 영문 작가명은 한글로 번역 (translate_author_name은 한글→영문이므로 그대로 사용 불가)
+                ko_author = ""  # 현재는 빈 문자열로 처리
+            else:
+                ko_author = author_val
+                en_author = translate_author_name(author_val)
+
+        affiliate_section = generate_affiliate_section(
+            book_title_ko=ko_title_for_link,
+            book_title_en=en_title_for_link,
+            author_ko=ko_author,
+            author_en=en_author,
+            language='ko'
+        )
+        description += affiliate_section
+
+        description += f"""
 #일당백 #{ko_title.replace(' ', '')} #책리뷰 #문학 #{genre_ko} #작가 #{author_info.replace('저자: ', '').replace(' ', '') if author_info else '문학작품'}"""
-        
+
     else:  # en
         if not is_english_title(book_title):
             en_title = translate_book_title(book_title)
@@ -746,9 +780,41 @@ Deep dive into the masterpiece with NotebookLM analysis.
 💡 Check out 1DANG100 channel for more literary works!
 🔔 Subscribe and like to support future videos!
 💬 Share your thoughts in the comments!
+"""
 
+        # 제휴 링크 삽입 (영문)
+        # 영문 책 제목 준비
+        if is_english_title(book_title):
+            en_title_for_link = book_title
+            ko_title_for_link = translate_book_title_to_korean(book_title)
+        else:
+            en_title_for_link = translate_book_title(book_title)
+            ko_title_for_link = book_title
+
+        # author 정보 준비
+        ko_author = ""
+        en_author = ""
+        if book_info and 'author' in book_info:
+            author_val = book_info['author']
+            if is_english_title(author_val):
+                en_author = author_val
+                ko_author = ""  # 영문→한글 번역 함수가 없으므로 빈 문자열
+            else:
+                ko_author = author_val
+                en_author = translate_author_name(author_val)
+
+        affiliate_section = generate_affiliate_section(
+            book_title_ko=ko_title_for_link,
+            book_title_en=en_title_for_link,
+            author_ko=ko_author,
+            author_en=en_author,
+            language='en'
+        )
+        description += affiliate_section
+
+        description += f"""
 #{safe_en_title} #BookReview #Literature #{safe_genre_en} #Author #LiteraryWork"""
-        
+
         # 최종 검증: description에서 한국어 제거
         if language == "en":
             # description 전체에서 한국어가 포함된 부분 제거

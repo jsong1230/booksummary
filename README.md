@@ -67,6 +67,9 @@ pip install -r requirements.txt
 - `ELEVENLABS_API_KEY`: ElevenLabs TTS 사용 시 (선택사항)
 - `OPENROUTER_API_KEY`: ElevenLabs를 OpenRouter를 통해 사용 시 (선택사항)
 - `LOG_LEVEL`: 로그 레벨 설정 (선택사항, 기본값: INFO, 가능한 값: DEBUG, INFO, WARNING, ERROR, CRITICAL)
+- `AMAZON_ASSOCIATE_TAG`: Amazon Associates 제휴 링크용 (선택사항, 예: `joohans-20`)
+- `ALADIN_PARTNER_ID`: 알라딘 파트너스 제휴 링크용 (선택사항)
+- `YES24_PARTNER_ID`: Yes24 제휴 링크용 (선택사항)
 
 ## 빠른 시작 가이드 (처음 시작하는 경우)
 
@@ -712,6 +715,21 @@ python src/09_upload_from_metadata.py --privacy private --auto --force
 - **Pexels 푸티지**: 키워드 기반 관련 영상 검색·다운로드 (`PEXELS_API_KEY` 설정 시)
 - **제목 전략**: AI 언급 대신 가치·인간적 호기심 강조 (`src/utils/title_generator.py`)
 - **고정 댓글**: 챕터 타임스탬프 + 참여 유도 질문 자동 생성, 업로드 시 댓글 등록 (고정은 YouTube UI에서 수동)
+
+### 제휴 링크 자동 삽입
+- **Amazon Associates 제휴 링크**: 영상 description에 자동으로 Amazon 구매 링크 삽입
+  - `.env`에 `AMAZON_ASSOCIATE_TAG` 설정 시 자동 활성화 (예: `joohans-20`)
+  - 한글 영상: Amazon 링크 포함
+  - 영문 영상: Amazon 링크 포함
+  - 알라딘(`ALADIN_PARTNER_ID`), Yes24(`YES24_PARTNER_ID`) 제휴도 지원 (선택사항)
+- **기존 영상 일괄 업데이트**: `src/24_batch_update_affiliate_links.py`로 채널의 기존 영상에도 제휴 링크 추가 가능
+  ```bash
+  # 미리보기
+  python src/24_batch_update_affiliate_links.py --dry-run
+  # 실제 적용 (50개 제한)
+  python src/24_batch_update_affiliate_links.py --apply --limit 50
+  ```
+- **멱등성 보장**: 이미 제휴 링크가 있는 영상은 건너뜀
 
 ### 고해상도 썸네일 생성
 

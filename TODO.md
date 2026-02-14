@@ -76,6 +76,11 @@ _현재 낮은 우선순위 작업이 없습니다_
 - [x] 제목 부제(괄호) SEO 키워드 자동 생성 (장르 기반 템플릿)
 - [x] 제목 100자 제한 강화: 부제 우선 축소 후 절단
 - [x] 고정 댓글 활용: 챕터 타임스탬프 + 참여 유도 질문 자동 생성, 업로드 시 댓글 등록 (`src/utils/pinned_comment.py`, 수동 고정은 YouTube UI에서)
+- [x] 제휴 링크 자동 삽입 기능 (`src/utils/affiliate_links.py`)
+  - [x] Amazon Associates 제휴 링크 자동 생성
+  - [x] 한글/영문 영상 description에 제휴 섹션 자동 삽입
+  - [x] 기존 영상 일괄 업데이트 스크립트 (`src/24_batch_update_affiliate_links.py`)
+  - [x] 멱등성 보장 및 안전 장치 (`--dry-run`, `--apply`)
 - [ ] 다국어 지원 확대 (일본어, 중국어 등)
 
 ---
