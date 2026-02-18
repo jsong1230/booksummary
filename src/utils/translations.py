@@ -468,6 +468,13 @@ def translate_book_title(book_title: str) -> str:
         "중용": "The Doctrine of the Mean",
         "중용_": "The Doctrine of the Mean",
         "The Doctrine of the Mean": "The Doctrine of the Mean",
+        "요네하라 마리 에세이집": "Yonehara Mari Essays",
+        "요네하라_마리_에세이집": "Yonehara Mari Essays",
+        "Yonehara Mari Essays": "Yonehara Mari Essays",
+        "예수 하버드에 오다": "When Jesus Came to Harvard",
+        "예수_하버드에_오다": "When Jesus Came to Harvard",
+        "When Jesus Came to Harvard": "When Jesus Came to Harvard",
+        "When Jesus Came to Harvard: Making Moral Choices Today": "When Jesus Came to Harvard",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -934,6 +941,10 @@ def translate_author_name(author: str) -> str:
         "자사": "Zisi",
         "Zisi": "Zisi",
         "공자의 손자": "Zisi",
+        "요네하라 마리": "Yonehara Mari",
+        "Yonehara Mari": "Yonehara Mari",
+        "하비 콕스": "Harvey Cox",
+        "Harvey Cox": "Harvey Cox",
     }
 
     if author in author_map:

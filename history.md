@@ -1,5 +1,26 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2026-02-18
+
+### 일당백 스타일 영상 제작 및 YouTube 업로드
+- **예수 하버드에 오다 (하비 콕스)**:
+  - 일당백 스타일 한글/영문 영상 생성
+  - YouTube 비공개 업로드 완료
+  - 한글: https://www.youtube.com/watch?v=yaj9BNQF8Wk (453MB, 16분 1초)
+  - 영문: https://www.youtube.com/watch?v=zE5k7qb_rg4 (496MB, 13분 53초)
+- **작업 내용**:
+  - YouTube URL 자막 다운로드 (`scripts/fetch_separate_scripts.py`)
+  - input 폴더에서 NotebookLM 파일 준비 (part1_video, part1_info, part2_video, part2_info)
+  - 일당백 영상 생성 (`src/create_full_episode.py`)
+  - 메타데이터 생성 (`src/20_create_episode_metadata.py`)
+  - 썸네일 자동 생성 (input 폴더 기반)
+- **번역 매핑 추가** (`src/utils/translations.py`):
+  - 예수 하버드에 오다 ↔ When Jesus Came to Harvard
+  - 하비 콕스 ↔ Harvey Cox
+- **버그 수정**:
+  - `src/20_create_episode_metadata.py`: `translate_author_name_to_korean` 함수 import 추가
+- **문서·데이터**: history.md, ildangbaek_books.csv 자동 업데이트
+
 ## 2026-02-15
 
 ### 제휴 링크(Affiliate Link) 자동 삽입 기능 구현 및 기존 영상 일괄 업데이트
@@ -3596,3 +3617,23 @@
   - URL: https://www.youtube.com/watch?v=D37xF1TNL94
 - [2] [핵심 요약] 자사의 중용 (The Doctrine of the Mean · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
   - URL: https://www.youtube.com/watch?v=G7_BMwQh-2E
+
+## 2026-02-15
+
+### YouTube 업로드 완료
+- 업로드된 책: Yonehara_Mari_Essays_full_episode
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] Yonehara Mari Essays: Yonehara Mari (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=BGmsN58wBoI
+- [2] [일당백] 요네하라 마리 에세이집: 요네하라 마리 (Yonehara Mari Essays · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=BXg7FoEe40Y
+
+## 2026-02-18
+
+### YouTube 업로드 완료
+- 업로드된 책: When_Jesus_Came_to_Harvard_full_episode
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] When Jesus Came to Harvard: Harvey Cox (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=zE5k7qb_rg4
+- [2] [일당백] When Jesus Came to Harvard: Harvey Cox (배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=yaj9BNQF8Wk

@@ -18,7 +18,7 @@ sys.path.insert(0, str(project_root))
 
 from src.utils.file_utils import get_standard_safe_title
 from src.utils.logger import setup_logger
-from src.utils.translations import translate_book_title, translate_author_name, translate_book_title_to_korean, is_english_title
+from src.utils.translations import translate_book_title, translate_author_name, translate_book_title_to_korean, translate_author_name_to_korean, is_english_title
 from src.utils.affiliate_links import generate_affiliate_section
 
 # 로거 설정
