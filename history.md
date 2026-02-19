@@ -3653,3 +3653,13 @@
   - URL: https://www.youtube.com/watch?v=zE5k7qb_rg4
 - [2] [일당백] When Jesus Came to Harvard: Harvey Cox (배경지식·인포그래픽·책 분석)
   - URL: https://www.youtube.com/watch?v=yaj9BNQF8Wk
+
+## 2026-02-19
+
+### YouTube 업로드 완료
+- 업로드된 책: Journal_dun_corps
+- 업로드된 영상 수: 2개
+- [1] [Summary] Journal d'un corps (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=xMEwBF62wbY
+- [2] [핵심 요약] 몸의 일기 (Journal d'un corps · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=AnW7-BSZT4o
