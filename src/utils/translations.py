@@ -475,6 +475,9 @@ def translate_book_title(book_title: str) -> str:
         "예수_하버드에_오다": "When Jesus Came to Harvard",
         "When Jesus Came to Harvard": "When Jesus Came to Harvard",
         "When Jesus Came to Harvard: Making Moral Choices Today": "When Jesus Came to Harvard",
+        "몸의 일기": "Journal d'un corps",
+        "몸의_일기": "Journal d'un corps",
+        "Journal d'un corps": "Journal d'un corps",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -945,6 +948,8 @@ def translate_author_name(author: str) -> str:
         "Yonehara Mari": "Yonehara Mari",
         "하비 콕스": "Harvey Cox",
         "Harvey Cox": "Harvey Cox",
+        "다니엘 페나크": "Daniel Pennac",
+        "Daniel Pennac": "Daniel Pennac",
     }
 
     if author in author_map:

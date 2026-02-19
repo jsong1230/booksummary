@@ -1,5 +1,21 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+## 2026-02-19
+
+### 몸의 일기 (다니엘 페나크) summary+video 영상 제작
+- **한글/영문 영상 생성 완료**:
+  - 한글: `output/Journal_dun_corps_kr.mp4` (237MB, 약 7.4분)
+  - 영문: `output/Journal_dun_corps_en.mp4` (283MB)
+- **작업 내용**:
+  - input 폴더 파일 준비 (`scripts/prepare_files_from_downloads.py`)
+  - 무드 이미지 100개 다운로드 (`src/02_get_images.py`)
+  - OpenAI TTS alloy 음성으로 요약 오디오 생성
+  - summary+video 영상 제작 (`src/10_create_video_with_summary.py`)
+  - 메타데이터 생성 (`src/08_create_and_preview_videos.py`)
+- **번역 매핑 추가** (`src/utils/translations.py`):
+  - 몸의 일기 ↔ Journal d'un corps
+  - 다니엘 페나크 ↔ Daniel Pennac
+
 ## 2026-02-18
 
 ### 일당백 스타일 영상 제작 및 YouTube 업로드
