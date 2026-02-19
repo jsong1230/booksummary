@@ -711,12 +711,34 @@ python src/09_upload_from_metadata.py --privacy private --auto --force
 
 ## 주요 기능
 
+### 시청자 유입 및 채널 성장 기능 (Phase 11)
+
+- **YouTube Shorts 자동 생성** (`src/26_generate_shorts.py`): 9:16 세로 포맷(1080x1920), 최대 59초
+  - Short 1: HOOK 섹션 기반 (~30초), Short 2: 핵심 인용구 (~45초), Short 3: 한 줄 요약 (~20초)
+  - `#Shorts` 해시태그 포함 메타데이터 자동 생성
+  ```bash
+  python src/26_generate_shorts.py --book-title "책 제목" --language ko
+  ```
+- **플레이리스트 자동 관리** (`src/27_manage_playlists.py`): 7개 장르별 자동 분류 및 배치
+  ```bash
+  python src/27_manage_playlists.py --apply         # 채널 전체 영상 정리
+  python src/27_manage_playlists.py --video-id VIDEO_ID --apply  # 단일 영상 추가
+  ```
+- **커뮤니티 탭 자동 포스팅** (`src/28_community_posts.py`): 주간 3회 자동화
+  - 월요일: 책 인용구 포스트, 수요일: 다음 리뷰 투표, 금요일: 채널 근황
+  ```bash
+  python src/28_community_posts.py --book-title "책 제목" --apply
+  ```
+- **장르 기반 동적 해시태그**: 8개 장르(철학, 심리, 비즈니스, 역사, 과학, 시, 에세이, 소설)별 최적 해시태그 자동 생성
+- **Ken Burns 효과 기본 활성화**: zoom_in/zoom_out 교대 + 패닝으로 이미지 시퀀스 동적 구성
+- **Summary 기본 길이 6분**: 미드롤 광고 활성화 (총 영상 8-10분 목표)
+
 ### 영상 시각화·제목·고정 댓글
 - **동적 자막(Kinetic Typography)**: 키워드 추출 + Whisper 타이밍, 팝 효과
 - **파형(Waveform) 시각화**: 오디오 스펙트럼 하단 시각화 (실시간 스크롤)
 - **Pexels 푸티지**: 키워드 기반 관련 영상 검색·다운로드 (`PEXELS_API_KEY` 설정 시)
 - **제목 전략**: AI 언급 대신 가치·인간적 호기심 강조 (`src/utils/title_generator.py`)
-- **고정 댓글**: 챕터 타임스탬프 + 참여 유도 질문 자동 생성, 업로드 시 댓글 등록 (고정은 YouTube UI에서 수동)
+- **고정 댓글**: 챕터 타임스탬프 + 참여 유도 질문 + 구독/좋아요 CTA 자동 생성 (고정은 YouTube UI에서 수동)
 
 ### 제휴 링크 자동 삽입
 - **Amazon Associates 제휴 링크**: 영상 description에 자동으로 Amazon 구매 링크 삽입

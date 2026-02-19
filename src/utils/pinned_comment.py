@@ -117,7 +117,13 @@ def generate_pinned_comment(
         comment += "💬 여러분의 생각을 공유해주세요:\n"
         for i, question in enumerate(questions[:2], 1):  # 처음 2개만 사용
             comment += f"{i}. {question}\n"
-        
+
+        # CTA 강화: 참여 유도 질문 + 구독/다음 책 추천 요청
+        comment += f"\n📌 다음에 어떤 책을 리뷰해드릴까요?\n"
+        comment += "댓글로 추천해주시면 적극 반영하겠습니다! 📚\n\n"
+        comment += "👍 영상이 도움이 되셨다면 좋아요 부탁드립니다!\n"
+        comment += "🔔 구독 + 알림 설정으로 새 리뷰 영상을 놓치지 마세요!\n"
+
     else:  # en
         if not is_english_title(book_title):
             en_title = translate_book_title(book_title)
@@ -192,5 +198,11 @@ def generate_pinned_comment(
         comment += "💬 Share your thoughts:\n"
         for i, question in enumerate(questions[:2], 1):  # 처음 2개만 사용
             comment += f"{i}. {question}\n"
-    
+
+        # CTA 강화: 참여 유도 + 구독/다음 책 추천 요청
+        comment += f"\n📌 What book should I review next?\n"
+        comment += "Drop your recommendations in the comments below! 📚\n\n"
+        comment += "👍 If this video was helpful, please give it a like!\n"
+        comment += "🔔 Subscribe + hit the bell icon so you never miss a new review!\n"
+
     return comment

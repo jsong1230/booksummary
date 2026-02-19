@@ -471,9 +471,13 @@ def _generate_description_ko(book_info: Optional[Dict] = None, book_title: str =
         )
         ko_desc += affiliate_section
 
-    ko_desc += """
-#핵심요약 #책리뷰 #독서 #북튜버 #책추천 #지식창고 #BookSummary #Reading
-"""
+    # 장르별 해시태그 생성
+    try:
+        from src.utils.title_generator import generate_hashtags
+        ko_hashtags = generate_hashtags("ko", book_title or "", author=author, book_info=book_info, content_type="summary_video")
+    except Exception:
+        ko_hashtags = "#핵심요약 #책리뷰 #북튜브 #독서 #BookSummary"
+    ko_desc += f"\n{ko_hashtags}\n"
 
     # 영어 부분 (검색 최적화: 키워드 자연스럽게 포함)
     en_desc = """📚 5-Minute Book Summary | Reading | BookTube
@@ -579,9 +583,13 @@ Feel free to share any questions or thoughts in the comments below! 💕
         )
         en_desc += affiliate_section
 
-    en_desc += """
-#BookSummary #Reading #BookTube #5minReading #Knowledge #책요약 #독서
-"""
+    # 장르별 영문 해시태그 생성
+    try:
+        from src.utils.title_generator import generate_hashtags as _gen_hashtags_en
+        en_hashtags = _gen_hashtags_en("en", book_title or "", author=author, book_info=book_info, content_type="summary_video")
+    except Exception:
+        en_hashtags = "#BookSummary #Reading #BookTube #5minReading #Knowledge"
+    en_desc += f"\n{en_hashtags}\n"
 
     # 한글 먼저, 영어 나중
     return f"{ko_desc}\n\n{'='*60}\n\n{en_desc}"
@@ -738,9 +746,13 @@ Feel free to share any questions or thoughts in the comments below! 💕
         )
         description += affiliate_section
 
-    description += """
-#BookSummary #Reading #BookTube #CoreSummary #BookRecommendation #Knowledge
-"""
+    # 장르별 영문 해시태그 생성
+    try:
+        from src.utils.title_generator import generate_hashtags as _gen_hashtags_en2
+        en_hashtags2 = _gen_hashtags_en2("en", book_title or "", author=author, book_info=book_info, content_type="summary_video")
+    except Exception:
+        en_hashtags2 = "#BookSummary #Reading #BookTube #CoreSummary #BookRecommendation"
+    description += f"\n{en_hashtags2}\n"
     return description
 
 def _generate_description_en_with_ko(book_info: Optional[Dict] = None, book_title: str = None, timestamps: Optional[Dict] = None, author: Optional[str] = None) -> str:

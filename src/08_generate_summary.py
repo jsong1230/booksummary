@@ -118,7 +118,7 @@ class SummaryGenerator:
 (짧고 강렬한 문장 - 시청자가 3초 만에 빠져들게 하는 문장)
 
 [SUMMARY]
-(5분 분량 핵심 요약 - 최소 {int(duration_minutes * 150)}단어 이상)
+({target_duration} 핵심 요약 - 최소 {int(duration_minutes * 150)}단어 이상)
 
 [BRIDGE]
 (다음 NotebookLM 분석으로 자연스럽게 넘어가는 연결 문장)

@@ -651,8 +651,13 @@ NotebookLM의 심층 분석과 함께 작품을 깊이 있게 이해해보세요
         )
         description += affiliate_section
 
-        description += f"""
-#일당백 #{ko_title.replace(' ', '')} #책리뷰 #문학 #{genre_ko} #작가 #{author_info.replace('저자: ', '').replace(' ', '') if author_info else '문학작품'}"""
+        # 장르별 해시태그 생성
+        try:
+            from src.utils.title_generator import generate_hashtags
+            ko_hashtags = generate_hashtags("ko", book_title, book_info=book_info, content_type="full_episode")
+        except Exception:
+            ko_hashtags = f"#일당백 #{ko_title.replace(' ', '')} #책리뷰 #문학 #{genre_ko}"
+        description += f"\n{ko_hashtags}\n"
 
     else:  # en
         if not is_english_title(book_title):
@@ -812,8 +817,13 @@ Deep dive into the masterpiece with NotebookLM analysis.
         )
         description += affiliate_section
 
-        description += f"""
-#{safe_en_title} #BookReview #Literature #{safe_genre_en} #Author #LiteraryWork"""
+        # 장르별 영문 해시태그 생성
+        try:
+            from src.utils.title_generator import generate_hashtags as _gen_ep_hashtags_en
+            en_hashtags = _gen_ep_hashtags_en("en", book_title, book_info=book_info, content_type="full_episode")
+        except Exception:
+            en_hashtags = f"#{safe_en_title} #BookReview #Literature #{safe_genre_en}"
+        description += f"\n{en_hashtags}\n"
 
         # 최종 검증: description에서 한국어 제거
         if language == "en":

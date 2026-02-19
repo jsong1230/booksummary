@@ -97,6 +97,48 @@ _현재 알려진 이슈가 없습니다_
   - [x] 246개+ 영상에 제휴 링크 고정 댓글 추가 완료
 - [ ] 다국어 지원 확대 (일본어, 중국어 등)
 
+### Phase 11: 시청자 유입 및 채널 성장 개선 (완료: 2026-02)
+
+**Phase A: Quick Wins (기존 코드 최적화)**
+- [x] 장르 기반 동적 해시태그 자동 생성 (`src/utils/title_generator.py`)
+  - [x] `generate_hashtags()` 함수 추가 (8개 장르: 철학, 심리, 비즈니스, 역사, 과학, 시, 에세이, 소설)
+  - [x] summary_video / full_episode 콘텐츠 타입 구분
+  - [x] 한글/영문 장르별 해시태그 세트 (4-5개)
+- [x] Summary+Video description 해시태그 동적 변환 (`src/08_create_and_preview_videos.py`)
+  - [x] KO/EN description 3곳 모두 정적 해시태그 → `generate_hashtags()` 호출로 대체
+- [x] Episode description 해시태그 동적 변환 (`src/20_create_episode_metadata.py`)
+  - [x] KO/EN description 정적 해시태그 → `generate_hashtags()` 호출로 대체
+- [x] Summary 기본 길이 5분 → 6분으로 상향 (`src/10_create_video_with_summary.py`)
+  - [x] `--summary-duration` 기본값 5.0 → 6.0 (총 영상 8-10분, 미드롤 광고 활성화)
+  - [x] 단어 수 목표 동적 레이블 (750→900단어 자동 반영) (`src/08_generate_summary.py`)
+- [x] Ken Burns 효과 기본 활성화 (`src/03_make_video.py`)
+  - [x] `create_image_sequence()` `use_ken_burns=True` 기본값
+  - [x] zoom_in/zoom_out 교대 + left/right/None 패닝 순환
+  - [x] 실패 시 정적 이미지 자동 폴백
+
+**Phase B: 신규 기능 개발**
+- [x] YouTube Shorts 자동 생성 (`src/26_generate_shorts.py`)
+  - [x] 9:16 세로 포맷 (1080x1920), 최대 59초
+  - [x] Short 1: HOOK 섹션 기반 (첫 30초), Short 2: 핵심 인용구, Short 3: 한 줄 요약
+  - [x] TTS 오디오 + 무드 이미지 슬라이드쇼 + 텍스트 오버레이
+  - [x] Shorts 전용 메타데이터 JSON 생성 (`#Shorts` 해시태그 포함)
+- [x] 플레이리스트 자동 관리 (`src/27_manage_playlists.py`)
+  - [x] 7개 장르별 플레이리스트 자동 생성/업데이트
+  - [x] 채널 전체 영상 장르 자동 분류 및 배치
+  - [x] `--apply` 플래그로 dry_run 기본 (안전 우선)
+  - [x] 단일 영상 플레이리스트 추가 (`--video-id`)
+- [x] 고정 댓글 CTA 강화 (`src/utils/pinned_comment.py`)
+  - [x] "다음에 어떤 책을 리뷰할까요?" 댓글 추천 CTA 추가
+  - [x] 좋아요/구독/알림 설정 CTA 추가
+
+**Phase C: 커뮤니티 자동화**
+- [x] 커뮤니티 탭 자동 포스팅 (`src/28_community_posts.py`)
+  - [x] 인용구 포스트: Summary 파일에서 명문장 자동 추출
+  - [x] 투표 포스트: 다음 리뷰 책 추천 투표 (최대 5개 후보)
+  - [x] 업데이트 포스트: 채널 근황 메시지
+  - [x] 주간 자동 스케줄링 (월: 인용구, 수: 투표, 금: 업데이트)
+  - [x] `--apply` 플래그로 dry_run 기본
+
 ---
 
 ## ✅ 완료된 Phase

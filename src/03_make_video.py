@@ -429,7 +429,8 @@ class VideoMaker:
         self,
         image_paths: List[str],
         total_duration: float,
-        fade_duration: float = 1.5  # 페이드 전환 시간 (1.5초 - 자연스러운 전환)
+        fade_duration: float = 1.5,  # 페이드 전환 시간 (1.5초 - 자연스러운 전환)
+        use_ken_burns: bool = True  # Ken Burns 줌/패닝 효과 사용 여부
     ) -> List[ImageClip]:
         """
         이미지 시퀀스 생성 (오디오 길이에 맞춰 반복)
@@ -502,93 +503,111 @@ class VideoMaker:
             if clip_duration <= 0:
                 break
             
-            # 정적 이미지만 사용 (줌인 효과 없음)
-            # PIL로 이미지를 먼저 로드하고 리사이즈하여 크기 일관성 보장
+            # Ken Burns 효과 또는 정적 이미지 사용
             from PIL import Image as PILImage
             import numpy as np
-            try:
-                img = PILImage.open(image_path)
-                # RGB로 변환
-                if img.mode != 'RGB':
-                    img = img.convert('RGB')
-                
-                # 세로형 이미지 여부 확인
-                img_width, img_height = img.size
-                target_width, target_height = self.resolution
-                aspect_ratio = target_width / target_height
-                img_aspect = img_width / img_height
-                is_portrait = img_aspect < aspect_ratio
-                
-                if is_portrait:
-                    # 세로형 이미지: 높이에 맞추고 좌우는 검은색
-                    display_height = target_height
-                    display_width = int(display_height * img_aspect)
-                    resized_img = img.resize((display_width, display_height), PILImage.Resampling.LANCZOS)
-                    
-                    # 검은색 배경에 중앙 배치
-                    final_img = PILImage.new('RGB', (target_width, target_height), (0, 0, 0))
-                    paste_x = (target_width - display_width) // 2
-                    paste_y = 0
-                    final_img.paste(resized_img, (paste_x, paste_y))
-                    img_array = np.array(final_img)
-                    clip = ImageClip(img_array, duration=clip_duration)
-                else:
-                    # 가로형 이미지: 기존 로직 (해상도에 맞게 리사이즈)
-                    img = img.resize(self.resolution, PILImage.Resampling.LANCZOS)
-                    img_array = np.array(img)
-                    
-                    # shape 확인: (height, width, channels) 형식이어야 함
-                    if len(img_array.shape) != 3 or img_array.shape[2] != 3:
-                        img = PILImage.fromarray(img_array).convert('RGB')
-                        img_array = np.array(img)
-                    clip = ImageClip(img_array, duration=clip_duration)
-            except Exception as e:
-                self.logger.warning(f"이미지 로드 실패 ({Path(image_path).name}): {e}, 기본 방법 사용")
+            if use_ken_burns:
+                # Ken Burns 줌/패닝 효과 적용 (이탈률 감소 효과)
+                effect_types = ["zoom_in", "zoom_out"]
+                pan_directions = [None, "left", "right", None]
+                effect_type = effect_types[image_index % len(effect_types)]
+                pan_dir = pan_directions[image_index % len(pan_directions)]
                 try:
-                    # 예외 처리: 세로형 이미지 처리 포함
+                    clip = self.create_image_clip_with_ken_burns(
+                        image_path=image_path,
+                        duration=clip_duration,
+                        effect_type=effect_type,
+                        start_scale=1.0,
+                        end_scale=1.15,
+                        pan_direction=pan_dir
+                    )
+                except Exception as e:
+                    self.logger.warning(f"Ken Burns 효과 적용 실패 ({Path(image_path).name}): {e}, 정적 이미지로 대체")
+                    use_ken_burns = False  # 이후 이미지는 정적으로
+            if not use_ken_burns:
+                try:
                     img = PILImage.open(image_path)
+                    # RGB로 변환
                     if img.mode != 'RGB':
                         img = img.convert('RGB')
-                    
+
+                    # 세로형 이미지 여부 확인
                     img_width, img_height = img.size
                     target_width, target_height = self.resolution
                     aspect_ratio = target_width / target_height
                     img_aspect = img_width / img_height
                     is_portrait = img_aspect < aspect_ratio
-                    
+
                     if is_portrait:
+                        # 세로형 이미지: 높이에 맞추고 좌우는 검은색
                         display_height = target_height
                         display_width = int(display_height * img_aspect)
                         resized_img = img.resize((display_width, display_height), PILImage.Resampling.LANCZOS)
+
+                        # 검은색 배경에 중앙 배치
                         final_img = PILImage.new('RGB', (target_width, target_height), (0, 0, 0))
                         paste_x = (target_width - display_width) // 2
                         paste_y = 0
                         final_img.paste(resized_img, (paste_x, paste_y))
-                        clip = ImageClip(np.array(final_img), duration=clip_duration)
+                        img_array = np.array(final_img)
+                        clip = ImageClip(img_array, duration=clip_duration)
                     else:
-                        clip = ImageClip(image_path, duration=clip_duration)
-                        clip = clip.resized(newsize=self.resolution)
-                except:
-                    # 최후의 수단: 세로형 이미지 처리 포함
-                    img = PILImage.open(image_path).convert('RGB')
-                    img_width, img_height = img.size
-                    target_width, target_height = self.resolution
-                    aspect_ratio = target_width / target_height
-                    img_aspect = img_width / img_height
-                    is_portrait = img_aspect < aspect_ratio
-                    
-                    if is_portrait:
-                        display_height = target_height
-                        display_width = int(display_height * img_aspect)
-                        resized_img = img.resize((display_width, display_height), PILImage.Resampling.LANCZOS)
-                        final_img = PILImage.new('RGB', (target_width, target_height), (0, 0, 0))
-                        paste_x = (target_width - display_width) // 2
-                        paste_y = 0
-                        final_img.paste(resized_img, (paste_x, paste_y))
-                        clip = ImageClip(np.array(final_img), duration=clip_duration)
-                    else:
+                        # 가로형 이미지: 기존 로직 (해상도에 맞게 리사이즈)
                         img = img.resize(self.resolution, PILImage.Resampling.LANCZOS)
-                        clip = ImageClip(np.array(img), duration=clip_duration)
+                        img_array = np.array(img)
+
+                        # shape 확인: (height, width, channels) 형식이어야 함
+                        if len(img_array.shape) != 3 or img_array.shape[2] != 3:
+                            img = PILImage.fromarray(img_array).convert('RGB')
+                            img_array = np.array(img)
+                        clip = ImageClip(img_array, duration=clip_duration)
+                except Exception as e:
+                    self.logger.warning(f"이미지 로드 실패 ({Path(image_path).name}): {e}, 기본 방법 사용")
+                    try:
+                        # 예외 처리: 세로형 이미지 처리 포함
+                        img = PILImage.open(image_path)
+                        if img.mode != 'RGB':
+                            img = img.convert('RGB')
+
+                        img_width, img_height = img.size
+                        target_width, target_height = self.resolution
+                        aspect_ratio = target_width / target_height
+                        img_aspect = img_width / img_height
+                        is_portrait = img_aspect < aspect_ratio
+
+                        if is_portrait:
+                            display_height = target_height
+                            display_width = int(display_height * img_aspect)
+                            resized_img = img.resize((display_width, display_height), PILImage.Resampling.LANCZOS)
+                            final_img = PILImage.new('RGB', (target_width, target_height), (0, 0, 0))
+                            paste_x = (target_width - display_width) // 2
+                            paste_y = 0
+                            final_img.paste(resized_img, (paste_x, paste_y))
+                            clip = ImageClip(np.array(final_img), duration=clip_duration)
+                        else:
+                            clip = ImageClip(image_path, duration=clip_duration)
+                            clip = clip.resized(newsize=self.resolution)
+                    except Exception:
+                        # 최후의 수단: 세로형 이미지 처리 포함
+                        img = PILImage.open(image_path).convert('RGB')
+                        img_width, img_height = img.size
+                        target_width, target_height = self.resolution
+                        aspect_ratio = target_width / target_height
+                        img_aspect = img_width / img_height
+                        is_portrait = img_aspect < aspect_ratio
+
+                        if is_portrait:
+                            display_height = target_height
+                            display_width = int(display_height * img_aspect)
+                            resized_img = img.resize((display_width, display_height), PILImage.Resampling.LANCZOS)
+                            final_img = PILImage.new('RGB', (target_width, target_height), (0, 0, 0))
+                            paste_x = (target_width - display_width) // 2
+                            paste_y = 0
+                            final_img.paste(resized_img, (paste_x, paste_y))
+                            clip = ImageClip(np.array(final_img), duration=clip_duration)
+                        else:
+                            img = img.resize(self.resolution, PILImage.Resampling.LANCZOS)
+                            clip = ImageClip(np.array(img), duration=clip_duration)
             
             # fade out/in 전환 효과 적용
             # 모든 이미지에 fade out과 fade in을 모두 적용하여 크로스페이드 효과

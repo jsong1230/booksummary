@@ -2,6 +2,60 @@
 
 ## 2026-02-19
 
+### YouTube 시청자 유입 및 채널 성장 개선
+
+#### Phase A: Quick Wins (기존 코드 수정)
+
+**A1/A2: 해시태그 장르별 동적 생성 (`src/utils/title_generator.py` 신규 함수)**
+- `generate_hashtags()` 함수 추가: `_guess_genre()` 재활용하여 장르별 한글/영문 해시태그 생성
+- 철학/심리/경제/소설/역사/과학/시/수필 총 8개 장르 지원
+- `src/08_create_and_preview_videos.py`, `src/20_create_episode_metadata.py` 정적 해시태그 → 장르별 동적 해시태그로 교체
+- summary_video / full_episode 콘텐츠 유형별 해시태그 구분
+
+**A3: Summary 기본 길이 6분으로 상향 (`src/10_create_video_with_summary.py`)**
+- `--summary-duration` 기본값: 5.0 → 6.0분 (미드롤 광고 활성화를 위해 총 8분 이상 목표)
+- `src/08_generate_summary.py`: "5분 분량" 하드코딩 → `{target_duration}` 동적 표시로 교체
+
+**A4: Ken Burns 효과 기본 활성화 (`src/03_make_video.py`)**
+- `create_image_sequence()`에 `use_ken_burns=True` 파라미터 추가
+- 기존 정적 이미지 대신 `create_image_clip_with_ken_burns()` 호출 (zoom_in/zoom_out 교대)
+- Ken Burns 실패 시 정적 이미지로 자동 폴백
+
+#### Phase B: 중기 개발 (신규 기능)
+
+**B1: YouTube Shorts 자동 생성 (`src/26_generate_shorts.py` 신규)**
+- 9:16 세로 포맷 (1080x1920) Shorts 3종 자동 생성
+  - Short 1: HOOK 섹션 기반 (~30초)
+  - Short 2: 핵심 인용구 + 무드 이미지 (~45초)
+  - Short 3: 한 줄 요약 (~20초)
+- TTS 오디오 자동 생성 + 무드 이미지 슬라이드쇼 + 텍스트 오버레이
+- Shorts 메타데이터(제목/설명/태그) JSON 자동 생성
+- `--both-languages`, `--metadata-only` 옵션 지원
+
+**B3: 플레이리스트 자동 관리 (`src/27_manage_playlists.py` 신규)**
+- 8개 장르별 플레이리스트 정의 (철학/심리/경제/소설/역사/과학/general)
+- 채널 영상 제목 기반 장르 자동 감지
+- 플레이리스트 자동 생성/조회/영상 추가
+- `--dry-run` (기본), `--apply`, `--video-id` 옵션 지원
+- CSV 파일 기반 장르 분류 통계 출력
+
+**B4: 고정 댓글 CTA 강화 (`src/utils/pinned_comment.py`)**
+- "다음에 어떤 책을 리뷰할까요?" 참여 유도 질문 추가
+- 구독/좋아요 알림 설정 CTA 추가 (한글/영문)
+
+#### Phase C: 장기 개발
+
+**C1: 커뮤니티 탭 자동 포스팅 (`src/28_community_posts.py` 신규)**
+- 3가지 포스트 유형: 인용구(quote), 투표(vote), 근황(update)
+- 주간 포스트 계획 자동 생성 (`weekly` 모드): 월(인용구)/수(투표)/금(근황)
+- Summary 파일에서 핵심 인용구 자동 추출
+- CSV 기반 예정 도서 투표 선택지 자동 구성
+- `--dry-run` (기본), `--apply` 옵션 지원
+
+---
+
+
+
 ### 무드 이미지 품질 개선 (책 내용 관련성 향상)
 
 #### 문제 해결

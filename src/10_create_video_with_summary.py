@@ -503,7 +503,7 @@ def main():
     parser.add_argument('--author', type=str, help='저자 이름')
     parser.add_argument('--review-audio', type=str, help='NotebookLM 리뷰 오디오 경로')
     parser.add_argument('--language', type=str, default='ko', choices=['ko', 'kr', 'en'], help='언어 (기본값: ko)')
-    parser.add_argument('--summary-duration', type=float, default=5.0, help='요약 길이 (분 단위, 기본값: 5.0)')
+    parser.add_argument('--summary-duration', type=float, default=6.0, help='요약 길이 (분 단위, 기본값: 6.0 - 미드롤 광고 활성화를 위해 총 8분 이상 목표)')
     parser.add_argument('--image-dir', type=str, help='이미지 디렉토리')
     parser.add_argument('--output', type=str, help='출력 영상 경로')
     parser.add_argument('--skip-summary', action='store_true', help='요약 생성을 건너뛰기 (이미 생성된 경우)')

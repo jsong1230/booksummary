@@ -119,6 +119,107 @@ def generate_seo_subtitle(
     return f"{base_en} · Key Ideas & Takeaways"
 
 
+def generate_hashtags(
+    language: str,
+    book_title: str,
+    author: Optional[str] = None,
+    book_info: Optional[Dict] = None,
+    content_type: str = "summary_video",
+) -> str:
+    """
+    장르에 맞는 해시태그 문자열 생성
+
+    Args:
+        language: 'ko' 또는 'en'
+        book_title: 책 제목
+        author: 저자 이름 (선택)
+        book_info: Google Books 정보 딕셔너리 (선택)
+        content_type: 'summary_video' 또는 'full_episode'
+
+    Returns:
+        해시태그 문자열 (예: "#책리뷰 #BookSummary #자기계발")
+    """
+
+    def _category_text_for_hashtag() -> str:
+        if not book_info:
+            return ""
+        cats = book_info.get("categories") or []
+        if isinstance(cats, str):
+            cats = [cats]
+        cat_str = " ".join([c for c in cats if isinstance(c, str)])
+        desc = book_info.get("description") if isinstance(book_info.get("description"), str) else ""
+        return f"{cat_str}\n{desc}".lower()
+
+    def _guess_genre_for_hashtag() -> str:
+        text = _category_text_for_hashtag()
+        title_lower = (book_title or "").lower()
+        if "아포리즘" in (book_title or "") or "aphorism" in title_lower:
+            return "philosophy"
+        if any(k in text for k in ["philosophy", "철학"]):
+            return "philosophy"
+        if any(k in text for k in ["psychology", "self-help", "self help", "자기계발", "심리"]):
+            return "psychology"
+        if any(k in text for k in ["business", "economics", "management", "경제", "경영"]):
+            return "business"
+        if any(k in text for k in ["history", "역사"]):
+            return "history"
+        if any(k in text for k in ["science", "과학"]):
+            return "science"
+        if any(k in text for k in ["poetry", "시"]):
+            return "poetry"
+        if any(k in text for k in ["essay", "수필", "에세이"]):
+            return "essay"
+        if any(k in text for k in ["fiction", "novel", "소설"]):
+            return "fiction"
+        return "general"
+
+    genre = _guess_genre_for_hashtag()
+
+    # 공통 기본 해시태그
+    if content_type == "full_episode":
+        if language == "ko":
+            base_tags = ["#책리뷰", "#북튜브", "#독서", "#BookReview"]
+        else:
+            base_tags = ["#BookReview", "#BookTube", "#Reading", "#책리뷰"]
+    else:
+        if language == "ko":
+            base_tags = ["#핵심요약", "#책리뷰", "#북튜브"]
+        else:
+            base_tags = ["#BookSummary", "#BookReview", "#BookTube"]
+
+    # 장르별 추가 해시태그
+    genre_tags_ko = {
+        "philosophy": ["#철학", "#인문학", "#삶의지혜"],
+        "psychology": ["#심리학", "#자기계발", "#멘탈관리"],
+        "business": ["#경영", "#경제", "#자기계발"],
+        "history": ["#역사", "#인문학", "#교양"],
+        "science": ["#과학", "#교양", "#지식"],
+        "poetry": ["#시", "#문학", "#감성"],
+        "essay": ["#에세이", "#수필", "#감성독서"],
+        "fiction": ["#소설", "#문학", "#스토리"],
+        "general": ["#독서", "#책추천", "#지식창고"],
+    }
+    genre_tags_en = {
+        "philosophy": ["#Philosophy", "#Wisdom", "#Humanities"],
+        "psychology": ["#Psychology", "#SelfHelp", "#Mindset"],
+        "business": ["#Business", "#Economics", "#SelfHelp"],
+        "history": ["#History", "#Humanities", "#Learning"],
+        "science": ["#Science", "#Knowledge", "#Learning"],
+        "poetry": ["#Poetry", "#Literature", "#Emotions"],
+        "essay": ["#Essay", "#Literature", "#Reflection"],
+        "fiction": ["#Fiction", "#Novel", "#Literature"],
+        "general": ["#Reading", "#BookRecommendation", "#Knowledge"],
+    }
+
+    if language == "ko":
+        extra = genre_tags_ko.get(genre, genre_tags_ko["general"])
+    else:
+        extra = genre_tags_en.get(genre, genre_tags_en["general"])
+
+    all_tags = base_tags + extra
+    return " ".join(all_tags)
+
+
 def generate_engaging_title(
     book_title: str,
     author: Optional[str] = None,
