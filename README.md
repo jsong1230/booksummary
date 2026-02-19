@@ -832,10 +832,19 @@ python src/09_upload_from_metadata.py --privacy private --auto --force
 - **가이드**: [YouTube 메타데이터 생성 가이드](docs/YOUTUBE_METADATA_GUIDE.md)를 참조하세요.
 - **에피소드 스타일**: `src/20_create_episode_metadata.py`를 통한 동적 파트 감지 및 타임스탬프 생성.
 - **글로벌 SEO**: 영문 메타데이터에서 한글 자동 제거 및 최신 트렌드 태그 반영.
-- **다국어 메타데이터 지원**: 
+- **다국어 메타데이터 지원**:
   - 양쪽 언어(한글/영문)의 제목과 설명을 자동으로 생성하여 `localizations` 필드에 저장
   - YouTube가 시청자의 언어 설정에 따라 해당 언어의 제목과 설명을 자동으로 표시
   - 일당백 스타일과 Summary+Video 형식 모두 지원
+- **기존 영상 메타데이터 수정**: `src/17_update_video_metadata.py`로 이미 업로드된 영상의 제목·설명·태그를 업데이트
+  ```bash
+  # 메타데이터 파일 기반으로 업데이트 (영상 ID 자동 검색)
+  python src/17_update_video_metadata.py --metadata-file output/영상.metadata.json
+
+  # 영상 ID 직접 지정 (제목이 변경된 경우 권장)
+  python src/17_update_video_metadata.py --metadata-file output/영상.metadata.json --video-id VIDEO_ID
+  ```
+  - 필요 스코프: `youtube.upload` + `youtube.force-ssl` (`scripts/reauth_youtube.py`로 발급)
 
 ### 번역 매핑 시스템
 

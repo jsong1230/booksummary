@@ -475,6 +475,12 @@ def translate_book_title(book_title: str) -> str:
         "예수_하버드에_오다": "When Jesus Came to Harvard",
         "When Jesus Came to Harvard": "When Jesus Came to Harvard",
         "When Jesus Came to Harvard: Making Moral Choices Today": "When Jesus Came to Harvard",
+        "예수라는 사나이": "A Man Called Jesus",
+        "예수라는_사나이": "A Man Called Jesus",
+        "A Man Called Jesus": "A Man Called Jesus",
+        "신부님 우리들의 신부님": "Don Camillo",
+        "신부님_우리들의_신부님": "Don Camillo",
+        "Don Camillo": "Don Camillo",
         "몸의 일기": "Journal d'un corps",
         "몸의_일기": "Journal d'un corps",
         "Journal d'un corps": "Journal d'un corps",
@@ -555,6 +561,9 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "The Remains of the Day": "남아 있는 나날",
         "The Life Cycle Completed": "인간의 위대한 여정",
         "A Man Called Ove": "오베라는 남자",
+        "A Man Called Jesus": "예수라는 사나이",
+        "When Jesus Came to Harvard": "예수 하버드에 오다",
+        "Don Camillo": "신부님 우리들의 신부님",
         "The Gift of the Magi": "크리스마스 선물",
         "The Nutcracker": "호두까기 인형",
         "The Snowman": "스노우맨",
@@ -948,6 +957,10 @@ def translate_author_name(author: str) -> str:
         "Yonehara Mari": "Yonehara Mari",
         "하비 콕스": "Harvey Cox",
         "Harvey Cox": "Harvey Cox",
+        "다가와 겐조": "Kenzo Tagawa",
+        "Kenzo Tagawa": "Kenzo Tagawa",
+        "조반니 과레스키": "Giovanni Guareschi",
+        "Giovanni Guareschi": "Giovanni Guareschi",
         "다니엘 페나크": "Daniel Pennac",
         "Daniel Pennac": "Daniel Pennac",
     }
@@ -1070,8 +1083,11 @@ def translate_author_name_to_korean(author: str) -> str:
         "Park Jiwon": "박지원",
         "Wayne Dyer": "웨인 다이어",
         "Bertolt Brecht": "베르톨트 브레히트",
+        "Harvey Cox": "하비 콕스",
+        "Kenzo Tagawa": "다가와 겐조",
+        "Giovanni Guareschi": "조반니 과레스키",
     }
-    
+
     if author in reverse_author_map:
         return reverse_author_map[author]
     

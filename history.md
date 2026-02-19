@@ -2,6 +2,32 @@
 
 ## 2026-02-19
 
+### 번역 매핑 추가 및 스크립트 버그 수정
+
+#### 번역 매핑 추가 (src/utils/translations.py)
+- 예수라는 사나이 ↔ A Man Called Jesus
+- 다가와 겐조 ↔ Kenzo Tagawa
+- 신부님 우리들의 신부님 ↔ Don Camillo
+- 조반니 과레스키 ↔ Giovanni Guareschi
+- Harvey Cox → 하비 콕스 (역방향 추가)
+- When Jesus Came to Harvard → 예수 하버드에 오다 (역방향 추가)
+
+#### 17_update_video_metadata.py 스코프 수정
+- 기존: `youtube` 스코프 (credentials.json과 불일치로 인증 오류)
+- 수정: `youtube.upload` + `youtube.force-ssl` (reauth_youtube.py와 통일)
+
+#### 일당백 영상 제작 및 업로드
+- 신부님 우리들의 신부님 (조반니 과레스키 / Don Camillo) 한글·영문 일당백 영상 생성
+  - 한글: output/Don_Camillo_full_episode_ko.mp4 (489 MB, 15분 24초)
+  - 영문: output/Don_Camillo_full_episode_en.mp4 (564 MB, 15분 10초)
+- YouTube 비공개 업로드 완료
+  - 한글: https://www.youtube.com/watch?v=AD4gDVeBuoU
+  - 영문: https://www.youtube.com/watch?v=4zw-mBqnVi8
+
+#### YouTube OAuth 재인증
+- scripts/reauth_youtube.py 실행으로 youtube.force-ssl 스코프 포함 토큰 갱신
+- .env YOUTUBE_REFRESH_TOKEN 업데이트 완료
+
 ### YouTube 시청자 유입 및 채널 성장 개선
 
 #### Phase A: Quick Wins (기존 코드 수정)
@@ -3768,3 +3794,13 @@
   - URL: https://www.youtube.com/watch?v=xMEwBF62wbY
 - [2] [핵심 요약] 몸의 일기 (Journal d'un corps · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
   - URL: https://www.youtube.com/watch?v=AnW7-BSZT4o
+
+## 2026-02-19
+
+### YouTube 업로드 완료
+- 업로드된 책: Don_Camillo_full_episode, Don_Camillo_full_episode_ko
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] Don Camillo: Giovanni Guareschi (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=4zw-mBqnVi8
+- [2] [일당백] 신부님 우리들의 신부님: 조반니 과레스키 (Don Camillo · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=AD4gDVeBuoU
