@@ -73,7 +73,7 @@ class TestAffiliateLinks:
             assert "yes24.com" not in result
 
     def test_url_encoding_works(self):
-        """URL 인코딩이 정상 동작 (Amazon은 영문 제목 사용)"""
+        """URL 인코딩이 정상 동작 (Amazon은 영문 제목만 사용, 작가명 제외)"""
         with patch.dict(os.environ, {
             "AMAZON_ASSOCIATE_TAG": "test-amazon-20"
         }):
@@ -84,9 +84,8 @@ class TestAffiliateLinks:
                 author_en="Author Name",
                 language="ko"
             )
-            # Amazon은 영문 제목으로 검색해야 함
+            # Amazon은 영문 제목으로만 검색 (작가명은 제외)
             assert "Test+Book+Title" in result or "Test%20Book%20Title" in result
-            assert "Author+Name" in result or "Author%20Name" in result
             # 공백이 + 또는 %20으로 인코딩되어야 함
             assert "+" in result or "%20" in result
 
@@ -108,7 +107,7 @@ class TestAffiliateLinks:
             assert "Yes24:" not in result
 
     def test_with_author_names(self):
-        """저자명이 포함된 검색어 생성 (Amazon은 영문 제목/저자 사용)"""
+        """저자명이 포함된 데이터 (Amazon은 영문 제목만 사용, 작가명 제외)"""
         with patch.dict(os.environ, {
             "AMAZON_ASSOCIATE_TAG": "test-amazon-20"
         }):
@@ -119,9 +118,8 @@ class TestAffiliateLinks:
                 author_en="Ernest Hemingway",
                 language="ko"
             )
-            # Amazon은 영문 제목과 저자명으로 검색해야 함
+            # Amazon은 영문 제목만으로 검색 (작가명은 제외)
             assert "The+Old+Man+and+the+Sea" in result or "The%20Old%20Man%20and%20the%20Sea" in result
-            assert "Ernest+Hemingway" in result or "Ernest%20Hemingway" in result
 
     def test_without_author_names(self):
         """저자명이 없을 때도 정상 동작"""

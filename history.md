@@ -2,6 +2,34 @@
 
 ## 2026-02-19
 
+### 제휴 링크 및 고정 댓글 기능 강화
+
+#### affiliate_links.py 개선
+- 작가명을 검색어에서 제외하여 검색 정확도 향상
+- 알라딘, Amazon, Yes24 모두 책 제목만으로 검색
+- 영문 제목과 한글 번역 제목 모두 지원
+
+#### 일괄 고정 댓글 기능 강화 (25_batch_add_pinned_comments.py)
+- `--update-existing` 플래그: 기존 댓글 업데이트 지원
+- `--verify-books` 플래그: Google Books API로 책 존재 여부 사전 검증
+- `verify_book_title()` 메서드: Google Books API 활용
+- `update_comment()` 메서드: YouTube comments().update() API 활용
+
+#### 일괄 제휴 링크 댓글 적용 완료
+- 246개 유튜브 영상에 제휴 링크 고정 댓글 추가
+- 87개 신규 추가, 155개 스킵 (기존 댓글 보존), 4개 오류 (댓글 비활성화)
+- 한글 영상: 알라딘 + Amazon 링크
+- 영문 영상: Amazon 링크만
+
+#### 프로젝트 문서화
+- .moai/project/product.md 생성
+- .moai/project/structure.md 생성
+- .moai/project/tech.md 생성
+
+---
+
+## 2026-02-19
+
 ### 몸의 일기 (다니엘 페나크) summary+video 영상 제작
 - **한글/영문 영상 생성 완료**:
   - 한글: `output/Journal_dun_corps_kr.mp4` (237MB, 약 7.4분)

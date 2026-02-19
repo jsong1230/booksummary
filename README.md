@@ -693,6 +693,8 @@ python src/09_upload_from_metadata.py --privacy private --auto --force
 │   ├── 08_generate_summary.py      # 요약 텍스트 생성 (Hook → Summary → Bridge 구조)
 │   ├── 09_text_to_speech_multi.py  # 다중 엔진 TTS 변환
 │   ├── 10_create_video_with_summary.py  # 영상 합성 (요약+리뷰)
+│   ├── 24_batch_update_affiliate_links.py  # 기존 영상 제휴 링크 일괄 업데이트
+│   ├── 25_batch_add_pinned_comments.py  # 기존 영상 고정 댓글 일괄 추가
 │   └── ...
 └── README.md           # 이 파일
 ```
@@ -722,6 +724,7 @@ python src/09_upload_from_metadata.py --privacy private --auto --force
   - 한글 영상: Amazon 링크 포함
   - 영문 영상: Amazon 링크 포함
   - 알라딘(`ALADIN_PARTNER_ID`), Yes24(`YES24_PARTNER_ID`) 제휴도 지원 (선택사항)
+  - **개선**: 작가명을 검색어에서 제외하여 검색 정확도 향상 (제목만 사용)
 - **기존 영상 일괄 업데이트**: `src/24_batch_update_affiliate_links.py`로 채널의 기존 영상에도 제휴 링크 추가 가능
   ```bash
   # 미리보기
@@ -730,6 +733,29 @@ python src/09_upload_from_metadata.py --privacy private --auto --force
   python src/24_batch_update_affiliate_links.py --apply --limit 50
   ```
 - **멱등성 보장**: 이미 제휴 링크가 있는 영상은 건너뜀
+
+### 일괄 고정 댓글 기능 (제휴 링크 포함)
+- **고정 댓글 일괄 추가**: `src/25_batch_add_pinned_comments.py`로 채널의 모든 영상에 고정 댓글 자동 추가
+  ```bash
+  # 기본 실행 (모든 영상)
+  python src/25_batch_add_pinned_comments.py
+
+  # 기존 댓글 확인 및 업데이트
+  python src/25_batch_add_pinned_comments.py --update-existing
+
+  # 책 존재 여부 사전 검증 (Google Books API)
+  python src/25_batch_add_pinned_comments.py --verify-books
+  ```
+- **고정 댓글 구성**:
+  - 한글 영상: 알라딘 + Amazon 제휴 링크
+  - 영문 영상: Amazon 제휴 링크만
+  - 챕터 타임스탐프 (자동 감지)
+  - 참여 유도 질문
+- **주요 기능**:
+  - `--update-existing`: 기존 댓글 업데이트 지원 (`update_comment()` 메서드)
+  - `--verify-books`: Google Books API로 책 존재 여부 사전 검증 (`verify_book_title()` 메서드)
+  - 댓글 비활성화 영상 자동 감지 및 스킵
+  - 일괄 작업 결과 요약 출력
 
 ### 고해상도 썸네일 생성
 
