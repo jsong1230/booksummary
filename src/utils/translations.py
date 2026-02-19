@@ -481,6 +481,9 @@ def translate_book_title(book_title: str) -> str:
         "신부님 우리들의 신부님": "Don Camillo",
         "신부님_우리들의_신부님": "Don Camillo",
         "Don Camillo": "Don Camillo",
+        "청춘의 독서": "Youth and Reading",
+        "청춘의_독서": "Youth and Reading",
+        "Youth and Reading": "Youth and Reading",
         "몸의 일기": "Journal d'un corps",
         "몸의_일기": "Journal d'un corps",
         "Journal d'un corps": "Journal d'un corps",
@@ -564,6 +567,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "A Man Called Jesus": "예수라는 사나이",
         "When Jesus Came to Harvard": "예수 하버드에 오다",
         "Don Camillo": "신부님 우리들의 신부님",
+        "Youth and Reading": "청춘의 독서",
         "The Gift of the Magi": "크리스마스 선물",
         "The Nutcracker": "호두까기 인형",
         "The Snowman": "스노우맨",
@@ -961,6 +965,8 @@ def translate_author_name(author: str) -> str:
         "Kenzo Tagawa": "Kenzo Tagawa",
         "조반니 과레스키": "Giovanni Guareschi",
         "Giovanni Guareschi": "Giovanni Guareschi",
+        "유시민": "Rhyu Si-min",
+        "Rhyu Si-min": "Rhyu Si-min",
         "다니엘 페나크": "Daniel Pennac",
         "Daniel Pennac": "Daniel Pennac",
     }
@@ -1086,6 +1092,7 @@ def translate_author_name_to_korean(author: str) -> str:
         "Harvey Cox": "하비 콕스",
         "Kenzo Tagawa": "다가와 겐조",
         "Giovanni Guareschi": "조반니 과레스키",
+        "Rhyu Si-min": "유시민",
     }
 
     if author in reverse_author_map:

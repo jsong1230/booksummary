@@ -2,6 +2,22 @@
 
 ## 2026-02-19
 
+### 청춘의 독서 (유시민) summary+video 영상 제작 및 업로드
+
+#### 번역 매핑 추가 (src/utils/translations.py)
+- 청춘의 독서 ↔ Youth and Reading
+- 유시민 ↔ Rhyu Si-min
+
+#### 영상 제작
+- TTS: OpenAI nova, 5분 요약, 볼륨 1.2배
+- 무드 이미지 70개 다운로드 (assets/images/Youth_and_Reading/)
+- 한글: output/Youth_and_Reading_kr.mp4 (269 MB)
+- 영문: output/Youth_and_Reading_en.mp4 (260 MB)
+
+#### YouTube 비공개 업로드 완료
+- 한글: https://www.youtube.com/watch?v=sPOCgIzFRTg
+- 영문: https://www.youtube.com/watch?v=1rdzviwjpNg
+
 ### 번역 매핑 추가 및 스크립트 버그 수정
 
 #### 번역 매핑 추가 (src/utils/translations.py)
@@ -3804,3 +3820,13 @@
   - URL: https://www.youtube.com/watch?v=4zw-mBqnVi8
 - [2] [일당백] 신부님 우리들의 신부님: 조반니 과레스키 (Don Camillo · 배경지식·인포그래픽·책 분석)
   - URL: https://www.youtube.com/watch?v=AD4gDVeBuoU
+
+## 2026-02-19
+
+### YouTube 업로드 완료
+- 업로드된 책: Youth_and_Reading
+- 업로드된 영상 수: 2개
+- [1] [Summary] Youth and Reading (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=1rdzviwjpNg
+- [2] [핵심 요약] 청춘의 독서 (Youth and Reading · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=sPOCgIzFRTg
