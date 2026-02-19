@@ -7,6 +7,7 @@
 import os
 import json
 import time
+import base64
 import requests
 from pathlib import Path
 from typing import List, Dict, Optional
@@ -566,16 +567,148 @@ class ImageDownloader:
         
         return downloaded
     
-    def download_all(self, book_title: str, author: str = None, keywords: List[str] = None, num_mood_images: int = 100, skip_cover: bool = False) -> Dict:
+    def validate_images_with_ai(self, image_dir: Path, book_title: str, author: str = None, target_count: int = 100) -> List[Path]:
+        """
+        GPT-4o Vision으로 다운로드된 이미지의 책 관련성을 검증하고 상위 이미지만 유지.
+
+        Args:
+            image_dir: 이미지 디렉토리 경로
+            book_title: 책 제목
+            author: 저자 이름
+            target_count: 최종 유지할 이미지 수 (기본: 100)
+
+        Returns:
+            검증 후 유지된 이미지 경로 목록
+        """
+        if not OPENAI_AVAILABLE or not self.openai_api_key:
+            self.logger.warning("OpenAI API 키가 없어 이미지 검증을 건너뜁니다.")
+            return list(image_dir.glob("mood_*.jpg"))[:target_count]
+
+        all_images = sorted(image_dir.glob("mood_*.jpg"))
+        if not all_images:
+            return []
+
+        self.logger.info(f"🔍 AI 이미지 검증 시작: {len(all_images)}개 이미지 → 상위 {target_count}개 선별")
+
+        author_str = f" by {author}" if author else ""
+        scored_images = []
+        batch_size = 10
+
+        client_oa = openai.OpenAI(api_key=self.openai_api_key)
+
+        for i in range(0, len(all_images), batch_size):
+            batch = all_images[i:i + batch_size]
+            batch_num = i // batch_size + 1
+            total_batches = (len(all_images) + batch_size - 1) // batch_size
+            self.logger.info(f"  배치 {batch_num}/{total_batches} 검증 중... ({len(batch)}개)")
+
+            # 이미지를 base64로 인코딩
+            image_contents = []
+            valid_batch = []
+            for img_path in batch:
+                try:
+                    with open(img_path, 'rb') as f:
+                        img_data = base64.b64encode(f.read()).decode('utf-8')
+                    image_contents.append({
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{img_data}", "detail": "low"}
+                    })
+                    valid_batch.append(img_path)
+                except Exception as e:
+                    self.logger.warning(f"이미지 읽기 실패 ({img_path.name}): {e}")
+
+            if not valid_batch:
+                continue
+
+            prompt_text = (
+                f"You are evaluating {len(valid_batch)} images for use in a video about the book "
+                f'"{book_title}"{author_str}.\n\n'
+                f"For EACH image (numbered 1 to {len(valid_batch)}), rate how relevant it is to this specific book's "
+                f"content, setting, themes, or atmosphere on a scale of 1-10.\n\n"
+                f"Scoring guide:\n"
+                f"- 8-10: Directly matches the book's setting, characters, or key themes\n"
+                f"- 5-7: Loosely related to the book's mood or general era/location\n"
+                f"- 1-4: Generic stock photo with no clear connection to this book\n\n"
+                f"Respond with ONLY {len(valid_batch)} numbers separated by commas (e.g., '7,3,9,5,...').\n"
+                f"No explanations."
+            )
+
+            messages = [{"type": "text", "text": prompt_text}] + image_contents
+
+            try:
+                response = client_oa.chat.completions.create(
+                    model="gpt-4o",
+                    messages=[{"role": "user", "content": messages}],
+                    max_tokens=100
+                )
+                scores_text = response.choices[0].message.content or ""
+                scores_raw = [s.strip() for s in scores_text.split(',')]
+                scores = []
+                for s in scores_raw:
+                    try:
+                        scores.append(int(float(s)))
+                    except ValueError:
+                        scores.append(5)  # 파싱 실패 시 중간 점수
+
+                # 점수 길이 맞추기
+                while len(scores) < len(valid_batch):
+                    scores.append(5)
+                scores = scores[:len(valid_batch)]
+
+                for img_path, score in zip(valid_batch, scores):
+                    scored_images.append((score, img_path))
+
+            except Exception as e:
+                self.logger.warning(f"배치 {batch_num} 검증 실패: {e}")
+                # 실패한 배치는 중간 점수로 처리
+                for img_path in valid_batch:
+                    scored_images.append((5, img_path))
+
+            time.sleep(0.5)  # API rate limit 방지
+
+        if not scored_images:
+            self.logger.warning("검증 결과 없음 - 원본 이미지 목록 반환")
+            return list(all_images)[:target_count]
+
+        # 점수순 내림차순 정렬
+        scored_images.sort(key=lambda x: x[0], reverse=True)
+
+        # 점수 분포 로깅
+        score_counts = {i: sum(1 for s, _ in scored_images if s == i) for i in range(1, 11)}
+        self.logger.info(f"📊 점수 분포: {score_counts}")
+
+        kept = [p for _, p in scored_images[:target_count]]
+        removed = [p for _, p in scored_images[target_count:]]
+
+        # 점수 낮은 이미지 삭제
+        deleted_count = 0
+        for img_path in removed:
+            try:
+                img_path.unlink()
+                deleted_count += 1
+            except Exception as e:
+                self.logger.warning(f"이미지 삭제 실패 ({img_path.name}): {e}")
+
+        # 유지된 이미지 중 점수 낮은 것(1-4점) 개수 로깅
+        low_score_kept = sum(1 for s, _ in scored_images[:target_count] if s <= 4)
+        self.logger.info(
+            f"✅ 검증 완료: {len(kept)}개 유지 (저점수 포함 {low_score_kept}개), {deleted_count}개 삭제"
+        )
+
+        return kept
+
+    def download_all(self, book_title: str, author: str = None, keywords: List[str] = None, num_mood_images: int = 100, skip_cover: bool = False, skip_validation: bool = False) -> Dict:
         """
         책 표지와 무드 이미지 모두 다운로드
-        
+
         Args:
             book_title: 책 제목
             author: 저자 이름
             keywords: 무드 이미지 검색 키워드 (None이면 자동 생성)
-            num_mood_images: 무드 이미지 개수
-            
+            num_mood_images: 최종 유지할 무드 이미지 개수 (기본: 100)
+            skip_cover: 표지 이미지 다운로드 건너뛰기
+            skip_validation: AI 검증 건너뛰기 (기본: False, 검증 수행)
+
         Returns:
             다운로드 결과 딕셔너리
         """
@@ -626,12 +759,15 @@ class ImageDownloader:
                 'mood_images': [str(img) for img in existing_images[:num_mood_images]],
                 'total_mood_images': existing_count
             }
-        
-        self.logger.info(f"📊 기존 이미지: {existing_count}개, 추가로 {num_mood_images - existing_count}개 필요")
-        
-        # 100개 이미지를 확실히 다운로드하기 위해 여러 키워드에서 충분히 수집
+
+        # AI 검증을 위해 여유분(30개)을 포함하여 더 많이 다운로드
+        # skip_validation이면 목표 수만큼만 다운로드
+        download_target = num_mood_images if skip_validation else max(num_mood_images + 30, 130)
+        self.logger.info(f"📊 기존 이미지: {existing_count}개, 다운로드 목표: {download_target}개 (검증 후 {num_mood_images}개 유지)")
+
+        # 이미지를 확실히 다운로드하기 위해 여러 키워드에서 충분히 수집
         mood_images = existing_images.copy()  # 기존 이미지 포함
-        target_count = num_mood_images
+        target_count = download_target
         
         # Pexels에서 다운로드 (1순위)
         if len(mood_images) < target_count and self.pexels:
@@ -743,10 +879,20 @@ class ImageDownloader:
         self.logger.info(f"📁 저장 위치: {output_dir}")
         self.logger.info(f"📚 표지: {'✅' if cover_path else '❌'}")
         self.logger.info(f"🎨 무드 이미지: {len(mood_images)}개")
-        
+
+        # 4. AI 검증 단계: 관련성 낮은 이미지 삭제, 상위 num_mood_images개 유지
+        if not skip_validation and len(mood_images) > num_mood_images:
+            self.logger.info(f"🔍 AI 검증 시작: {len(mood_images)}개 → {num_mood_images}개 선별")
+            validated = self.validate_images_with_ai(output_dir, book_title, author, target_count=num_mood_images)
+            mood_images = validated
+        else:
+            if skip_validation:
+                self.logger.info("⏩ AI 검증 건너뜀 (--skip-validation)")
+            mood_images = mood_images[:num_mood_images]
+
         # mood_images가 Path 객체 리스트인 경우 문자열로 변환
         mood_images_str = [str(img) if isinstance(img, Path) else img for img in mood_images]
-        
+
         return {
             'cover_path': str(cover_path) if cover_path else None,
             'mood_images': mood_images_str,
@@ -791,21 +937,7 @@ class ImageDownloader:
                 "loss and grief", "japanese youth 1960s", "tokyo university"
             ])
         
-        # 시각적 다양성을 위한 범용 테마 키워드 (추가)
-        keywords.extend([
-            "dramatic lighting", "cinematic landscape", "moody atmosphere",
-            "vintage photography", "storytelling visual", "emotional scene",
-            "historical setting", "urban decay", "peaceful countryside",
-            "abstract theme", "texture background", "soft bokeh",
-            "golden hour nature", "minimalist composition", "symbolic object"
-        ])
-        
-        # 일반적인 문학 키워드 (이미지 검색 효율이 좋은 것들)
-        keywords.extend([
-            "classic novel vibe",
-            "vintage aesthetics",
-            "literary atmosphere"
-        ])
+        # 범용 테마 키워드는 제거 - 책 내용과 무관한 이미지가 포함되는 원인
         
         # 중복 제거 및 최대 30개 반환 (기존 10개에서 상향)
         unique_keywords = []
@@ -857,49 +989,47 @@ class ImageDownloader:
             if sp.exists():
                 try:
                     with open(sp, 'r', encoding='utf-8') as f:
-                        summary_text = f.read()[:2000]  # 처음 2000자만 사용
+                        summary_text = f.read()[:4000]  # 처음 4000자 사용 (더 많은 장면 정보)
                     break
                 except:
                     continue
         
-        prompt = f"""Role: You are an expert visual director and historian.
+        prompt = f"""Role: You are an expert visual director and historian specializing in book-to-visual adaptation.
 Task: Generate 60 specific English image search keywords for the book "{book_title}" by "{author}".
 
-Instructions:
-1. **Analyze Setting & Mood**: Determine the specific time period and geographical location.
-2. **Visual Authenticity**: Generate keywords that strictly reflect the setting.
-3. **CRITICAL - Geographical Accuracy**:
-   - Strictly follow the story's setting. Do NOT use "Korea" unless the book is set there.
-4. **Visual Diversity & Metaphor**: 
-   - Beyond literal descriptions, include metaphorical and abstract visual concepts that represent the book's themes.
-   - Use a mix of: Wide shots, Extreme-Close-ups (textures), and Medium shots.
-   - Request varied lighting: (e.g., golden hour, moody shadows, harsh contrast, soft ethereal light).
+CRITICAL RULES:
+1. **Book-Specific ONLY**: Every keyword must directly reflect THIS book's actual content, scenes, settings, or themes.
+2. **NO Generic Photography Terms**: FORBIDDEN - "dramatic lighting", "cinematic landscape", "moody atmosphere", "vintage photography", "golden hour", "soft bokeh", "minimalist composition", "symbolic object", "classic novel vibe", "literary atmosphere". These are banned.
+3. **Geographical Accuracy**: Strictly follow the story's actual setting. Do NOT use "Korea" unless the book is set there.
+4. **Scene-Based**: Extract specific scenes, locations, objects, and characters from the book's actual content.
+5. **Visual Diversity**: Include wide establishing shots, close-up textures, and character moments - all book-specific.
 
 Content to Analyze:
 """
-        
+
         # Summary 내용 추가 (가장 중요)
         if summary_text:
             prompt += f"\n[Book Summary]\n{summary_text}\n"
-        
+
         if book_info:
             if book_info.get('description'):
                 prompt += f"\n[Book Description]\n{book_info['description'][:800]}\n"
             if book_info.get('categories'):
                 prompt += f"[Categories]\n{', '.join(book_info['categories'])}\n"
-        
+
         prompt += """
 Keywords Categories (Provide 10-12 per category):
-1. **Atmosphere & Mood**: (e.g., melancholy, ottoman miniature style, noir, dystopian fog, ethereal light)
-2. **Setting & Architecture**: (e.g., hagia sophia, 16th century istanbul streets, 1960s tokyo alley, snowy forest)
-3. **Objects & Symbols (Metaphoric)**: (e.g., broken hourglass, red caftan, vintage ink pot, wilting rose, heavy chains)
-4. **Textures & Close-ups**: (e.g., old parchment texture, rain on window, dust motes in light, cracked soil, silk fabric)
-5. **Characters/Scenes**: (e.g., silhouette in doorway, ottoman scribes, japanese students 1960s, lonely figure in coat)
+1. **Book-Specific Atmosphere**: ONLY the unique emotional tone and atmosphere of THIS book (e.g., "nazi concentration camp despair", "1960s tokyo melancholy", "austrian mountains isolation")
+2. **Setting & Architecture**: Actual locations from the book (e.g., "hagia sophia interior", "auschwitz barracks", "1960s tokyo university dormitory", "norwegian forest autumn")
+3. **Objects & Symbols**: Actual objects that appear in the book or symbolize its themes (e.g., "prisoner uniform stripes", "vintage japanese record player", "worn leather journal")
+4. **Textures & Close-ups**: Physical details that evoke the book's world (e.g., "barbed wire close-up", "old tatami mat texture", "yellowed wartime document")
+5. **Characters/Scenes**: Specific scenes or character types from the book (e.g., "prisoner working in nazi camp", "japanese college student 1960s", "lonely man in snowy park")
 
 Constraints:
 - Keywords must be in **ENGLISH**.
 - **NO** text overlays or typography keywords.
-- **NO** generic terms like "book", "reading", "illustration".
+- **NO** generic stock photo terms: "dramatic lighting", "cinematic", "vintage photography", "golden hour", "bokeh", "minimalist", "storytelling visual", "emotional scene", "literary".
+- **NO** generic terms like "book", "reading", "illustration", "nature landscape" unless specific to the book.
 - **Strictly exclude** modern elements if the book is historical.
 - **Strictly exclude** Korean elements for non-Korean stories.
 
@@ -915,7 +1045,7 @@ Format:
             if ANTHROPIC_AVAILABLE and self.claude_api_key:
                 client = anthropic.Anthropic(api_key=self.claude_api_key)
                 response = client.messages.create(
-                    model="claude-3-opus-20240229",
+                    model="claude-sonnet-4-6",
                     max_tokens=1000,
                     messages=[{
                         "role": "user",
@@ -926,8 +1056,9 @@ Format:
             # OpenAI API 사용
             elif OPENAI_AVAILABLE and self.openai_api_key:
                 openai.api_key = self.openai_api_key
-                response = openai.ChatCompletion.create(
-                    model="gpt-4",
+                client_oa = openai.OpenAI(api_key=self.openai_api_key)
+                response = client_oa.chat.completions.create(
+                    model="gpt-4o",
                     messages=[
                         {"role": "system", "content": "You are a helpful assistant that generates image search keywords based on book content."},
                         {"role": "user", "content": prompt}
@@ -977,9 +1108,15 @@ Format:
                 self.logger.warning("AI 키워드 파싱 결과가 없어 기본 키워드를 사용합니다.")
                 return self._generate_keywords(book_title, author)
             
-            # 기본 키워드와 병합 (중복 제거)
-            basic_keywords = self._generate_keywords(book_title, author)
-            all_keywords = keywords + basic_keywords
+            # AI 키워드가 충분하면 basic 키워드 병합하지 않음 (책 관련성 유지)
+            # AI 키워드가 30개 미만일 때만 작가/제목별 하드코딩 키워드로 보충
+            if len(keywords) >= 30:
+                self.logger.info(f"📝 AI 키워드 {len(keywords)}개 충분 - basic 키워드 병합 생략 (관련성 유지)")
+                all_keywords = keywords
+            else:
+                self.logger.info(f"📝 AI 키워드 {len(keywords)}개 부족 - basic 키워드로 보충")
+                basic_keywords = self._generate_keywords(book_title, author)
+                all_keywords = keywords + basic_keywords
             
             # 중복 제거 및 금지 키워드 재필터링
             seen = set()
@@ -1018,16 +1155,18 @@ def main():
     parser.add_argument('--keywords', type=str, nargs='+', help='무드 이미지 검색 키워드 (공백으로 구분)')
     parser.add_argument('--num-mood', type=int, default=100, help='무드 이미지 개수 (기본값: 100)')
     parser.add_argument('--skip-cover', action='store_true', help='표지 이미지 다운로드 건너뛰기')
-    
+    parser.add_argument('--skip-validation', action='store_true', help='AI 이미지 검증 건너뛰기 (기본: 검증 수행)')
+
     args = parser.parse_args()
-    
+
     downloader = ImageDownloader()
     result = downloader.download_all(
         book_title=args.title,
         author=args.author,
         keywords=args.keywords,
         num_mood_images=args.num_mood,
-        skip_cover=args.skip_cover
+        skip_cover=args.skip_cover,
+        skip_validation=args.skip_validation
     )
     
     logger = get_logger(__name__)

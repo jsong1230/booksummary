@@ -9,20 +9,21 @@ from pathlib import Path
 from typing import Optional, Dict
 from dotenv import load_dotenv
 
-try:
-    from google.oauth2.credentials import Credentials
-    from google.auth.transport.requests import Request
-    from googleapiclient.discovery import build
-    from googleapiclient.http import MediaFileUpload
-    from googleapiclient.errors import HttpError
-    GOOGLE_API_AVAILABLE = True
-except ImportError:
-    GOOGLE_API_AVAILABLE = False
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
+from googleapiclient.errors import HttpError
+
+GOOGLE_API_AVAILABLE = True
 
 # 환경 변수 로드
 load_dotenv()
 
-SCOPES = ['https://www.googleapis.com/auth/youtube.upload']
+SCOPES = [
+    'https://www.googleapis.com/auth/youtube.upload',
+    'https://www.googleapis.com/auth/youtube.force-ssl'
+]
 
 
 class AutoYouTubeUploader:
@@ -252,7 +253,7 @@ This video was automatically generated using NotebookLM and AI.
         video_path: str,
         title: str,
         description: str,
-        tags: list = None,
+        tags: Optional[list] = None,
         privacy_status: str = "private",
         thumbnail_path: Optional[str] = None,
         lang: str = "both"
@@ -292,6 +293,7 @@ This video was automatically generated using NotebookLM and AI.
                 mimetype='video/*'
             )
             
+            assert self.youtube is not None, "YouTube client not initialized"
             insert_request = self.youtube.videos().insert(
                 part=','.join(['snippet', 'status']),
                 body=body,
@@ -304,7 +306,7 @@ This video was automatically generated using NotebookLM and AI.
             # 썸네일 업로드
             if thumbnail_path and os.path.exists(thumbnail_path):
                 self.upload_thumbnail(video_id, thumbnail_path)
-            elif video_file.parent / f"{video_file.stem}_thumbnail.jpg".exists():
+            elif (video_file.parent / f"{video_file.stem}_thumbnail.jpg").exists():
                 thumbnail = video_file.parent / f"{video_file.stem}_thumbnail.jpg"
                 self.upload_thumbnail(video_id, str(thumbnail))
             
@@ -353,6 +355,7 @@ This video was automatically generated using NotebookLM and AI.
     def upload_thumbnail(self, video_id: str, thumbnail_path: str):
         """썸네일 업로드"""
         try:
+            assert self.youtube is not None, "YouTube client not initialized"
             self.youtube.thumbnails().set(
                 videoId=video_id,
                 media_body=MediaFileUpload(thumbnail_path)

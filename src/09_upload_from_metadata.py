@@ -15,15 +15,13 @@ from dotenv import load_dotenv
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-try:
-    from google.oauth2.credentials import Credentials
-    from google.auth.transport.requests import Request
-    from googleapiclient.discovery import build
-    from googleapiclient.http import MediaFileUpload
-    from googleapiclient.errors import HttpError
-    GOOGLE_API_AVAILABLE = True
-except ImportError:
-    GOOGLE_API_AVAILABLE = False
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
+from googleapiclient.errors import HttpError
+
+GOOGLE_API_AVAILABLE = True
 
 load_dotenv()
 
@@ -300,6 +298,7 @@ class YouTubeUploader:
                 body['snippet']['localizations'] = localizations
                 print(f"   🌐 다국어 메타데이터 추가: {', '.join(localizations.keys())}")
             
+            assert self.youtube is not None, "YouTube client not initialized"
             insert_request = self.youtube.videos().insert(
                 part=','.join(['snippet', 'status']),
                 body=body,
@@ -321,12 +320,11 @@ class YouTubeUploader:
                 try:
                     update_body = {
                         'id': video_id,
-                        'snippet': {
-                            'localizations': localizations
-                        }
+                        'localizations': localizations
                     }
+                    assert self.youtube is not None, "YouTube client not initialized"
                     self.youtube.videos().update(
-                        part='snippet',
+                        part='localizations',
                         body=update_body
                     ).execute()
                     print(f"   ✅ 다국어 메타데이터 업데이트 완료")
@@ -448,6 +446,7 @@ class YouTubeUploader:
         
         while retry < max_retries:
             try:
+                assert self.youtube is not None, "YouTube client not initialized"
                 self.youtube.thumbnails().set(
                     videoId=video_id,
                     media_body=MediaFileUpload(thumbnail_path)
@@ -483,6 +482,7 @@ class YouTubeUploader:
         """
         try:
             # 댓글 작성
+            assert self.youtube is not None, "YouTube client not initialized"
             comment_response = self.youtube.commentThreads().insert(
                 part='snippet',
                 body={
@@ -571,7 +571,7 @@ def ensure_thumbnail_from_input_before_upload(video_path: Path, metadata: Dict) 
             try:
                 img = Image.open(candidate)
                 if img.mode == 'RGBA':
-                    background = Image.new('RGB', img.size, (255, 255, 255))
+                    background = Image.new('RGB', img.size, (255, 255, 255))  # type: ignore[arg-type]
                     background.paste(img, mask=img.split()[3])
                     img = background
                 elif img.mode != 'RGB':
@@ -1168,7 +1168,7 @@ def main():
                                 img = Image.open(png_path)
                                 # RGBA를 RGB로 변환
                                 if img.mode == 'RGBA':
-                                    background = Image.new('RGB', img.size, (255, 255, 255))
+                                    background = Image.new('RGB', img.size, (255, 255, 255))  # type: ignore[arg-type]
                                     background.paste(img, mask=img.split()[3])
                                     img = background
                                 elif img.mode != 'RGB':

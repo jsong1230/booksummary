@@ -2,6 +2,29 @@
 
 ## 2026-02-19
 
+### 무드 이미지 품질 개선 (책 내용 관련성 향상)
+
+#### 문제 해결
+- 기존 무드 이미지가 책 내용과 무관한 범용 스톡 사진으로 채워지는 문제 해결
+  - 원인 1: generic 키워드 18개 항상 포함 ("dramatic lighting", "golden hour" 등)
+  - 원인 2: 다운로드 후 관련성 검증 없음
+
+#### src/02_get_images.py 개선
+- `_generate_keywords()`: 범용 키워드 18개 전면 제거
+- `generate_keywords_with_ai()`:
+  - Summary 텍스트 2000자 → 4000자로 확장 (더 많은 장면 정보 제공)
+  - AI 프롬프트 강화: "CRITICAL RULES" 섹션 추가, 범용 키워드 명시 금지
+  - AI 키워드 ≥30개이면 basic 키워드 병합 생략 (관련성 유지)
+  - AI 모델 업데이트: `claude-3-opus-20240229` → `claude-sonnet-4-6`, `gpt-4` → `gpt-4o`
+- `validate_images_with_ai()` 신규 추가:
+  - GPT-4o Vision으로 이미지 10개씩 배치 처리
+  - 각 이미지의 책 관련성 1-10점 평가
+  - 점수 상위 100개 유지, 나머지 삭제
+- `download_all()`: 검증 여유분 포함 130개 다운로드 → AI 검증 후 100개 선별
+- CLI: `--skip-validation` 플래그 추가 (AI 검증 건너뛰기)
+
+---
+
 ### 제휴 링크 및 고정 댓글 기능 강화
 
 #### affiliate_links.py 개선

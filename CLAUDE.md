@@ -66,11 +66,14 @@
      --prefix "파일명접두사"
 
    # 2단계: 이미지 다운로드 (필수 100개, 저자/주제 관련)
+   # - 기본: AI 검증 포함 (130개 다운로드 → 관련성 점수 상위 100개 유지)
+   # - --skip-validation: AI 검증 없이 빠르게 다운로드만 수행
    python src/02_get_images.py \
      --title "책 제목" \
      --author "저자 이름" \
      --num-mood 100 \
      --skip-cover
+   # AI 검증 없이 빠르게: --skip-validation 추가
 
    # 3단계: 다중 엔진 TTS 오디오 생성 (선택사항, 요약 MD가 있는 경우)
    python src/09_text_to_speech_multi.py \
@@ -130,8 +133,52 @@
 6. **보안 및 인증 정보 확인**
    - 모든 자격 증명 파일은 `secrets/` 폴더에 위치해야 합니다.
    - `secrets/client_secret.json`: YouTube API 클라이언트 보안 비밀
-   - `secrets/credentials.json`: YouTube API 인증 토큰
+   - `secrets/credentials.json`: YouTube API 인증 토큰 (`youtube.upload` + `youtube.force-ssl` 스코프 포함)
    - `secrets/google-cloud-tts-key.json`: Google Cloud TTS 서비스 계정 키
+   - OAuth 스코프 재발급이 필요한 경우: `python scripts/reauth_youtube.py` 실행
+
+## 📦 제휴 링크 및 고정 댓글 관리
+
+### 제휴 링크 자동 삽입
+업로드 시 description에 Amazon/알라딘/Yes24 제휴 링크가 자동으로 포함됩니다.
+
+1. **환경 변수 설정** (`.env` 파일)
+   - `AMAZON_ASSOCIATE_TAG`: Amazon Associates 태그 (예: `joohans-20`)
+   - `ALADIN_PARTNER_ID`: 알라딘 파트너스 ID (선택)
+   - `YES24_PARTNER_ID`: Yes24 제휴 ID (선택)
+   - 하나라도 설정되어 있으면 업로드 시 자동 삽입
+
+2. **기존 영상 일괄 업데이트** (`src/24_batch_update_affiliate_links.py`)
+   ```bash
+   # 미리보기 (기본값, 실제 변경 없음)
+   python src/24_batch_update_affiliate_links.py
+
+   # 실제 업데이트 (처음 설정하거나 링크 변경 시)
+   python src/24_batch_update_affiliate_links.py --apply
+
+   # 이미 링크가 있는 영상도 강제 업데이트
+   python src/24_batch_update_affiliate_links.py --apply --force
+   ```
+
+### 일괄 고정 댓글 추가/업데이트
+채널의 모든 영상에 챕터 타임스탬프 + 제휴 링크가 포함된 고정 댓글을 관리합니다.
+
+1. **실행 명령어** (`src/25_batch_add_pinned_comments.py`)
+   ```bash
+   # 미리보기 (기본값, 실제 변경 없음)
+   python src/25_batch_add_pinned_comments.py
+
+   # 실제 추가 (새 영상에만)
+   python src/25_batch_add_pinned_comments.py --apply
+
+   # 기존 댓글도 업데이트
+   python src/25_batch_add_pinned_comments.py --apply --update-existing
+   ```
+
+2. **주의사항**
+   - 실제 "고정" 처리는 YouTube UI에서 수동으로 해야 함 (API 미지원)
+   - `youtube.force-ssl` 스코프가 필요 (댓글 작성 권한)
+   - `--dry-run`이 기본값이므로 반드시 `--apply` 명시 필요
 
 ## 🎬 영상 제작 및 업로드 워크플로우
 

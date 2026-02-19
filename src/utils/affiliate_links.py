@@ -16,8 +16,8 @@ load_dotenv()
 def generate_affiliate_section(
     book_title_ko: str,
     book_title_en: str,
-    author_ko: str = "",
-    author_en: str = "",
+    author_ko: str = "",  # Reserved for future use
+    author_en: str = "",  # Reserved for future use
     language: str = "ko"
 ) -> str:
     """
@@ -42,27 +42,22 @@ def generate_affiliate_section(
     if not amazon_tag and not aladin_id and not yes24_id:
         return ""
 
-    # 검색어 생성
-    # Amazon: 영문 제목/저자 사용 (영문 검색이 더 정확)
-    # 알라딘/Yes24: 한글 제목/저자 사용
+    # Note: author_ko and author_en params are kept for API compatibility but not used
+    # in search terms - title-only search produces better results
 
-    # Amazon용 영문 검색어
+    # 검색어 생성 (책 제목만 사용 - 작가명 포함 시 검색 정확도 저하)
+
+    # Amazon용 영문 검색어 (책 제목만 사용 - 작가명 제외하면 검색 정확도 향상)
     amazon_search_term = ""
     if book_title_en and book_title_en.strip():
         amazon_search_term = book_title_en
-        if author_en and author_en.strip():
-            amazon_search_term += f" {author_en}"
     elif book_title_ko:  # 영문 제목이 없으면 한글 사용 (폴백)
         amazon_search_term = book_title_ko
-        if author_ko:
-            amazon_search_term += f" {author_ko}"
 
-    # 알라딘/Yes24용 한글 검색어
+    # 알라딘/Yes24용 한글 검색어 (책 제목만 사용 - 작가명 제외하면 검색 정확도 향상)
     korean_search_term = ""
     if book_title_ko:
         korean_search_term = book_title_ko
-        if author_ko:
-            korean_search_term += f" {author_ko}"
 
     links = []
     header = ""

@@ -11,28 +11,23 @@ import sys
 import time
 import argparse
 import re
+import requests
 from pathlib import Path
-from typing import Optional, Dict, List
+from typing import Any, Optional, Dict, List
 from dotenv import load_dotenv
 
 # 프로젝트 루트를 Python 경로에 추가
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-try:
-    from google.oauth2.credentials import Credentials
-    from google.auth.transport.requests import Request
-    from googleapiclient.discovery import build
-    from googleapiclient.errors import HttpError
-    GOOGLE_API_AVAILABLE = True
-except ImportError:
-    GOOGLE_API_AVAILABLE = False
-    print("❌ google-api-python-client가 설치되지 않았습니다.")
-    print("   pip install google-api-python-client google-auth-oauthlib google-auth-httplib2")
-    sys.exit(1)
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+
+GOOGLE_API_AVAILABLE = True
 
 from src.utils.pinned_comment import generate_pinned_comment
-from src.utils.translations import translate_book_title, translate_author_name, is_english_title
 
 load_dotenv()
 
@@ -52,18 +47,24 @@ AFFILIATE_MARKERS = [
 class PinnedCommentAdder:
     """YouTube 영상에 제휴 링크가 포함된 고정 댓글을 일괄 추가하는 클래스"""
 
-    def __init__(self, dry_run: bool = True, delay: float = 1.0):
+    def __init__(self, dry_run: bool = True, delay: float = 1.0,
+                 update_existing: bool = False, verify_books: bool = False):
         """
         Args:
             dry_run: True면 미리보기만, False면 실제 추가
             delay: API 호출 간 대기 시간 (초)
+            update_existing: True면 기존 제휴 댓글도 업데이트
+            verify_books: True면 Google Books API로 책 제목 검증
         """
         if not GOOGLE_API_AVAILABLE:
             raise ImportError("google-api-python-client가 필요합니다.")
 
         self.dry_run = dry_run
         self.delay = delay
-        self.youtube = None
+        self.update_existing = update_existing
+        self.verify_books = verify_books
+        self.google_books_api_key = os.getenv("GOOGLE_BOOKS_API_KEY", "")
+        self.youtube: Any = None
         self.channel_id = os.getenv("YOUTUBE_CHANNEL_ID")
 
         if not self.channel_id:
@@ -232,41 +233,145 @@ class PinnedCommentAdder:
             {"book_title": "...", "author": "...", "language": "ko/en"}
             또는 None
         """
-        book_title = ""
-        author = ""
-        language = "ko"
-
-        # 패턴 1: [핵심 요약] 책제목: 저자
-        match = re.search(r'\[핵심 요약\]\s*([^:]+):\s*([^(|]+)', title)
+        # 패턴 1: [핵심 요약] 책제목 (영문제목 · ...) — summary+video 한글
+        match = re.search(r'\[핵심 요약\]\s*([^(\[|·]+?)(?:\s*[\(·\[])', title)
         if match:
             book_title = match.group(1).strip()
-            author = match.group(2).strip()
+            language = "ko"
+            return {"book_title": book_title, "author": "", "language": language}
+
+        # 패턴 2: [Summary] Book Title (... · ...) — summary+video 영문
+        match = re.search(r'\[Summary\]\s*([^(\[|·]+?)(?:\s*[\(·\[])', title)
+        if match:
+            book_title = match.group(1).strip()
+            language = "en"
+            return {"book_title": book_title, "author": "", "language": language}
+
+        # 패턴 3: [한국어] 책제목 책 리뷰 저자 — 일당백 한글
+        match = re.search(r'\[한국어\]\s*([^|]+?)책\s*리뷰\s*([^|]*?)(?:\s*\|)', title)
+        if not match:
+            match = re.search(r'\[한국어\]\s*([^|]+?)책\s*리뷰\s*(.*)', title)
+        if match:
+            book_title = match.group(1).strip()
+            author = match.group(2).strip() if (match.lastindex or 0) >= 2 else ""
             language = "ko"
             return {"book_title": book_title, "author": author, "language": language}
 
-        # 패턴 2: [Summary] 책제목: 저자
-        match = re.search(r'\[Summary\]\s*([^:]+):\s*([^(|]+)', title)
+        # 패턴 4: [English] Book Title Book Review Author — 일당백 영문
+        match = re.search(r'\[English\]\s*([^|]+?)Book\s*Review\s*([^|]*?)(?:\s*\|)', title)
+        if not match:
+            match = re.search(r'\[English\]\s*([^|]+?)Book\s*Review\s*(.*)', title)
+        if match:
+            book_title = match.group(1).strip()
+            author = match.group(2).strip() if (match.lastindex or 0) >= 2 else ""
+            language = "en"
+            return {"book_title": book_title, "author": author, "language": language}
+
+        # 패턴 5: [1DANG100] Book Title: Author (...) — 일당백 영문
+        match = re.search(r'\[1DANG100\]\s*([^:]+):\s*([^(\[|]+)', title)
         if match:
             book_title = match.group(1).strip()
             author = match.group(2).strip()
             language = "en"
             return {"book_title": book_title, "author": author, "language": language}
 
-        # 패턴 3: [한국어] 책제목 책 리뷰
-        match = re.search(r'\[한국어\]\s*([^책]+)책\s*리뷰', title)
+        # 패턴 6: [일당백] 책제목: 저자 (...) — 일당백 한글
+        match = re.search(r'\[일당백\]\s*([^:]+):\s*([^(\[|]+)', title)
         if match:
             book_title = match.group(1).strip()
+            author = match.group(2).strip()
             language = "ko"
-            return {"book_title": book_title, "author": "", "language": language}
-
-        # 패턴 4: [English] 책제목 Book Review
-        match = re.search(r'\[English\]\s*([^B]+)Book\s*Review', title)
-        if match:
-            book_title = match.group(1).strip()
-            language = "en"
-            return {"book_title": book_title, "author": "", "language": language}
+            return {"book_title": book_title, "author": author, "language": language}
 
         return None
+
+    def verify_book_title(self, title: str, language: str = "en") -> bool:
+        """
+        Google Books API로 책 제목이 존재하는지 검증
+
+        Args:
+            title: 책 제목
+            language: 검색 언어 ('ko' 또는 'en')
+
+        Returns:
+            책이 존재하면 True, 없으면 False
+        """
+        if not self.google_books_api_key:
+            return True  # API 키 없으면 검증 건너뜀
+
+        try:
+            params = {
+                "q": f"intitle:{title}",
+                "key": self.google_books_api_key,
+                "maxResults": 1,
+            }
+            if language == "ko":
+                params["langRestrict"] = "ko"
+
+            response = requests.get(
+                "https://www.googleapis.com/books/v1/volumes",
+                params=params,
+                timeout=5
+            )
+            data = response.json()
+            total = data.get("totalItems", 0)
+
+            if total > 0:
+                found_title = data["items"][0]["volumeInfo"].get("title", "")
+                print(f"   📖 Google Books 검증: '{found_title}' 발견 (총 {total}건)")
+                return True
+            else:
+                print(f"   ⚠️ Google Books에서 '{title}' 검색 결과 없음")
+                return False
+
+        except Exception as e:
+            print(f"   ⚠️ Google Books 검증 실패 (무시): {e}")
+            return True  # 검증 실패는 무시하고 진행
+
+    def update_comment(self, comment_id: str, comment_text: str) -> bool:
+        """
+        기존 댓글 업데이트
+
+        Args:
+            comment_id: 업데이트할 댓글 스레드 ID
+            comment_text: 새 댓글 텍스트
+
+        Returns:
+            성공 여부
+        """
+        if self.dry_run:
+            print("   🔍 [DRY RUN] 댓글 업데이트 미리보기.")
+            return True
+
+        try:
+            # commentThreads ID에서 topLevelComment ID 추출
+            thread_response = self.youtube.commentThreads().list(
+                part='snippet',
+                id=comment_id
+            ).execute()
+
+            if not thread_response.get('items'):
+                print(f"   ❌ 댓글 스레드 {comment_id}를 찾을 수 없습니다.")
+                return False
+
+            top_comment_id = thread_response['items'][0]['snippet']['topLevelComment']['id']
+
+            self.youtube.comments().update(
+                part='snippet',
+                body={
+                    'id': top_comment_id,
+                    'snippet': {
+                        'textOriginal': comment_text
+                    }
+                }
+            ).execute()
+
+            print(f"   ✅ 댓글 업데이트 완료")
+            return True
+
+        except HttpError as e:
+            print(f"   ❌ 댓글 업데이트 실패: {e}")
+            return False
 
     def add_pinned_comment(self, video_id: str, comment_text: str) -> bool:
         """
@@ -351,12 +456,17 @@ class PinnedCommentAdder:
             try:
                 # 1. 기존 고정 댓글 확인
                 existing_comment = self.get_pinned_comment(video_id)
+                should_update = False
 
                 if existing_comment:
                     if self.has_affiliate_links(existing_comment['text']):
-                        print("   ✅ 이미 제휴 링크가 있는 댓글이 있습니다. (건너뜀)")
-                        skipped_count += 1
-                        continue
+                        if self.update_existing:
+                            print("   🔄 제휴 링크 있는 댓글 발견 - 업데이트 모드로 진행")
+                            should_update = True
+                        else:
+                            print("   ✅ 이미 제휴 링크가 있는 댓글이 있습니다. (건너뜀)")
+                            skipped_count += 1
+                            continue
                     else:
                         print("   ⚠️ 기존 댓글이 있지만 제휴 링크가 없습니다.")
 
@@ -369,12 +479,19 @@ class PinnedCommentAdder:
 
                 print(f"   📚 책 정보: {book_info}")
 
-                # 3. 고정 댓글 생성
+                # 3. Google Books 검증 (선택사항)
+                if self.verify_books:
+                    verify_title = book_info['book_title']
+                    verify_lang = book_info['language']
+                    self.verify_book_title(verify_title, verify_lang)
+                    # 검증 실패해도 계속 진행 (경고만 출력)
+
+                # 4. 고정 댓글 생성
                 comment_text = generate_pinned_comment(
                     book_title=book_info['book_title'],
                     timestamps=None,  # 타임스탬프는 영상마다 다르므로 생략
                     language=book_info['language'],
-                    author=book_info['author'] if book_info['author'] else None
+                    author=None  # 작가명 제외 - 검색 정확도 향상
                 )
 
                 if not comment_text:
@@ -384,8 +501,13 @@ class PinnedCommentAdder:
 
                 print(f"   📝 댓글 길이: {len(comment_text)}자")
 
-                # 4. 댓글 추가
-                if self.add_pinned_comment(video_id, comment_text):
+                # 5. 댓글 추가 또는 업데이트
+                if should_update and existing_comment:
+                    if self.update_comment(existing_comment['comment_id'], comment_text):
+                        added_count += 1
+                    else:
+                        error_count += 1
+                elif self.add_pinned_comment(video_id, comment_text):
                     added_count += 1
                 else:
                     error_count += 1
@@ -433,10 +555,17 @@ def main():
   # API 호출 간격 조절 (초)
   python src/25_batch_add_pinned_comments.py --apply --delay 2.0
 
+  # 기존 댓글도 새 형식으로 업데이트 (작가명 제거된 링크로)
+  python src/25_batch_add_pinned_comments.py --apply --update-existing --delay 2.0
+
+  # Google Books API로 책 제목 검증하며 처리
+  python src/25_batch_add_pinned_comments.py --apply --verify-books --delay 2.0
+
 주의사항:
   - YouTube API 일일 쿼터: commentThreads.insert 1건 = 50 units (일 10,000 units 제한 → 약 200건/일)
   - --apply 플래그 없이는 미리보기만 수행됩니다.
-  - 이미 제휴 링크가 있는 댓글은 건너뜁니다 (멱등성).
+  - 이미 제휴 링크가 있는 댓글은 건너뜁니다 (--update-existing 없으면).
+  - --update-existing: 기존 제휴 댓글을 새 형식으로 교체합니다.
   - 댓글 추가 후 YouTube Studio에서 수동으로 고정해야 합니다!
         """
     )
@@ -474,17 +603,35 @@ def main():
         help='처리할 특정 영상 ID (여러 개 지정 가능)'
     )
 
+    parser.add_argument(
+        '--update-existing',
+        action='store_true',
+        help='이미 제휴 링크가 있는 댓글도 새 형식으로 업데이트'
+    )
+
+    parser.add_argument(
+        '--verify-books',
+        action='store_true',
+        help='Google Books API로 책 제목 존재 여부 검증 (GOOGLE_BOOKS_API_KEY 필요)'
+    )
+
     args = parser.parse_args()
 
     # --apply 플래그가 있으면 dry_run=False
     dry_run = not args.apply
 
     if not dry_run:
-        print("⚠️ 실제 추가 모드입니다. 5초 후 시작합니다...")
+        mode_str = "업데이트" if args.update_existing else "추가"
+        print(f"⚠️ 실제 {mode_str} 모드입니다. 5초 후 시작합니다...")
         time.sleep(5)
 
     try:
-        adder = PinnedCommentAdder(dry_run=dry_run, delay=args.delay)
+        adder = PinnedCommentAdder(
+            dry_run=dry_run,
+            delay=args.delay,
+            update_existing=args.update_existing,
+            verify_books=args.verify_books,
+        )
         adder.process_videos(video_ids=args.video_id, limit=args.limit)
     except Exception as e:
         print(f"❌ 오류 발생: {e}")

@@ -23,15 +23,21 @@ _현재 낮은 우선순위 작업이 없습니다_
 
 ## 🐛 알려진 이슈
 
-- [ ] YouTube 업로드 시 `localizations`(다국어 제목/설명) 및 고정 댓글 등록이 `insufficientPermissions`로 실패할 수 있음  
-  - 원인: OAuth refresh token에 `youtube.force-ssl` 스코프가 포함되지 않은 경우  
-  - 현 상태: 업로드 스크립트가 자동 폴백(업로드 전용 스코프)하여 업로드는 성공하나, 다국어/댓글은 생략됨  
-  - 해결: `YOUTUBE_REFRESH_TOKEN`을 `youtube.upload` + `youtube.force-ssl` 스코프로 재발급
+_현재 알려진 이슈가 없습니다_
 
 ## 🔮 향후 계획
 
 ### Phase 8: 품질 개선 및 최적화
 
+- [x] 무드 이미지 품질 개선 (책 내용 관련성 향상)
+  - [x] generic 키워드 18개 제거 (책과 무관한 범용 검색어 오염 방지)
+  - [x] AI 프롬프트 강화 (책 고유 장면/배경 중심 키워드 생성)
+  - [x] Summary 텍스트 2000자 → 4000자 확장
+  - [x] AI 키워드 충분 시 basic 키워드 병합 생략
+  - [x] AI 모델 업데이트 (claude-sonnet-4-6, gpt-4o)
+  - [x] `validate_images_with_ai()` 추가 (GPT-4o Vision으로 관련성 검증, 상위 100개 선별)
+  - [x] 기본 다운로드 목표 130개로 상향 (검증 후 100개 유지)
+  - [x] `--skip-validation` CLI 플래그 추가
 - [x] 영상 품질 향상 (해상도, 비트레이트 최적화)
 - [x] 처리 속도 최적화 (병렬 처리, 캐싱)
 - [x] 에러 핸들링 개선 (재시도 로직, 상세한 에러 메시지)
