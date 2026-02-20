@@ -642,12 +642,16 @@ NotebookLM의 심층 분석과 함께 작품을 깊이 있게 이해해보세요
                 ko_author = author_val
                 en_author = translate_author_name(author_val)
 
+        isbn_ko = book_info.get('isbn_13_ko') or book_info.get('isbn_10_ko') or '' if book_info else ''
+        isbn_en = book_info.get('isbn_13_en') or book_info.get('isbn_10_en') or '' if book_info else ''
         affiliate_section = generate_affiliate_section(
             book_title_ko=ko_title_for_link,
             book_title_en=en_title_for_link,
             author_ko=ko_author,
             author_en=en_author,
-            language='ko'
+            language='ko',
+            isbn_ko=isbn_ko,
+            isbn_en=isbn_en
         )
         description += affiliate_section
 
@@ -808,12 +812,16 @@ Deep dive into the masterpiece with NotebookLM analysis.
                 ko_author = author_val
                 en_author = translate_author_name(author_val)
 
+        isbn_ko = book_info.get('isbn_13_ko') or book_info.get('isbn_10_ko') or '' if book_info else ''
+        isbn_en = book_info.get('isbn_13_en') or book_info.get('isbn_10_en') or '' if book_info else ''
         affiliate_section = generate_affiliate_section(
             book_title_ko=ko_title_for_link,
             book_title_en=en_title_for_link,
             author_ko=ko_author,
             author_en=en_author,
-            language='en'
+            language='en',
+            isbn_ko=isbn_ko,
+            isbn_en=isbn_en
         )
         description += affiliate_section
 

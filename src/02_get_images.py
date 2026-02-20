@@ -252,6 +252,41 @@ class ImageDownloader:
                     image_url = image_links.get('large') or image_links.get('medium') or image_links.get('small') or image_links.get('thumbnail')
                 self.logger.info("이미지 다운로드는 건너뛰고 책 정보만 저장합니다.")
             
+            # ISBN 추출 (industryIdentifiers 필드)
+            isbn_13 = ''
+            isbn_10 = ''
+            for identifier in volume_info.get('industryIdentifiers', []):
+                id_type = identifier.get('type', '')
+                id_value = identifier.get('identifier', '')
+                if id_type == 'ISBN_13':
+                    isbn_13 = id_value
+                elif id_type == 'ISBN_10':
+                    isbn_10 = id_value
+
+            # 검색된 판본의 언어에 따라 ISBN을 한국어/영어로 분류
+            book_lang = volume_info.get('language', 'ko')
+            isbn_13_ko = isbn_13 if book_lang == 'ko' else ''
+            isbn_10_ko = isbn_10 if book_lang == 'ko' else ''
+            isbn_13_en = isbn_13 if book_lang != 'ko' else ''
+            isbn_10_en = isbn_10 if book_lang != 'ko' else ''
+
+            # 기존 book_info.json이 있으면 다른 언어 ISBN을 보존
+            book_info_path = output_dir / "book_info.json"
+            if book_info_path.exists():
+                try:
+                    with open(book_info_path, 'r', encoding='utf-8') as f:
+                        existing = json.load(f)
+                    if not isbn_13_ko:
+                        isbn_13_ko = existing.get('isbn_13_ko', '')
+                    if not isbn_10_ko:
+                        isbn_10_ko = existing.get('isbn_10_ko', '')
+                    if not isbn_13_en:
+                        isbn_13_en = existing.get('isbn_13_en', '')
+                    if not isbn_10_en:
+                        isbn_10_en = existing.get('isbn_10_en', '')
+                except Exception:
+                    pass
+
             # 책 정보 저장 (이미지 다운로드 여부와 관계없이 항상 저장)
             book_info = {
                 'title': volume_info.get('title', book_title),
@@ -261,9 +296,13 @@ class ImageDownloader:
                 'description': volume_info.get('description', ''),
                 'pageCount': volume_info.get('pageCount', 0),
                 'categories': volume_info.get('categories', []),
-                'language': volume_info.get('language', 'ko'),
+                'language': book_lang,
                 'google_books_id': book.get('id', ''),
-                'image_url': image_url if image_url else ''
+                'image_url': image_url if image_url else '',
+                'isbn_13_ko': isbn_13_ko,
+                'isbn_10_ko': isbn_10_ko,
+                'isbn_13_en': isbn_13_en,
+                'isbn_10_en': isbn_10_en
             }
             
             book_info_path = output_dir / "book_info.json"
