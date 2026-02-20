@@ -15,8 +15,7 @@ class TestAffiliateLinks:
         """제휴 ID가 없을 때 빈 문자열 반환"""
         with patch.dict(os.environ, {
             "AMAZON_ASSOCIATE_TAG": "",
-            "ALADIN_PARTNER_ID": "",
-            "YES24_PARTNER_ID": ""
+            "ALADIN_PARTNER_ID": ""
         }, clear=True):
             result = generate_affiliate_section(
                 book_title_ko="테스트 책",
@@ -25,12 +24,11 @@ class TestAffiliateLinks:
             )
             assert result == ""
 
-    def test_korean_section_has_all_three_links(self):
-        """한글 섹션에 알라딘/Yes24/Amazon 포함"""
+    def test_korean_section_has_aladin_and_amazon(self):
+        """한글 섹션에 알라딘/Amazon 포함 (Yes24 제거됨)"""
         with patch.dict(os.environ, {
             "AMAZON_ASSOCIATE_TAG": "test-amazon-20",
-            "ALADIN_PARTNER_ID": "test-aladin",
-            "YES24_PARTNER_ID": "test-yes24"
+            "ALADIN_PARTNER_ID": "test-aladin"
         }):
             result = generate_affiliate_section(
                 book_title_ko="테스트 책",
@@ -41,19 +39,64 @@ class TestAffiliateLinks:
             )
             assert "📖 이 책 구매하기:" in result
             assert "알라딘:" in result
-            assert "Yes24:" in result
             assert "Amazon:" in result
             assert "aladin.co.kr" in result
-            assert "yes24.com" in result
             assert "amazon.com" in result
             assert "위 링크를 통해 구매하시면" in result
+            # Yes24는 제거됨
+            assert "Yes24:" not in result
+            assert "yes24.com" not in result
+
+    def test_aladin_uses_isbn_ko_first(self):
+        """알라딘은 isbn_ko → isbn_en → 제목 검색 순으로 시도"""
+        with patch.dict(os.environ, {
+            "ALADIN_PARTNER_ID": "test-aladin"
+        }):
+            # isbn_ko 있으면 직접 상품 링크
+            result = generate_affiliate_section(
+                book_title_ko="테스트 책",
+                book_title_en="Test Book",
+                language="ko",
+                isbn_ko="9791234567890"
+            )
+            assert "wproduct.aspx?ISBN=9791234567890" in result
+
+            # isbn_ko 없고 isbn_en만 있으면 isbn_en 사용
+            result = generate_affiliate_section(
+                book_title_ko="테스트 책",
+                book_title_en="Test Book",
+                language="ko",
+                isbn_en="9780123456789"
+            )
+            assert "wproduct.aspx?ISBN=9780123456789" in result
+
+            # 둘 다 없으면 제목 검색
+            result = generate_affiliate_section(
+                book_title_ko="테스트 책",
+                book_title_en="Test Book",
+                language="ko"
+            )
+            assert "wsearchresult.aspx" in result
+
+    def test_amazon_uses_isbn_en(self):
+        """Amazon은 isbn_en 우선 사용"""
+        with patch.dict(os.environ, {
+            "AMAZON_ASSOCIATE_TAG": "test-amazon-20"
+        }):
+            result = generate_affiliate_section(
+                book_title_ko="테스트 책",
+                book_title_en="Test Book",
+                language="en",
+                isbn_en="9780123456789"
+            )
+            assert "9780123456789" in result
+            assert "amazon.com" in result
 
     def test_english_section_has_amazon_only(self):
         """영문 섹션에 Amazon만 포함"""
         with patch.dict(os.environ, {
             "AMAZON_ASSOCIATE_TAG": "test-amazon-20",
-            "ALADIN_PARTNER_ID": "test-aladin",
-            "YES24_PARTNER_ID": "test-yes24"
+            "ALADIN_PARTNER_ID": "test-aladin"
         }):
             result = generate_affiliate_section(
                 book_title_ko="테스트 책",
@@ -94,8 +137,7 @@ class TestAffiliateLinks:
         # Amazon만 있는 경우
         with patch.dict(os.environ, {
             "AMAZON_ASSOCIATE_TAG": "test-amazon-20",
-            "ALADIN_PARTNER_ID": "",
-            "YES24_PARTNER_ID": ""
+            "ALADIN_PARTNER_ID": ""
         }):
             result = generate_affiliate_section(
                 book_title_ko="테스트 책",
