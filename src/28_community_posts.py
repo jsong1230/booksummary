@@ -437,12 +437,27 @@ class CommunityPostManager:
                     "choices": vote_data["choices"],
                 })
 
-            # 금: 근황 포스트
+            # 금: 근황 포스트 (최근 업로드 도서 언급 포함)
             friday = monday + timedelta(days=4)
+            last_book = recent_books[-1] if recent_books else ""
             if language == "ko":
-                update_msg = f"이번 주도 열심히 준비 중입니다! 다음 영상도 기대해주세요 📚"
+                if last_book:
+                    update_msg = (
+                        f"이번 주 '{last_book}' 리뷰를 보셨나요? "
+                        f"다음 영상도 곧 업로드될 예정입니다 📚\n"
+                        f"어떤 책이 보고 싶으신지 댓글로 알려주세요!"
+                    )
+                else:
+                    update_msg = "이번 주도 열심히 준비 중입니다! 다음 영상도 기대해주세요 📚"
             else:
-                update_msg = "Working hard this week! Stay tuned for the next video 📚"
+                if last_book:
+                    update_msg = (
+                        f"Have you watched the review of '{last_book}'? "
+                        f"More videos coming soon 📚\n"
+                        f"Let me know in the comments which book you'd like to see next!"
+                    )
+                else:
+                    update_msg = "Working hard this week! Stay tuned for the next video 📚"
             posts_plan.append({
                 "date": friday.strftime("%Y-%m-%d (금)"),
                 "type": "update",
@@ -475,7 +490,7 @@ def main():
         help="투표 선택지 (쉼표로 구분, vote 유형에 필요). 예: \"책1,책2,책3,책4\"",
     )
     parser.add_argument("--message", help="근황 메시지 (update 유형에 필요)")
-    parser.add_argument("--csv", default="ildangbaek_books.csv", help="책 목록 CSV 경로")
+    parser.add_argument("--csv", default="data/ildangbaek_books.csv", help="책 목록 CSV 경로")
 
     args = parser.parse_args()
 
@@ -515,6 +530,21 @@ def main():
             if "choices" in plan:
                 for i, c in enumerate(plan["choices"], 1):
                     print(f"  {i}. {c}")
+
+        if args.apply:
+            print(f"\n{'─'*60}")
+            print("📮 주간 포스트 게시 중...")
+            for plan in plans:
+                if plan["type"] == "quote" and plan.get("book"):
+                    manager.post_quote(plan["book"], args.language)
+                elif plan["type"] == "vote" and plan.get("choices"):
+                    manager.post_vote(plan["choices"], args.language)
+                elif plan["type"] == "update":
+                    msg = plan.get("content", "")
+                    # content에서 채널 소식 헤더 제거하고 실제 메시지만 추출
+                    manager.post_update(msg, args.language)
+        else:
+            print(f"\n💡 실제 게시하려면 --apply 플래그를 추가하세요.")
 
 
 if __name__ == "__main__":

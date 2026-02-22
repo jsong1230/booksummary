@@ -6,9 +6,18 @@ _현재 진행 중인 작업이 없습니다_
 
 ## 📋 다음 작업 (우선순위별)
 
-### 🔴 높은 우선순위
+### 🔴 높은 우선순위 (YouTube 구독자 성장 전략 Phase 1)
 
-_현재 높은 우선순위 작업이 없습니다_
+- [x] 태그 스터핑 수정 (src/08_create_and_preview_videos.py) - 15개 제한, 무관 기관 태그 제거
+- [x] 제목 공식 개선 - 훅 카피 + 파이프 포맷 (generate_hook_title 추가)
+- [x] Description 첫 줄 개선 - AI 언급 제거, 책별 훅 문장 배치
+- [x] Shorts 메타데이터 제목 개선 - 고정 문구 → 장르별 맞춤 훅 (src/26_generate_shorts.py)
+- [x] **OAuth 재인증** 완료 - `scripts/reauth_youtube.py` 실행, Analytics+Readonly 스코프 추가 및 .env 자동 갱신
+- [x] **분석 기준선 확보** 완료 - `data/analytics_baseline_20260222.md` 생성 (구독자 172명, 총 영상 254개, Top 10 확인)
+- [ ] **Shorts 일괄 생성** - 다음 영상 제작 시 assets 준비 후 `python src/26_generate_shorts.py` 실행 (우선: 생각에 관한 생각 EDfOZfYtCbI)
+- [ ] **업로드 시간 변경** - 자정(00시) → 오후 7시(19시 KST)로 변경 검토 (한국 황금 시간대)
+- [ ] **저참여율 영상 재최적화** - 특이점이 온다(1.03%), 나는 고양이로소이다(1.32%) 제목·썸네일 업데이트
+- [ ] **기존 댓글 전수 응답** - 254개 영상 미응답 댓글 답글 달기 (수동, YouTube Studio)
 
 ### 🟡 중간 우선순위
 

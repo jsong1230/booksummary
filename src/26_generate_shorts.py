@@ -163,6 +163,7 @@ def _create_short_video(
     text_overlay: Optional[str],
     language: str,
     duration: float = SHORTS_MAX_DURATION,
+    cta_text: Optional[str] = None,
 ) -> bool:
     """Shorts 영상 생성 (9:16 포맷)"""
     try:
@@ -233,6 +234,38 @@ def _create_short_video(
                 composite_clips.append(txt_clip)
             except Exception as e:
                 print(f"  ⚠️ 텍스트 오버레이 생성 실패: {e}")
+
+        # CTA 오버레이 (마지막 10초 동안 하단 표시)
+        cta_duration = min(10.0, actual_duration * 0.25)  # 최대 10초 또는 전체의 25%
+        cta_start = max(0.0, actual_duration - cta_duration)
+        if cta_text and actual_duration > 5:
+            try:
+                font_cta = "NanumGothic" if language == "ko" else "Arial"
+                # 반투명 검은 배경 + CTA 텍스트
+                cta_bg = (
+                    ColorClip(size=(target_w, 120), color=(0, 0, 0))
+                    .with_opacity(0.6)
+                    .with_start(cta_start)
+                    .with_duration(cta_duration)
+                    .with_position(("center", target_h - 200))
+                )
+                cta_clip = (
+                    TextClip(
+                        cta_text,
+                        fontsize=44,
+                        color="white",
+                        font=font_cta,
+                        method="caption",
+                        size=(target_w - 80, None),
+                        align="center",
+                    )
+                    .with_start(cta_start)
+                    .with_duration(cta_duration)
+                    .with_position(("center", target_h - 190))
+                )
+                composite_clips.extend([cta_bg, cta_clip])
+            except Exception as e:
+                print(f"  ⚠️ CTA 오버레이 생성 실패: {e}")
 
         # Shorts 워터마크 (#Shorts 해시태그)
         try:
@@ -330,6 +363,9 @@ def generate_shorts(
     if not mood_images:
         logger.warning("⚠️ 무드 이미지를 찾을 수 없습니다.")
 
+    # CTA 텍스트 (모든 Shorts 하단에 마지막 10초간 표시)
+    cta = "전체 리뷰는 채널에서 ↑" if language == "ko" else "Full Review on the Channel ↑"
+
     generated = []
 
     # ─── Short 1: HOOK 섹션 ───────────────────────────────────────
@@ -348,14 +384,14 @@ def generate_shorts(
     has_audio = _generate_short_tts(hook_text, language, short1_audio, tts_provider)
 
     images_for_s1 = mood_images[:3] if mood_images else []
-    overlay = display_title
     success = _create_short_video(
         images=images_for_s1,
         audio_path=short1_audio if has_audio else None,
         output_path=short1_video,
-        text_overlay=overlay,
+        text_overlay=display_title,
         language=language,
         duration=30.0,
+        cta_text=cta,
     )
     if success:
         generated.append(short1_video)
@@ -385,6 +421,7 @@ def generate_shorts(
         text_overlay=f'"{display_title}"',
         language=language,
         duration=45.0,
+        cta_text=cta,
     )
     if success2:
         generated.append(short2_video)
@@ -392,9 +429,9 @@ def generate_shorts(
     # ─── Short 3: 한 줄 요약 ──────────────────────────────────────
     logger.info("🎬 Short 3: 한 줄 요약 Shorts 생성")
     if language == "ko":
-        oneliner = f"📚 {display_title}을(를) 한 문장으로 정리하면: 이 책은 우리 삶의 본질적인 질문에 답합니다. 지금 바로 확인하세요!"
+        oneliner = f"📚 {display_title}을(를) 한 문장으로 정리하면: 이 책은 우리 삶의 본질적인 질문에 답합니다."
     else:
-        oneliner = f"📚 {display_title} in one sentence: This book answers the most essential questions of our lives. Watch now!"
+        oneliner = f"📚 {display_title} in one sentence: This book answers the most essential questions of our lives."
 
     short3_audio = out_dir / f"short3_oneliner_{lang_suffix}.mp3"
     short3_video = out_dir / f"short3_oneliner_{lang_suffix}.mp4"
@@ -410,6 +447,7 @@ def generate_shorts(
         text_overlay=display_title,
         language=language,
         duration=20.0,
+        cta_text=cta,
     )
     if success3:
         generated.append(short3_video)
@@ -422,14 +460,103 @@ def generate_shorts(
     return generated
 
 
+def _generate_shorts_hook_ko(ko_title: str, author: Optional[str] = None, book_info: Optional[dict] = None) -> str:
+    """한글 Shorts용 훅 카피 생성 (책별 맞춤, 궁금증 유발)"""
+    # 장르 감지
+    genre = "general"
+    if book_info:
+        cats = book_info.get("categories") or []
+        if isinstance(cats, str):
+            cats = [cats]
+        desc = (book_info.get("description") or "").lower()
+        text = (" ".join(cats) + " " + desc).lower()
+        if any(k in text for k in ["philosophy", "철학"]):
+            genre = "philosophy"
+        elif any(k in text for k in ["psychology", "self-help", "자기계발", "심리"]):
+            genre = "psychology"
+        elif any(k in text for k in ["business", "economics", "경제", "경영"]):
+            genre = "business"
+        elif any(k in text for k in ["history", "역사"]):
+            genre = "history"
+        elif any(k in text for k in ["fiction", "novel", "소설"]):
+            genre = "fiction"
+
+    # 조사 처리: 받침 없으면 "가", 있으면 "이"
+    def _i_ga(word: str) -> str:
+        if not word:
+            return "이"
+        last = word[-1]
+        code = ord(last) - 0xAC00
+        if 0 <= code < 11172 and code % 28 == 0:
+            return "가"
+        return "이"
+
+    hooks = {
+        "philosophy": f"{ko_title}이 알려준 삶의 진실",
+        "psychology": f"{ko_title}으로 본 인간의 심리",
+        "business":   f"{ko_title}의 핵심 전략 한 가지",
+        "history":    f"{ko_title}에서 발견한 역사의 교훈",
+        "fiction":    f"{ko_title}이 보여준 인간의 민낯",
+        "general":    f"{ko_title}에서 가장 충격적인 한 문장",
+    }
+    hook = hooks.get(genre, hooks["general"])
+    if author:
+        # 조사 처리 적용, "{저자}이/가 말한 {책제목}의 핵심" 포맷 사용
+        particle = _i_ga(author)
+        hook = f"{author}{particle} 말한 {ko_title}의 핵심"
+    return hook
+
+
+def _generate_shorts_hook_en(en_title: str, author: Optional[str] = None, book_info: Optional[dict] = None) -> str:
+    """영문 Shorts용 훅 카피 생성 (책별 맞춤, 궁금증 유발)"""
+    genre = "general"
+    if book_info:
+        cats = book_info.get("categories") or []
+        if isinstance(cats, str):
+            cats = [cats]
+        desc = (book_info.get("description") or "").lower()
+        text = (" ".join(cats) + " " + desc).lower()
+        if any(k in text for k in ["philosophy", "철학"]):
+            genre = "philosophy"
+        elif any(k in text for k in ["psychology", "self-help"]):
+            genre = "psychology"
+        elif any(k in text for k in ["business", "economics"]):
+            genre = "business"
+        elif any(k in text for k in ["history"]):
+            genre = "history"
+        elif any(k in text for k in ["fiction", "novel"]):
+            genre = "fiction"
+
+    hooks = {
+        "philosophy": f"The Truth {en_title} Reveals About Life",
+        "psychology": f"What {en_title} Tells Us About Human Nature",
+        "business":   f"One Strategy That Makes {en_title} a Must-Read",
+        "history":    f"The History Lesson Hidden in {en_title}",
+        "fiction":    f"The Human Truth {en_title} Exposes",
+        "general":    f"The Most Shocking Line in {en_title}",
+    }
+    hook = hooks.get(genre, hooks["general"])
+    if author:
+        hook = f"What {author} Really Wanted Us to Know"
+    return hook
+
+
 def generate_shorts_metadata(
     book_title: str,
     language: str = "ko",
     author: Optional[str] = None,
     output_dir: Optional[str] = None,
+    book_info: Optional[dict] = None,
 ) -> List[dict]:
     """
     Shorts 메타데이터(제목/설명/태그) 생성
+
+    Args:
+        book_title: 책 제목
+        language: 'ko' 또는 'en'
+        author: 저자 이름 (선택)
+        output_dir: 출력 디렉토리 (선택)
+        book_info: Google Books 정보 딕셔너리 (선택, 장르 감지에 사용)
 
     Returns:
         Shorts별 메타데이터 딕셔너리 리스트
@@ -441,7 +568,7 @@ def generate_shorts_metadata(
         ko_title = book_title
         en_title = translate_book_title(book_title) or book_title
 
-    display_title = ko_title if language == "ko" else en_title
+    display_title = ko_title if language == "ko" else en_title  # noqa: F841
 
     try:
         from src.utils.title_generator import generate_hashtags
@@ -449,14 +576,26 @@ def generate_shorts_metadata(
     except Exception:
         hashtags = "#Shorts #책리뷰 #BookReview" if language == "ko" else "#Shorts #BookReview #BookSummary"
 
+    # 조사 처리: "을" vs "를"
+    def _eul_reul(word: str) -> str:
+        if not word:
+            return "을"
+        last = word[-1]
+        code = ord(last) - 0xAC00
+        if 0 <= code < 11172 and code % 28 != 0:
+            return "을"
+        return "를"
+
     metadatas = []
     if language == "ko":
+        hook_copy = _generate_shorts_hook_ko(ko_title, author, book_info)
+        eul = _eul_reul(ko_title)
         metadatas = [
             {
                 "type": "hook",
-                "title": f"이 책이 내 인생을 바꿨다 | {ko_title} #Shorts",
+                "title": f"{hook_copy} #Shorts",
                 "description": f"📚 {ko_title} 핵심 포인트\n\n{hashtags} #Shorts",
-                "tags": ["Shorts", "책리뷰", "독서", ko_title, "북튜브", "자기계발"],
+                "tags": ["Shorts", "책리뷰", "독서", ko_title, "북튜브", "책추천"],
             },
             {
                 "type": "quotes",
@@ -466,18 +605,19 @@ def generate_shorts_metadata(
             },
             {
                 "type": "oneliner",
-                "title": f"{ko_title}을 한 문장으로 #Shorts",
+                "title": f"{ko_title}{eul} 한 문장으로 #Shorts",
                 "description": f"📚 {ko_title} 한 줄 요약\n\n{hashtags} #Shorts",
                 "tags": ["Shorts", "책요약", "독서", ko_title, "핵심요약", "북리뷰"],
             },
         ]
     else:
+        hook_copy = _generate_shorts_hook_en(en_title, author, book_info)
         metadatas = [
             {
                 "type": "hook",
-                "title": f"This Book Changed My Life | {en_title} #Shorts",
+                "title": f"{hook_copy} #Shorts",
                 "description": f"📚 Key points from {en_title}\n\n{hashtags} #Shorts",
-                "tags": ["Shorts", "BookReview", "Reading", en_title, "BookTube", "SelfHelp"],
+                "tags": ["Shorts", "BookReview", "Reading", en_title, "BookTube", "BookRecommendation"],
             },
             {
                 "type": "quotes",

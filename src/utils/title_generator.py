@@ -382,3 +382,111 @@ def generate_value_focused_title(
     else:
         # 인문학적 가치 강조 제목 생성
         return generate_engaging_title(book_title, author, language, book_info)
+
+
+def generate_hook_title(
+    book_title: str,
+    author: Optional[str] = None,
+    language: str = "ko",
+    book_info: Optional[Dict] = None,
+) -> str:
+    """
+    훅 카피 + 파이프 포맷의 제목 생성 (CTR 최적화)
+
+    포맷: "{저자}이 밝힌 {인사이트} | {책제목} 핵심 요약"
+    예: "프란스 드 발이 밝힌 권력의 본질 | 침팬지 폴리틱스 핵심 요약"
+    예: "Frans de Waal on the Nature of Power | Chimpanzee Politics Summary"
+
+    YouTube 100자 제한 준수, 검색어(책 제목)는 반드시 포함.
+    """
+
+    def _truncate(text: str, max_len: int = 100) -> str:
+        if len(text) <= max_len:
+            return text
+        return text[: max_len - 3] + "..."
+
+    def _guess_genre() -> str:
+        if not book_info:
+            return "general"
+        cats = book_info.get("categories") or []
+        if isinstance(cats, str):
+            cats = [cats]
+        desc = book_info.get("description") or ""
+        text = (" ".join(cats) + " " + desc).lower()
+        if any(k in text for k in ["philosophy", "철학"]):
+            return "philosophy"
+        if any(k in text for k in ["psychology", "self-help", "자기계발", "심리"]):
+            return "psychology"
+        if any(k in text for k in ["business", "economics", "경제", "경영"]):
+            return "business"
+        if any(k in text for k in ["history", "역사"]):
+            return "history"
+        if any(k in text for k in ["science", "과학"]):
+            return "science"
+        if any(k in text for k in ["fiction", "novel", "소설"]):
+            return "fiction"
+        return "general"
+
+    genre = _guess_genre()
+
+    # 장르별 훅 동사/구절 템플릿 (저자 있는 경우)
+    # 한글 포맷: "{저자}이 밝힌 {인사이트} | {책제목} 핵심 요약"
+    hook_ko_with_author = {
+        "philosophy": ("{author}이 말한 삶의 본질", "{title} 핵심 요약"),
+        "psychology": ("{author}이 밝힌 인간 심리의 비밀", "{title} 핵심 요약"),
+        "business":   ("{author}이 제시한 성공의 법칙", "{title} 핵심 요약"),
+        "history":    ("{author}이 기록한 역사의 교훈", "{title} 핵심 요약"),
+        "science":    ("{author}이 설명한 세계의 원리", "{title} 핵심 요약"),
+        "fiction":    ("{author}이 그린 인간의 초상", "{title} 핵심 요약"),
+        "general":    ("{author}이 전하는 핵심 메시지", "{title} 핵심 요약"),
+    }
+    # 한글 포맷: "{책제목}이 던진 질문" (저자 없는 경우)
+    hook_ko_no_author = {
+        "philosophy": ("{title}이 던진 삶의 질문", "{title} 핵심 요약"),
+        "psychology": ("{title}로 보는 인간 심리", "{title} 핵심 요약"),
+        "business":   ("{title}의 핵심 전략", "{title} 핵심 요약"),
+        "history":    ("{title}에서 배우는 역사", "{title} 핵심 요약"),
+        "science":    ("{title}이 밝힌 세계의 원리", "{title} 핵심 요약"),
+        "fiction":    ("{title}이 그린 세계", "{title} 핵심 요약"),
+        "general":    ("{title}의 핵심 메시지", "{title} 핵심 요약"),
+    }
+    # 영문 포맷: "{author} on {insight} | {title} Summary"
+    hook_en_with_author = {
+        "philosophy": ("{author} on the Essence of Life", "{title} Summary"),
+        "psychology": ("{author} on the Secrets of Human Mind", "{title} Summary"),
+        "business":   ("{author} on the Rules of Success", "{title} Summary"),
+        "history":    ("{author} on Lessons from History", "{title} Summary"),
+        "science":    ("{author} on How the World Works", "{title} Summary"),
+        "fiction":    ("{author} on the Human Condition", "{title} Summary"),
+        "general":    ("{author} on the Core Message", "{title} Summary"),
+    }
+    hook_en_no_author = {
+        "philosophy": ("The Life Question {title} Asks", "{title} Summary"),
+        "psychology": ("{title} and Human Psychology", "{title} Summary"),
+        "business":   ("Core Strategies from {title}", "{title} Summary"),
+        "history":    ("History Lessons from {title}", "{title} Summary"),
+        "science":    ("How the World Works: {title}", "{title} Summary"),
+        "fiction":    ("The World of {title}", "{title} Summary"),
+        "general":    ("Key Insights from {title}", "{title} Summary"),
+    }
+
+    if language == "ko":
+        if author:
+            hook_template, suffix_template = hook_ko_with_author.get(genre, hook_ko_with_author["general"])
+            hook = hook_template.format(author=author)
+        else:
+            hook_template, suffix_template = hook_ko_no_author.get(genre, hook_ko_no_author["general"])
+            hook = hook_template.format(title=book_title)
+        suffix = suffix_template.format(title=book_title)
+        title = f"{hook} | {suffix}"
+    else:
+        if author:
+            hook_template, suffix_template = hook_en_with_author.get(genre, hook_en_with_author["general"])
+            hook = hook_template.format(author=author)
+        else:
+            hook_template, suffix_template = hook_en_no_author.get(genre, hook_en_no_author["general"])
+            hook = hook_template.format(title=book_title)
+        suffix = suffix_template.format(title=book_title)
+        title = f"{hook} | {suffix}"
+
+    return _truncate(title, 100)

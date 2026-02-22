@@ -1,5 +1,111 @@
 # BookReview-AutoMaker 프로젝트 히스토리
 
+---
+
+## ⚡ 다음 작업 세션 체크리스트 (2026-02-22 기준)
+
+> **코드 개선/기능 추가 요청 시 → 아래 항목부터 먼저 확인할 것**
+
+### 1. 채널 현황 (2026-02-22 기준)
+- 구독자: **172명** (목표: 1,000명)
+- 총 영상: **254개** (한글+영문 포함)
+- 미처리 백로그: **385개** 도서
+- 분석 리포트: `data/analytics_baseline_20260222.md`
+
+### 2. 완료된 코드 개선 목록 (재작업 방지)
+
+| 파일 | 변경 내용 | 완료일 |
+|------|----------|--------|
+| `src/08_create_and_preview_videos.py` | 태그 스터핑 수정 (15개 제한, 무관 기관 태그 제거) | 2026-02-22 |
+| `src/utils/title_generator.py` | 훅 카피 + 파이프 제목 포맷 (`generate_hook_title()` 추가) | 2026-02-22 |
+| `src/08_create_and_preview_videos.py` | Description 첫 줄 책별 훅 문장 배치 (AI 언급 제거) | 2026-02-22 |
+| `src/26_generate_shorts.py` | 장르별 맞춤 훅 + 한국어 이/가 조사 + CTA 오버레이 추가 | 2026-02-22 |
+| `src/28_community_posts.py` | CSV 경로 수정 + 최근 업로드 도서명 자동 포함 | 2026-02-22 |
+| `src/29_thumbnail_ab_test.py` | 썸네일 A/B 테스트 스크립트 신규 생성 | 2026-02-22 |
+| `scripts/reauth_youtube.py` | Analytics+Readonly 스코프 추가, credentials.json+.env 자동 갱신 | 2026-02-22 |
+
+### 3. 다음 우선 실행 액션
+
+- [ ] **Shorts 생성** — `생각에 관한 생각`(2,707회) 영상 에셋 확보 후 `python src/26_generate_shorts.py`
+- [ ] **업로드 시간 변경** — 자정(00시) → 오후 7시(19:00 KST)
+- [ ] **저참여율 재최적화** — `특이점이 온다`(1.03%), `나는 고양이로소이다`(1.32%) 썸네일 A/B 테스트 등록
+- [ ] **고참여율 유사 도서 우선 제작** — 도스토옙스키 계열(6.42%), 다자이 오사무 계열(4.05%)
+- [ ] **기존 댓글 전수 응답** — YouTube Studio에서 수동 처리 (254개 영상)
+- [ ] **작가 스포트라이트 시리즈** — 헤르만 헤세(`유리알 유희`), 어니스트 헤밍웨이(`누구를 위하여 종은 울리나`)
+
+### 4. 핵심 참고 정보
+- 조회수 상위 영상 ID: `EDfOZfYtCbI`(생각에 관한 생각), `YgmGQUZTO7M`(나는 고양이로소이다)
+- 커뮤니티 포스트: 구독자 500명 이후 활성화 예정 (`src/28_community_posts.py --apply`)
+- OAuth 재인증 방법: `python scripts/reauth_youtube.py` (브라우저 인증 필요)
+
+---
+
+## 2026-02-22
+
+### YouTube 구독자 성장 전략 Phase 1 구현 (SEO 최적화)
+
+#### 태그 스터핑 수정 (src/08_create_and_preview_videos.py)
+- **문제**: Harvard, NYT, CNN, 서울대, 고려대, 연세대, 교보문고, 국립중앙도서관 등 무관 태그를 모든 영상에 무조건 적용 → YouTube 알고리즘 패널티 위험
+- **수정**: 무조건 적용되던 `media_institution_tags`, `bookstore_tags`, `library_tags`, `government_tags`, `university_tags` 완전 제거
+- **유지**: 노벨문학상, 맨부커상, 퓰리처상은 book_info 내용 기반 조건부 적용 유지
+- **새 구조**: Tier 1(책제목+저자) → Tier 2(장르 3개) → Tier 3(채널발견 5개) → Tier 4(수상 조건부)
+- **제한**: 30개 → 최대 15개로 감소 (태그 스터핑 방지)
+
+#### 제목 공식 개선 (src/utils/title_generator.py, src/08_create_and_preview_videos.py)
+- **새 포맷**: 훅 카피 + 파이프 구조 (CTR 향상 목적)
+  - 한글: `{저자}이 밝힌 {인사이트} | {책제목} 핵심 요약`
+  - 영문: `{author} on {insight} | {title} Summary`
+- **추가**: `generate_hook_title()` 함수 (title_generator.py) - 장르별 훅 템플릿 적용
+- **하위 호환**: `use_hook_format=False`로 기존 `[핵심 요약]` 포맷 사용 가능
+
+#### Description 첫 줄 개선 (src/08_create_and_preview_videos.py)
+- **문제**: 첫 2-3줄이 "NotebookLM과 AI를 활용하여..." 보일러플레이트 → 검색 결과 노출 낭비
+- **수정**: 책 특화 훅 문장을 첫 줄에 배치, AI 언급 제거
+  - 한글: `{책제목}의 핵심을 5분 안에 — 바쁜 일상 속 놓치기 아까운 인사이트를 압축했습니다.`
+  - 영문: `The essential ideas from {title} — condensed into 5 minutes you won't forget.`
+
+#### Phase 3 추가 구현
+
+##### Shorts CTA 오버레이 (src/26_generate_shorts.py)
+- `_create_short_video()` 함수에 `cta_text` 파라미터 추가
+- 마지막 10초 동안 하단에 "전체 리뷰는 채널에서 ↑" / "Full Review on the Channel ↑" 표시
+- 반투명 검은 배경(opacity 60%) + 흰색 텍스트 오버레이
+
+##### 썸네일 A/B 테스트 스크립트 (src/29_thumbnail_ab_test.py) — 신규
+- 명령어: `register` / `check` / `list` / `switch`
+- 변형 A 업로드 후 48시간 경과 시 YouTube Analytics CTR 자동 확인
+- CTR < 3%이면 변형 B 썸네일로 자동 교체
+- 결과를 `data/thumbnail_ab_test.csv`에 기록
+- Dry-run 기본값, `--apply`로 실제 적용
+
+##### 커뮤니티 포스트 개선 (src/28_community_posts.py)
+- CSV 기본 경로 `ildangbaek_books.csv` → `data/ildangbaek_books.csv` 수정
+- 금요일 근황 포스트에 최근 업로드 도서명 자동 포함
+- `--type weekly --apply` 시 월/수/금 포스트 실제 게시 가능
+
+#### OAuth 재인증 스크립트 개선 (scripts/reauth_youtube.py)
+- **스코프 추가**: `youtube.readonly`, `yt-analytics.readonly` — Analytics API 및 채널 통계 조회에 필요
+- **자동 저장**: 재인증 후 `secrets/credentials.json` + `.env YOUTUBE_REFRESH_TOKEN` 자동 갱신
+- 재인증 실행 완료 → `.env` 업데이트 완료 → Analytics API 정상 동작 확인
+
+#### 분석 기준선 확보 완료 (data/analytics_baseline_20260222.md)
+- **채널 현황**: 구독자 172명, 총 영상 254개 (한글/영문 포함)
+- **조회수 1위**: 생각에 관한 생각 (2,707회) — Shorts 최우선 타겟
+- **조회수 Top 5**: 나는 고양이로소이다(831) / 특이점이 온다(682) / 금병매(451) / 은하수 히치하이커(414)
+- **참여율 1위**: 까르마조프가의 형제들 (6.42%) — 유사 도서 제작 권장
+- **업로드 패턴**: 96%가 자정(00시) 업로드 → 오후 7시(19시 KST)로 변경 검토
+- 상세 리포트: `data/analytics_baseline_20260222.md`
+
+#### Shorts 메타데이터 제목 개선 (src/26_generate_shorts.py)
+- **문제**: "이 책이 내 인생을 바꿨다" / "This Book Changed My Life" 고정 문구 → 모든 Shorts 동일
+- **수정**: 장르별 맞춤 훅 카피로 교체 (genre-aware hooks)
+  - 철학: `{저자}가 말한 {책제목}의 핵심` 또는 `{책제목}이 알려준 삶의 진실`
+  - 심리학: `{책제목}으로 본 인간의 심리`
+  - 비즈니스: `{책제목}의 핵심 전략 한 가지`
+  - 소설: `{책제목}이 보여준 인간의 민낯`
+- **추가**: 한국어 조사 자동 처리 (이/가 구분)
+- **추가**: `book_info` 파라미터 지원으로 장르 감지 가능
+
 ## 2026-02-19
 
 ### 청춘의 독서 (유시민) summary+video 영상 제작 및 업로드

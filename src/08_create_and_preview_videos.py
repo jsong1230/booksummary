@@ -39,11 +39,13 @@ from src.utils.translations import translate_book_title, translate_author_name, 
 from src.utils.file_utils import safe_title, load_book_info, get_standard_safe_title
 from src.utils.affiliate_links import generate_affiliate_section
 
-def generate_title(book_title: str, lang: str = "both", author: Optional[str] = None) -> str:
+def generate_title(book_title: str, lang: str = "both", author: Optional[str] = None, use_hook_format: bool = True) -> str:
     """
-    영상 제목 생성 (고정 포맷)
-    - summary+video: [핵심 요약] 책제목: 작가 (부제목)
-    - 부제목은 있으면만 추가합니다. (괄호/대체 제목)
+    영상 제목 생성
+    - use_hook_format=True (기본): 훅 카피 + 파이프 포맷
+      예: "프란스 드 발이 밝힌 권력의 본질 | 침팬지 폴리틱스 핵심 요약"
+      예: "Frans de Waal on the Nature of Power | Chimpanzee Politics Summary"
+    - use_hook_format=False: 레거시 포맷 [핵심 요약] 책제목: 작가 (부제목)
     - lang은 'ko' 또는 'en'을 권장합니다. (both는 하위 호환용)
     """
     import re
@@ -209,6 +211,26 @@ def generate_title(book_title: str, lang: str = "both", author: Optional[str] = 
     subtitle_en = " · ".join(subtitle_en_parts) if subtitle_en_parts else None
 
     # 5) 최종 조립
+    if use_hook_format:
+        # 훅 카피 + 파이프 포맷: "{저자}이 밝힌 {인사이트} | {책제목} 핵심 요약"
+        try:
+            from src.utils.title_generator import generate_hook_title
+            if lang == "ko":
+                title = generate_hook_title(ko_title, ko_author or None, "ko", book_info)
+            elif lang == "en":
+                title = generate_hook_title(en_title, en_author or None, "en", book_info)
+                if contains_korean(title):
+                    raise ValueError(
+                        "영문 제목에 한글이 포함되어 있습니다. "
+                        "src/utils/translations.py에 번역 매핑을 추가하세요."
+                    )
+            else:
+                title = generate_hook_title(ko_title, ko_author or None, "ko", book_info)
+            return title
+        except (ImportError, AttributeError):
+            pass  # generate_hook_title 없으면 레거시 포맷으로 폴백
+
+    # 레거시 포맷: [핵심 요약] 책제목: 저자 (부제목)
     if lang == "ko":
         main_title = ko_title
         author_part = f": {ko_author}" if ko_author else ""
@@ -344,16 +366,14 @@ def _generate_description_ko(book_info: Optional[Dict] = None, book_title: str =
         ko_title = book_title
     
     # 한글 부분 (검색 최적화: 키워드 자연스럽게 포함)
-    ko_desc = youtube_chapters + f"""📚 바쁜 현대인을 위한 핵심 요약 | {ko_title}
-
-이 영상은 NotebookLM과 AI를 활용하여 생성된 '핵심 요약' 영상입니다.
-바쁜 일상 속에서 잠시 시간을 내어 책의 핵심을 파악해보세요.
+    # 첫 줄: 책 특화 훅 문장 (검색 결과 미리보기에 노출됨)
+    ko_hook = f"{ko_title}의 핵심을 5분 안에 — 바쁜 일상 속 놓치기 아까운 인사이트를 압축했습니다."
+    ko_desc = youtube_chapters + f"""📚 {ko_hook}
 
 📝 영상 구성:
-• 핵심 요약 (GPT 생성) - 책의 주요 메시지와 인사이트
-• 상세 심층 분석 (NotebookLM) - 작가의 의도와 깊이 있는 해석
+• 핵심 요약 (5분) - 책의 주요 메시지와 핵심 인사이트
+• AI 심층 분석 - 작가의 의도와 깊이 있는 해석
 
-이 영상은 책의 내용을 빠르게 파악하고 싶거나, 읽은 내용을 정리하고 싶은 분들을 위해 제작되었습니다.
 """
     
     # Timestamp 섹션 추가 (중간에 표시용)
@@ -484,16 +504,18 @@ def _generate_description_ko(book_info: Optional[Dict] = None, book_title: str =
     ko_desc += f"\n{ko_hashtags}\n"
 
     # 영어 부분 (검색 최적화: 키워드 자연스럽게 포함)
-    en_desc = """📚 5-Minute Book Summary | Reading | BookTube
-
-This video is a 'Core Summary' generated using NotebookLM and AI.
-Grasp the essence of the book in just 5 minutes amidst your busy life.
+    # 첫 줄: 책 특화 훅 문장 (검색 결과 미리보기에 노출됨)
+    if book_title:
+        en_book_name = book_title if is_english_title(book_title) else translate_book_title(book_title)
+        en_hook = f"The essential ideas from {en_book_name} — condensed into 5 minutes you won't forget."
+    else:
+        en_hook = "The essential ideas from this book — condensed into 5 minutes you won't forget."
+    en_desc = f"""📚 {en_hook}
 
 📝 Video Content:
-• 5-Minute Core Summary (GPT Generated) - Key messages and insights
-• Detailed Deep Analysis (NotebookLM) - Author's intent and in-depth interpretation
+• 5-Minute Core Summary - Key messages and insights
+• Deep Analysis - Author's intent and in-depth interpretation
 
-This video is created for those who want to quickly grasp the book's content or organize what they've read.
 """
     if book_info:
         # 영어 책 소개 추가 (book_info의 description이 영어인 경우만 사용)
@@ -924,119 +946,47 @@ def detect_genre_tags(book_info: Optional[Dict] = None, book_title: str = None) 
     return ko_genre_tags, en_genre_tags
 
 def generate_tags(book_title: str = None, book_info: Optional[Dict] = None, lang: str = "both") -> list:
-    """태그 생성 (책 정보 활용, 두 언어 포함, 검색 최적화)"""
-    # 기본 태그 (SEO 최적화 - 검색 키워드 중심, 검색량 높은 순서)
+    """태그 생성 (책 정보 활용, 두 언어 포함, 검색 최적화)
+
+    최대 15개 태그 제한 (Tier 구조):
+    - Tier 1 (필수): 책 제목(한/영) + 저자(한/영) + "책리뷰"
+    - Tier 2 (장르): 장르별 태그 3-4개
+    - Tier 3 (채널 발견): 북튜브/독서/BookSummary 등 3-4개
+    - Tier 4 (수상): 실제 수상 시에만 추가
+    """
+    # Tier 3: 채널 발견용 기본 태그 (검색량 높은 핵심 키워드만)
     ko_base_tags = [
-        '책요약', '핵심요약', '줄거리요약', '책리뷰', 
-        '독서', '북튜버', '책추천', '독서법', '책읽기', 
-        '리뷰영상', '독서후기', '인문학', '지식창고',
-        '책분석', '독서모임', '책토론', '책읽는법',
-        '독서습관', '자기계발', '북크리에이터'
+        '책리뷰', '독서', '북튜브', '책추천', '책요약',
+        '핵심요약', '인문학', 'BeyondPage'
     ]
     en_base_tags = [
-        'BookSummary', 'CoreSummary', 'PlotSummary', 'BookReview',
-        'Reading', 'BookTube', 'BookRecommendation', 'ReadingTips', 
-        'Books', 'ReviewVideo', 'Literature', 'Knowledge', 
-        'BookAnalysis', 'BookClub', 'SelfImprovement', 'ReadingHabit', 
-        'BookCreator', 'LiteratureReview', 'ShortSummary'
+        'BookReview', 'BookSummary', 'BookTube', 'Reading',
+        'Literature', 'BeyondPage'
     ]
-    
-    # 추천 기관/상/대학 태그 (일반적으로 유용한 태그들)
-    # 책의 특성에 따라 선택적으로 추가될 수 있음
+
+    # Tier 4: 수상 태그 (조건부 - 실제 해당 도서에만 적용)
     institution_tags_ko = []
     institution_tags_en = []
-    
-    # 노벨문학상 수상작인 경우 (book_info에서 확인 가능)
+
     if book_info:
-        # book_info의 description이나 categories에서 노벨상 관련 키워드 확인
         description = book_info.get('description', '').lower() if book_info.get('description') else ''
         categories = [cat.lower() for cat in book_info.get('categories', [])] if book_info.get('categories') else []
-        
         all_text = ' '.join([description] + categories).lower()
-        
-        # 노벨상 관련
+
+        # 노벨문학상 수상작인 경우에만 추가
         if 'nobel' in all_text or '노벨' in all_text:
             institution_tags_en.extend(['NobelPrize', 'NobelLiteraturePrize'])
             institution_tags_ko.append('노벨문학상')
-        
-        # 맨부커상 관련
+
+        # 맨부커상 수상작인 경우에만 추가
         if 'man booker' in all_text or 'booker prize' in all_text or '맨부커' in all_text:
             institution_tags_en.extend(['ManBookerPrize', 'BookerPrize'])
             institution_tags_ko.append('맨부커상')
-        
-        # 퓰리처상 관련
+
+        # 퓰리처상 수상작인 경우에만 추가
         if 'pulitzer' in all_text or '퓰리처' in all_text:
             institution_tags_en.append('PulitzerPrize')
             institution_tags_ko.append('퓰리처상')
-    
-    # 일반적인 추천 기관 태그 (책리뷰 채널에 적합한 기관 목록)
-    # 세계적/국내기관 및 미디어
-    media_institution_tags_en = [
-        'NewYorkTimes', 'Amazon', 'TIMEMagazine', 'CNN', 'Newsweek'
-    ]
-    media_institution_tags_ko = [
-        '뉴욕타임즈', '아마존', '타임지', 'CNN', '뉴스위크'
-    ]
-    
-    # 주요 서점
-    bookstore_tags_ko = [
-        '교보문고', '알라딘', 'YES24'
-    ]
-    
-    # 주요 도서관
-    library_tags_ko = [
-        '국립중앙도서관', '서울도서관'
-    ]
-    
-    # 정부기관
-    government_tags_ko = [
-        '문화체육관광부', '한국출판문화산업진흥원'
-    ]
-    
-    # 유명 대학·교육기관
-    university_tags_en = [
-        'Harvard', 'UniversityOfChicago', 'TokyoUniversity', 'PekingUniversity', 'CollegeBoard'
-    ]
-    university_tags_ko = [
-        '서울대학교', '고려대학교', '연세대학교', '하버드대학교', '시카고대학교', 
-        '도쿄대학교', '베이징대학교', '미국대학위원회'
-    ]
-    
-    # 문학상 및 수상기구 (일부는 이미 위에서 조건부로 추가됨)
-    literary_award_tags_en = [
-        'GoncourtPrize', 'RenaudotPrize'
-    ]
-    literary_award_tags_ko = [
-        '공쿠르상', '르노도상'
-    ]
-    
-    # 기타 추천 출판사/단체
-    other_tags_ko = [
-        '출판저널', '학교도서관저널', '서평지', '독서운동', '환경책선정위원회'
-    ]
-    
-    # 모든 기관 태그를 우선순위에 따라 추가
-    # 미디어 기관 (높은 우선순위)
-    institution_tags_en.extend(media_institution_tags_en[:3])  # 최대 3개
-    institution_tags_ko.extend(media_institution_tags_ko[:3])  # 최대 3개
-    
-    # 서점 (중간 우선순위)
-    institution_tags_ko.extend(bookstore_tags_ko[:2])  # 최대 2개
-    
-    # 도서관 (중간 우선순위)
-    institution_tags_ko.extend(library_tags_ko[:1])  # 최대 1개
-    
-    # 대학 (높은 우선순위)
-    institution_tags_en.extend(university_tags_en[:3])  # 최대 3개
-    institution_tags_ko.extend(university_tags_ko[:3])  # 최대 3개
-    
-    # 문학상 (조건부로 이미 추가된 것 외에)
-    institution_tags_en.extend(literary_award_tags_en[:1])  # 최대 1개
-    institution_tags_ko.extend(literary_award_tags_ko[:1])  # 최대 1개
-    
-    # 기타 (낮은 우선순위, 공간이 있을 때만)
-    if len(institution_tags_ko) < 10:  # 공간이 있으면
-        institution_tags_ko.extend(other_tags_ko[:2])  # 최대 2개
     
     # 책 제목 기반 태그
     ko_book_tags = []
@@ -1084,62 +1034,39 @@ def generate_tags(book_title: str = None, book_info: Optional[Dict] = None, lang
                 en_book_tags.append(en_author)
                 en_book_tags.append(f"{en_author} Author")
     
-    # 장르/카테고리 태그 (book_info에서 추출 가능한 경우)
-    if book_info and book_info.get('categories'):
-        for category in book_info['categories'][:3]:  # 최대 3개
-            # 카테고리가 한글인지 영어인지 판단
-            if is_english_title(category):
-                en_book_tags.append(category)
-            else:
-                ko_book_tags.append(category)
-    
-    # 장르별 특화 태그 추가
+    # 장르별 특화 태그 추가 (Tier 2)
     ko_genre_tags, en_genre_tags = detect_genre_tags(book_info, book_title)
-    
-    # 현재 연도 가져오기
-    current_year = datetime.now().year
-    
-    # 트렌딩/검색량 높은 키워드 태그 추가
-    ko_trending_tags = [
-        f'책추천{current_year}', '독서챌린지', '책읽기습관', '독서모임', '문학토론',
-        '책리뷰채널', '북튜버추천', '독서법추천', '책읽는법', '독서습관만들기'
-    ]
-    en_trending_tags = [
-        f'BookRecommendation{current_year}', 'ReadingChallenge', 'BookClub', 'LiteraryDiscussion',
-        'BookReviewChannel', 'BookTubeRecommendation', 'ReadingMethod', 'HowToRead'
-    ]
-    
-    # 태그 결합 (중복 제거, 우선순위: 기본 > 장르 > 기관 > 책제목/작가 > 트렌딩)
-    # 기관 태그는 검색 최적화에 중요하므로 중간에 배치
+
+    # 태그 결합 (우선순위: 책제목/작가 > 장르 > 수상 > 채널 발견용)
+    # Tier 1이 최우선: 책 특화 태그(제목+저자) -> 검색 의도 매칭
     ko_tags = list(dict.fromkeys(
-        ko_base_tags[:12] +  # 기본 태그 (검색량 높은 것 우선)
-        ko_genre_tags +      # 장르 태그
-        institution_tags_ko[:5] +  # 기관 태그 (최대 5개)
-        ko_book_tags +       # 책 제목/작가 태그
-        ko_trending_tags[:3]  # 트렌딩 태그 (최대 3개)
+        ko_book_tags +           # Tier 1: 책 제목/작가 (필수)
+        ko_genre_tags[:3] +      # Tier 2: 장르 태그 최대 3개
+        institution_tags_ko[:2] +  # Tier 4: 수상 태그 (조건부, 최대 2개)
+        ko_base_tags[:5]          # Tier 3: 채널 발견용 기본 태그 5개
     ))
     en_tags = list(dict.fromkeys(
-        en_base_tags[:12] +  # 기본 태그
-        en_genre_tags +      # 장르 태그
-        institution_tags_en[:5] +  # 기관 태그 (최대 5개)
-        en_book_tags +       # 책 제목/작가 태그
-        en_trending_tags[:3]  # 트렌딩 태그 (최대 3개)
+        en_book_tags +           # Tier 1: 책 제목/작가 (필수)
+        en_genre_tags[:3] +      # Tier 2: 장르 태그 최대 3개
+        institution_tags_en[:2] +  # Tier 4: 수상 태그 (조건부, 최대 2개)
+        en_base_tags[:4]          # Tier 3: 채널 발견용 기본 태그 4개
     ))
-    
-    # YouTube 태그 제한 (최대 500자, 약 30-40개 태그)
-    # 각 태그는 보통 10-15자이므로 최대 30개 정도로 제한
-    max_tags = 30
+
+    # YouTube 태그 제한: 최대 15개 (태그 스터핑 방지)
+    max_tags = 15
     ko_tags = ko_tags[:max_tags]
     en_tags = en_tags[:max_tags]
     
+    # 최종 합산 후 15개 제한 (YouTube 알고리즘 패널티 방지)
     if lang == "ko":
-        # 한글 태그 먼저, 영어 태그 나중
-        return ko_tags + en_tags
+        combined = list(dict.fromkeys(ko_tags + en_tags))
+        return combined[:15]
     elif lang == "en":
-        # 영어 태그 먼저, 한글 태그 나중
-        return en_tags + ko_tags
+        combined = list(dict.fromkeys(en_tags + ko_tags))
+        return combined[:15]
     else:
-        return ko_tags + en_tags
+        combined = list(dict.fromkeys(ko_tags + en_tags))
+        return combined[:15]
 
 
 def find_audio_files(audio_dir: str = "assets/audio") -> Tuple[Optional[Path], Optional[Path]]:

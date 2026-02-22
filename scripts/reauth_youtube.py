@@ -1,15 +1,20 @@
 """
 YouTube OAuth 재인증 스크립트
 
-기존 refresh token이 youtube.force-ssl 스코프를 포함하지 않아
-API 호출 시 권한 오류가 발생하는 경우, 이 스크립트를 실행하여
-새로운 스코프를 포함한 refresh token을 재발급받습니다.
+기존 credentials.json에 누락된 스코프(analytics, readonly 등)를 추가하거나
+권한 오류 발생 시 전체 스코프를 포함한 새 토큰을 재발급합니다.
+
+필요 스코프:
+  - youtube.upload       : 영상 업로드
+  - youtube.force-ssl    : 댓글 작성, 썸네일 업로드 등
+  - youtube.readonly     : 채널/영상 통계 조회
+  - yt-analytics.readonly: YouTube Analytics API (CTR, 조회수 상세 등)
 
 사용법:
     /Users/jsong/.pyenv/versions/3.11.10/bin/python scripts/reauth_youtube.py
 
 완료 후:
-    출력된 YOUTUBE_REFRESH_TOKEN 값을 .env 파일에 업데이트하세요.
+    secrets/credentials.json이 자동으로 갱신됩니다.
 """
 
 import sys
@@ -26,7 +31,9 @@ load_dotenv()
 # 재인증에 사용할 전체 스코프 목록
 SCOPES = [
     'https://www.googleapis.com/auth/youtube.upload',
-    'https://www.googleapis.com/auth/youtube.force-ssl'
+    'https://www.googleapis.com/auth/youtube.force-ssl',
+    'https://www.googleapis.com/auth/youtube.readonly',
+    'https://www.googleapis.com/auth/yt-analytics.readonly',
 ]
 
 
@@ -86,25 +93,33 @@ def main():
         print(f"YOUTUBE_REFRESH_TOKEN={credentials.refresh_token}")
         print("")
 
-        # 토큰 정보를 임시 파일로 저장 (검증용)
-        temp_token_path = project_root / 'secrets' / 'new_token_temp.json'
+        # credentials.json 형식으로 저장 (구글 라이브러리 호환)
         import json
-        token_data = {
-            'refresh_token': credentials.refresh_token,
+        credentials_path = project_root / 'secrets' / 'credentials.json'
+        creds_data = {
             'token': credentials.token,
+            'refresh_token': credentials.refresh_token,
+            'token_uri': credentials.token_uri,
+            'client_id': credentials.client_id,
+            'client_secret': credentials.client_secret,
             'scopes': list(credentials.scopes) if credentials.scopes else SCOPES,
         }
-        with open(temp_token_path, 'w', encoding='utf-8') as f:
-            json.dump(token_data, f, ensure_ascii=False, indent=2)
+        with open(credentials_path, 'w', encoding='utf-8') as f:
+            json.dump(creds_data, f, ensure_ascii=False, indent=2)
 
-        print(f"토큰 정보가 임시 파일에도 저장되었습니다: {temp_token_path}")
-        print("확인 후 이 임시 파일은 삭제하세요.")
+        print(f"✅ secrets/credentials.json 자동 갱신 완료!")
+        print("")
+
+        # 임시 파일에도 저장 (백업용)
+        temp_token_path = project_root / 'secrets' / 'new_token_temp.json'
+        with open(temp_token_path, 'w', encoding='utf-8') as f:
+            json.dump(creds_data, f, ensure_ascii=False, indent=2)
+
+        print(f"백업: {temp_token_path}")
         print("")
         print("다음 단계:")
-        print("  1. 위의 YOUTUBE_REFRESH_TOKEN 값을 복사합니다.")
-        print("  2. .env 파일을 열어 YOUTUBE_REFRESH_TOKEN 값을 교체합니다.")
-        print("  3. secrets/new_token_temp.json 파일을 삭제합니다.")
-        print("  4. 업로드 스크립트를 다시 실행합니다.")
+        print("  1. analytics 스크립트 실행: python src/22_analytics_recommendations.py --days 90")
+        print("  2. 업로드 시간 분석: python src/18_analyze_optimal_upload_time.py")
 
     except Exception as e:
         print(f"오류 발생: {e}")
