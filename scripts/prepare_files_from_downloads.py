@@ -314,22 +314,294 @@ def prepare_files(book_title: str, author: str = None, prefix: str = None) -> di
     
     return prepared_files
 
+
+def validate_input_folder(
+    input_dir: Path = None,
+    prefix: str = None,
+    style: str = "summary"
+) -> dict:
+    """
+    input 폴더의 파일을 검증합니다.
+
+    Args:
+        input_dir: 검증할 폴더 경로 (기본값: Path("input"))
+        prefix: 파일명 접두사 (None이면 자동 감지)
+        style: 영상 스타일 ("summary" 또는 "episode")
+
+    Returns:
+        {
+            'valid': bool,
+            'warnings': list[str],
+            'errors': list[str],
+            'detected_files': dict
+        }
+    """
+    if input_dir is None:
+        input_dir = Path("input")
+
+    result = {
+        'valid': True,
+        'warnings': [],
+        'errors': [],
+        'detected_files': {}
+    }
+
+    print("=" * 60)
+    print(f"🔍 input 폴더 유효성 검증 ({style} 스타일)")
+    print("=" * 60)
+
+    if not input_dir.exists():
+        result['errors'].append(f"input 폴더가 존재하지 않습니다: {input_dir}")
+        result['valid'] = False
+        _print_validation_result(result)
+        return result
+
+    all_files = list(input_dir.iterdir())
+    recognized_files = []
+    unrecognized_files = []
+
+    # 언어 마커 패턴
+    lang_markers = ['_kr', '_ko', '_en']
+
+    for f in all_files:
+        if not f.is_file():
+            continue
+        name = f.name.lower()
+        has_lang_marker = any(marker in name for marker in lang_markers)
+        # 알려진 타입 키워드 포함 여부
+        known_keywords = ['audio', 'summary', 'thumbnail', 'video', 'part1', 'part2', 'info']
+        has_known_keyword = any(kw in name for kw in known_keywords)
+
+        if has_lang_marker and has_known_keyword:
+            recognized_files.append(f)
+        else:
+            unrecognized_files.append(f)
+
+    result['detected_files']['recognized'] = [str(f) for f in recognized_files]
+
+    # 인식 불가 파일 경고
+    for uf in unrecognized_files:
+        result['warnings'].append(f"인식 불가 파일: {uf.name} (언어 마커 또는 타입 키워드 없음)")
+
+    if style == "summary":
+        # Summary 스타일: audio 2개, summary(MD) 2개, thumbnail(PNG) 2개 기대
+        _validate_summary_style(input_dir, prefix, result)
+    elif style == "episode":
+        # Episode 스타일: video(MP4) 4개, infographic(PNG) 4개, thumbnail 2개 기대
+        _validate_episode_style(input_dir, prefix, result)
+    else:
+        result['warnings'].append(f"알 수 없는 스타일: {style}. 'summary' 또는 'episode'만 지원됩니다.")
+
+    if result['errors']:
+        result['valid'] = False
+
+    _print_validation_result(result)
+    return result
+
+
+def _validate_summary_style(input_dir: Path, prefix: str, result: dict) -> None:
+    """Summary+Video 스타일 파일 검증
+
+    Summary 오디오는 파이프라인이 TTS로 summary MD에서 자동 생성합니다.
+    NotebookLM 비디오(.mp4)는 필수입니다.
+    """
+    lang_variants = [
+        ('ko', ['_kr', '_ko']),
+        ('en', ['_en']),
+    ]
+
+    for lang_key, markers in lang_variants:
+        # NotebookLM 비디오 파일 확인 (필수)
+        video_found = False
+        for ext in ['.mp4', '.mov', '.avi', '.mkv']:
+            for marker in markers:
+                pattern = f"*video*{marker}*{ext}"
+                if list(input_dir.glob(pattern)):
+                    video_found = True
+                    break
+                if prefix:
+                    specific = input_dir / f"{prefix}_video_{marker.strip('_')}{ext}"
+                    if specific.exists():
+                        video_found = True
+                        break
+            if video_found:
+                break
+
+        if not video_found:
+            result['errors'].append(
+                f"[{lang_key.upper()}] NotebookLM 비디오 파일 없음 (필수): "
+                f"*video*{'|'.join(markers)}*.mp4"
+            )
+
+        # Summary MD 파일 확인 (선택, 없으면 경고)
+        summary_found = False
+        for marker in markers:
+            pattern = f"*summary*{marker}*.md"
+            if list(input_dir.glob(pattern)):
+                summary_found = True
+                break
+            if prefix:
+                specific = input_dir / f"{prefix}_summary_{marker.strip('_')}.md"
+                if specific.exists():
+                    summary_found = True
+                    break
+        if not summary_found:
+            result['warnings'].append(
+                f"[{lang_key.upper()}] Summary MD 파일 없음 (선택): AI가 자동 생성합니다."
+            )
+
+        # 썸네일 PNG 확인 (선택, 없으면 경고)
+        thumbnail_found = False
+        for ext in ['.png', '.jpg', '.jpeg']:
+            for marker in markers:
+                pattern = f"*thumbnail*{marker}*{ext}"
+                if list(input_dir.glob(pattern)):
+                    thumbnail_found = True
+                    break
+            if thumbnail_found:
+                break
+        if not thumbnail_found:
+            result['warnings'].append(
+                f"[{lang_key.upper()}] 썸네일 파일 없음 (선택): 업로드 전 필요합니다."
+            )
+
+
+def _validate_episode_style(input_dir: Path, prefix: str, result: dict) -> None:
+    """일당백(Episode) 스타일 파일 검증"""
+    lang_variants = [
+        ('ko', ['_kr', '_ko']),
+        ('en', ['_en']),
+    ]
+    part_nums = [1, 2]
+
+    for lang_key, markers in lang_variants:
+        for part_num in part_nums:
+            # 비디오 파일 확인
+            video_found = False
+            for ext in ['.mp4', '.mov', '.avi', '.mkv']:
+                for marker in markers:
+                    pattern = f"*part{part_num}*video*{marker}*{ext}"
+                    if list(input_dir.glob(pattern)):
+                        video_found = True
+                        break
+                    pattern2 = f"*video*part{part_num}*{marker}*{ext}"
+                    if list(input_dir.glob(pattern2)):
+                        video_found = True
+                        break
+                if video_found:
+                    break
+            if not video_found:
+                result['errors'].append(
+                    f"[{lang_key.upper()}] Part {part_num} 비디오 파일 없음 (필수): "
+                    f"*part{part_num}*video*{'|'.join(markers)}*.mp4"
+                )
+
+            # 인포그래픽 PNG 확인
+            info_found = False
+            for ext in ['.png', '.jpg', '.jpeg']:
+                for marker in markers:
+                    for kw in ['info', 'infographic']:
+                        pattern = f"*part{part_num}*{kw}*{marker}*{ext}"
+                        if list(input_dir.glob(pattern)):
+                            info_found = True
+                            break
+                    if info_found:
+                        break
+                if info_found:
+                    break
+            if not info_found:
+                result['warnings'].append(
+                    f"[{lang_key.upper()}] Part {part_num} 인포그래픽 파일 없음 (선택): "
+                    f"*part{part_num}*info*{'|'.join(markers)}*.png"
+                )
+
+        # 썸네일 확인
+        thumbnail_found = False
+        for ext in ['.png', '.jpg', '.jpeg']:
+            for marker in markers:
+                pattern = f"*thumbnail*{marker}*{ext}"
+                if list(input_dir.glob(pattern)):
+                    thumbnail_found = True
+                    break
+            if thumbnail_found:
+                break
+        if not thumbnail_found:
+            result['warnings'].append(
+                f"[{lang_key.upper()}] 썸네일 파일 없음 (선택): 업로드 전 필요합니다."
+            )
+
+
+def _print_validation_result(result: dict) -> None:
+    """검증 결과를 출력합니다."""
+    print()
+    if result['errors']:
+        print(f"❌ 오류 {len(result['errors'])}개:")
+        for err in result['errors']:
+            print(f"   • {err}")
+    else:
+        print("✅ 필수 파일 모두 확인됨")
+
+    if result['warnings']:
+        print(f"\n⚠️ 경고 {len(result['warnings'])}개:")
+        for warn in result['warnings']:
+            print(f"   • {warn}")
+
+    print()
+    status = "✅ 유효" if result['valid'] else "❌ 유효하지 않음"
+    print(f"검증 결과: {status}")
+    print("=" * 60)
+
+
 def main():
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="input 폴더에서 파일을 준비하고 표준 네이밍으로 변경")
     parser.add_argument("--book-title", required=True, help="책 제목")
     parser.add_argument("--author", help="저자 이름")
     parser.add_argument("--prefix", help="파일명 접두사 (자동 감지 시 생략 가능)")
-    
+    parser.add_argument(
+        "--validate-only",
+        action="store_true",
+        help="검증만 실행하고 파일을 이동하지 않음"
+    )
+    parser.add_argument(
+        "--style",
+        default="summary",
+        choices=["summary", "episode"],
+        help="영상 스타일 (기본값: summary)"
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="검증 오류가 있어도 강제 진행"
+    )
+
     args = parser.parse_args()
-    
+
+    # 검증 실행
+    validation = validate_input_folder(
+        input_dir=Path("input"),
+        prefix=args.prefix,
+        style=args.style
+    )
+
+    if args.validate_only:
+        return 0 if validation['valid'] else 1
+
+    # 오류가 있으면 --force 없이는 중단
+    if not validation['valid'] and not args.force:
+        print(
+            "\n❌ 검증 실패: 필수 파일이 없습니다.\n"
+            "   오류를 해결하거나 --force 옵션으로 강제 진행하세요."
+        )
+        return 1
+
     prepared_files = prepare_files(
         book_title=args.book_title,
         author=args.author,
         prefix=args.prefix
     )
-    
+
     print("\n📋 준비된 파일 요약:")
     for file_type in ['audio', 'summary', 'thumbnail', 'video']:
         print(f"\n{file_type.upper()}:")
@@ -338,6 +610,9 @@ def main():
                 print(f"  {lang.upper()}: {prepared_files[file_type][lang]}")
             else:
                 print(f"  {lang.upper()}: 없음")
+
+    return 0
+
 
 if __name__ == "__main__":
     main()

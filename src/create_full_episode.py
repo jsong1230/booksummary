@@ -343,7 +343,8 @@ def create_full_episode(
     language: str = "ko",
     infographic_duration: float = 10.0,
     background_music_path: Optional[str] = None,
-    bgm_volume: float = 0.3
+    bgm_volume: float = 0.3,
+    add_subscribe_cta: bool = True
 ) -> str:
     """
     NotebookLM 영상과 인포그래픽을 합쳐서 전체 에피소드 영상 생성
@@ -351,6 +352,7 @@ def create_full_episode(
     Args:
         book_title: 책 제목
         output_path: 출력 파일 경로 (None이면 자동 생성)
+        add_subscribe_cta: 구독 유도 CTA 오버레이 추가 여부 (기본값: True)
 
     Returns:
         생성된 영상 파일 경로
@@ -709,9 +711,33 @@ def create_full_episode(
     logger.info("")
     
     final_video = concatenate_videoclips(video_clips, method="compose")
-    
+
+    # 구독 유도 CTA 오버레이 추가 (마지막 20초)
+    if add_subscribe_cta:
+        try:
+            try:
+                from src.utils.subscribe_cta import create_subscribe_cta_clip  # type: ignore[import]
+            except ImportError:
+                from utils.subscribe_cta import create_subscribe_cta_clip  # type: ignore[import]
+            total_dur = final_video.duration
+            cta_duration = min(20.0, total_dur * 0.1)
+            cta_start = total_dur - cta_duration
+            cta_clip = create_subscribe_cta_clip(
+                duration=cta_duration,
+                language=normalized_language,
+                resolution=resolution
+            )
+            if cta_clip is not None:
+                cta_clip = cta_clip.set_start(cta_start)
+                final_video = CompositeVideoClip([final_video, cta_clip])
+                logger.info(f"✅ 구독 유도 CTA 오버레이 추가 (마지막 {cta_duration:.0f}초)")
+            else:
+                logger.warning("CTA 클립 생성 실패, 건너뜁니다")
+        except Exception as e:
+            logger.warning(f"CTA 오버레이 추가 실패: {e}, 건너뜁니다")
+
     logger.info("")
-    
+
     # 출력 경로 설정
     if output_path is None:
         output_path = f"output/{safe_title}_full_episode_{language}.mp4"
@@ -840,7 +866,14 @@ def main():
         default=0.3,
         help='배경음악 음량 (0.0 ~ 1.0, 기본값: 0.3)'
     )
-    
+
+    parser.add_argument(
+        '--no-cta',
+        action='store_true',
+        help='구독 유도 CTA 오버레이 비활성화 (기본값: 활성화)'
+    )
+
+
     args = parser.parse_args()
     
     try:
@@ -850,7 +883,8 @@ def main():
             language=args.language,
             infographic_duration=args.infographic_duration,
             background_music_path=args.background_music,
-            bgm_volume=args.bgm_volume
+            bgm_volume=args.bgm_volume,
+            add_subscribe_cta=not args.no_cta
         )
         print(f"\n✅ 성공: {output_path}")
         return 0

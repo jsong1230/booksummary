@@ -3830,3 +3830,70 @@
   - URL: https://www.youtube.com/watch?v=1rdzviwjpNg
 - [2] [핵심 요약] 청춘의 독서 (Youth and Reading · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
   - URL: https://www.youtube.com/watch?v=sPOCgIzFRTg
+
+## 2026-02-20
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Magical_Language_of_Others
+- 업로드된 영상 수: 2개
+- [1] [Summary] The Magical Language of Others (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=YVg6wKXwn14
+- [2] [핵심 요약] 마법 같은 언어 (The Magical Language of Others · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=cqPlRVsCf5E
+
+## 2026-02-20
+
+### YouTube 업로드 완료
+- 업로드된 책: Faust_full_episode, Faust_full_episode_ko
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] Faust: Johann Wolfgang von Goethe (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=4fpKHYgjWb4
+- [2] [일당백] 파우스트: 괴테 (Faust · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=vrbiAzoIM8w
+
+## 2026-02-22
+
+### YouTube 스크립트 다운로드
+- 피천득, 법정, 신영복 - 한국의 수필 YouTube 영상 자막 다운로드
+- `scripts/fetch_separate_scripts.py` 실행
+  - Part 1 (YUDSFxkjnhk): data/source/YUDSFxkjnhk_part1_author.txt (28,529자)
+  - Part 2 (LS0dD_nDxVk): data/source/LS0dD_nDxVk_part2_novel.txt (31,896자)
+
+### 한국의 수필 일당백 영상 제작 및 업로드
+
+#### 번역 매핑 추가 (src/utils/translations.py)
+- 한국의 수필 ↔ Korean Essays
+- 피천득 ↔ Pi Chon-deuk
+- 법정 ↔ Beopjeong
+- 신영복 ↔ Shin Yeong-bok
+- 피천득, 법정, 신영복 ↔ Pi Chon-deuk, Beopjeong, Shin Yeong-bok
+
+#### 영상 제작 (일당백 스타일)
+- `src/create_full_episode.py` 실행
+- Part 1 영상 + Part 1 인포그래픽 + Part 2 영상 + Part 2 인포그래픽 연결
+- 한글: output/Korean_Essays_full_episode_ko.mp4 (398MB, 12.32분)
+- 영문: output/Korean_Essays_full_episode_en.mp4 (364MB, 12.64분)
+
+#### YouTube 비공개 업로드 완료
+- [1] [1DANG100] Korean Essays: Pi Chon-deuk, Beopjeong, Shin Yeong-bok
+  - URL: https://www.youtube.com/watch?v=QYLQ3x2l3jw
+- [2] [일당백] 한국의 수필: 피천득, 법정, 신영복
+  - URL: https://www.youtube.com/watch?v=VpMAODF525E
+
+### 침팬지 폴리틱스 summary+video 영상 제작 및 업로드
+
+#### 번역 매핑 추가 (src/utils/translations.py)
+- 침팬지 폴리틱스 ↔ Chimpanzee Politics
+- 프란스 드 발 ↔ Frans de Waal
+
+#### 영상 제작 (summary+video 스타일)
+- TTS: OpenAI nova, 5분 요약, 볼륨 1.2배
+- 무드 이미지 10개 다운로드 (assets/images/Chimpanzee_Politics/)
+- 한글: output/Chimpanzee_Politics_kr.mp4 (365MB, 11.82분)
+- 영문: output/Chimpanzee_Politics_en.mp4 (356MB, 11.28분)
+
+#### YouTube 비공개 업로드 완료
+- [1] [Summary] Chimpanzee Politics (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=M7hy5M9fsMA
+- [2] [핵심 요약] 침팬지 폴리틱스 (Chimpanzee Politics · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=TdcgkhZs03Y

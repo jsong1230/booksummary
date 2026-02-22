@@ -7,6 +7,8 @@ def translate_book_title(book_title: str) -> str:
     """책 제목을 영어로 변환"""
     # 알려진 책 제목 매핑 (한글 -> 영어)
     title_map = {
+        "마법 같은 언어": "The Magical Language of Others",
+        "마법_같은_언어": "The Magical Language of Others",
         "노르웨이의 숲": "Norwegian Wood",
         "노르웨이의_숲": "Norwegian Wood",
         "상실의 시대": "Norwegian Wood",
@@ -487,6 +489,17 @@ def translate_book_title(book_title: str) -> str:
         "몸의 일기": "Journal d'un corps",
         "몸의_일기": "Journal d'un corps",
         "Journal d'un corps": "Journal d'un corps",
+        "파우스트": "Faust",
+        "파우스트_": "Faust",
+        "괴테의 파우스트": "Faust",
+        "괴테의_파우스트": "Faust",
+        "Faust": "Faust",
+        "한국의 수필": "Korean Essays",
+        "한국의_수필": "Korean Essays",
+        "Korean Essays": "Korean Essays",
+        "침팬지 폴리틱스": "Chimpanzee Politics",
+        "침팬지_폴리틱스": "Chimpanzee Politics",
+        "Chimpanzee Politics": "Chimpanzee Politics",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -501,6 +514,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
     """책 제목을 한글로 변환 (역방향)"""
     # 영어 -> 한글 매핑
     reverse_title_map = {
+        "The Magical Language of Others": "마법 같은 언어",
         "Norwegian Wood": "노르웨이의 숲",
         "Death of a Salesman": "세일즈맨의 죽음",
         "Four Thousand Weeks": "4000주",
@@ -632,6 +646,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Stolen Focus": "도둑맞은 집중력",
         "Yolha Ilgi": "열하일기",
         "Same as Ever": "불변의 법칙",
+        "Faust": "파우스트",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -695,6 +710,7 @@ def remove_korean_from_text(text: str) -> str:
 def translate_author_name(author: str) -> str:
     """작가 이름을 영어로 변환"""
     author_map = {
+        "고은지": "E.J. Koh",
         "무라카미 하루키": "Murakami Haruki",
         "하루키": "Haruki",
         "유발 하라리": "Yuval Noah Harari",
@@ -969,6 +985,17 @@ def translate_author_name(author: str) -> str:
         "Rhyu Si-min": "Rhyu Si-min",
         "다니엘 페나크": "Daniel Pennac",
         "Daniel Pennac": "Daniel Pennac",
+        "피천득": "Pi Chon-deuk",
+        "Pi Chon-deuk": "Pi Chon-deuk",
+        "법정": "Beopjeong",
+        "Beopjeong": "Beopjeong",
+        "신영복": "Shin Yeong-bok",
+        "Shin Yeong-bok": "Shin Yeong-bok",
+        "피천득, 법정, 신영복": "Pi Chon-deuk, Beopjeong, Shin Yeong-bok",
+        "Pi Chon-deuk, Beopjeong, Shin Yeong-bok": "Pi Chon-deuk, Beopjeong, Shin Yeong-bok",
+        "프란스 드 발": "Frans de Waal",
+        "프란스_드_발": "Frans de Waal",
+        "Frans de Waal": "Frans de Waal",
     }
 
     if author in author_map:
@@ -981,6 +1008,7 @@ def translate_author_name_to_korean(author: str) -> str:
     """작가 이름을 한글로 변환 (역방향)"""
     # 영어 -> 한글 매핑
     reverse_author_map = {
+        "E.J. Koh": "고은지",
         "Murakami Haruki": "무라카미 하루키",
         "Haruki": "하루키",
         "Yuval Noah Harari": "유발 하라리",

@@ -279,6 +279,44 @@
    - "영상 만들고 업로드해줘" 같은 명시적 요청이 있어야 업로드 진행
    - 업로드 전 항상 사용자에게 최종 확인 요청
 
+### 썸네일 프롬프트 자동 생성 (영상 제작 완료 후 필수)
+**중요: 영상 제작이 완료되면 반드시 Gems용 썸네일 프롬프트를 자동으로 출력합니다.**
+
+1. **자동 출력 규칙**
+   - 영상 제작(한글/영문) 완료 후, 사용자에게 묻지 않고 **자동으로** 썸네일 프롬프트를 출력합니다.
+   - 템플릿 파일을 읽어 플레이스홀더를 채운 완성된 프롬프트를 출력합니다.
+   - 템플릿 위치: `templates/thumbnails/`
+
+2. **스타일별 템플릿**
+   - Summary+Video 한글: `templates/thumbnails/summary_video_ko.md`
+   - Summary+Video 영문: `templates/thumbnails/summary_video_en.md`
+   - 일당백 한글: `templates/thumbnails/episode_ko.md`
+   - 일당백 영문: `templates/thumbnails/episode_en.md`
+
+3. **플레이스홀더 채우기 규칙**
+   - `{author_name}`: 저자 이름 (한글 또는 영문, 영상 언어에 맞게)
+   - `{hook_sentence}`: 책 핵심 메시지를 **궁금증 유발 문장**으로 직접 생성 (책 제목 그대로 X)
+   - `{illustration_subject}`: 저자 또는 책 주인공 묘사 (수채화 일러스트 소재로 적합하게)
+   - `{thematic_background}`: 책의 핵심 상징물이나 배경
+   - `{character_description}`: (일당백용) 인물 묘사
+   - `{world_background}`: (일당백용) 세계관 배경
+
+4. **출력 형식 예시**
+   영상 제작 완료 후 다음처럼 출력합니다:
+   ```
+   ---
+   📸 Gems 썸네일 프롬프트 (한글용)
+   [완성된 프롬프트 내용]
+
+   📸 Gems 썸네일 프롬프트 (영문용)
+   [완성된 프롬프트 내용]
+   ---
+   ```
+
+5. **주의사항**
+   - `{hook_sentence}`는 Claude가 책 내용을 바탕으로 직접 창작합니다 (단순 번역이나 제목 그대로 X)
+   - 한글/영문 영상 모두 제작한 경우 두 프롬프트 모두 출력합니다
+
 ### 업로드 전 썸네일 생성 (필수)
 **중요: YouTube 업로드 전에 반드시 썸네일을 생성·확인합니다.**
 

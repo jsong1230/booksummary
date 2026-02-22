@@ -1473,11 +1473,12 @@ class VideoMaker:
         summary_audio_path: Optional[str] = None,
         notebooklm_video_path: Optional[str] = None,
         summary_audio_volume: float = 1.2,
-        summary_text: Optional[str] = None
+        summary_text: Optional[str] = None,
+        add_subscribe_cta: bool = True
     ) -> str:
         """
         최종 영상 생성 (Summary -> NotebookLM Video 순서)
-        
+
         Args:
             audio_path: (사용 안 함, 하위 호환성을 위해 유지)
             image_dir: 이미지 디렉토리
@@ -1489,6 +1490,7 @@ class VideoMaker:
             notebooklm_video_path: NotebookLM 비디오 파일 경로 (있으면 중간에 삽입)
             summary_audio_volume: Summary 오디오 음량 배율 (기본값: 1.2, 20% 증가)
             summary_text: Summary 텍스트 (자막 생성용, 선택사항)
+            add_subscribe_cta: 구독 유도 CTA 오버레이 추가 여부 (기본값: True)
         """
         self.logger.info("=" * 60)
         self.logger.info("🎬 영상 제작 시작")
@@ -1718,7 +1720,30 @@ class VideoMaker:
         final_video = concatenate_videoclips(final_clips, method="compose")
         total_duration = final_video.duration
         self.logger.info(f"✅ 연결 완료: 총 길이 {total_duration:.2f}초 ({total_duration/60:.2f}분)")
-        
+
+        # 4.5. 구독 유도 CTA 오버레이 추가 (마지막 20초)
+        if add_subscribe_cta:
+            try:
+                try:
+                    from src.utils.subscribe_cta import create_subscribe_cta_clip  # type: ignore[import]
+                except ImportError:
+                    from utils.subscribe_cta import create_subscribe_cta_clip  # type: ignore[import]
+                cta_duration = min(20.0, total_duration * 0.1)
+                cta_start = total_duration - cta_duration
+                cta_clip = create_subscribe_cta_clip(
+                    duration=cta_duration,
+                    language=language,
+                    resolution=self.resolution
+                )
+                if cta_clip is not None:
+                    cta_clip = cta_clip.set_start(cta_start)
+                    final_video = CompositeVideoClip([final_video, cta_clip])
+                    self.logger.info(f"✅ 구독 유도 CTA 오버레이 추가 (마지막 {cta_duration:.0f}초)")
+                else:
+                    self.logger.warning("CTA 클립 생성 실패 (PIL/moviepy 확인 필요), 건너뜁니다")
+            except Exception as e:
+                self.logger.warning(f"CTA 오버레이 추가 실패: {e}, 건너뜁니다")
+
         # 5. 자막 추가 (선택사항)
         # Note: Summary 부분의 자막은 이미 위에서 추가되었습니다.
         # 전체 영상에 대한 추가 자막이 필요한 경우에만 여기서 처리합니다.
@@ -1774,7 +1799,8 @@ def main():
     parser.add_argument('--max-duration', type=float, help='최대 영상 길이 (초, 테스트용)')
     parser.add_argument('--bitrate', type=str, default="5000k", help='비디오 비트레이트 (기본값: 5000k)')
     parser.add_argument('--audio-bitrate', type=str, default="320k", help='오디오 비트레이트 (기본값: 320k)')
-    
+    parser.add_argument('--no-cta', action='store_true', help='구독 유도 CTA 오버레이 비활성화')
+
     args = parser.parse_args()
     
     # 기본값 설정
@@ -1827,7 +1853,8 @@ def main():
         add_subtitles_flag=args.subtitles,
         language=args.language,
         max_duration=args.max_duration,
-        summary_audio_path=args.summary_audio
+        summary_audio_path=args.summary_audio,
+        add_subscribe_cta=not args.no_cta
     )
 
 

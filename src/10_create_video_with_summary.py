@@ -75,7 +75,8 @@ class VideoWithSummaryPipeline:
         notebooklm_video_path: Optional[str] = None,
         summary_audio_volume: float = 1.2,
         add_subtitles: Optional[bool] = None,  # None이면 언어에 따라 자동 결정
-        tts_voice: Optional[str] = None  # TTS 음성 선택
+        tts_voice: Optional[str] = None,  # TTS 음성 선택
+        add_subscribe_cta: bool = True  # 구독 유도 CTA 오버레이
     ) -> str:
         """
         요약 포함 영상 제작 (Summary → NotebookLM Video → Audio 순서)
@@ -389,7 +390,8 @@ class VideoWithSummaryPipeline:
             summary_audio_path=summary_audio_path,
             notebooklm_video_path=notebooklm_video_path,
             summary_audio_volume=summary_audio_volume,
-            summary_text=summary_text_for_subtitles
+            summary_text=summary_text_for_subtitles,
+            add_subscribe_cta=add_subscribe_cta
         )
         
         print()
@@ -514,6 +516,7 @@ def main():
     parser.add_argument('--tts-provider', type=str, default='openai', choices=['openai', 'google'], help='TTS 제공자 (기본값: openai)')
     parser.add_argument('--tts-voice', type=str, help='TTS 음성 선택 (제공자별로 다름)')
     parser.add_argument('--prefix', type=str, help='input 폴더의 파일명 접두사 (파일 찾기용)')
+    parser.add_argument('--no-cta', action='store_true', help='구독 유도 CTA 오버레이 비활성화 (기본값: 활성화)')
 
     args = parser.parse_args()
 
@@ -547,7 +550,8 @@ def main():
             notebooklm_video_path=args.notebooklm_video,
             summary_audio_volume=args.summary_audio_volume,
             add_subtitles=add_subtitles,
-            tts_voice=args.tts_voice
+            tts_voice=args.tts_voice,
+            add_subscribe_cta=not args.no_cta
         )
         return 0
     except Exception as e:
