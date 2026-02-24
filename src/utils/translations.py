@@ -507,6 +507,10 @@ def translate_book_title(book_title: str) -> str:
         "세이노의_가르침": "Seinos Teachings",
         "Seinos Teachings": "Seinos Teachings",
         "세이노": "Seino",
+        "다윈의 종의 기원": "On the Origin of Species",
+        "다윈의_종의_기원": "On the Origin of Species",
+        "On the Origin of Species": "On the Origin of Species",
+        "On_the_Origin_of_Species": "On the Origin of Species",
         "THE 2028 GLOBAL INTELLIGENCE CRISIS": "The 2028 Global Intelligence Crisis",
         "The 2028 Global Intelligence Crisis": "The 2028 Global Intelligence Crisis",
         "The_2028_Global_Intelligence_Crisis": "The 2028 Global Intelligence Crisis",
@@ -666,6 +670,8 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Seinos_Teachings": "세이노의_가르침",
         "The 2028 Global Intelligence Crisis": "THE 2028 GLOBAL INTELLIGENCE CRISIS",
         "The_2028_Global_Intelligence_Crisis": "THE_2028_GLOBAL_INTELLIGENCE_CRISIS",
+        "On the Origin of Species": "다윈의 종의 기원",
+        "On_the_Origin_of_Species": "다윈의_종의_기원",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -1020,6 +1026,9 @@ def translate_author_name(author: str) -> str:
         "CITRINI RESEARCH": "Citrini Research",
         "Citrini Research": "Citrini Research",
         "시트리니 리서치": "Citrini Research",
+        "찰스 다윈": "Charles Darwin",
+        "찰스_다윈": "Charles Darwin",
+        "Charles Darwin": "Charles Darwin",
     }
 
     if author in author_map:
@@ -1145,6 +1154,9 @@ def translate_author_name_to_korean(author: str) -> str:
         "Kenzo Tagawa": "다가와 겐조",
         "Giovanni Guareschi": "조반니 과레스키",
         "Rhyu Si-min": "유시민",
+        "Charles Darwin": "찰스 다윈",
+        "Frans de Waal": "프란스 드 발",
+        "Citrini Research": "시트리니 리서치",
     }
 
     if author in reverse_author_map:

@@ -8,7 +8,7 @@
 
 ### 1. 채널 현황 (2026-02-24 기준)
 - 구독자: **172명** (목표: 1,000명)
-- 총 영상: **258개** (한글+영문 포함, THE 2028 GLOBAL INTELLIGENCE CRISIS 2개 추가)
+- 총 영상: **260개** (한글+영문 포함, 다윈의 종의 기원 2개 추가)
 - 미처리 백로그: **385개** 도서
 - 분석 리포트: `data/analytics_baseline_20260222.md`
 
@@ -26,6 +26,7 @@
 | `src/08_create_and_preview_videos.py` | `use_hook_format` 기본값 False로 복원 (레거시 `[핵심 요약]` 포맷) | 2026-02-24 |
 | `src/utils/translations.py` | 세이노의_가르침 underscore 매핑 버그 수정 + 세이노 author_map 추가 | 2026-02-24 |
 | `src/utils/translations.py` | THE 2028 GLOBAL INTELLIGENCE CRISIS + CITRINI RESEARCH 매핑 추가 | 2026-02-24 |
+| `src/utils/translations.py` | 다윈의 종의 기원 + 찰스 다윈 매핑 추가 (종의 기원 충돌 해결) | 2026-02-24 |
 
 ### 3. 다음 우선 실행 액션
 
@@ -4081,3 +4082,13 @@
   - URL: https://www.youtube.com/watch?v=mzhoCHi01Xg
 - [2] [핵심 요약] THE 2028 GLOBAL INTELLIGENCE CRISIS (5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
   - URL: https://www.youtube.com/watch?v=dR6lVLpQQws
+
+## 2026-02-24
+
+### YouTube 업로드 완료
+- 업로드된 책: On_the_Origin_of_Species_full_episode
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] On the Origin of Species: Charles Darwin (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=nuXN5jx1A2Q
+- [2] [일당백] 다윈의 종의 기원: 찰스 다윈 (On the Origin of Species · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=kPXBO69fZ4g
