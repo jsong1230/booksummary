@@ -39,7 +39,7 @@ from src.utils.translations import translate_book_title, translate_author_name, 
 from src.utils.file_utils import safe_title, load_book_info, get_standard_safe_title
 from src.utils.affiliate_links import generate_affiliate_section
 
-def generate_title(book_title: str, lang: str = "both", author: Optional[str] = None, use_hook_format: bool = True) -> str:
+def generate_title(book_title: str, lang: str = "both", author: Optional[str] = None, use_hook_format: bool = False) -> str:
     """
     영상 제목 생성
     - use_hook_format=True (기본): 훅 카피 + 파이프 포맷

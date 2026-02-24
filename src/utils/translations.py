@@ -500,6 +500,13 @@ def translate_book_title(book_title: str) -> str:
         "침팬지 폴리틱스": "Chimpanzee Politics",
         "침팬지_폴리틱스": "Chimpanzee Politics",
         "Chimpanzee Politics": "Chimpanzee Politics",
+        "한국의 명칼럼니스트": "Famous Korean Columnists",
+        "한국의_명칼럼니스트": "Famous Korean Columnists",
+        "Famous Korean Columnists": "Famous Korean Columnists",
+        "세이노의 가르침": "Seinos Teachings",
+        "세이노의_가르침": "Seinos Teachings",
+        "Seinos Teachings": "Seinos Teachings",
+        "세이노": "Seino",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -647,6 +654,11 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Yolha Ilgi": "열하일기",
         "Same as Ever": "불변의 법칙",
         "Faust": "파우스트",
+        "Famous Korean Columnists": "한국의 명칼럼니스트",
+        "Famous_Korean_Columnists": "한국의_명칼럼니스트",
+        "Korean Essays": "한국의 수필",
+        "Seinos Teachings": "세이노의 가르침",
+        "Seinos_Teachings": "세이노의_가르침",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -996,6 +1008,8 @@ def translate_author_name(author: str) -> str:
         "프란스 드 발": "Frans de Waal",
         "프란스_드_발": "Frans de Waal",
         "Frans de Waal": "Frans de Waal",
+        "세이노": "Seino",
+        "Seino": "Seino",
     }
 
     if author in author_map:

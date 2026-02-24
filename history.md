@@ -2,13 +2,13 @@
 
 ---
 
-## ⚡ 다음 작업 세션 체크리스트 (2026-02-22 기준)
+## ⚡ 다음 작업 세션 체크리스트 (2026-02-24 기준)
 
 > **코드 개선/기능 추가 요청 시 → 아래 항목부터 먼저 확인할 것**
 
-### 1. 채널 현황 (2026-02-22 기준)
+### 1. 채널 현황 (2026-02-24 기준)
 - 구독자: **172명** (목표: 1,000명)
-- 총 영상: **254개** (한글+영문 포함)
+- 총 영상: **256개** (한글+영문 포함, 세이노의 가르침 2개 추가)
 - 미처리 백로그: **385개** 도서
 - 분석 리포트: `data/analytics_baseline_20260222.md`
 
@@ -23,6 +23,8 @@
 | `src/28_community_posts.py` | CSV 경로 수정 + 최근 업로드 도서명 자동 포함 | 2026-02-22 |
 | `src/29_thumbnail_ab_test.py` | 썸네일 A/B 테스트 스크립트 신규 생성 | 2026-02-22 |
 | `scripts/reauth_youtube.py` | Analytics+Readonly 스코프 추가, credentials.json+.env 자동 갱신 | 2026-02-22 |
+| `src/08_create_and_preview_videos.py` | `use_hook_format` 기본값 False로 복원 (레거시 `[핵심 요약]` 포맷) | 2026-02-24 |
+| `src/utils/translations.py` | 세이노의_가르침 underscore 매핑 버그 수정 + 세이노 author_map 추가 | 2026-02-24 |
 
 ### 3. 다음 우선 실행 액션
 
@@ -4003,3 +4005,39 @@
   - URL: https://www.youtube.com/watch?v=M7hy5M9fsMA
 - [2] [핵심 요약] 침팬지 폴리틱스 (Chimpanzee Politics · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
   - URL: https://www.youtube.com/watch?v=TdcgkhZs03Y
+
+## 2026-02-23
+
+### YouTube 업로드 완료
+- 업로드된 책: Famous_Korean_Columnists_full_episode
+- 업로드된 영상 수: 2개
+- [1] [일당백] 한국의 명칼럼니스트 (Famous Korean Columnists · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=Kz0Hrd4u3VU
+- [2] [1DANG100] Famous Korean Columnists (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=0VneJr8kEMw
+
+## 2026-02-24
+
+### 세이노의 가르침 summary+video 영상 제작 및 업로드
+
+#### 영상 제작
+- **한글 영상**: `output/Seinos_Teachings_kr.mp4` (16:01분, 369.8MB)
+  - Summary(5:29) + NotebookLM 상세분석(10:29)
+- **영문 영상**: `output/Seinos_Teachings_en.mp4` (11:40분, 300.5MB)
+  - Summary(4:55) + NotebookLM 상세분석(6:44)
+- TTS: OpenAI nova (한글), alloy (영문)
+
+#### YouTube 업로드 (비공개)
+- [1] [핵심 요약] 세이노의 가르침: 세이노 (Seinos Teachings · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=HEininN2Je0
+- [2] [Summary] Seinos Teachings: Seino (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=oWnNEKzgZ1s
+
+#### 버그 수정 (src/utils/translations.py, src/08_create_and_preview_videos.py)
+- **translations.py** — `"세이노의_가르침"` 언더스코어 매핑 오류 수정 (`"Seinos_Teachings"` → `"Seinos Teachings"`)
+  - 원인: 공백→언더스코어 우선 검색 로직으로 인해 잘못된 키 매칭
+  - 결과: 영문 제목에 underscore(`Key Insights from Seinos_Teachings`) 생성 버그
+- **translations.py** — `translate_author_name`에 `"세이노": "Seino"` 추가 (author_map 누락)
+- **08_create_and_preview_videos.py** — `generate_title()` 기본값 `use_hook_format=True` → `False` 복원
+  - 레거시 포맷 `[핵심 요약] 책제목 (부제목)` 으로 복원
+  - hook 포맷은 `use_hook_format=True` 옵션으로 선택 가능 유지
