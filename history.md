@@ -8,7 +8,7 @@
 
 ### 1. 채널 현황 (2026-02-24 기준)
 - 구독자: **172명** (목표: 1,000명)
-- 총 영상: **256개** (한글+영문 포함, 세이노의 가르침 2개 추가)
+- 총 영상: **258개** (한글+영문 포함, THE 2028 GLOBAL INTELLIGENCE CRISIS 2개 추가)
 - 미처리 백로그: **385개** 도서
 - 분석 리포트: `data/analytics_baseline_20260222.md`
 
@@ -25,6 +25,7 @@
 | `scripts/reauth_youtube.py` | Analytics+Readonly 스코프 추가, credentials.json+.env 자동 갱신 | 2026-02-22 |
 | `src/08_create_and_preview_videos.py` | `use_hook_format` 기본값 False로 복원 (레거시 `[핵심 요약]` 포맷) | 2026-02-24 |
 | `src/utils/translations.py` | 세이노의_가르침 underscore 매핑 버그 수정 + 세이노 author_map 추가 | 2026-02-24 |
+| `src/utils/translations.py` | THE 2028 GLOBAL INTELLIGENCE CRISIS + CITRINI RESEARCH 매핑 추가 | 2026-02-24 |
 
 ### 3. 다음 우선 실행 액션
 
@@ -107,6 +108,35 @@
   - 소설: `{책제목}이 보여준 인간의 민낯`
 - **추가**: 한국어 조사 자동 처리 (이/가 구분)
 - **추가**: `book_info` 파라미터 지원으로 장르 감지 가능
+
+## 2026-02-24
+
+### THE 2028 GLOBAL INTELLIGENCE CRISIS (CITRINI RESEARCH) summary+video 영상 제작 및 업로드
+
+#### 번역 매핑 추가 (src/utils/translations.py)
+- THE 2028 GLOBAL INTELLIGENCE CRISIS → The 2028 Global Intelligence Crisis (title_map)
+- 2028 글로벌 인텔리전스 위기 → The 2028 Global Intelligence Crisis (title_map 역방향)
+- CITRINI RESEARCH / Citrini Research / 시트리니 리서치 → Citrini Research (author_map)
+- reverse_title_map: The 2028 Global Intelligence Crisis → THE 2028 GLOBAL INTELLIGENCE CRISIS
+
+#### 파일 준비
+- input/crisis_summary_kr.md → assets/summaries/The_2028_Global_Intelligence_Crisis_summary_kr.md
+- input/crisis_summary_en.md → assets/summaries/The_2028_Global_Intelligence_Crisis_summary_en.md
+- input/crisis_video_kr.mp4 → assets/video/The_2028_Global_Intelligence_Crisis_notebooklm_kr.mp4
+- input/crisis_video_en.mp4 → assets/video/The_2028_Global_Intelligence_Crisis_notebooklm_en.mp4
+
+#### 이미지 다운로드
+- 키워드: artificial intelligence economy crisis
+- 무드 이미지 70개 (assets/images/The_2028_Global_Intelligence_Crisis/)
+
+#### 영상 제작
+- TTS: OpenAI nova, 5분 요약, 볼륨 1.2배
+- 한글: output/The_2028_Global_Intelligence_Crisis_kr.mp4 (309 MB)
+- 영문: output/The_2028_Global_Intelligence_Crisis_en.mp4 (300 MB)
+
+#### YouTube 비공개 업로드 완료
+- 영문: https://www.youtube.com/watch?v=mzhoCHi01Xg
+- 한글: https://www.youtube.com/watch?v=dR6lVLpQQws
 
 ## 2026-02-19
 
@@ -4041,3 +4071,13 @@
 - **08_create_and_preview_videos.py** — `generate_title()` 기본값 `use_hook_format=True` → `False` 복원
   - 레거시 포맷 `[핵심 요약] 책제목 (부제목)` 으로 복원
   - hook 포맷은 `use_hook_format=True` 옵션으로 선택 가능 유지
+
+## 2026-02-24
+
+### YouTube 업로드 완료
+- 업로드된 책: The_2028_Global_Intelligence_Crisis
+- 업로드된 영상 수: 2개
+- [1] [Summary] THE 2028 GLOBAL INTELLIGENCE CRISIS (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=mzhoCHi01Xg
+- [2] [핵심 요약] THE 2028 GLOBAL INTELLIGENCE CRISIS (5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=dR6lVLpQQws

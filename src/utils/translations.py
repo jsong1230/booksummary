@@ -507,6 +507,11 @@ def translate_book_title(book_title: str) -> str:
         "세이노의_가르침": "Seinos Teachings",
         "Seinos Teachings": "Seinos Teachings",
         "세이노": "Seino",
+        "THE 2028 GLOBAL INTELLIGENCE CRISIS": "The 2028 Global Intelligence Crisis",
+        "The 2028 Global Intelligence Crisis": "The 2028 Global Intelligence Crisis",
+        "The_2028_Global_Intelligence_Crisis": "The 2028 Global Intelligence Crisis",
+        "2028 글로벌 인텔리전스 위기": "The 2028 Global Intelligence Crisis",
+        "2028_글로벌_인텔리전스_위기": "The 2028 Global Intelligence Crisis",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -659,6 +664,8 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Korean Essays": "한국의 수필",
         "Seinos Teachings": "세이노의 가르침",
         "Seinos_Teachings": "세이노의_가르침",
+        "The 2028 Global Intelligence Crisis": "THE 2028 GLOBAL INTELLIGENCE CRISIS",
+        "The_2028_Global_Intelligence_Crisis": "THE_2028_GLOBAL_INTELLIGENCE_CRISIS",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -1010,6 +1017,9 @@ def translate_author_name(author: str) -> str:
         "Frans de Waal": "Frans de Waal",
         "세이노": "Seino",
         "Seino": "Seino",
+        "CITRINI RESEARCH": "Citrini Research",
+        "Citrini Research": "Citrini Research",
+        "시트리니 리서치": "Citrini Research",
     }
 
     if author in author_map:
