@@ -96,6 +96,9 @@ test_outputs/
 logs/
 *.log
 
+# 파이프라인 상태 파일 (자동 생성)
+.pipeline_state/
+
 # Google Cloud 인증 키 파일 (민감 정보)
 secrets/google-cloud-tts-key.json
 

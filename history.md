@@ -40,6 +40,16 @@
 
 ### 4. 다음 우선 실행 액션
 
+- [ ] **⏰ 오후 5시(17:00 KST) 재개** — YouTube API 쿼터 리셋 후 고정 댓글 재생성 실행
+  - 실행 명령어:
+    ```bash
+    /Users/jsong/.pyenv/versions/3.11.10/bin/python src/25_batch_add_pinned_comments.py \
+      --recreate \
+      --validate-links \
+      --apply \
+      --delay 2.0
+    ```
+  - **주의**: `--dry-run` 쿼터 낭비하지 말 것. 쿼터 확인 필요 시 `--limit 1`로 1개만 테스트
 - [ ] **Shorts 생성** — `생각에 관한 생각`(2,707회) 영상 에셋 확보 후 `python src/26_generate_shorts.py`
 - [ ] **업로드 시간 변경** — 자정(00시) → 오후 7시(19:00 KST)
 - [ ] **저참여율 재최적화** — `특이점이 온다`(1.03%), `나는 고양이로소이다`(1.32%) 썸네일 A/B 테스트 등록
@@ -51,6 +61,25 @@
 - 조회수 상위 영상 ID: `EDfOZfYtCbI`(생각에 관한 생각), `YgmGQUZTO7M`(나는 고양이로소이다)
 - 커뮤니티 포스트: 구독자 500명 이후 활성화 예정 (`src/28_community_posts.py --apply`)
 - OAuth 재인증 방법: `python scripts/reauth_youtube.py` (브라우저 인증 필요)
+
+---
+
+## 2026-02-27
+
+### 고정 댓글 재생성 작업 (미완료 — API 쿼터 초과)
+
+- **목표**: 기존 채널 영상(260개) 전체에 달린 고정 댓글을 삭제하고 유효한 제휴 링크로 재등록
+- **상태**: YouTube API 쿼터 초과로 실행 불가 → **오후 5시(17:00 KST) 재개 예정**
+- **재개 명령어**:
+  ```bash
+  /Users/jsong/.pyenv/versions/3.11.10/bin/python src/25_batch_add_pinned_comments.py \
+    --recreate \
+    --validate-links \
+    --apply \
+    --delay 2.0
+  ```
+- **작업 내용**: `--recreate` 옵션으로 기존 댓글 삭제 + 유효 링크 검증 후 새 댓글 등록
+- **주의**: `--dry-run` 사용 금지 (쿼터 낭비). 쿼터 확인 필요 시 `--limit 1` 사용
 
 ---
 

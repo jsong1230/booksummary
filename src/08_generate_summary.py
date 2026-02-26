@@ -23,6 +23,12 @@ except ImportError:
     OPENAI_AVAILABLE = False
 
 try:
+    from google import genai as _genai_check  # noqa: F401
+    GEMINI_AVAILABLE = True
+except ImportError:
+    GEMINI_AVAILABLE = False
+
+try:
     from utils.logger import get_logger
 except ImportError:
     from src.utils.logger import get_logger
@@ -37,6 +43,7 @@ class SummaryGenerator:
         self.logger = get_logger(__name__)
         self.claude_api_key = os.getenv("CLAUDE_API_KEY")
         self.openai_api_key = os.getenv("OPENAI_API_KEY")
+        self.gemini_api_key = os.getenv("GEMINI_API_KEY")
     
     def generate_summary(
         self,
@@ -251,9 +258,21 @@ class SummaryGenerator:
                                 summary = self._ensure_intro_outro(summary, intro_text, outro_text, language)
                         except Exception as openai_error:
                             self.logger.error(f"OpenAI API 오류: {openai_error}")
-                            raise openai_error
+                            # Gemini fallback
+                            if GEMINI_AVAILABLE and self.gemini_api_key:
+                                self.logger.info("🔄 Gemini API로 대체 시도 중...")
+                                summary = self._call_gemini_api(prompt)
+                                summary = self._clean_template_format(summary, language)
+                            else:
+                                raise openai_error
                     else:
-                        raise claude_error
+                        # OpenAI 없으면 Gemini fallback
+                        if GEMINI_AVAILABLE and self.gemini_api_key:
+                            self.logger.info("🔄 Gemini API로 대체 시도 중...")
+                            summary = self._call_gemini_api(prompt)
+                            summary = self._clean_template_format(summary, language)
+                        else:
+                            raise claude_error
             # OpenAI API 사용
             elif OPENAI_AVAILABLE and self.openai_api_key:
                 try:
@@ -273,9 +292,19 @@ class SummaryGenerator:
                     summary = self._ensure_intro_outro(summary, intro_text, outro_text, language)
                 except Exception as openai_error:
                     self.logger.error(f"OpenAI API 오류: {openai_error}")
-                    raise openai_error
+                    if GEMINI_AVAILABLE and self.gemini_api_key:
+                        self.logger.info("🔄 Gemini API로 대체 시도 중...")
+                        summary = self._call_gemini_api(prompt)
+                        summary = self._clean_template_format(summary, language)
+                    else:
+                        raise openai_error
+            # Gemini API 사용
+            elif GEMINI_AVAILABLE and self.gemini_api_key:
+                self.logger.info("🚀 Gemini API 사용 중...")
+                summary = self._call_gemini_api(prompt)
+                summary = self._clean_template_format(summary, language)
             else:
-                raise Exception("AI API 키가 설정되지 않았습니다.")
+                raise Exception("AI API 키가 설정되지 않았습니다. CLAUDE_API_KEY, OPENAI_API_KEY, 또는 GEMINI_API_KEY 중 하나를 설정하세요.")
             
             return summary.strip()
             
@@ -412,6 +441,36 @@ class SummaryGenerator:
         
         return summary
     
+    def _call_gemini_api(self, prompt: str) -> str:
+        """Gemini API 호출 (Vertex AI 서비스 계정 사용)"""
+        from google import genai
+        import google.auth
+
+        # 서비스 계정 키 파일 경로
+        key_file = Path("secrets/google-cloud-tts-key.json")
+        if not key_file.exists():
+            raise FileNotFoundError(f"서비스 계정 키 파일이 없습니다: {key_file}")
+
+        credentials, _ = google.auth.load_credentials_from_file(
+            str(key_file),
+            scopes=["https://www.googleapis.com/auth/cloud-platform"],
+        )
+        client = genai.Client(
+            vertexai=True,
+            project="youtubeshorts-478213",
+            location="us-central1",
+            credentials=credentials,
+        )
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt,
+            config=genai.types.GenerateContentConfig(
+                max_output_tokens=8192,
+                temperature=0.7,
+            ),
+        )
+        return response.text
+
     def _clean_template_format(self, summary: str, language: str) -> str:
         """
         템플릿 형식([HOOK], [SUMMARY], [BRIDGE])에서 불필요한 인트로/아웃트로 제거

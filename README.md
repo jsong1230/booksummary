@@ -103,7 +103,84 @@ input/
 └── lonliness_video_kr.mp4
 ```
 
-### 🚀 2단계: 전체 파이프라인 실행
+### 🤖 NotebookLM 완전 자동화 (NEW)
+
+> **💡 원클릭 자동화**: 책 제목과 저자만 입력하면 URL 수집부터 YouTube 업로드까지 완전 자동화!
+
+NotebookLM을 활용한 완전 자동화 파이프라인을 사용하면 수동 작업 없이 영상을 생성할 수 있습니다.
+
+#### 사전 준비 (최초 1회)
+
+```bash
+# 1. NotebookLM 로그인 세션 생성
+python scripts/notebooklm_automator.py --login
+```
+
+브라우저가 열리면 Google 계정으로 로그인하세요. 세션은 `~/.notebooklm_session.json`에 저장됩니다.
+
+#### 기본 사용법
+
+```bash
+# 한글+영문 영상 모두 생성 (기본)
+python scripts/notebooklm_full_pipeline.py \
+  --book-title "어린왕자" \
+  --author "앙투안 드 생텍쥐페리"
+
+# 한글만 생성
+python scripts/notebooklm_full_pipeline.py \
+  --book-title "어린왕자" \
+  --author "앙투안 드 생텍쥐페리" \
+  --language ko
+
+# 업로드 없이 영상만 생성
+python scripts/notebooklm_full_pipeline.py \
+  --book-title "어린왕자" \
+  --author "앙투안 드 생텍쥐페리" \
+  --skip-upload
+```
+
+#### 파이프라인 단계
+
+1. **URL 수집** (병렬): 한글/영어 관련 자료 30개 자동 수집
+2. **NotebookLM 비디오 생성** (순차): Playwright로 자동 생성 (최대 35분 소요)
+3. **이미지 다운로드**: 책 관련 이미지 100개 수집
+4. **영상 제작**: Summary + NotebookLM Video 합성
+5. **메타데이터 생성**: YouTube 업로드용 메타데이터
+6. **YouTube 업로드** (선택): 비공개/공개 설정 가능
+
+#### 고급 옵션
+
+```bash
+# 중단된 파이프라인 재개
+python scripts/notebooklm_full_pipeline.py \
+  --book-title "어린왕자" \
+  --resume
+
+# 특정 단계만 재시도
+python scripts/notebooklm_full_pipeline.py \
+  --book-title "어린왕자" \
+  --retry-step notebooklm_ko
+
+# TTS 옵션 지정
+python scripts/notebooklm_full_pipeline.py \
+  --book-title "어린왕자" \
+  --tts-provider google \
+  --tts-voice ko-KR-Neural2-B
+
+# 공개 업로드
+python scripts/notebooklm_full_pipeline.py \
+  --book-title "어린왕자" \
+  --privacy public
+```
+
+#### 상태 파일
+
+파이프라인 진행 상태는 `.pipeline_state/{책제목}_state.json`에 저장됩니다.
+실패 시 `--resume` 옵션으로 중단된 지점부터 재시작할 수 있습니다.
+
+---
+
+### 🚀 2단계: 전체 파이프라인 실행 (기존 방식)
 
 파일을 준비했다면, 다음 명령어로 전체 프로세스를 한 번에 실행합니다:
 
