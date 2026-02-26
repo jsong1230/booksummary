@@ -14,7 +14,8 @@ def generate_pinned_comment(
     timestamps: Optional[Dict] = None,
     language: str = "ko",
     book_info: Optional[Dict] = None,
-    author: Optional[str] = None
+    author: Optional[str] = None,
+    validate_links: bool = False,
 ) -> str:
     """
     고정 댓글 생성
@@ -79,7 +80,8 @@ def generate_pinned_comment(
             book_title_en=en_title,
             author_ko=author_ko,
             author_en=author_en,
-            language='ko'
+            language='ko',
+            validate=validate_links,
         )
 
         if affiliate_section:
@@ -160,7 +162,8 @@ def generate_pinned_comment(
             book_title_en=en_title,
             author_ko=author_ko,
             author_en=author_en,
-            language='en'
+            language='en',
+            validate=validate_links,
         )
 
         if affiliate_section:

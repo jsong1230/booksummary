@@ -7,6 +7,10 @@ def translate_book_title(book_title: str) -> str:
     """책 제목을 영어로 변환"""
     # 알려진 책 제목 매핑 (한글 -> 영어)
     title_map = {
+        "국화와 칼": "The Chrysanthemum and the Sword",
+        "국화와_칼": "The Chrysanthemum and the Sword",
+        "괴테는 모든 것을 말했다": "Goethe Said It All",
+        "괴테는_모든_것을_말했다": "Goethe Said It All",
         "마법 같은 언어": "The Magical Language of Others",
         "마법_같은_언어": "The Magical Language of Others",
         "노르웨이의 숲": "Norwegian Wood",
@@ -735,6 +739,10 @@ def remove_korean_from_text(text: str) -> str:
 def translate_author_name(author: str) -> str:
     """작가 이름을 영어로 변환"""
     author_map = {
+        "루스 베네딕트": "Ruth Benedict",
+        "Ruth Benedict": "Ruth Benedict",
+        "스즈키 유이": "Yui Suzuki",
+        "Yui Suzuki": "Yui Suzuki",
         "고은지": "E.J. Koh",
         "무라카미 하루키": "Murakami Haruki",
         "하루키": "Haruki",

@@ -47,30 +47,21 @@ class TestAffiliateLinks:
             assert "Yes24:" not in result
             assert "yes24.com" not in result
 
-    def test_aladin_uses_isbn_ko_first(self):
-        """알라딘은 isbn_ko → isbn_en → 제목 검색 순으로 시도"""
+    def test_aladin_uses_title_search(self):
+        """알라딘은 항상 책 제목으로 검색 (ISBN 미사용)"""
         with patch.dict(os.environ, {
             "ALADIN_PARTNER_ID": "test-aladin"
         }):
-            # isbn_ko 있으면 직접 상품 링크
             result = generate_affiliate_section(
                 book_title_ko="테스트 책",
                 book_title_en="Test Book",
                 language="ko",
-                isbn_ko="9791234567890"
+                isbn_ko="9791234567890"  # ISBN이 있어도 제목 검색 사용
             )
-            assert "wproduct.aspx?ISBN=9791234567890" in result
+            assert "wsearchresult.aspx" in result
+            assert "wproduct.aspx" not in result
 
-            # isbn_ko 없고 isbn_en만 있으면 isbn_en 사용
-            result = generate_affiliate_section(
-                book_title_ko="테스트 책",
-                book_title_en="Test Book",
-                language="ko",
-                isbn_en="9780123456789"
-            )
-            assert "wproduct.aspx?ISBN=9780123456789" in result
-
-            # 둘 다 없으면 제목 검색
+            # isbn 없어도 제목 검색
             result = generate_affiliate_section(
                 book_title_ko="테스트 책",
                 book_title_en="Test Book",
@@ -78,8 +69,8 @@ class TestAffiliateLinks:
             )
             assert "wsearchresult.aspx" in result
 
-    def test_amazon_uses_isbn_en(self):
-        """Amazon은 isbn_en 우선 사용"""
+    def test_amazon_uses_title_search(self):
+        """Amazon은 항상 책 제목으로 검색 (ISBN 미사용)"""
         with patch.dict(os.environ, {
             "AMAZON_ASSOCIATE_TAG": "test-amazon-20"
         }):
@@ -87,9 +78,10 @@ class TestAffiliateLinks:
                 book_title_ko="테스트 책",
                 book_title_en="Test Book",
                 language="en",
-                isbn_en="9780123456789"
+                isbn_en="9780123456789"  # ISBN이 있어도 제목 검색 사용
             )
-            assert "9780123456789" in result
+            assert "Test+Book" in result or "Test%20Book" in result
+            assert "9780123456789" not in result
             assert "amazon.com" in result
 
     def test_english_section_has_amazon_only(self):

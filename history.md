@@ -27,8 +27,18 @@
 | `src/utils/translations.py` | 세이노의_가르침 underscore 매핑 버그 수정 + 세이노 author_map 추가 | 2026-02-24 |
 | `src/utils/translations.py` | THE 2028 GLOBAL INTELLIGENCE CRISIS + CITRINI RESEARCH 매핑 추가 | 2026-02-24 |
 | `src/utils/translations.py` | 다윈의 종의 기원 + 찰스 다윈 매핑 추가 (종의 기원 충돌 해결) | 2026-02-24 |
+| `src/utils/translations.py` | 국화와 칼(Ruth Benedict) + 괴테는 모든 것을 말했다(Yui Suzuki) 매핑 추가 | 2026-02-26 |
+| `src/utils/link_validator.py` | 구매 링크 유효성 검사 유틸 신규 생성 | 2026-02-26 |
+| `src/25_batch_add_pinned_comments.py` | link_validator 통합, --validate-links/--fix-invalid-links/--recreate 옵션 추가 | 2026-02-26 |
 
-### 3. 다음 우선 실행 액션
+### 3. 완료된 영상 제작 (2026-02-26 추가)
+
+| 책 제목 | 저자 | 스타일 | 상태 |
+|---------|------|--------|------|
+| 국화와 칼 | 루스 베네딕트 | 일당백 (ko/en) | ✅ 완료 (쿼터 초과로 수동 업로드) |
+| 괴테는 모든 것을 말했다 | 스즈키 유이 | summary+video (ko/en) | ✅ 완료 (수동 업로드 예정) |
+
+### 4. 다음 우선 실행 액션
 
 - [ ] **Shorts 생성** — `생각에 관한 생각`(2,707회) 영상 에셋 확보 후 `python src/26_generate_shorts.py`
 - [ ] **업로드 시간 변경** — 자정(00시) → 오후 7시(19:00 KST)
@@ -41,6 +51,32 @@
 - 조회수 상위 영상 ID: `EDfOZfYtCbI`(생각에 관한 생각), `YgmGQUZTO7M`(나는 고양이로소이다)
 - 커뮤니티 포스트: 구독자 500명 이후 활성화 예정 (`src/28_community_posts.py --apply`)
 - OAuth 재인증 방법: `python scripts/reauth_youtube.py` (브라우저 인증 필요)
+
+---
+
+## 2026-02-26
+
+### 영상 제작 (2편)
+
+#### 국화와 칼 - 루스 베네딕트 (일당백 스타일)
+- 한글: `output/The_Chrysanthemum_and_the_Sword_full_episode_ko.mp4` (376MB, 13.75분)
+- 영문: `output/The_Chrysanthemum_and_the_Sword_full_episode_en.mp4` (459MB)
+- 썸네일: `output/The_Chrysanthemum_and_the_Sword_full_episode_ko_thumbnail_kr.jpg`
+- YouTube API 쿼터 초과로 수동 업로드 예정
+
+#### 괴테는 모든 것을 말했다 - 스즈키 유이 (summary+video, OpenAI TTS nova)
+- 한글: `output/Goethe_Said_It_All_kr.mp4` (405MB, 11.47분)
+- 영문: `output/Goethe_Said_It_All_en.mp4` (310MB)
+- 썸네일: `output/Goethe_Said_It_All_kr_thumbnail_kr.jpg`, `Goethe_Said_It_All_en_thumbnail_en.jpg`
+- 수동 업로드 예정
+
+### 코드 변경
+
+- `src/utils/translations.py`: 국화와 칼, 괴테는 모든 것을 말했다, 루스 베네딕트, 스즈키 유이 매핑 추가
+- `src/utils/link_validator.py`: 구매 링크 유효성 검사 유틸 신규 생성
+- `src/25_batch_add_pinned_comments.py`: link_validator 통합, --validate-links/--fix-invalid-links/--recreate 옵션 추가
+- `src/utils/pinned_comment.py`, `src/utils/affiliate_links.py`: 관련 업데이트
+- `tests/test_affiliate_links.py`: 테스트 업데이트 (10/10 통과)
 
 ---
 

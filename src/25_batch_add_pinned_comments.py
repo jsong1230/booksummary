@@ -28,6 +28,7 @@ from googleapiclient.errors import HttpError
 GOOGLE_API_AVAILABLE = True
 
 from src.utils.pinned_comment import generate_pinned_comment
+from src.utils.link_validator import audit_and_clean_comment
 
 load_dotenv()
 
@@ -48,13 +49,18 @@ class PinnedCommentAdder:
     """YouTube 영상에 제휴 링크가 포함된 고정 댓글을 일괄 추가하는 클래스"""
 
     def __init__(self, dry_run: bool = True, delay: float = 1.0,
-                 update_existing: bool = False, verify_books: bool = False):
+                 update_existing: bool = False, verify_books: bool = False,
+                 validate_links: bool = False, fix_invalid_links: bool = False,
+                 recreate: bool = False):
         """
         Args:
             dry_run: True면 미리보기만, False면 실제 추가
             delay: API 호출 간 대기 시간 (초)
             update_existing: True면 기존 제휴 댓글도 업데이트
             verify_books: True면 Google Books API로 책 제목 검증
+            validate_links: True면 새 댓글 추가 전 링크 유효성 검사 (무효 링크 제외)
+            fix_invalid_links: True면 기존 댓글에서 유효하지 않은 링크 찾아 제거/업데이트
+            recreate: True면 기존 채널 소유자 댓글을 삭제 후 새 댓글로 재등록
         """
         if not GOOGLE_API_AVAILABLE:
             raise ImportError("google-api-python-client가 필요합니다.")
@@ -63,6 +69,9 @@ class PinnedCommentAdder:
         self.delay = delay
         self.update_existing = update_existing
         self.verify_books = verify_books
+        self.validate_links = validate_links
+        self.fix_invalid_links = fix_invalid_links
+        self.recreate = recreate
         self.google_books_api_key = os.getenv("GOOGLE_BOOKS_API_KEY", "")
         self.youtube: Any = None
         self.channel_id = os.getenv("YOUTUBE_CHANNEL_ID")
@@ -193,9 +202,12 @@ class PinnedCommentAdder:
 
                 # 채널 소유자의 댓글인지 확인
                 if top_comment.get('authorChannelId', {}).get('value') == self.channel_id:
+                    # textOriginal: 원본 텍스트 (HTML 엔티티 없음, 채널 소유자만 접근 가능)
+                    # textDisplay: YouTube가 HTML로 변환한 형태 (&amp; 등 포함) - 폴백용
+                    text = top_comment.get('textOriginal') or top_comment.get('textDisplay', '')
                     return {
                         'comment_id': item['id'],
-                        'text': top_comment['textDisplay']
+                        'text': text
                     }
 
             return None
@@ -222,6 +234,45 @@ class PinnedCommentAdder:
                 return True
         return False
 
+    def fix_comment_invalid_links(self, video_id: str, video_title: str) -> str:
+        """
+        기존 댓글에서 유효하지 않은 구매 링크를 찾아 제거하고 댓글을 업데이트합니다.
+
+        Returns:
+            'fixed' | 'no_comment' | 'no_affiliate' | 'all_valid' | 'error'
+        """
+        existing = self.get_pinned_comment(video_id)
+        if not existing:
+            print("   ℹ️  채널 소유자 댓글 없음. (건너뜀)")
+            return "no_comment"
+
+        comment_text = existing["text"]
+        if not self.has_affiliate_links(comment_text):
+            print("   ℹ️  제휴 링크 없는 댓글. (건너뜀)")
+            return "no_affiliate"
+
+        print("   🔍 구매 링크 유효성 검사 중...")
+        cleaned, validation, removed = audit_and_clean_comment(
+            comment_text, delay=0.5, verbose=True
+        )
+
+        if not removed:
+            print("   ✅ 모든 링크 유효. (수정 불필요)")
+            return "all_valid"
+
+        print(f"   🗑  무효 링크 {len(removed)}개 제거됨:")
+        for url in removed:
+            print(f"      - {url[:80]}")
+
+        if self.dry_run:
+            print("   🔍 [DRY RUN] 댓글 업데이트 미리보기 (실제 변경 안 함)")
+            print("   📝 업데이트 후 댓글 미리보기:")
+            print("   " + cleaned.replace("\n", "\n   "))
+            return "fixed"
+
+        success = self.update_comment(existing["comment_id"], cleaned)
+        return "fixed" if success else "error"
+
     def extract_book_info_from_title(self, title: str) -> Optional[Dict]:
         """
         제목에서 책 정보 추출
@@ -233,17 +284,21 @@ class PinnedCommentAdder:
             {"book_title": "...", "author": "...", "language": "ko/en"}
             또는 None
         """
-        # 패턴 1: [핵심 요약] 책제목 (영문제목 · ...) — summary+video 한글
+        # 패턴 1: [핵심 요약] 책제목: 저자 (영문제목 · ...) — summary+video 한글
         match = re.search(r'\[핵심 요약\]\s*([^(\[|·]+?)(?:\s*[\(·\[])', title)
         if match:
-            book_title = match.group(1).strip()
+            extracted = match.group(1).strip()
+            # "책제목: 저자명" 형식에서 `:` 이후 저자명 제거
+            book_title = extracted.split(':')[0].strip()
             language = "ko"
             return {"book_title": book_title, "author": "", "language": language}
 
-        # 패턴 2: [Summary] Book Title (... · ...) — summary+video 영문
+        # 패턴 2: [Summary] Book Title: Author (... · ...) — summary+video 영문
         match = re.search(r'\[Summary\]\s*([^(\[|·]+?)(?:\s*[\(·\[])', title)
         if match:
-            book_title = match.group(1).strip()
+            extracted = match.group(1).strip()
+            # "Book Title: Author Name" 형식에서 `:` 이후 저자명 제거
+            book_title = extracted.split(':')[0].strip()
             language = "en"
             return {"book_title": book_title, "author": "", "language": language}
 
@@ -327,6 +382,40 @@ class PinnedCommentAdder:
         except Exception as e:
             print(f"   ⚠️ Google Books 검증 실패 (무시): {e}")
             return True  # 검증 실패는 무시하고 진행
+
+    def delete_comment(self, comment_thread_id: str) -> bool:
+        """
+        채널 소유자 댓글 삭제
+
+        Args:
+            comment_thread_id: 댓글 스레드 ID
+
+        Returns:
+            성공 여부
+        """
+        if self.dry_run:
+            print("   🔍 [DRY RUN] 댓글 삭제 미리보기.")
+            return True
+
+        try:
+            # 스레드 ID에서 topLevelComment ID 추출
+            thread_response = self.youtube.commentThreads().list(
+                part='snippet',
+                id=comment_thread_id
+            ).execute()
+
+            if not thread_response.get('items'):
+                print(f"   ❌ 댓글 스레드를 찾을 수 없습니다.")
+                return False
+
+            top_comment_id = thread_response['items'][0]['snippet']['topLevelComment']['id']
+            self.youtube.comments().delete(id=top_comment_id).execute()
+            print(f"   🗑  댓글 삭제 완료")
+            return True
+
+        except HttpError as e:
+            print(f"   ❌ 댓글 삭제 실패: {e}")
+            return False
 
     def update_comment(self, comment_id: str, comment_text: str) -> bool:
         """
@@ -437,14 +526,23 @@ class PinnedCommentAdder:
             print("처리할 영상이 없습니다.")
             return
 
+        mode_label = "🔍 DRY RUN (미리보기)" if self.dry_run else "✏️ APPLY (실제 추가)"
+        if self.recreate:
+            mode_label += " + 🔄 기존 댓글 삭제 후 재등록"
+        if self.fix_invalid_links:
+            mode_label += " + 🔗 무효 링크 제거"
+        if self.validate_links:
+            mode_label += " + ✅ 링크 유효성 검사"
+
         print(f"\n{'='*60}")
-        print(f"처리 모드: {'🔍 DRY RUN (미리보기)' if self.dry_run else '✏️ APPLY (실제 추가)'}")
+        print(f"처리 모드: {mode_label}")
         print(f"처리 대상: {len(videos)}개 영상")
         print(f"{'='*60}\n")
 
         added_count = 0
         skipped_count = 0
         error_count = 0
+        fixed_count = 0
 
         for idx, video in enumerate(videos, 1):
             video_id = video['video_id']
@@ -454,12 +552,35 @@ class PinnedCommentAdder:
             print(f"   📹 Video ID: {video_id}")
 
             try:
-                # 1. 기존 고정 댓글 확인
+                # ── fix_invalid_links 모드: 기존 댓글 링크 유효성 검사 및 제거 ──
+                if self.fix_invalid_links:
+                    result = self.fix_comment_invalid_links(video_id, video_title)
+                    if result == "fixed":
+                        fixed_count += 1
+                    elif result == "error":
+                        error_count += 1
+                    else:
+                        skipped_count += 1
+                    time.sleep(self.delay)
+                    continue
+
+                # ── 일반 모드: 신규 댓글 추가 ──
+
+                # 1. 기존 채널 소유자 댓글 확인
                 existing_comment = self.get_pinned_comment(video_id)
                 should_update = False
 
                 if existing_comment:
-                    if self.has_affiliate_links(existing_comment['text']):
+                    if self.recreate:
+                        # recreate 모드: 기존 댓글 삭제 후 새로 등록
+                        print("   🗑  기존 댓글 삭제 후 재등록 모드")
+                        if not self.delete_comment(existing_comment['comment_id']):
+                            error_count += 1
+                            time.sleep(self.delay)
+                            continue
+                        # 삭제 후 existing_comment를 None으로 처리하여 신규 추가로 진행
+                        existing_comment = None
+                    elif self.has_affiliate_links(existing_comment['text']):
                         if self.update_existing:
                             print("   🔄 제휴 링크 있는 댓글 발견 - 업데이트 모드로 진행")
                             should_update = True
@@ -486,12 +607,13 @@ class PinnedCommentAdder:
                     self.verify_book_title(verify_title, verify_lang)
                     # 검증 실패해도 계속 진행 (경고만 출력)
 
-                # 4. 고정 댓글 생성
+                # 4. 고정 댓글 생성 (validate_links=True면 유효한 링크만 포함)
                 comment_text = generate_pinned_comment(
                     book_title=book_info['book_title'],
                     timestamps=None,  # 타임스탬프는 영상마다 다르므로 생략
                     language=book_info['language'],
-                    author=None  # 작가명 제외 - 검색 정확도 향상
+                    author=None,  # 작가명 제외 - 검색 정확도 향상
+                    validate_links=self.validate_links,
                 )
 
                 if not comment_text:
@@ -527,7 +649,10 @@ class PinnedCommentAdder:
         # 최종 결과
         print(f"\n{'='*60}")
         print(f"✅ 처리 완료:")
-        print(f"   - 추가: {added_count}개")
+        if self.fix_invalid_links:
+            print(f"   - 링크 수정: {fixed_count}개")
+        else:
+            print(f"   - 추가: {added_count}개")
         print(f"   - 건너뜀: {skipped_count}개")
         print(f"   - 오류: {error_count}개")
         print(f"{'='*60}")
@@ -560,6 +685,15 @@ def main():
 
   # Google Books API로 책 제목 검증하며 처리
   python src/25_batch_add_pinned_comments.py --apply --verify-books --delay 2.0
+
+  # 새 댓글 추가 시 링크 유효성 검사 (무효 링크 제외)
+  python src/25_batch_add_pinned_comments.py --apply --validate-links
+
+  # 기존 댓글의 무효 링크 탐지 및 제거 (미리보기)
+  python src/25_batch_add_pinned_comments.py --fix-invalid-links
+
+  # 기존 댓글의 무효 링크 실제 제거 적용
+  python src/25_batch_add_pinned_comments.py --fix-invalid-links --apply
 
 주의사항:
   - YouTube API 일일 쿼터: commentThreads.insert 1건 = 50 units (일 10,000 units 제한 → 약 200건/일)
@@ -615,13 +749,36 @@ def main():
         help='Google Books API로 책 제목 존재 여부 검증 (GOOGLE_BOOKS_API_KEY 필요)'
     )
 
+    parser.add_argument(
+        '--validate-links',
+        action='store_true',
+        help='새 댓글 추가 시 구매 링크 유효성 HTTP 검사 후 무효 링크 제외'
+    )
+
+    parser.add_argument(
+        '--fix-invalid-links',
+        action='store_true',
+        help='기존 댓글에서 유효하지 않은 구매 링크를 찾아 제거 (--apply 없으면 DRY RUN)'
+    )
+
+    parser.add_argument(
+        '--recreate',
+        action='store_true',
+        help='기존 채널 소유자 댓글을 삭제하고 새 댓글로 재등록 (--apply 없으면 DRY RUN)'
+    )
+
     args = parser.parse_args()
 
     # --apply 플래그가 있으면 dry_run=False
     dry_run = not args.apply
 
     if not dry_run:
-        mode_str = "업데이트" if args.update_existing else "추가"
+        if args.fix_invalid_links:
+            mode_str = "무효 링크 제거"
+        elif args.update_existing:
+            mode_str = "업데이트"
+        else:
+            mode_str = "추가"
         print(f"⚠️ 실제 {mode_str} 모드입니다. 5초 후 시작합니다...")
         time.sleep(5)
 
@@ -631,6 +788,9 @@ def main():
             delay=args.delay,
             update_existing=args.update_existing,
             verify_books=args.verify_books,
+            validate_links=args.validate_links,
+            fix_invalid_links=args.fix_invalid_links,
+            recreate=args.recreate,
         )
         adder.process_videos(video_ids=args.video_id, limit=args.limit)
     except Exception as e:
