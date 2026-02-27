@@ -66,6 +66,17 @@
 
 ## 2026-02-27
 
+### 영상 제작 (1편)
+
+#### 삼미 슈퍼스타즈의 마지막 팬클럽 - 박민규 (일당백 스타일)
+- 한글: `output/삼미_슈퍼스타즈의_마지막_팬클럽_full_episode_kr.mp4` (452MB, 12분 54초)
+- 영문: `output/삼미_슈퍼스타즈의_마지막_팬클럽_full_episode_en.mp4` (377MB, 6분 17초)
+- 썸네일: `output/삼미_슈퍼스타즈의_마지막_팬클럽_full_episode_kr_thumbnail_kr.jpg`
+- YouTube URL:
+  - 한글: https://www.youtube.com/watch?v=rlJ64YmcODs (비공개)
+  - 영문: https://www.youtube.com/watch?v=RhjmifpNFa0 (비공개)
+- 번역 매핑 추가: `삼미 슈퍼스타즈의 마지막 팬클럽` → `The Last Fan Club of Sammi Superstars`, `박민규` → `Park Min-gyu`
+
 ### 고정 댓글 재생성 작업 (미완료 — API 쿼터 초과)
 
 - **목표**: 기존 채널 영상(260개) 전체에 달린 고정 댓글을 삭제하고 유효한 제휴 링크로 재등록
@@ -4157,3 +4168,43 @@
   - URL: https://www.youtube.com/watch?v=nuXN5jx1A2Q
 - [2] [일당백] 다윈의 종의 기원: 찰스 다윈 (On the Origin of Species · 배경지식·인포그래픽·책 분석)
   - URL: https://www.youtube.com/watch?v=kPXBO69fZ4g
+
+## 2026-02-27
+
+### YouTube 업로드 완료
+- 업로드된 책: The_AI_Empire_Power_Capital_and_Labor
+- 업로드된 영상 수: 2개
+- [1] [Summary] The AI Empire: Power, Capital, and Labor (5-min Summary · AI Deep Dive)
+  - URL: https://www.youtube.com/watch?v=s5On_W6iSo0
+- [2] [핵심 요약] 카렌 하오의 저서 (The AI Empire: Power, Capital, and Labor · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=U5ZG0KoLndQ
+
+## 2026-02-27
+
+### YouTube 업로드 완료
+- 업로드된 책: To_Kill_a_Mockingbird
+- 업로드된 영상 수: 2개
+- [1] [Summary] To Kill a Mockingbird: Harper Lee (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=HGdvLZiBReY
+- [2] [핵심 요약] To Kill a Mockingbird: Harper Lee (5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=Q4uv2GnEl2w
+
+## 2026-02-27
+
+### YouTube 업로드 완료
+- 업로드된 책: To_Kill_a_Mockingbird
+- 업로드된 영상 수: 2개
+- [1] [Summary] To Kill a Mockingbird: Harper Lee (5-min Summary · AI Deep Dive · Key Ideas & Impact)
+  - URL: https://www.youtube.com/watch?v=fpiQwVFD2GQ
+- [2] [핵심 요약] To Kill a Mockingbird: Harper Lee (5분 핵심 요약·AI 심층 분석 · 핵심 개념·의미·영향)
+  - URL: https://www.youtube.com/watch?v=T1TR47GMLzk
+
+## 2026-02-27
+
+### YouTube 업로드 완료
+- 업로드된 책: 삼미_슈퍼스타즈의_마지막_팬클럽_full_episode
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] The Last Fan Club of Sammi Superstars: Park Min-kyu (Background · Infographics)
+  - URL: https://www.youtube.com/watch?v=RhjmifpNFa0
+- [2] [일당백] 삼미 슈퍼스타즈의 마지막 팬클럽: 박민규 (The Last Fan Club of Sammi Superstars · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=rlJ64YmcODs

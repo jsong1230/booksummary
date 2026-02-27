@@ -13,6 +13,11 @@ def translate_book_title(book_title: str) -> str:
         "괴테는_모든_것을_말했다": "Goethe Said It All",
         "마법 같은 언어": "The Magical Language of Others",
         "마법_같은_언어": "The Magical Language of Others",
+        "백년 동안의 고독": "One Hundred Years of Solitude",
+        "앵무새 죽이기": "To Kill a Mockingbird",
+        "앵무새_죽이기": "To Kill a Mockingbird",
+        "카렌 하오의 저서": "The AI Empire: Power, Capital, and Labor",
+        "백년_동안의_고독": "One Hundred Years of Solitude",
         "노르웨이의 숲": "Norwegian Wood",
         "노르웨이의_숲": "Norwegian Wood",
         "상실의 시대": "Norwegian Wood",
@@ -29,6 +34,8 @@ def translate_book_title(book_title: str) -> str:
         "아포리즘_(소품과_부록)": "Aphorisms on the Wisdom of Life (Parerga and Paralipomena)",
         "세일즈맨의 죽음": "Death of a Salesman",
         "세일즈맨의_죽음": "Death of a Salesman",
+        "삼미 슈퍼스타즈의 마지막 팬클럽": "The Last Fan Club of Sammi Superstars",
+        "삼미_슈퍼스타즈의_마지막_팬클럽": "The Last Fan Club of Sammi Superstars",
         "4000주": "Four Thousand Weeks",
         "4000_주": "Four Thousand Weeks",
         "Four Thousand Weeks": "Four Thousand Weeks",
@@ -535,6 +542,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
     # 영어 -> 한글 매핑
     reverse_title_map = {
         "The Magical Language of Others": "마법 같은 언어",
+        "One Hundred Years of Solitude": "백년 동안의 고독",
         "Norwegian Wood": "노르웨이의 숲",
         "Death of a Salesman": "세일즈맨의 죽음",
         "Four Thousand Weeks": "4000주",
@@ -739,6 +747,16 @@ def remove_korean_from_text(text: str) -> str:
 def translate_author_name(author: str) -> str:
     """작가 이름을 영어로 변환"""
     author_map = {
+        "가브리엘 가르시아 마르케스": "Gabriel García Márquez",
+        "가르시아 마르케스": "Gabriel García Márquez",
+        "Gabriel García Márquez": "Gabriel García Márquez",
+        "García Márquez": "Gabriel García Márquez",
+        "Gabriel Garcia Marquez": "Gabriel García Márquez",
+        "Garcia Marquez": "Gabriel García Márquez",
+        "하퍼 리": "Harper Lee",
+        "Harper Lee": "Harper Lee",
+        "박민규": "Park Min-kyu",
+        "Park Min-kyu": "Park Min-kyu",
         "루스 베네딕트": "Ruth Benedict",
         "Ruth Benedict": "Ruth Benedict",
         "스즈키 유이": "Yui Suzuki",
@@ -1049,6 +1067,10 @@ def translate_author_name_to_korean(author: str) -> str:
     """작가 이름을 한글로 변환 (역방향)"""
     # 영어 -> 한글 매핑
     reverse_author_map = {
+        "Gabriel García Márquez": "가르시아 마르케스",
+        "García Márquez": "가르시아 마르케스",
+        "Gabriel Garcia Marquez": "가르시아 마르케스",
+        "Garcia Marquez": "가르시아 마르케스",
         "E.J. Koh": "고은지",
         "Murakami Haruki": "무라카미 하루키",
         "Haruki": "하루키",
