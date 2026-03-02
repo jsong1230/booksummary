@@ -66,11 +66,11 @@ class VideoWithSummaryPipeline:
         self,
         book_title: str,
         author: str = None,
-        review_audio_path: str = None,
+        review_audio_path: Optional[str] = None,
         language: str = "ko",
         summary_duration_minutes: float = 5.0,
-        image_dir: str = None,
-        output_path: str = None,
+        image_dir: Optional[str] = None,
+        output_path: Optional[str] = None,
         skip_summary: bool = False,
         notebooklm_video_path: Optional[str] = None,
         summary_audio_volume: float = 1.2,
@@ -308,12 +308,15 @@ class VideoWithSummaryPipeline:
         
         # 리뷰 오디오는 선택사항이므로 없어도 계속 진행
         
-        # 4. 이미지 디렉토리 확인
+        # 4. 이미지 디렉토리 확인 (선택사항)
         if image_dir is None:
             image_dir = f"assets/images/{safe_title_str}"
-        
+
+        # 이미지 디렉토리가 없으면 경고만 표시 (오류 없이 계속 진행)
         if not Path(image_dir).exists():
-            raise FileNotFoundError(f"이미지 디렉토리를 찾을 수 없습니다: {image_dir}")
+            print(f"⚠️ 이미지 디렉토리를 찾을 수 없습니다: {image_dir}")
+            print("→ 단색 배경을 사용합니다.")
+            image_dir = None
         
         # 5. NotebookLM 비디오 파일 찾기 (일관된 네이밍 규칙 사용)
         if notebooklm_video_path is None:

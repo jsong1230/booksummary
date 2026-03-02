@@ -11,6 +11,7 @@ import sys
 import time
 import argparse
 import re
+import json
 import requests
 from pathlib import Path
 from typing import Any, Optional, Dict, List
@@ -48,10 +49,13 @@ AFFILIATE_MARKERS = [
 class PinnedCommentAdder:
     """YouTube 영상에 제휴 링크가 포함된 고정 댓글을 일괄 추가하는 클래스"""
 
+    # 상태 파일 경로
+    STATE_FILE = "data/processed_videos.json"
+
     def __init__(self, dry_run: bool = True, delay: float = 1.0,
                  update_existing: bool = False, verify_books: bool = False,
                  validate_links: bool = False, fix_invalid_links: bool = False,
-                 recreate: bool = False):
+                 recreate: bool = False, resume: bool = False):
         """
         Args:
             dry_run: True면 미리보기만, False면 실제 추가
@@ -61,6 +65,7 @@ class PinnedCommentAdder:
             validate_links: True면 새 댓글 추가 전 링크 유효성 검사 (무효 링크 제외)
             fix_invalid_links: True면 기존 댓글에서 유효하지 않은 링크 찾아 제거/업데이트
             recreate: True면 기존 채널 소유자 댓글을 삭제 후 새 댓글로 재등록
+            resume: True면 이미 처리한 영상 건너뜀 (상태 파일 사용)
         """
         if not GOOGLE_API_AVAILABLE:
             raise ImportError("google-api-python-client가 필요합니다.")
@@ -72,14 +77,48 @@ class PinnedCommentAdder:
         self.validate_links = validate_links
         self.fix_invalid_links = fix_invalid_links
         self.recreate = recreate
+        self.resume = resume
         self.google_books_api_key = os.getenv("GOOGLE_BOOKS_API_KEY", "")
         self.youtube: Any = None
         self.channel_id = os.getenv("YOUTUBE_CHANNEL_ID")
+        self.processed_video_ids = set()
 
         if not self.channel_id:
             raise ValueError("YOUTUBE_CHANNEL_ID가 설정되지 않았습니다.")
 
+        # 상태 파일 로드 (resume 모드인 경우)
+        if self.resume:
+            self._load_state()
+
         self._authenticate()
+
+    def _load_state(self):
+        """이미 처리한 영상 ID 목록을 상태 파일에서 로드"""
+        state_file = Path(self.STATE_FILE)
+        if state_file.exists():
+            try:
+                with open(state_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    self.processed_video_ids = set(data.get('processed_video_ids', []))
+                    print(f"📋 상태 파일 로드: {len(self.processed_video_ids)}개 이미 처리된 영상")
+            except Exception as e:
+                print(f"⚠️ 상태 파일 로드 실패: {e}")
+        else:
+            print("📋 상태 파일 없음. 새로 시작합니다.")
+            self.processed_video_ids = set()
+
+    def _save_state(self):
+        """현재 처리한 영상 ID 목록을 상태 파일에 저장"""
+        state_file = Path(self.STATE_FILE)
+        state_file.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            with open(state_file, 'w', encoding='utf-8') as f:
+                json.dump({
+                    'processed_video_ids': list(self.processed_video_ids),
+                    'last_updated': time.strftime('%Y-%m-%d %H:%M:%S')
+                }, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"⚠️ 상태 파일 저장 실패: {e}")
 
     def _authenticate(self):
         """OAuth2 인증"""
@@ -548,6 +587,12 @@ class PinnedCommentAdder:
             video_id = video['video_id']
             video_title = video['title']
 
+            # resume 모드: 이미 처리한 영상 건너뜀
+            if self.resume and video_id in self.processed_video_ids:
+                print(f"   ⏭️ 이미 처리된 영상 (건너뜀)")
+                skipped_count += 1
+                continue
+
             print(f"\n[{idx}/{len(videos)}] 🎬 {video_title}")
             print(f"   📹 Video ID: {video_id}")
 
@@ -656,6 +701,10 @@ class PinnedCommentAdder:
         print(f"   - 건너뜀: {skipped_count}개")
         print(f"   - 오류: {error_count}개")
         print(f"{'='*60}")
+
+        # 상태 파일 저장 (새로 처리된 영상 추가)
+        self._save_state()
+        print(f"\n📋 상태 저장 완료: 총 {len(self.processed_video_ids)}개 처리된 영상")
 
         if not self.dry_run and added_count > 0:
             print(f"\n⚠️ 중요: YouTube Studio에서 댓글을 수동으로 고정해야 합니다!")
@@ -767,6 +816,12 @@ def main():
         help='기존 채널 소유자 댓글을 삭제하고 새 댓글로 재등록 (--apply 없으면 DRY RUN)'
     )
 
+    parser.add_argument(
+        '--resume',
+        action='store_true',
+        help='이미 처리한 영상 건너뜀 (상태 파일 사용)'
+    )
+
     args = parser.parse_args()
 
     # --apply 플래그가 있으면 dry_run=False
@@ -791,6 +846,7 @@ def main():
             validate_links=args.validate_links,
             fix_invalid_links=args.fix_invalid_links,
             recreate=args.recreate,
+            resume=args.resume,
         )
         adder.process_videos(video_ids=args.video_id, limit=args.limit)
     except Exception as e:

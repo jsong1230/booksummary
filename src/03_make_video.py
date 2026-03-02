@@ -436,14 +436,21 @@ class VideoMaker:
         이미지 시퀀스 생성 (오디오 길이에 맞춰 반복)
         - 이미지 20개를 영상이 끝날 때까지 계속 반복
         - 자연스러운 fade out/in 전환 효과 적용
-        
+
         Args:
             image_paths: 이미지 경로 리스트 (20개)
             total_duration: 전체 길이 (오디오 길이)
             fade_duration: 페이드 전환 시간 (기본값: 1.5초 - 자연스러운 전환)
         """
+        # 이미지가 없는 경우 단색 배경 사용
         if not image_paths:
-            raise ValueError("이미지가 필요합니다.")
+            self.logger.warning("⚠️ 이미지가 없습니다. 단색 배경을 사용합니다.")
+            dark_bg = ColorClip(
+                size=self.resolution,
+                color=(30, 30, 40),  # 어두운 회색 배경
+                duration=total_duration
+            )
+            return [dark_bg]
         
         num_images = len(image_paths)
         
@@ -1464,9 +1471,9 @@ class VideoMaker:
     
     def create_video(
         self,
-        audio_path: str,
-        image_dir: str,
-        output_path: str,
+        audio_path: str = "",
+        output_path: str = "",
+        image_dir: Optional[str] = None,
         add_subtitles_flag: bool = False,
         language: str = "ko",
         max_duration: Optional[float] = None,
@@ -1481,7 +1488,7 @@ class VideoMaker:
 
         Args:
             audio_path: (사용 안 함, 하위 호환성을 위해 유지)
-            image_dir: 이미지 디렉토리
+            image_dir: 이미지 디렉토리 (선택사항, 없으면 검은 배경 사용)
             output_path: 출력 파일 경로
             add_subtitles_flag: 자막 추가 여부
             language: 자막 언어
@@ -1495,32 +1502,42 @@ class VideoMaker:
         self.logger.info("=" * 60)
         self.logger.info("🎬 영상 제작 시작")
         self.logger.info("=" * 60)
-        
-        # 이미지 경로 수집
-        image_dir_path = Path(image_dir)
-        if not image_dir_path.exists():
-            raise FileNotFoundError(f"이미지 디렉토리를 찾을 수 없습니다: {image_dir}")
-        
-        cover_path = image_dir_path / "cover.jpg"
-        mood_images = sorted(image_dir_path.glob("mood_*.jpg"))
-        
-        if not mood_images:
-            raise FileNotFoundError(f"무드 이미지를 찾을 수 없습니다: {image_dir}")
-        
+
+        # 이미지 경로 수집 (선택사항)
         image_paths = []
-        
-        # ⚠️ 표지 이미지는 저작권 문제로 사용하지 않습니다.
-        if cover_path.exists():
-            self.logger.warning(f"표지 이미지 발견: {cover_path.name}")
-            self.logger.info("→ 저작권 문제로 사용하지 않습니다. 무드 이미지만 사용합니다.")
-        
-        for mood_img in mood_images:
-            image_paths.append(str(mood_img))
-        
-        if not image_paths:
+        use_solid_background = False
+
+        if image_dir:
+            image_dir_path = Path(image_dir)
+            if image_dir_path.exists():
+                cover_path = image_dir_path / "cover.jpg"
+                mood_images = sorted(image_dir_path.glob("mood_*.jpg"))
+
+                if mood_images:
+                    # ⚠️ 표지 이미지는 저작권 문제로 사용하지 않습니다.
+                    if cover_path.exists():
+                        self.logger.warning(f"표지 이미지 발견: {cover_path.name}")
+                        self.logger.info("→ 저작권 문제로 사용하지 않습니다. 무드 이미지만 사용합니다.")
+
+                    for mood_img in mood_images:
+                        image_paths.append(str(mood_img))
+
+                    self.logger.info(f"🎨 무드 이미지: {len(image_paths)}개")
+                else:
+                    self.logger.warning(f"⚠️ 무드 이미지를 찾을 수 없습니다: {image_dir}")
+                    self.logger.info("→ 단색 배경을 사용합니다.")
+                    use_solid_background = True
+            else:
+                self.logger.warning(f"⚠️ 이미지 디렉토리를 찾을 수 없습니다: {image_dir}")
+                self.logger.info("→ 단색 배경을 사용합니다.")
+                use_solid_background = True
+        else:
+            self.logger.warning("⚠️ 이미지 디렉토리가 지정되지 않았습니다.")
+            self.logger.info("→ 단색 배경을 사용합니다.")
+            use_solid_background = True
+
+        if not image_paths and not use_solid_background:
             raise FileNotFoundError(f"이미지를 찾을 수 없습니다: {image_dir}")
-        
-        self.logger.info(f"🎨 무드 이미지: {len(image_paths)}개")
         
         video_clips = []
         

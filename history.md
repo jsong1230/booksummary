@@ -4208,3 +4208,69 @@
   - URL: https://www.youtube.com/watch?v=RhjmifpNFa0
 - [2] [일당백] 삼미 슈퍼스타즈의 마지막 팬클럽: 박민규 (The Last Fan Club of Sammi Superstars · 배경지식·인포그래픽·책 분석)
   - URL: https://www.youtube.com/watch?v=rlJ64YmcODs
+
+## 2026-02-28
+
+### YouTube 업로드 완료
+- 업로드된 책: 오만과_편견_full_episode_ko, 오만과_편견_full_episode
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] Pride and Prejudice: Jane Austen (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=BEZcGxrI0Kw
+- [2] [일당백] 오만과 편견: 제인 오스틴 (Pride and Prejudice · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=mnV6ksIipOw
+
+## 2026-02-28
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Clash_of_Civilizations
+- 업로드된 영상 수: 2개
+- [1] [Summary] The Clash of Civilizations (5-min Summary · AI Deep Dive · Key Ideas & Impact)
+  - URL: https://www.youtube.com/watch?v=oH4ZRdTq3uE
+- [2] [핵심 요약] The Clash of Civilizations (5분 핵심 요약·AI 심층 분석 · 핵심 개념·의미·영향)
+  - URL: https://www.youtube.com/watch?v=JrZ7lb_7MaY
+
+## 2026-02-28
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Clash_of_Civilizations
+- 업로드된 영상 수: 2개
+- [1] [Summary] The Clash of Civilizations (5-min Summary · AI Deep Dive · Key Ideas & Impact)
+  - URL: https://www.youtube.com/watch?v=p07VfpKuqv4
+- [2] [핵심 요약] The Clash of Civilizations (5분 핵심 요약·AI 심층 분석 · 핵심 개념·의미·영향)
+  - URL: https://www.youtube.com/watch?v=ZAWnA-J2XDg
+
+## 2026-03-01
+
+### YouTube 업로드 완료
+- 업로드된 책: Buddhist_Scriptures_full_episode
+- 업로드된 영상 수: 1개
+- [1] [1DANG100] Buddhist Scriptures (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=-a4akYofHX4
+
+## 2026-03-01
+
+### YouTube 업로드 완료
+- 업로드된 책: Buddhist_Scriptures_full_episode_ko
+- 업로드된 영상 수: 1개
+- [1] [일당백] 불교의 성전 (Buddhist Scriptures · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=jU5h6Ik0_Ys
+
+## 2026-03-02
+
+### YouTube 업로드 완료
+- 업로드된 책: Innate
+- 업로드된 영상 수: 2개
+- [1] [Summary] Innate (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=IAp1dHyzLFg
+- [2] [핵심 요약] 우리는 무엇을 타고나는가 (Innate · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=8N4yJWdr5NI
+
+## 2026-03-02
+
+### YouTube 업로드 완료
+- 업로드된 책: Big_History
+- 업로드된 영상 수: 2개
+- [1] [Summary] Big History (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=jg9RxvB24SU
+- [2] [핵심 요약] 빅 히스토리 (Big History · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=DMpQTrvh6SI
