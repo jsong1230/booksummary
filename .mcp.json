@@ -10,6 +10,16 @@
       "$comment": "Step-by-step reasoning for complex problems",
       "command": "/bin/bash",
       "args": ["-l", "-c", "exec npx -y @modelcontextprotocol/server-sequential-thinking"]
+    },
+    "youtube-transcript": {
+      "$comment": "YouTube 자막 추출 - 로그인/API 키 불필요",
+      "command": "/bin/bash",
+      "args": ["-l", "-c", "exec npx -y @kimtaeyoon83/mcp-server-youtube-transcript"]
+    },
+    "gemini-cli": {
+      "$comment": "Gemini CLI - Google 계정 로그인 기반. Summary 생성, 프롬프트 작성 담당",
+      "command": "/bin/bash",
+      "args": ["-l", "-c", "exec npx -y gemini-mcp-tool"]
     }
   },
   "staggeredStartup": {
