@@ -8,7 +8,7 @@
 
 ### 1. 채널 현황 (2026-03-02 기준)
 - 구독자: **172명** (목표: 1,000명)
-- 총 영상: **268개** (한글+영문 포함, 장자 2개 추가)
+- 총 영상: **270개** (한글+영문 포함, 춘향전 토끼전 심청전 2개 추가)
 - 미처리 백로그: **385개** 도서
 - 분석 리포트: `data/analytics_baseline_20260222.md`
 
@@ -41,6 +41,7 @@
 | 에밀 | 장 자크 루소 | 일당백 (ko/en) | ✅ 완료 (비공개 업로드) |
 | 더 리더 | 베른하르트 슐링크 | summary+video (ko/en) | ✅ 완료 (비공개 업로드) |
 | 장자 | 장자 | 일당백 (ko/en) | ✅ 완료 (비공개 업로드) |
+| 춘향전 토끼전 심청전 | 작자 미상 | 일당백 (ko/en) | ✅ 완료 (비공개 업로드) |
 
 ### 4. 다음 우선 실행 액션
 
@@ -4383,3 +4384,13 @@
   - URL: https://www.youtube.com/watch?v=6ozPAFOrjeo
 - [2] [일당백] 장자 (Zhuangzi · 배경지식·인포그래픽·책 분석)
   - URL: https://www.youtube.com/watch?v=b5oU0PtM_KM
+
+## 2026-03-03
+
+### YouTube 업로드 완료
+- 업로드된 책: Korean_Classic_Tales_full_episode
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] Korean Classic Tales (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=3u3Mx-fEv-o
+- [2] [일당백] 춘향전 토끼전 심청전 (Korean Classic Tales · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=0tDnOpU_4Vs

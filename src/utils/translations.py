@@ -557,6 +557,12 @@ def translate_book_title(book_title: str) -> str:
         "더 리더": "The Reader",
         "더_리더": "The Reader",
         "The Reader": "The Reader",
+        "춘향전 토끼전 심청전": "Korean Classic Tales",
+        "춘향전_토끼전_심청전": "Korean Classic Tales",
+        "춘향전": "Tale of Chunhyang",
+        "토끼전": "Tale of the Rabbit",
+        "심청전": "Tale of Simcheong",
+        "Korean Classic Tales": "Korean Classic Tales",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
