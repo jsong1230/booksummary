@@ -4,10 +4,17 @@
 
 일당백 채널의 유튜브 영상(Part 1, Part 2)에서 자막을 가져와서
 각각 별도의 텍스트 파일로 저장합니다.
+
+우선순위:
+  1. youtube-transcript-api (쿠키 지원)
+  2. yt-dlp 폴백 (IP 차단 시 자동 전환)
 """
 
 import argparse
+import re
+import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 from typing import Optional
@@ -121,6 +128,82 @@ def load_cookies_into_session(cookies_path: Optional[Path] = None) -> Optional[r
         import traceback
         logger.debug(traceback.format_exc())
         return None
+
+
+def fetch_transcript_ytdlp(video_id: str, cookies_path: Optional[Path] = None) -> Optional[str]:
+    """
+    yt-dlp를 사용하여 자막 가져오기 (IP 차단 폴백)
+
+    Args:
+        video_id: 유튜브 비디오 ID
+        cookies_path: 쿠키 파일 경로
+
+    Returns:
+        자막 텍스트 또는 None
+    """
+    logger.info(f"🔄 yt-dlp 폴백 시도: {video_id}")
+
+    script_dir = Path(__file__).parent
+    default_cookies = script_dir / 'cookies.txt'
+    cookie_file = cookies_path if cookies_path and Path(cookies_path).exists() else (
+        default_cookies if default_cookies.exists() else None
+    )
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        out_template = str(Path(tmpdir) / 'sub')
+        cmd = ['yt-dlp', '--write-auto-sub', '--skip-download', '--sub-lang', 'ko',
+               '-o', out_template,
+               f'https://www.youtube.com/watch?v={video_id}']
+
+        if cookie_file:
+            cmd += ['--cookies', str(cookie_file)]
+            logger.info(f"   🍪 쿠키 파일 사용: {cookie_file}")
+
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+            if result.returncode != 0:
+                logger.warning(f"   ⚠️ yt-dlp 실패: {result.stderr[-300:]}")
+                return None
+
+            # VTT 파일 찾기
+            vtt_files = list(Path(tmpdir).glob('*.vtt'))
+            if not vtt_files:
+                logger.warning("   ⚠️ yt-dlp: VTT 파일을 찾을 수 없습니다.")
+                return None
+
+            vtt_path = vtt_files[0]
+            with open(vtt_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+
+            # VTT → 텍스트 변환 (타임스탬프·중복 제거)
+            lines = content.split('\n')
+            text_lines = []
+            prev = ''
+            for line in lines:
+                line = line.strip()
+                if re.match(r'\d{2}:\d{2}:\d{2}', line):
+                    continue
+                if line.startswith(('WEBVTT', 'Kind:', 'Language:')):
+                    continue
+                line = re.sub(r'<[^>]+>', '', line)
+                if not line or line == prev:
+                    continue
+                text_lines.append(line)
+                prev = line
+
+            text = '\n'.join(text_lines)
+            logger.info(f"   ✅ yt-dlp 성공: {len(text)}자")
+            return text
+
+        except subprocess.TimeoutExpired:
+            logger.warning("   ⚠️ yt-dlp 타임아웃")
+            return None
+        except FileNotFoundError:
+            logger.warning("   ⚠️ yt-dlp가 설치되지 않았습니다.")
+            return None
+        except Exception as e:
+            logger.warning(f"   ⚠️ yt-dlp 오류: {e}")
+            return None
 
 
 def fetch_transcript(video_id: str, languages: list = ['ko', 'en'], max_retries: int = 3, cookies_path: Optional[str] = None) -> Optional[list]:
@@ -430,22 +513,41 @@ def main():
     # 각 파트별로 자막 가져오기
     transcripts = []
     transcript_texts = []
-    
+
     for i, video_id in enumerate(video_ids, 1):
         logger.info("=" * 60)
         logger.info(f"Part {i} 자막 가져오는 중...")
         logger.info("=" * 60)
+
+        # Part 간 rate limiting (첫 번째 파트 이후 딜레이)
+        if i > 1:
+            delay = 3
+            logger.info(f"⏳ Rate limiting: {delay}초 대기 중...")
+            time.sleep(delay)
+
+        transcript_text = None
+
+        # 1차: youtube-transcript-api 시도
         transcript = fetch_transcript(video_id, cookies_path=args.cookies)
-        
-        if not transcript:
-            logger.error(f"❌ Part {i} 자막을 가져올 수 없습니다.")
+        if transcript:
+            transcript_text = format_transcript(transcript)
+
+        # 2차: yt-dlp 폴백 (IP 차단 시 자동 전환)
+        if not transcript_text:
+            logger.info(f"🔄 youtube-transcript-api 실패 → yt-dlp 폴백 시도...")
+            transcript_text = fetch_transcript_ytdlp(
+                video_id,
+                cookies_path=Path(args.cookies) if args.cookies else None
+            )
+
+        if not transcript_text:
+            logger.error(f"❌ Part {i} 자막을 가져올 수 없습니다. (youtube-transcript-api, yt-dlp 모두 실패)")
             sys.exit(1)
-        
-        transcript_text = format_transcript(transcript)
+
         logger.info(f"✅ Part {i} 자막 길이: {len(transcript_text)} 문자")
         logger.info("")
-        
-        transcripts.append(transcript)
+
+        transcripts.append(None)  # compat
         transcript_texts.append(transcript_text)
     
     # 각각 따로 저장
@@ -456,7 +558,8 @@ def main():
     
     output_files = []
     for i, (transcript_text, video_id) in enumerate(zip(transcript_texts, video_ids), 1):
-        output_file = save_transcript(transcript_text, args.title, video_id, i, output_dir)
+        text = transcript_text if isinstance(transcript_text, str) else format_transcript(transcript_text)
+        output_file = save_transcript(text, args.title, video_id, i, output_dir)
         output_files.append(output_file)
     
     logger.info("")
