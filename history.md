@@ -8,7 +8,7 @@
 
 ### 1. 채널 현황 (2026-03-02 기준)
 - 구독자: **172명** (목표: 1,000명)
-- 총 영상: **262개** (한글+영문 포함, 꿈의 해석 2개 추가)
+- 총 영상: **264개** (한글+영문 포함, 에밀 2개 추가)
 - 미처리 백로그: **385개** 도서
 - 분석 리포트: `data/analytics_baseline_20260222.md`
 
@@ -38,6 +38,7 @@
 | 국화와 칼 | 루스 베네딕트 | 일당백 (ko/en) | ✅ 완료 (쿼터 초과로 수동 업로드) |
 | 괴테는 모든 것을 말했다 | 스즈키 유이 | summary+video (ko/en) | ✅ 완료 (수동 업로드 예정) |
 | 꿈의 해석 | 지그문트 프로이트 | 일당백 (ko/en) | ✅ 완료 (비공개 업로드) |
+| 에밀 | 장 자크 루소 | 일당백 (ko/en) | ✅ 완료 (비공개 업로드) |
 
 ### 4. 다음 우선 실행 액션
 
@@ -90,6 +91,26 @@
   - 한글: https://www.youtube.com/watch?v=tnx_w2gYSD4 (비공개)
   - 영문: https://www.youtube.com/watch?v=0z9K_86GAWk (비공개)
 - 번역 매핑 추가: `파친코` → `Pachinko`, `이민진` → `Min Jin Lee`
+
+---
+
+### 영상 제작 및 업로드 (2편 추가)
+
+#### 꿈의 해석 - 지그문트 프로이트 (일당백 스타일)
+- 한글: `output/The_Interpretation_of_Dreams_full_episode_ko.mp4` (980MB, 29.8분)
+- 영문: `output/The_Interpretation_of_Dreams_full_episode_en.mp4` (953MB, 29.8분)
+- YouTube URL:
+  - 한글: https://www.youtube.com/watch?v=4WppLXjNqKs (비공개)
+  - 영문: https://www.youtube.com/watch?v=HH_OhDKRTZE (비공개)
+- 번역 매핑 추가: `꿈의 해석` → `The Interpretation of Dreams`, `지그문트 프로이트` → `Sigmund Freud`
+
+#### 에밀 - 장 자크 루소 (일당백 스타일)
+- 한글: `output/Emile_full_episode_ko.mp4` (444MB, 12.4분)
+- 영문: `output/Emile_full_episode_en.mp4` (538MB, 13.78분)
+- YouTube URL:
+  - 한글: https://www.youtube.com/watch?v=YV5PdHwi9bk (비공개)
+  - 영문: https://www.youtube.com/watch?v=kwtRMvp1abk (비공개)
+- 번역 매핑 추가: `에밀` → `Emile`, `장 자크 루소` → `Jean-Jacques Rousseau`
 
 ---
 
@@ -4330,3 +4351,13 @@
 
 ### 코드 변경사항
 - `src/utils/translations.py`: 꿈의 해석, 지그문트 프로이트 번역 매핑 추가
+
+## 2026-03-02
+
+### YouTube 업로드 완료
+- 업로드된 책: Emile_full_episode
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] Emile: Jean-Jacques Rousseau (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=kwtRMvp1abk
+- [2] [일당백] 에밀: 루소 (Emile · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=YV5PdHwi9bk

@@ -548,6 +548,9 @@ def translate_book_title(book_title: str) -> str:
         "꿈의 해석": "The Interpretation of Dreams",
         "꿈의_해석": "The Interpretation of Dreams",
         "The Interpretation of Dreams": "The Interpretation of Dreams",
+        "에밀": "Emile",
+        "Emile": "Emile",
+        "Émile": "Emile",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -785,6 +788,10 @@ def translate_author_name(author: str) -> str:
         "지그문트 프로이트": "Sigmund Freud",
         "프로이트": "Sigmund Freud",
         "Sigmund Freud": "Sigmund Freud",
+        "장 자크 루소": "Jean-Jacques Rousseau",
+        "루소": "Jean-Jacques Rousseau",
+        "Jean-Jacques Rousseau": "Jean-Jacques Rousseau",
+        "Rousseau": "Jean-Jacques Rousseau",
         "이민진": "Min Jin Lee",
         "Min Jin Lee": "Min Jin Lee",
         "제인 오스틴": "Jane Austen",
