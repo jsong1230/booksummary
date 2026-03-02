@@ -2,13 +2,13 @@
 
 ---
 
-## ⚡ 다음 작업 세션 체크리스트 (2026-02-24 기준)
+## ⚡ 다음 작업 세션 체크리스트 (2026-03-02 기준)
 
 > **코드 개선/기능 추가 요청 시 → 아래 항목부터 먼저 확인할 것**
 
-### 1. 채널 현황 (2026-02-24 기준)
+### 1. 채널 현황 (2026-03-02 기준)
 - 구독자: **172명** (목표: 1,000명)
-- 총 영상: **260개** (한글+영문 포함, 다윈의 종의 기원 2개 추가)
+- 총 영상: **262개** (한글+영문 포함, 꿈의 해석 2개 추가)
 - 미처리 백로그: **385개** 도서
 - 분석 리포트: `data/analytics_baseline_20260222.md`
 
@@ -31,12 +31,13 @@
 | `src/utils/link_validator.py` | 구매 링크 유효성 검사 유틸 신규 생성 | 2026-02-26 |
 | `src/25_batch_add_pinned_comments.py` | link_validator 통합, --validate-links/--fix-invalid-links/--recreate 옵션 추가 | 2026-02-26 |
 
-### 3. 완료된 영상 제작 (2026-02-26 추가)
+### 3. 완료된 영상 제작 (2026-03-02 추가)
 
 | 책 제목 | 저자 | 스타일 | 상태 |
 |---------|------|--------|------|
 | 국화와 칼 | 루스 베네딕트 | 일당백 (ko/en) | ✅ 완료 (쿼터 초과로 수동 업로드) |
 | 괴테는 모든 것을 말했다 | 스즈키 유이 | summary+video (ko/en) | ✅ 완료 (수동 업로드 예정) |
+| 꿈의 해석 | 지그문트 프로이트 | 일당백 (ko/en) | ✅ 완료 (비공개 업로드) |
 
 ### 4. 다음 우선 실행 액션
 
@@ -4299,3 +4300,33 @@
   - URL: https://www.youtube.com/watch?v=0z9K_86GAWk
 - [2] [핵심 요약] 파친코 (Pachinko · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
   - URL: https://www.youtube.com/watch?v=tnx_w2gYSD4
+
+## 2026-03-02
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Interpretation_of_Dreams_full_episode
+- 업로드된 영상 수: 1개
+- [1] [1DANG100] The Interpretation of Dreams: Sigmund Freud (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=HH_OhDKRTZE
+
+## 2026-03-02
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Interpretation_of_Dreams_full_episode
+- 업로드된 영상 수: 1개
+- [1] [일당백] 꿈의 해석: 지그문트 프로이트 (The Interpretation of Dreams · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=4WppLXjNqKs
+
+### 영상 제작 — 꿈의 해석 · 지그문트 프로이트 (일당백 스타일)
+
+- 한글: `output/The_Interpretation_of_Dreams_full_episode_ko.mp4` (980MB, 29.8분)
+- 영문: `output/The_Interpretation_of_Dreams_full_episode_en.mp4` (953MB, 29.8분)
+- 구성: Part 1~4 영상 + 인포그래픽 4세트 (총 8클립)
+- YouTube URL:
+  - 한글: https://www.youtube.com/watch?v=4WppLXjNqKs (비공개)
+  - 영문: https://www.youtube.com/watch?v=HH_OhDKRTZE (비공개)
+- 번역 매핑 추가: `꿈의 해석` → `The Interpretation of Dreams`, `지그문트 프로이트` → `Sigmund Freud`
+- IP 블록 이슈: youtube-transcript-api IpBlocked → Chrome 쿠키 갱신으로 일부 해소 (자막 API는 여전히 차단 상태)
+
+### 코드 변경사항
+- `src/utils/translations.py`: 꿈의 해석, 지그문트 프로이트 번역 매핑 추가

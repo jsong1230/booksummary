@@ -545,6 +545,9 @@ def translate_book_title(book_title: str) -> str:
         "The_2028_Global_Intelligence_Crisis": "The 2028 Global Intelligence Crisis",
         "2028 글로벌 인텔리전스 위기": "The 2028 Global Intelligence Crisis",
         "2028_글로벌_인텔리전스_위기": "The 2028 Global Intelligence Crisis",
+        "꿈의 해석": "The Interpretation of Dreams",
+        "꿈의_해석": "The Interpretation of Dreams",
+        "The Interpretation of Dreams": "The Interpretation of Dreams",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -779,6 +782,9 @@ def translate_author_name(author: str) -> str:
         "Harper Lee": "Harper Lee",
         "박민규": "Park Min-kyu",
         "Park Min-kyu": "Park Min-kyu",
+        "지그문트 프로이트": "Sigmund Freud",
+        "프로이트": "Sigmund Freud",
+        "Sigmund Freud": "Sigmund Freud",
         "이민진": "Min Jin Lee",
         "Min Jin Lee": "Min Jin Lee",
         "제인 오스틴": "Jane Austen",
