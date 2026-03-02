@@ -551,6 +551,9 @@ def translate_book_title(book_title: str) -> str:
         "에밀": "Emile",
         "Emile": "Emile",
         "Émile": "Emile",
+        "더 리더": "The Reader",
+        "더_리더": "The Reader",
+        "The Reader": "The Reader",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -792,6 +795,10 @@ def translate_author_name(author: str) -> str:
         "루소": "Jean-Jacques Rousseau",
         "Jean-Jacques Rousseau": "Jean-Jacques Rousseau",
         "Rousseau": "Jean-Jacques Rousseau",
+        "베른하르트 슐링크": "Bernhard Schlink",
+        "슐링크": "Bernhard Schlink",
+        "Bernhard Schlink": "Bernhard Schlink",
+        "Schlink": "Bernhard Schlink",
         "이민진": "Min Jin Lee",
         "Min Jin Lee": "Min Jin Lee",
         "제인 오스틴": "Jane Austen",

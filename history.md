@@ -8,7 +8,7 @@
 
 ### 1. 채널 현황 (2026-03-02 기준)
 - 구독자: **172명** (목표: 1,000명)
-- 총 영상: **264개** (한글+영문 포함, 에밀 2개 추가)
+- 총 영상: **266개** (한글+영문 포함, 더 리더 2개 추가)
 - 미처리 백로그: **385개** 도서
 - 분석 리포트: `data/analytics_baseline_20260222.md`
 
@@ -39,6 +39,7 @@
 | 괴테는 모든 것을 말했다 | 스즈키 유이 | summary+video (ko/en) | ✅ 완료 (수동 업로드 예정) |
 | 꿈의 해석 | 지그문트 프로이트 | 일당백 (ko/en) | ✅ 완료 (비공개 업로드) |
 | 에밀 | 장 자크 루소 | 일당백 (ko/en) | ✅ 완료 (비공개 업로드) |
+| 더 리더 | 베른하르트 슐링크 | summary+video (ko/en) | ✅ 완료 (비공개 업로드) |
 
 ### 4. 다음 우선 실행 액션
 
@@ -4361,3 +4362,13 @@
   - URL: https://www.youtube.com/watch?v=kwtRMvp1abk
 - [2] [일당백] 에밀: 루소 (Emile · 배경지식·인포그래픽·책 분석)
   - URL: https://www.youtube.com/watch?v=YV5PdHwi9bk
+
+## 2026-03-02
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Reader
+- 업로드된 영상 수: 2개
+- [1] [Summary] The Reader (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=qh9IgiY0RlE
+- [2] [핵심 요약] 더 리더 (The Reader · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=A3dx52RPe4I
