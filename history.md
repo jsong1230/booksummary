@@ -77,6 +77,21 @@
   - 영문: https://www.youtube.com/watch?v=RhjmifpNFa0 (비공개)
 - 번역 매핑 추가: `삼미 슈퍼스타즈의 마지막 팬클럽` → `The Last Fan Club of Sammi Superstars`, `박민규` → `Park Min-gyu`
 
+## 2026-03-02
+
+### 영상 제작 및 업로드 (1편)
+
+#### 파친코 - 이민진 (summary+video 스타일)
+- 한글: `output/Pachinko_kr.mp4` (370MB)
+- 영문: `output/Pachinko_en.mp4` (333MB)
+- TTS: OpenAI nova (한글) / alloy (영문)
+- YouTube URL:
+  - 한글: https://www.youtube.com/watch?v=tnx_w2gYSD4 (비공개)
+  - 영문: https://www.youtube.com/watch?v=0z9K_86GAWk (비공개)
+- 번역 매핑 추가: `파친코` → `Pachinko`, `이민진` → `Min Jin Lee`
+
+---
+
 ### 고정 댓글 재생성 작업 (미완료 — API 쿼터 초과)
 
 - **목표**: 기존 채널 영상(260개) 전체에 달린 고정 댓글을 삭제하고 유효한 제휴 링크로 재등록
@@ -4274,3 +4289,13 @@
   - URL: https://www.youtube.com/watch?v=jg9RxvB24SU
 - [2] [핵심 요약] 빅 히스토리 (Big History · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
   - URL: https://www.youtube.com/watch?v=DMpQTrvh6SI
+
+## 2026-03-02
+
+### YouTube 업로드 완료
+- 업로드된 책: Pachinko
+- 업로드된 영상 수: 2개
+- [1] [Summary] Pachinko (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=0z9K_86GAWk
+- [2] [핵심 요약] 파친코 (Pachinko · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=tnx_w2gYSD4

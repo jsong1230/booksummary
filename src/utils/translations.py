@@ -36,6 +36,8 @@ def translate_book_title(book_title: str) -> str:
         "세일즈맨의_죽음": "Death of a Salesman",
         "삼미 슈퍼스타즈의 마지막 팬클럽": "The Last Fan Club of Sammi Superstars",
         "삼미_슈퍼스타즈의_마지막_팬클럽": "The Last Fan Club of Sammi Superstars",
+        "파친코": "Pachinko",
+        "파친코_": "Pachinko",
         "불교의 성전": "Buddhist Scriptures",
         "불교의_성전": "Buddhist Scriptures",
         "원시불교": "Early Buddhism",
@@ -702,6 +704,8 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "On_the_Origin_of_Species": "다윈의_종의_기원",
         "Innate": "우리는 무엇을 타고나는가",
         "Big History": "빅 히스토리",
+        "Pachinko": "파친코",
+        "Pachinko_": "파친코",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -775,6 +779,8 @@ def translate_author_name(author: str) -> str:
         "Harper Lee": "Harper Lee",
         "박민규": "Park Min-kyu",
         "Park Min-kyu": "Park Min-kyu",
+        "이민진": "Min Jin Lee",
+        "Min Jin Lee": "Min Jin Lee",
         "제인 오스틴": "Jane Austen",
         "Jane Austen": "Jane Austen",
         "새뮤얼 헌팅턴": "Samuel Huntington",
@@ -1223,6 +1229,7 @@ def translate_author_name_to_korean(author: str) -> str:
         "Citrini Research": "시트리니 리서치",
         "Kevin J. Mitchell": "케빈 J. 미첼",
         "David Christian": "데이비드 크리스천",
+        "Min Jin Lee": "이민진",
     }
 
     if author in reverse_author_map:
