@@ -368,7 +368,12 @@ python scripts/fetch_separate_scripts.py \
   --cookies "scripts/cookies.txt"
 ```
 
-**쿠키 파일 준비 (IP 차단 우회):**
+**IP 차단 우회 (자동 폴백):**
+- `scripts/cookies.txt` 쿠키 파일이 있으면 자동 사용
+- `youtube-transcript-api` 실패 시 `yt-dlp`로 자동 폴백 (쿠키 자동 전달)
+- Part 간 3초 딜레이로 rate limiting 자동 적용
+
+**쿠키 파일 준비:**
 1. 크롬 확장프로그램 "Get cookies.txt LOCALLY" 설치
 2. YouTube에 로그인한 상태에서 쿠키를 `cookies.txt`로 다운로드
 3. `scripts/` 폴더에 `cookies.txt` 저장
