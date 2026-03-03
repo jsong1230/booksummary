@@ -563,6 +563,8 @@ def translate_book_title(book_title: str) -> str:
         "토끼전": "Tale of the Rabbit",
         "심청전": "Tale of Simcheong",
         "Korean Classic Tales": "Korean Classic Tales",
+        "복종": "Submission",
+        "Submission": "Submission",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -809,6 +811,10 @@ def translate_author_name(author: str) -> str:
         "슐링크": "Bernhard Schlink",
         "Bernhard Schlink": "Bernhard Schlink",
         "Schlink": "Bernhard Schlink",
+        "미셸 우엘백": "Michel Houellebecq",
+        "우엘백": "Michel Houellebecq",
+        "Michel Houellebecq": "Michel Houellebecq",
+        "Houellebecq": "Michel Houellebecq",
         "이민진": "Min Jin Lee",
         "Min Jin Lee": "Min Jin Lee",
         "제인 오스틴": "Jane Austen",
