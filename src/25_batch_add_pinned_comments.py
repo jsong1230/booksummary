@@ -86,9 +86,8 @@ class PinnedCommentAdder:
         if not self.channel_id:
             raise ValueError("YOUTUBE_CHANNEL_ID가 설정되지 않았습니다.")
 
-        # 상태 파일 로드 (resume 모드인 경우)
-        if self.resume:
-            self._load_state()
+        # 상태 파일 항상 로드 (이미 처리된 영상 추적)
+        self._load_state()
 
         self._authenticate()
 
@@ -587,8 +586,8 @@ class PinnedCommentAdder:
             video_id = video['video_id']
             video_title = video['title']
 
-            # resume 모드: 이미 처리한 영상 건너뜀
-            if self.resume and video_id in self.processed_video_ids:
+            # 이미 처리한 영상 건너뜀 (--recreate 모드 제외)
+            if not self.recreate and video_id in self.processed_video_ids:
                 print(f"   ⏭️ 이미 처리된 영상 (건너뜀)")
                 skipped_count += 1
                 continue
@@ -672,10 +671,12 @@ class PinnedCommentAdder:
                 if should_update and existing_comment:
                     if self.update_comment(existing_comment['comment_id'], comment_text):
                         added_count += 1
+                        self.processed_video_ids.add(video_id)
                     else:
                         error_count += 1
                 elif self.add_pinned_comment(video_id, comment_text):
                     added_count += 1
+                    self.processed_video_ids.add(video_id)
                 else:
                     error_count += 1
 

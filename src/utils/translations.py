@@ -567,6 +567,23 @@ def translate_book_title(book_title: str) -> str:
         "Submission": "Submission",
         "갈매기": "The Seagull",
         "The Seagull": "The Seagull",
+        "타인의 고통": "Regarding the Pain of Others",
+        "타인의_고통": "Regarding the Pain of Others",
+        "Regarding the Pain of Others": "Regarding the Pain of Others",
+        "레버리지": "Leverage",
+        "레버리지_": "Leverage",
+        "Leverage": "Leverage",
+        "타이탄의 도구들": "Tools of Titans",
+        "타이탄의_도구들": "Tools of Titans",
+        "Tools of Titans": "Tools of Titans",
+        "일류의 조건": "Condition of the First-Class",
+        "일류의_조건": "Condition of the First-Class",
+        "Condition of the First-Class": "Condition of the First-Class",
+        "The Condition of the First-Class": "Condition of the First-Class",
+        "사람을 얻는 지혜": "The Art of Worldly Wisdom",
+        "사람을_얻는_지혜": "The Art of Worldly Wisdom",
+        "The Art of Worldly Wisdom": "The Art of Worldly Wisdom",
+        "Art of Worldly Wisdom": "The Art of Worldly Wisdom",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -728,6 +745,18 @@ def translate_book_title_to_korean(book_title: str) -> str:
         "Big History": "빅 히스토리",
         "Pachinko": "파친코",
         "Pachinko_": "파친코",
+        "Regarding the Pain of Others": "타인의 고통",
+        "Regarding_the_Pain_of_Others": "타인의_고통",
+        "Leverage": "레버리지",
+        "Leverage_": "레버리지",
+        "Tools of Titans": "타이탄의 도구들",
+        "Tools_of_Titans": "타이탄의_도구들",
+        "Condition of the First-Class": "일류의 조건",
+        "Condition_of_the_First-Class": "일류의_조건",
+        "The Condition of the First-Class": "일류의 조건",
+        "The Art of Worldly Wisdom": "사람을 얻는 지혜",
+        "The_Art_of_Worldly_Wisdom": "사람을_얻는_지혜",
+        "Art of Worldly Wisdom": "사람을 얻는 지혜",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -1137,6 +1166,26 @@ def translate_author_name(author: str) -> str:
         "데이비드 크리스천": "David Christian",
         "데이비드_크리스천": "David Christian",
         "David Christian": "David Christian",
+        "수잔 손택": "Susan Sontag",
+        "수잔_손택": "Susan Sontag",
+        "Susan Sontag": "Susan Sontag",
+        "Sontag": "Susan Sontag",
+        "롭 무어": "Rob Moore",
+        "롭_무어": "Rob Moore",
+        "Rob Moore": "Rob Moore",
+        "Moore": "Rob Moore",
+        "팀 페리스": "Tim Ferriss",
+        "팀_페리스": "Tim Ferriss",
+        "Tim Ferriss": "Tim Ferriss",
+        "Ferriss": "Tim Ferriss",
+        "사이토 다카시": "Takashi Saito",
+        "사이토_다카시": "Takashi Saito",
+        "Takashi Saito": "Takashi Saito",
+        "Saito": "Takashi Saito",
+        "발타자르 그라시안": "Baltasar Gracian",
+        "발타자르_그라시안": "Baltasar Gracian",
+        "Baltasar Gracian": "Baltasar Gracian",
+        "Gracian": "Baltasar Gracian",
     }
 
     if author in author_map:
@@ -1272,6 +1321,11 @@ def translate_author_name_to_korean(author: str) -> str:
         "Kevin J. Mitchell": "케빈 J. 미첼",
         "David Christian": "데이비드 크리스천",
         "Min Jin Lee": "이민진",
+        "Susan Sontag": "수잔 손택",
+        "Rob Moore": "롭 무어",
+        "Tim Ferriss": "팀 페리스",
+        "Takashi Saito": "사이토 다카시",
+        "Baltasar Gracian": "발타자르 그라시안",
     }
 
     if author in reverse_author_map:

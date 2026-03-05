@@ -4416,3 +4416,53 @@
   - URL: https://www.youtube.com/watch?v=kSW-m1ox9Qo
 - [2] [일당백] 갈매기: 안톤 체호프 (The Seagull · 배경지식·인포그래픽·책 분석)
   - URL: https://www.youtube.com/watch?v=DZD2hDyTpO8
+
+## 2026-03-03
+
+### YouTube 업로드 완료
+- 업로드된 책: Regarding_the_Pain_of_Others
+- 업로드된 영상 수: 2개
+- [1] [Summary] Regarding the Pain of Others (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=d80AgjGrUow
+- [2] [핵심 요약] 타인의 고통 (Regarding the Pain of Others · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=7SzEAsb5aXA
+
+## 2026-03-05
+
+### YouTube 업로드 완료
+- 업로드된 책: Leverage
+- 업로드된 영상 수: 2개
+- [1] [핵심 요약] 레버리지 (Leverage · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=hbzE-okOXqI
+- [2] [Summary] Leverage (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=_Pk0el7zuk0
+
+## 2026-03-05
+
+### YouTube 업로드 완료
+- 업로드된 책: Tools_of_Titans
+- 업로드된 영상 수: 2개
+- [1] [핵심 요약] 타이탄의 도구들 (Tools of Titans · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=u_HAZW7z5tA
+- [2] [Summary] Tools of Titans (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=7IHHCGaITpA
+
+## 2026-03-05
+
+### YouTube 업로드 완료
+- 업로드된 책: Condition_of_the_First_Class
+- 업로드된 영상 수: 2개
+- [1] [핵심 요약] 일류의 조건 (Condition of the First-Class · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=gaHMyDIAikI
+- [2] [Summary] Condition of the First-Class (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=HHSCr00fE8o
+
+## 2026-03-05
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Art_of_Worldly_Wisdom
+- 업로드된 영상 수: 2개
+- [1] [핵심 요약] 사람을 얻는 지혜 (The Art of Worldly Wisdom · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=HToMT4i67vM
+- [2] [Summary] The Art of Worldly Wisdom (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=uzXb5CWRH7k
