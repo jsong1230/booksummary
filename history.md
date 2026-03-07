@@ -4466,3 +4466,23 @@
   - URL: https://www.youtube.com/watch?v=HToMT4i67vM
 - [2] [Summary] The Art of Worldly Wisdom (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
   - URL: https://www.youtube.com/watch?v=uzXb5CWRH7k
+
+## 2026-03-07
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Little_Prince_full_episode, The_Little_Prince_full_episode_ko
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] The Little Prince: Antoine de Saint-Exupéry (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=-StX0ghziHs
+- [2] [일당백] 어린왕자: 앙투안 드 생텍쥐페리 (The Little Prince · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=u0xMFDDJjcw
+
+## 2026-03-07
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Catcher_in_the_Rye_full_episode_ko, The_Catcher_in_the_Rye_full_episode
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] The Catcher in the Rye: J.D. Salinger (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=B9_CLdorJ5w
+- [2] [일당백] 호밀밭의 파수꾼: J.D. 샐린저 (The Catcher in the Rye · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=W0Ez6Qjv4dM
