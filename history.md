@@ -44,6 +44,7 @@
 | 춘향전 토끼전 심청전 | 작자 미상 | 일당백 (ko/en) | ✅ 완료 (비공개 업로드) |
 | 복종 | 미셸 우엘백 | 일당백 (ko/en) | ✅ 완료 (비공개 업로드) |
 | 갈매기 | 안톤 체호프 | 일당백 (ko/en) | ✅ 완료 (비공개 업로드) |
+| 폰더 씨의 위대한 하루 | 앤디 앤드루스 | summary+video (ko/en) | ✅ 완료 (업로드 대기) |
 
 ### 4. 다음 우선 실행 액션
 
@@ -83,6 +84,19 @@
   - 한글: https://www.youtube.com/watch?v=rlJ64YmcODs (비공개)
   - 영문: https://www.youtube.com/watch?v=RhjmifpNFa0 (비공개)
 - 번역 매핑 추가: `삼미 슈퍼스타즈의 마지막 팬클럽` → `The Last Fan Club of Sammi Superstars`, `박민규` → `Park Min-gyu`
+
+## 2026-03-08
+
+### 영상 제작 및 업로드 (1편)
+
+#### 왜 일하는가 - 이나모리 가즈오 (summary+video 스타일)
+- 한글: `output/Why_Work_kr.mp4` (321MB, 10.90분)
+- 영문: `output/Why_Work_en.mp4` (233MB, 9.84분)
+- TTS: OpenAI nova (한글) / alloy (영문)
+- YouTube URL:
+  - 한글: https://www.youtube.com/watch?v=lMOiZhU7Fas (비공개)
+  - 영문: https://www.youtube.com/watch?v=ulB2_QK4lbE (비공개)
+- 번역 매핑 추가: `왜 일하는가` → `Why Work`, `이나모리 가즈오` → `Kazuo Inamori`
 
 ## 2026-03-02
 
@@ -4486,3 +4500,77 @@
   - URL: https://www.youtube.com/watch?v=B9_CLdorJ5w
 - [2] [일당백] 호밀밭의 파수꾼: J.D. 샐린저 (The Catcher in the Rye · 배경지식·인포그래픽·책 분석)
   - URL: https://www.youtube.com/watch?v=W0Ez6Qjv4dM
+
+## 2026-03-08
+
+### YouTube 업로드 완료
+- 업로드된 책: Sapiens_full_episode_ko, Sapiens_full_episode
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] Sapiens: Yuval Noah Harari (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=RlQ6bdFgXaU
+- [2] [일당백] 사피엔스: 유발 하라리 (Sapiens · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=rVZKER4deTs
+
+## 2026-03-08
+
+### YouTube 업로드 완료
+- 업로드된 책: American_Prometheus_full_episode, American_Prometheus_full_episode_ko
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] American Prometheus: Kai Bird (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=5oTawUMzTGA
+- [2] [일당백] 아메리칸 프로메테우스: 카이 버드 (American Prometheus · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=TByr1Vd6I4o
+
+---
+
+## 2026-03-08
+
+### 작업 내용
+- 『폰더 씨의 위대한 하루』(앤디 앤드루스) summary+video 영상 제작 (한글/영문)
+
+### 완료된 작업
+1. **translations.py 매핑 추가**
+   - 책 제목: `폰더 씨의 위대한 하루` → `The Traveler's Gift`
+   - 저자: `앤디 앤드루스` → `Andy Andrews`
+
+2. **파일 준비 (prefix: andy)**
+   - `andy_summary_kr.md` → `assets/summaries/The_Travelers_Gift_summary_kr.md`
+   - `andy_summary_en.md` → `assets/summaries/The_Travelers_Gift_summary_en.md`
+   - `andy_video_kr.mp4` → `assets/video/The_Travelers_Gift_notebooklm_kr.mp4`
+   - `andy_video_en.mp4` → `assets/video/The_Travelers_Gift_notebooklm_en.mp4`
+
+3. **이미지 다운로드**
+   - 무드 이미지 130개 다운로드 → AI 검증 → 100개 선별
+   - 저장: `assets/images/The_Travelers_Gift/mood_*.jpg`
+
+4. **TTS 음성 생성 (OpenAI nova)**
+   - 한글 요약 오디오: `assets/audio/The_Travelers_Gift_summary_kr.mp3` (377.93초)
+   - 영문 요약 오디오: `assets/audio/The_Travelers_Gift_summary_en.mp3` (356.81초)
+
+5. **영상 제작 완료**
+   - 한글: `output/The_Travelers_Gift_kr.mp4` (403MB, 13.32분)
+   - 영문: `output/The_Travelers_Gift_en.mp4` (376MB, 11.64분)
+
+6. **메타데이터 생성**
+   - `output/The_Travelers_Gift_kr.metadata.json`
+   - `output/The_Travelers_Gift_en.metadata.json`
+
+## 2026-03-08
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Travelers_Gift
+- 업로드된 영상 수: 2개
+- [1] [Summary] The Traveler's Gift (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=gat2aWJ14u8
+- [2] [핵심 요약] 폰더 씨의 위대한 하루 (The Traveler's Gift · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=YIJPtbCwKpA
+
+## 2026-03-08
+
+### YouTube 업로드 완료
+- 업로드된 책: Why_Work
+- 업로드된 영상 수: 2개
+- [1] [Summary] Why Work (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=ulB2_QK4lbE
+- [2] [핵심 요약] 왜 일하는가 (Why Work · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=lMOiZhU7Fas

@@ -63,6 +63,9 @@ def translate_book_title(book_title: str) -> str:
         "생각의 지도": "The Geography of Thought",
         "생각의_지도": "The Geography of Thought",
         "The Geography of Thought": "The Geography of Thought",
+        "아메리칸 프로메테우스": "American Prometheus",
+        "아메리칸_프로메테우스": "American Prometheus",
+        "American Prometheus": "American Prometheus",
         "사피엔스": "Sapiens",
         "사피엔스의 미래": "Future of Sapiens",
         "사피엔스의_미래": "Future of Sapiens",
@@ -584,6 +587,13 @@ def translate_book_title(book_title: str) -> str:
         "사람을_얻는_지혜": "The Art of Worldly Wisdom",
         "The Art of Worldly Wisdom": "The Art of Worldly Wisdom",
         "Art of Worldly Wisdom": "The Art of Worldly Wisdom",
+        "폰더 씨의 위대한 하루": "The Traveler's Gift",
+        "폰더_씨의_위대한_하루": "The Traveler's Gift",
+        "The Traveler's Gift": "The Traveler's Gift",
+        "Traveler's Gift": "The Traveler's Gift",
+        "왜 일하는가": "Why Work",
+        "왜_일하는가": "Why Work",
+        "Why Work": "Why Work",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -820,6 +830,8 @@ def remove_korean_from_text(text: str) -> str:
 def translate_author_name(author: str) -> str:
     """작가 이름을 영어로 변환"""
     author_map = {
+        "카이 버드": "Kai Bird",
+        "Kai Bird": "Kai Bird",
         "가브리엘 가르시아 마르케스": "Gabriel García Márquez",
         "가르시아 마르케스": "Gabriel García Márquez",
         "Gabriel García Márquez": "Gabriel García Márquez",
@@ -1189,6 +1201,14 @@ def translate_author_name(author: str) -> str:
         "발타자르_그라시안": "Baltasar Gracian",
         "Baltasar Gracian": "Baltasar Gracian",
         "Gracian": "Baltasar Gracian",
+        "앤디 앤드루스": "Andy Andrews",
+        "앤디_앤드루스": "Andy Andrews",
+        "Andy Andrews": "Andy Andrews",
+        "Andrews": "Andy Andrews",
+        "이나모리 가즈오": "Kazuo Inamori",
+        "이나모리_가즈오": "Kazuo Inamori",
+        "Kazuo Inamori": "Kazuo Inamori",
+        "Inamori": "Kazuo Inamori",
     }
 
     if author in author_map:
