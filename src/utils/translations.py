@@ -598,6 +598,10 @@ def translate_book_title(book_title: str) -> str:
         "달과_6펜스": "The Moon and Sixpence",
         "The Moon and Sixpence": "The Moon and Sixpence",
         "Moon and Sixpence": "The Moon and Sixpence",
+        "임사체험": "Near Death Experiences",
+        "임사_체험": "Near Death Experiences",
+        "Near Death Experiences": "Near Death Experiences",
+        "Near-Death Experiences": "Near Death Experiences",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -1220,6 +1224,9 @@ def translate_author_name(author: str) -> str:
         "W. Somerset Maugham": "W. Somerset Maugham",
         "Somerset Maugham": "W. Somerset Maugham",
         "Maugham": "W. Somerset Maugham",
+        "다치바나 다카시": "Takashi Tachibana",
+        "다치바나_다카시": "Takashi Tachibana",
+        "Takashi Tachibana": "Takashi Tachibana",
     }
 
     if author in author_map:

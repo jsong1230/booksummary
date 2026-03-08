@@ -401,8 +401,8 @@ def get_actual_part_durations(book_title: str, language: str = "ko", infographic
     """
     safe_title = get_standard_safe_title(book_title)
 
-    # 언어 정규화 (파일명용)
-    lang_suffix_file = "kr" if language in ["ko", "kr"] else "en"
+    # 언어 정규화 (파일명용) - create_full_episode.py와 일치: ko 사용 (kr 아님)
+    lang_suffix_file = "ko" if language in ["ko", "kr"] else "en"
 
     # 1. 먼저 렌더링된 영상의 timing.json 파일 확인 (가장 정확)
     video_path = Path(f"output/{safe_title}_full_episode_{lang_suffix_file}.mp4")

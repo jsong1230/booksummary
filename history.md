@@ -4618,3 +4618,19 @@
 - 업로드된 영상 수: 1개
 - [1] [핵심 요약] 달과 6펜스 (The Moon and Sixpence · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
   - URL: https://www.youtube.com/watch?v=8BsLf6aSQ3g
+
+## 2026-03-08
+
+### YouTube 업로드 완료
+- 업로드된 책: Near_Death_Experiences_full_episode_ko, Near_Death_Experiences_full_episode
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] Near Death Experiences: Takashi Tachibana (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=GTF4Ug3qOcA
+- [2] [일당백] 임사체험: 다치바나 다카시 (Near Death Experiences · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=Yhl-mT2O6hY
+
+### 번역 매핑 추가
+- `src/utils/translations.py`: 임사체험 → Near Death Experiences, 다치바나 다카시 → Takashi Tachibana
+
+### 버그 수정
+- `src/20_create_episode_metadata.py`: 한글 영상 video_path `_kr.mp4` → `_ko.mp4` 수정 (create_full_episode.py 출력 파일명과 불일치 해결)
