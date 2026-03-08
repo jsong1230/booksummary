@@ -45,6 +45,7 @@
 | 복종 | 미셸 우엘백 | 일당백 (ko/en) | ✅ 완료 (비공개 업로드) |
 | 갈매기 | 안톤 체호프 | 일당백 (ko/en) | ✅ 완료 (비공개 업로드) |
 | 폰더 씨의 위대한 하루 | 앤디 앤드루스 | summary+video (ko/en) | ✅ 완료 (업로드 대기) |
+| 달과 6펜스 | 서머싯 몸 | summary+video (ko/en) | ✅ 완료 (비공개 업로드) |
 
 ### 4. 다음 우선 실행 액션
 
@@ -69,6 +70,23 @@
 - 조회수 상위 영상 ID: `EDfOZfYtCbI`(생각에 관한 생각), `YgmGQUZTO7M`(나는 고양이로소이다)
 - 커뮤니티 포스트: 구독자 500명 이후 활성화 예정 (`src/28_community_posts.py --apply`)
 - OAuth 재인증 방법: `python scripts/reauth_youtube.py` (브라우저 인증 필요)
+
+---
+
+## 2026-03-08
+
+### 영상 제작 및 업로드 (2편)
+
+#### 달과 6펜스 - 서머싯 몸 (summary+video 스타일)
+- 한글: `output/The_Moon_and_Sixpence_kr.mp4` (473MB, 13분 51초)
+- 영문: `output/The_Moon_and_Sixpence_en.mp4` (395MB, 11분 32초)
+- TTS: OpenAI (한글: nova, 영문: alloy)
+- YouTube URL:
+  - 한글: https://www.youtube.com/watch?v=8BsLf6aSQ3g (비공개)
+  - 영문: https://www.youtube.com/watch?v=DKkiu1u6uW0 (비공개)
+
+### 코드 수정
+- `src/utils/translations.py`: `서머싯 몸` / `서머싯_몸` → W. Somerset Maugham 매핑 추가
 
 ---
 
@@ -4574,3 +4592,29 @@
   - URL: https://www.youtube.com/watch?v=ulB2_QK4lbE
 - [2] [핵심 요약] 왜 일하는가 (Why Work · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
   - URL: https://www.youtube.com/watch?v=lMOiZhU7Fas
+
+## 2026-03-08
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Moon_and_Sixpence
+- 업로드된 영상 수: 2개
+- [1] [Summary] The Moon and Sixpence (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=DKkiu1u6uW0
+- [2] [핵심 요약] 달과 6펜스 (The Moon and Sixpence · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=zGU7o4zrLtY
+
+## 2026-03-08
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Moon_and_Sixpence
+- 업로드된 영상 수: 1개
+- [1] [핵심 요약] 달과 6펜스 (The Moon and Sixpence · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=iQnBUqEFhqU
+
+## 2026-03-08
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Moon_and_Sixpence
+- 업로드된 영상 수: 1개
+- [1] [핵심 요약] 달과 6펜스 (The Moon and Sixpence · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=8BsLf6aSQ3g

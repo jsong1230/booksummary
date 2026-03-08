@@ -594,6 +594,10 @@ def translate_book_title(book_title: str) -> str:
         "왜 일하는가": "Why Work",
         "왜_일하는가": "Why Work",
         "Why Work": "Why Work",
+        "달과 6펜스": "The Moon and Sixpence",
+        "달과_6펜스": "The Moon and Sixpence",
+        "The Moon and Sixpence": "The Moon and Sixpence",
+        "Moon and Sixpence": "The Moon and Sixpence",
     }
     
     # 공백을 언더스코어로 변환한 버전도 확인
@@ -1209,6 +1213,13 @@ def translate_author_name(author: str) -> str:
         "이나모리_가즈오": "Kazuo Inamori",
         "Kazuo Inamori": "Kazuo Inamori",
         "Inamori": "Kazuo Inamori",
+        "서머셋 몸": "W. Somerset Maugham",
+        "서머셋_몸": "W. Somerset Maugham",
+        "서머싯 몸": "W. Somerset Maugham",
+        "서머싯_몸": "W. Somerset Maugham",
+        "W. Somerset Maugham": "W. Somerset Maugham",
+        "Somerset Maugham": "W. Somerset Maugham",
+        "Maugham": "W. Somerset Maugham",
     }
 
     if author in author_map:
