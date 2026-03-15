@@ -4670,3 +4670,13 @@
 - 업로드된 영상 수: 1개
 - [1] [일당백] 정부론 (Two Treatises of Government · 배경지식·인포그래픽·책 분석)
   - URL: https://www.youtube.com/watch?v=3A1EyUqytY8
+
+## 2026-03-15
+
+### YouTube 업로드 완료
+- 업로드된 책: The_ONE_Thing
+- 업로드된 영상 수: 2개
+- [1] [Summary] The ONE Thing (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=dFVkQjl7jUg
+- [2] [핵심 요약] 원씽 (The ONE Thing · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=Ey8AW-gAA-k
