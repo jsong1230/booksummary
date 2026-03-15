@@ -1137,13 +1137,17 @@ def create_episode_metadata(
     """
     safe_title = get_standard_safe_title(book_title)
 
-    # 언어 정규화 (파일명용)
+    # 언어 정규화 (파일명용) - create_full_episode.py와 일치: ko 사용
     normalized_language = "ko" if language in ["ko", "kr"] else "en"
-    lang_suffix_file = "kr" if language in ["ko", "kr"] else "en"
+    lang_suffix_file = "ko" if language in ["ko", "kr"] else "en"
 
-    # 영상 경로가 없으면 자동으로 찾기
+    # 영상 경로가 없으면 자동으로 찾기 (ko/kr 둘 다 시도)
     if not video_path:
         video_path = f"output/{safe_title}_full_episode_{lang_suffix_file}.mp4"
+        if not Path(video_path).exists() and lang_suffix_file == "ko":
+            alt_path = f"output/{safe_title}_full_episode_kr.mp4"
+            if Path(alt_path).exists():
+                video_path = alt_path
     
     video_path_obj = Path(video_path)
     

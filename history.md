@@ -4654,3 +4654,19 @@
   - URL: https://www.youtube.com/watch?v=t8n2E8X-nS0
 - [2] [핵심 요약] 미움받을 용기 (The Courage to Be Disliked · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
   - URL: https://www.youtube.com/watch?v=ArpZ0SCHj54
+
+## 2026-03-15
+
+### YouTube 업로드 완료
+- 업로드된 책: Two_Treatises_of_Government_full_episode
+- 업로드된 영상 수: 1개
+- [1] [1DANG100] Two Treatises of Government (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=yXlG5Negx_c
+
+## 2026-03-15
+
+### YouTube 업로드 완료
+- 업로드된 책: Two_Treatises_of_Government_full_episode
+- 업로드된 영상 수: 1개
+- [1] [일당백] 정부론 (Two Treatises of Government · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=3A1EyUqytY8

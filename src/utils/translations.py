@@ -7,6 +7,8 @@ def translate_book_title(book_title: str) -> str:
     """책 제목을 영어로 변환"""
     # 알려진 책 제목 매핑 (한글 -> 영어)
     title_map = {
+        "정부론": "Two Treatises of Government",
+        "정부론_존_로크": "Two Treatises of Government",
         "미움받을 용기": "The Courage to Be Disliked",
         "미움받을_용기": "The Courage to Be Disliked",
         "순교자": "The Martyred",
@@ -620,6 +622,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
     """책 제목을 한글로 변환 (역방향)"""
     # 영어 -> 한글 매핑
     reverse_title_map = {
+        "Two Treatises of Government": "정부론",
         "The Courage to Be Disliked": "미움받을 용기",
         "The Magical Language of Others": "마법 같은 언어",
         "One Hundred Years of Solitude": "백년 동안의 고독",
@@ -843,6 +846,7 @@ def remove_korean_from_text(text: str) -> str:
 def translate_author_name(author: str) -> str:
     """작가 이름을 영어로 변환"""
     author_map = {
+        "존 로크": "John Locke",
         "기시미 이치로": "Ichiro Kishimi",
         "고가 후미타케": "Fumitake Koga",
         "김은국": "Richard E. Kim",
@@ -1247,6 +1251,7 @@ def translate_author_name_to_korean(author: str) -> str:
     """작가 이름을 한글로 변환 (역방향)"""
     # 영어 -> 한글 매핑
     reverse_author_map = {
+        "John Locke": "존 로크",
         "Ichiro Kishimi": "기시미 이치로",
         "Fumitake Koga": "고가 후미타케",
         "Gabriel García Márquez": "가르시아 마르케스",
