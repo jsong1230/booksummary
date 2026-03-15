@@ -295,8 +295,13 @@ class YouTubeUploader:
             
             # 다국어 메타데이터가 있으면 추가
             if localizations:
+                # defaultLanguage 설정 (localizations 사용 시 필수)
+                lang_keys = list(localizations.keys())
+                if lang_keys:
+                    body['snippet']['defaultLanguage'] = lang_keys[0]
+                    body['snippet']['defaultAudioLanguage'] = lang_keys[0]
                 body['snippet']['localizations'] = localizations
-                print(f"   🌐 다국어 메타데이터 추가: {', '.join(localizations.keys())}")
+                print(f"   🌐 다국어 메타데이터 추가: {', '.join(lang_keys)} (defaultLanguage: {lang_keys[0] if lang_keys else 'N/A'})")
             
             assert self.youtube is not None, "YouTube client not initialized"
             insert_request = self.youtube.videos().insert(
@@ -318,13 +323,20 @@ class YouTubeUploader:
             # 업로드 후 별도로 업데이트하는 것이 더 안정적일 수 있습니다.
             if localizations:
                 try:
+                    lang_keys = list(localizations.keys())
                     update_body = {
                         'id': video_id,
+                        'snippet': {
+                            'defaultLanguage': lang_keys[0] if lang_keys else 'en',
+                            'categoryId': body['snippet'].get('categoryId', '22'),
+                            'title': body['snippet']['title'],
+                            'description': body['snippet']['description'],
+                        },
                         'localizations': localizations
                     }
                     assert self.youtube is not None, "YouTube client not initialized"
                     self.youtube.videos().update(
-                        part='localizations',
+                        part='snippet,localizations',
                         body=update_body
                     ).execute()
                     print(f"   ✅ 다국어 메타데이터 업데이트 완료")

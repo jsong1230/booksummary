@@ -4634,3 +4634,23 @@
 
 ### 버그 수정
 - `src/20_create_episode_metadata.py`: 한글 영상 video_path `_kr.mp4` → `_ko.mp4` 수정 (create_full_episode.py 출력 파일명과 불일치 해결)
+
+## 2026-03-15
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Martyred_full_episode
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] The Martyred: Richard E. Kim (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=BUVWYO3fdk4
+- [2] [일당백] 순교자: 김은국 (The Martyred · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=IB4ssMXzxn0
+
+## 2026-03-15
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Courage_to_Be_Disliked
+- 업로드된 영상 수: 2개
+- [1] [Summary] The Courage to Be Disliked (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=t8n2E8X-nS0
+- [2] [핵심 요약] 미움받을 용기 (The Courage to Be Disliked · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=ArpZ0SCHj54

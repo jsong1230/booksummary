@@ -7,6 +7,10 @@ def translate_book_title(book_title: str) -> str:
     """책 제목을 영어로 변환"""
     # 알려진 책 제목 매핑 (한글 -> 영어)
     title_map = {
+        "미움받을 용기": "The Courage to Be Disliked",
+        "미움받을_용기": "The Courage to Be Disliked",
+        "순교자": "The Martyred",
+        "순교자_김은국": "The Martyred",
         "국화와 칼": "The Chrysanthemum and the Sword",
         "국화와_칼": "The Chrysanthemum and the Sword",
         "괴테는 모든 것을 말했다": "Goethe Said It All",
@@ -616,6 +620,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
     """책 제목을 한글로 변환 (역방향)"""
     # 영어 -> 한글 매핑
     reverse_title_map = {
+        "The Courage to Be Disliked": "미움받을 용기",
         "The Magical Language of Others": "마법 같은 언어",
         "One Hundred Years of Solitude": "백년 동안의 고독",
         "Norwegian Wood": "노르웨이의 숲",
@@ -838,6 +843,9 @@ def remove_korean_from_text(text: str) -> str:
 def translate_author_name(author: str) -> str:
     """작가 이름을 영어로 변환"""
     author_map = {
+        "기시미 이치로": "Ichiro Kishimi",
+        "고가 후미타케": "Fumitake Koga",
+        "김은국": "Richard E. Kim",
         "카이 버드": "Kai Bird",
         "Kai Bird": "Kai Bird",
         "가브리엘 가르시아 마르케스": "Gabriel García Márquez",
@@ -1239,6 +1247,8 @@ def translate_author_name_to_korean(author: str) -> str:
     """작가 이름을 한글로 변환 (역방향)"""
     # 영어 -> 한글 매핑
     reverse_author_map = {
+        "Ichiro Kishimi": "기시미 이치로",
+        "Fumitake Koga": "고가 후미타케",
         "Gabriel García Márquez": "가르시아 마르케스",
         "García Márquez": "가르시아 마르케스",
         "Gabriel Garcia Marquez": "가르시아 마르케스",
