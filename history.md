@@ -4690,3 +4690,13 @@
   - URL: https://www.youtube.com/watch?v=R3rTrlJP-28
 - [2] [일당백] 유토피아 (Utopia · 배경지식·인포그래픽·책 분석)
   - URL: https://www.youtube.com/watch?v=1oejF5l6DmY
+
+## 2026-03-15
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Contrarian
+- 업로드된 영상 수: 2개
+- [1] [Summary] The Contrarian (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=bp51azRqZX8
+- [2] [핵심 요약] 역행자 (The Contrarian · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=TFho91Vrd_E
