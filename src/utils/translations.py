@@ -7,6 +7,7 @@ def translate_book_title(book_title: str) -> str:
     """책 제목을 영어로 변환"""
     # 알려진 책 제목 매핑 (한글 -> 영어)
     title_map = {
+        "유토피아": "Utopia",
         "원씽": "The ONE Thing",
         "정부론": "Two Treatises of Government",
         "정부론_존_로크": "Two Treatises of Government",
@@ -623,6 +624,7 @@ def translate_book_title_to_korean(book_title: str) -> str:
     """책 제목을 한글로 변환 (역방향)"""
     # 영어 -> 한글 매핑
     reverse_title_map = {
+        "Utopia": "유토피아",
         "The ONE Thing": "원씽",
         "Two Treatises of Government": "정부론",
         "The Courage to Be Disliked": "미움받을 용기",
@@ -848,6 +850,7 @@ def remove_korean_from_text(text: str) -> str:
 def translate_author_name(author: str) -> str:
     """작가 이름을 영어로 변환"""
     author_map = {
+        "토마스 모어": "Thomas More",
         "게리 켈러": "Gary Keller",
         "제이 파파산": "Jay Papasan",
         "존 로크": "John Locke",
@@ -1255,6 +1258,7 @@ def translate_author_name_to_korean(author: str) -> str:
     """작가 이름을 한글로 변환 (역방향)"""
     # 영어 -> 한글 매핑
     reverse_author_map = {
+        "Thomas More": "토마스 모어",
         "Gary Keller": "게리 켈러",
         "Jay Papasan": "제이 파파산",
         "John Locke": "존 로크",

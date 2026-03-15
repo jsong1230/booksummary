@@ -4680,3 +4680,13 @@
   - URL: https://www.youtube.com/watch?v=dFVkQjl7jUg
 - [2] [핵심 요약] 원씽 (The ONE Thing · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
   - URL: https://www.youtube.com/watch?v=Ey8AW-gAA-k
+
+## 2026-03-15
+
+### YouTube 업로드 완료
+- 업로드된 책: Utopia_full_episode, Utopia_full_episode_ko
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] Utopia (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=R3rTrlJP-28
+- [2] [일당백] 유토피아 (Utopia · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=1oejF5l6DmY
