@@ -4700,3 +4700,43 @@
   - URL: https://www.youtube.com/watch?v=bp51azRqZX8
 - [2] [핵심 요약] 역행자 (The Contrarian · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
   - URL: https://www.youtube.com/watch?v=TFho91Vrd_E
+
+## 2026-03-16
+
+### YouTube 업로드 완료
+- 업로드된 책: Civilization_and_Capitalism_full_episode_ko, Civilization_and_Capitalism_full_episode
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] Civilization and Capitalism (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=3eY7wXcRjM0
+- [2] [일당백] 물질문명과 자본주의 (Civilization and Capitalism · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=0cIWtAz8vW0
+
+## 2026-03-16
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Big_Con_full_episode_ko, The_Big_Con_full_episode
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] The Big Con (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=X6dw_z5N2cY
+- [2] [일당백] 빅콘게임 (The Big Con · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=X-zd1MG7IC0
+
+## 2026-03-16
+
+### YouTube 업로드 완료
+- 업로드된 책: Ivan_the_Fool_and_Other_Stories_full_episode_ko, Ivan_the_Fool_and_Other_Stories_full_episode
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] Ivan the Fool and Other Stories (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=S7a5pBESCh0
+- [2] [일당백] 바보 이반등 단편선 (Ivan the Fool and Other Stories · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=DdqnJZwQylk
+
+## 2026-03-16
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Temperature_of_Language
+- 업로드된 영상 수: 2개
+- [1] [Summary] The Temperature of Language (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=hjZQvfTtTrI
+- [2] [핵심 요약] 언어의 온도 (The Temperature of Language · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=Ohw87Eg6KzM
