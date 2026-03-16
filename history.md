@@ -4740,3 +4740,23 @@
   - URL: https://www.youtube.com/watch?v=hjZQvfTtTrI
 - [2] [핵심 요약] 언어의 온도 (The Temperature of Language · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
   - URL: https://www.youtube.com/watch?v=Ohw87Eg6KzM
+
+## 2026-03-16
+
+### YouTube 업로드 완료
+- 업로드된 책: Why_We_Love
+- 업로드된 영상 수: 2개
+- [1] [Summary] Why We Love (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=a9FJV2HsCCI
+- [2] [핵심 요약] 나는 왜 너를 사랑하는가 (Why We Love · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=MKV4fFr5J7k
+
+## 2026-03-16
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Black_Swan
+- 업로드된 영상 수: 2개
+- [1] [Summary] The Black Swan (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=Xyq1ouKo7xA
+- [2] [핵심 요약] 블랙 스완 (The Black Swan · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=mFfuQmRbQIA

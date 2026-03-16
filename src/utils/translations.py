@@ -7,6 +7,10 @@ def translate_book_title(book_title: str) -> str:
     """책 제목을 영어로 변환"""
     # 알려진 책 제목 매핑 (한글 -> 영어)
     title_map = {
+        "블랙 스완": "The Black Swan",
+        "블랙_스완": "The Black Swan",
+        "나는 왜 너를 사랑하는가": "Why We Love",
+        "나는_왜_너를_사랑하는가": "Why We Love",
         "언어의 온도": "The Temperature of Language",
         "언어의_온도": "The Temperature of Language",
         "물질문명과 자본주의": "Civilization and Capitalism",
@@ -635,6 +639,8 @@ def translate_book_title_to_korean(book_title: str) -> str:
     """책 제목을 한글로 변환 (역방향)"""
     # 영어 -> 한글 매핑
     reverse_title_map = {
+        "The Black Swan": "블랙 스완",
+        "Why We Love": "나는 왜 너를 사랑하는가",
         "The Temperature of Language": "언어의 온도",
         "Civilization and Capitalism": "물질문명과 자본주의",
         "Ivan the Fool and Other Stories": "바보 이반 등 단편선",
@@ -866,6 +872,9 @@ def remove_korean_from_text(text: str) -> str:
 def translate_author_name(author: str) -> str:
     """작가 이름을 영어로 변환"""
     author_map = {
+        "나심 탈레브": "Nassim Nicholas Taleb",
+        "나심 니콜라스 탈레브": "Nassim Nicholas Taleb",
+        "헬렌 피셔": "Helen Fisher",
         "이기주": "Lee Ki-ju",
         "페르낭 브로델": "Fernand Braudel",
         "레프 톨스토이": "Leo Tolstoy",
@@ -1279,6 +1288,8 @@ def translate_author_name_to_korean(author: str) -> str:
     """작가 이름을 한글로 변환 (역방향)"""
     # 영어 -> 한글 매핑
     reverse_author_map = {
+        "Nassim Nicholas Taleb": "나심 탈레브",
+        "Helen Fisher": "헬렌 피셔",
         "Lee Ki-ju": "이기주",
         "Fernand Braudel": "페르낭 브로델",
         "Leo Tolstoy": "레프 톨스토이",
