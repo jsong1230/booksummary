@@ -4760,3 +4760,53 @@
   - URL: https://www.youtube.com/watch?v=Xyq1ouKo7xA
 - [2] [핵심 요약] 블랙 스완 (The Black Swan · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
   - URL: https://www.youtube.com/watch?v=mFfuQmRbQIA
+
+## 2026-03-17
+
+### YouTube 업로드 완료
+- 업로드된 책: Three_Deaths_and_The_Death_of_Ivan_Ilyich_full_episode, Three_Deaths_and_The_Death_of_Ivan_Ilyich_full_episode_ko
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] Three Deaths and The Death of Ivan Ilyich (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=7mLzj-fYx3g
+- [2] [일당백] 세 죽음 이반 일리치의 죽음 (Three Deaths and The Death of Ivan Ilyich · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=G4OfJQEqI8w
+
+## 2026-03-17
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Meaning_of_Korean_History_full_episode, The_Meaning_of_Korean_History_full_episode_ko
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] The Meaning of Korean History (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=TRdcjv3dBnA
+- [2] [일당백] 뜻으로 본 한국역사 (The Meaning of Korean History · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=jWXT8FqtRgA
+
+## 2026-03-17
+
+### YouTube 업로드 완료
+- 업로드된 책: Baekbeom_Ilji_full_episode_ko, Baekbeom_Ilji_full_episode
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] Baekbeom Ilji (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=zzsY2SIYTEk
+- [2] [일당백] 백범일지 (Baekbeom Ilji · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=F9OH8_Gj9tw
+
+## 2026-03-17
+
+### YouTube 업로드 완료
+- 업로드된 책: In_Praise_of_Idleness_full_episode_ko, In_Praise_of_Idleness_full_episode
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] In Praise of Idleness (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=hVsKSj5A5xk
+- [2] [일당백] 게으름에 대한 찬양 (In Praise of Idleness · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=Z6g8MoB72zw
+
+## 2026-03-17
+
+### YouTube 업로드 완료
+- 업로드된 책: Untitled_Essays_full_episode, Untitled_Essays_full_episode_ko
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] Untitled Essays (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=hTr5Hr0fozU
+- [2] [일당백] 무제 (Untitled Essays · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=qjpteE1foyc
