@@ -4810,3 +4810,43 @@
   - URL: https://www.youtube.com/watch?v=hTr5Hr0fozU
 - [2] [일당백] 무제 (Untitled Essays · 배경지식·인포그래픽·책 분석)
   - URL: https://www.youtube.com/watch?v=qjpteE1foyc
+
+## 2026-03-18
+
+### YouTube 업로드 완료
+- 업로드된 책: Orientalism_full_episode, Orientalism_full_episode_ko
+- 업로드된 영상 수: 2개
+- [1] [1DANG100] Orientalism (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=x8kDN_mzFFE
+- [2] [일당백] 오리엔탈리즘 (Orientalism · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=WVXCQoKJmb4
+
+## 2026-03-18
+
+### YouTube 업로드 완료
+- 업로드된 책: Flow, The_Miracles_of_the_Namiya_General_Store, The_Socrates_Express, Invisible_Women, Linchpin, Broad_and_Shallow_Knowledge_for_Intellectual_Conversations
+- 업로드된 영상 수: 12개
+- [1] [Summary] Broad and Shallow Knowledge for Intellectual Conversations (5-min Summary · AI Deep Dive)
+  - URL: https://www.youtube.com/watch?v=AAVpwJnMaqY
+- [2] [핵심 요약] 지적 대화를 위한 넓고 얕은 지식 (Broad and Shallow Knowledge for Intellectual Conversations)
+  - URL: https://www.youtube.com/watch?v=E1_YNjcnNKs
+- [3] [Summary] Flow (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=ZgjhK8utnQk
+- [4] [핵심 요약] 몰입 (Flow · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=_q-UonrDJKk
+- [5] [Summary] Invisible Women (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=XMhRMIIGeyU
+- [6] [핵심 요약] 보이지 않는 여자들 (Invisible Women · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=kzWQZy6Uidc
+- [7] [Summary] Linchpin (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=P8ZsuLeMosI
+- [8] [핵심 요약] 린치핀 (Linchpin · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=NrOQHZ2loEk
+- [9] [Summary] The Miracles of the Namiya General Store (5-min Summary · AI Deep Dive)
+  - URL: https://www.youtube.com/watch?v=qODbD9nQEyI
+- [10] [핵심 요약] 나미야 잡화점의 기적 (The Miracles of the Namiya General Store · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=0QIRS7yh7oI
+- [11] [Summary] The Socrates Express (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=BHbmdGaK80E
+- [12] [핵심 요약] 소크라테스 익스프레스 (The Socrates Express · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=0XnaKkxCMrU
