@@ -4731,6 +4731,24 @@
 - [2] [일당백] 바보 이반등 단편선 (Ivan the Fool and Other Stories · 배경지식·인포그래픽·책 분석)
   - URL: https://www.youtube.com/watch?v=DdqnJZwQylk
 
+## 2026-03-20
+
+### Summary+Video 3권 제작 및 업로드
+- 언어 본능 (스티븐 핑커) — KO/EN 2편
+- 모리와 함께한 화요일 (미치 앨봄) — KO/EN 2편
+- 멈출 수 없는 사람들 (조너선 스타인버그) — KO/EN 2편
+- TTS: 한국어=OpenAI TTS-HD, 영문=GPU qwen3tts(192.168.0.151)
+- NotebookLM 리뷰 비디오 6개 생성 (텍스트 소스 기반)
+- 총 6편 비공개 업로드, 예약 공개 설정:
+  - 3/28: 언어 본능 KO (PDRld45rBXQ) / EN (5sI7Hni3to0)
+  - 3/29: 모리와 함께한 화요일 KO (13SxoQyPneQ) / EN (4f3BFSjkAg8)
+  - 3/30: 멈출 수 없는 사람들 KO (81A5hydIyoY) / EN (7SqvpwCNGyI)
+
+### 코드 수정
+- `src/09_text_to_speech_multi.py`: Replicate xtts-v2 모델 ID 업데이트 (coqui→lucataco), speaker 파라미터 추가, FileOutput 처리 수정
+- `src/10_create_video_with_summary.py`: replicate_xtts/replicate_elevenlabs TTS provider 지원 추가 (argparse + 매핑)
+- `src/utils/translations.py`: 언어 본능/모리와 함께한 화요일/멈출 수 없는 사람들 + 스티븐 핑커/미치 앨봄/조너선 스타인버그 매핑 추가
+
 ## 2026-03-19
 
 ### 영문 재생목록 제목 수정 (66개 영상)

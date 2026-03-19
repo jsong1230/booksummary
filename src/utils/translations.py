@@ -7,6 +7,12 @@ def translate_book_title(book_title: str) -> str:
     """책 제목을 영어로 변환"""
     # 알려진 책 제목 매핑 (한글 -> 영어)
     title_map = {
+        "언어 본능": "The Language Instinct",
+        "언어_본능": "The Language Instinct",
+        "모리와 함께한 화요일": "Tuesdays with Morrie",
+        "모리와_함께한_화요일": "Tuesdays with Morrie",
+        "멈출 수 없는 사람들": "Can't Stop Us Now",
+        "멈출_수_없는_사람들": "Can't Stop Us Now",
         "아무도 말하지 않는 미국 현대사": "The Untold History of the United States",
         "아무도_말하지_않는_미국_현대사": "The Untold History of the United States",
         "서양의 지혜": "Wisdom of the West",
@@ -912,6 +918,9 @@ def remove_korean_from_text(text: str) -> str:
 def translate_author_name(author: str) -> str:
     """작가 이름을 영어로 변환"""
     author_map = {
+        "스티븐 핑커": "Steven Pinker",
+        "미치 앨봄": "Mitch Albom",
+        "조너선 스타인버그": "Jonathan Steinberg",
         "올리버 스톤": "Oliver Stone",
         "버트런드 러셀": "Bertrand Russell",
         "프란츠 카프카": "Franz Kafka",

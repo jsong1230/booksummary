@@ -521,7 +521,7 @@ def main():
     parser.add_argument('--summary-audio-volume', type=float, default=1.2, help='Summary 오디오 음량 배율 (기본값: 1.2, 20%% 증가)')
     parser.add_argument('--no-subtitles', action='store_true', help='Summary 부분 자막 추가 안 함 (언어 기본값 무시)')
     parser.add_argument('--subtitles', action='store_true', help='Summary 부분 자막 추가 (언어 기본값 무시)')
-    parser.add_argument('--tts-provider', type=str, default='openai', choices=['openai', 'google'], help='TTS 제공자 (기본값: openai)')
+    parser.add_argument('--tts-provider', type=str, default='openai', choices=['openai', 'google', 'replicate_xtts', 'replicate_elevenlabs'], help='TTS 제공자 (기본값: openai)')
     parser.add_argument('--tts-voice', type=str, help='TTS 음성 선택 (제공자별로 다름)')
     parser.add_argument('--prefix', type=str, help='input 폴더의 파일명 접두사 (파일 찾기용)')
     parser.add_argument('--no-cta', action='store_true', help='구독 유도 CTA 오버레이 비활성화 (기본값: 활성화)')
@@ -531,9 +531,11 @@ def main():
     # TTS 제공자 매핑 (google → google_cloud)
     tts_provider_map = {
         'openai': 'openai',
-        'google': 'google'
+        'google': 'google',
+        'replicate_xtts': 'replicate_xtts',
+        'replicate_elevenlabs': 'replicate_elevenlabs'
     }
-    tts_provider = tts_provider_map.get(args.tts_provider, 'openai')
+    tts_provider = tts_provider_map.get(args.tts_provider, args.tts_provider)
 
     pipeline = VideoWithSummaryPipeline(tts_provider=tts_provider)
     

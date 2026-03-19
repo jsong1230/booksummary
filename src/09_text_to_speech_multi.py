@@ -382,8 +382,8 @@ class MultiTTSEngine:
         }
         lang_code = lang_code_map.get(language, "ko")
         
-        # xtts-v2 모델 사용
-        model_id = "coqui/xtts-v2"
+        # xtts-v2 모델 사용 (lucataco fork, coqui/xtts-v2는 삭제됨)
+        model_id = "lucataco/xtts-v2:684bc3855b37866c0c65add2ff39c78f3dea3f4ff103a436465326e0f438d55e"
         
         # 텍스트가 길면 분할
         MAX_CHARS = 2000  # xtts-v2는 더 짧은 텍스트 권장
@@ -391,24 +391,32 @@ class MultiTTSEngine:
             print(f"   ⚠️ 텍스트가 {len(text)}자로 너무 깁니다. 첫 {MAX_CHARS}자만 사용합니다.")
             text = text[:MAX_CHARS]
         
+        # 참조 음성 URL (xtts-v2는 speaker 필수)
+        speaker_samples = {
+            "ko": "https://replicate.delivery/pbxt/Jt79w0xsT64R1JsiJ0LQRL8UcWspg5J4RFrU6YwEKpOT1ukS/male.wav",
+            "en": "https://replicate.delivery/pbxt/Jt79w0xsT64R1JsiJ0LQRL8UcWspg5J4RFrU6YwEKpOT1ukS/male.wav",
+        }
+        speaker_url = speaker_samples.get(lang_code, speaker_samples["en"])
+
         try:
             output = replicate.run(
                 model_id,
                 input={
                     "text": text,
+                    "speaker": speaker_url,
                     "language": lang_code,
                     "cleanup_voice": False,
                 }
             )
             
-            # Replicate는 URL을 반환하므로 다운로드 필요
+            # Replicate는 URL 또는 FileOutput 객체를 반환
             import requests
-            if isinstance(output, str):
-                audio_url = output
-            elif isinstance(output, (list, tuple)) and len(output) > 0:
-                audio_url = output[0]
-            else:
-                raise ValueError(f"예상치 못한 출력 형식: {output}")
+            audio_url = str(output)  # FileOutput도 str()로 URL 추출 가능
+            if not audio_url.startswith("http"):
+                if isinstance(output, (list, tuple)) and len(output) > 0:
+                    audio_url = str(output[0])
+                else:
+                    raise ValueError(f"예상치 못한 출력 형식: {output}")
             
             # 오디오 다운로드
             response = requests.get(audio_url)
