@@ -114,8 +114,9 @@ class SummaryGenerator:
             ]
         
         prompt = f"""다음 책에 대한 요약을 {lang_name}로 작성해주세요.
-이 요약은 오디오북으로 녹음되어 정확히 약 {target_duration} 정도의 길이가 되도록 충분히 자세하게 작성해주세요.
+이 요약은 낭독 기준 약 {target_duration} 정도의 길이가 되도록 충분히 자세하게 작성해주세요.
 (읽는 속도: 분당 약 150-180단어 기준, {target_duration} = 최소 {int(duration_minutes * 150)}단어 이상, 권장 {int(duration_minutes * 165)}단어)
+**중요: 요약 본문에 TTS, AI 음성, 음성 합성 등 기술적 방법에 대한 언급을 절대 포함하지 마세요.**
 
 **중요: 반드시 {int(duration_minutes * 150)}단어 이상 작성해야 합니다. {int(duration_minutes * 150)}단어 미만이면 너무 짧습니다.**
 
@@ -611,7 +612,7 @@ class SummaryGenerator:
         metadata_lines.append(f"<!-- 📘 {book_title} -->")
         if author:
             metadata_lines.append(f"<!-- {author} -->")
-        metadata_lines.append(f"<!-- TTS 기준 {duration_text} {script_label} ({lang_name}) -->")
+        metadata_lines.append(f"<!-- {duration_text} {script_label} ({lang_name}) -->")
         metadata_lines.append("")  # 빈 줄 추가
         
         # 메타데이터 + 실제 요약 내용

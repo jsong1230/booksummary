@@ -4731,6 +4731,30 @@
 - [2] [일당백] 바보 이반등 단편선 (Ivan the Fool and Other Stories · 배경지식·인포그래픽·책 분석)
   - URL: https://www.youtube.com/watch?v=DdqnJZwQylk
 
+## 2026-03-19
+
+### 영문 재생목록 제목 수정 (66개 영상)
+- 영문 재생목록([ENG] 1DANG100, [ENG] Book Summaries)에 한글이 포함된 제목 일괄 수정
+- 변경 전: `[English] Norwegian Wood Book Review | [영어] 상실의 시대 책 리뷰`
+- 변경 후: `[English] Norwegian Wood Book Review`
+- 총 66개 영상 제목 업데이트 (YouTube API 일괄 처리)
+
+### Summary TTS 메타데이터 음성 누출 버그 수정
+- 문제: "언어의 온도" 한글 영상에서 "TTS 기준 5분 서머리 스크립트"가 음성으로 읽힘
+- 원인: 메타데이터 줄 사이 빈 줄이 있을 때 `skip_metadata` 플래그가 조기 해제되는 버그
+- 수정 파일:
+  - `src/08_generate_summary.py`: 프롬프트에서 "오디오북" 문구 제거, TTS 언급 금지 지시 추가, 메타데이터에서 "TTS 기준" 제거
+  - `src/10_create_video_with_summary.py`: 메타데이터 필터링 로직 강화 (첫 10줄 항상 체크, 빈 줄 무관)
+  - `src/03_make_video.py`: 동일한 필터 버그 수정
+
+### 영상 전환 시간 변경
+- Summary → NLM 영상 전환 검정 화면: 1.5초 → 2.0초로 변경 (`src/03_make_video.py`)
+
+### CLAUDE.md 제목 포맷 규칙 업데이트
+- 일당백 제목 포맷을 현행 코드에 맞게 업데이트
+- 변경 전: `[한국어] 제목 | [Korean] Title` (이중 언어)
+- 변경 후: `[일당백] 제목: 작가` (단일 언어)
+
 ## 2026-03-16
 
 ### YouTube 업로드 완료

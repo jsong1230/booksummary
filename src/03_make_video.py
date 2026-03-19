@@ -886,7 +886,6 @@ class VideoMaker:
         # 파일 시작 부분의 메타데이터 제거
         lines = text.split('\n')
         cleaned_lines = []
-        skip_metadata = True
         metadata_patterns = [
             r'^📘',  # 책 이모지
             r'^📖',  # 책 이모지
@@ -897,31 +896,39 @@ class VideoMaker:
             r'^TTS 기준.*스크립트',
             r'^.*약.*분.*서머리',
             r'^.*약.*분.*스크립트',
+            r'^about \d+ minutes? summary',
         ]
-        
+
+        # 첫 10줄은 메타데이터 패턴을 항상 체크 (빈 줄 여부 무관)
+        content_started = False
         for i, line in enumerate(lines):
-            # 빈 줄이 나오면 메타데이터 구간 종료로 간주
-            if skip_metadata and line.strip() == '':
-                if i + 1 < len(lines) and lines[i + 1].strip():
-                    skip_metadata = False
-                    continue
-            
-            # 메타데이터 구간에서는 패턴 매칭하여 제거
-            if skip_metadata:
+            stripped = line.strip()
+
+            # 메타데이터 패턴 매칭 (첫 10줄 이내)
+            if i < 10 and not content_started:
                 is_metadata = False
+
+                # 빈 줄은 메타데이터 구간에서 스킵
+                if not stripped:
+                    continue
+
+                # 패턴 매칭
                 for pattern in metadata_patterns:
-                    if re.search(pattern, line, re.IGNORECASE):
+                    if re.search(pattern, stripped, re.IGNORECASE):
                         is_metadata = True
                         break
-                
-                # 첫 3줄 내에서 저자 이름이나 책 제목만 있는 경우도 메타데이터로 간주
-                if i < 3 and line.strip() and not any(tag in line for tag in ['[HOOK]', '[SUMMARY]', '[BRIDGE]', '[CLOSING]']):
-                    if len(line.strip()) < 50 and not line.strip().startswith('['):
+
+                # 첫 5줄 내 짧은 라인 (제목/저자)
+                if not is_metadata and i < 5 and stripped and not any(tag in stripped for tag in ['[HOOK]', '[SUMMARY]', '[BRIDGE]', '[CLOSING]']):
+                    if len(stripped) < 50 and not stripped.startswith('['):
                         is_metadata = True
-                
+
                 if is_metadata:
                     continue
-            
+
+                # 패턴에 안 걸리고 실제 내용이면 content 시작
+                content_started = True
+
             cleaned_lines.append(line)
         
         text = '\n'.join(cleaned_lines)
@@ -1693,7 +1700,7 @@ class VideoMaker:
         
         # 섹션 사이에 전환 클립 추가 (개선: 페이드 효과 강화)
         final_clips = []
-        transition_duration = 1.5  # 개선: 2초 -> 1.5초 (더 빠른 전환)
+        transition_duration = 2.0  # 서머리 → NLM 전환 시 2초 검정 화면
         
         for i, clip in enumerate(video_clips):
             # 클립 끝에 페이드 아웃 효과 추가 (전환 강화)
