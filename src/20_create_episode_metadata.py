@@ -1245,14 +1245,11 @@ def create_episode_metadata(
         'book_title': book_title,
         'video_duration': video_duration,
         # 다국어 메타데이터 (YouTube localizations용)
+        # 해당 영상의 언어만 포함 (다른 언어 포함 시 뷰어 언어 설정에 따라 제목이 바뀜)
         'localizations': {
             normalized_language: {
                 'title': title,
                 'description': description
-            },
-            other_language: {
-                'title': title_other,
-                'description': description_other
             }
         }
     }

@@ -4755,6 +4755,20 @@
 - 변경 전: `[한국어] 제목 | [Korean] Title` (이중 언어)
 - 변경 후: `[일당백] 제목: 작가` (단일 언어)
 
+### YouTube localizations 크로스 언어 제거
+- 영문 영상의 `localizations.ko` 항목 24개 제거 (한국어 사용자에게 한글 제목 표시 방지)
+- 근본 원인 수정: `src/20_create_episode_metadata.py`, `src/08_create_and_preview_videos.py`에서 다른 언어 로컬라이제이션 제거
+
+### 일당백 92~94화 제작 및 업로드
+- EP 92: 아무도 말하지 않는 미국 현대사 (올리버 스톤) — KO/EN 2편
+- EP 93: 서양의 지혜 (버트런드 러셀) — KO/EN 2편
+- EP 94: 변신 (프란츠 카프카) — KO/EN 2편
+- 총 6편 비공개 업로드, 예약 공개 설정:
+  - 3/28 17:00 KST: EP92 KO (ctSEoQhMiWM), 19:00 KST: EP92 EN (7qYHm9ljg8E)
+  - 3/29 17:00 KST: EP93 KO (r9nCv5TX2u8), 19:00 KST: EP93 EN (HAf6hQAIhLk)
+  - 3/30 17:00 KST: EP94 KO (IIPPuBiIQQQ), 19:00 KST: EP94 EN (fvgdHbT5vHM)
+- translations.py: 미국 현대사/서양의 지혜/변신 + 올리버 스톤/버트런드 러셀/프란츠 카프카 매핑 추가
+
 ## 2026-03-16
 
 ### YouTube 업로드 완료

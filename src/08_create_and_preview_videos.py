@@ -1349,14 +1349,11 @@ def save_metadata(video_path: Path, title: str, description: str, tags: list, la
                 description_other = '\n'.join(cleaned_lines)
         
         # 다국어 메타데이터 추가
+        # 해당 영상의 언어만 포함 (다른 언어 포함 시 뷰어 언어 설정에 따라 제목이 바뀜)
         metadata['localizations'] = {
             lang: {
                 'title': title,
                 'description': description
-            },
-            other_language: {
-                'title': title_other,
-                'description': description_other
             }
         }
     
