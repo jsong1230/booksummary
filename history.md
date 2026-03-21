@@ -4731,6 +4731,13 @@
 - [2] [일당백] 바보 이반등 단편선 (Ivan the Fool and Other Stories · 배경지식·인포그래픽·책 분석)
   - URL: https://www.youtube.com/watch?v=DdqnJZwQylk
 
+## 2026-03-21
+
+### 일당백 95화 제작 및 업로드
+- EP 95: 그리스 로마 신화 (강대진 外) — KO/EN 2편 (4파트, 각 1.1G)
+- 3/31: KO (sQOTsTtFIJ8) / EN (6bICozcFVnk) 예약 공개
+- translations.py: 그리스 로마 신화 + 강대진 매핑 추가
+
 ## 2026-03-20
 
 ### Summary+Video 3권 제작 및 업로드

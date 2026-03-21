@@ -7,6 +7,8 @@ def translate_book_title(book_title: str) -> str:
     """책 제목을 영어로 변환"""
     # 알려진 책 제목 매핑 (한글 -> 영어)
     title_map = {
+        "그리스 로마 신화": "Greek and Roman Mythology",
+        "그리스_로마_신화": "Greek and Roman Mythology",
         "생각의 탄생": "Sparks of Genius",
         "생각의_탄생": "Sparks of Genius",
         "언어 본능": "The Language Instinct",
@@ -920,6 +922,7 @@ def remove_korean_from_text(text: str) -> str:
 def translate_author_name(author: str) -> str:
     """작가 이름을 영어로 변환"""
     author_map = {
+        "강대진": "Kang Dae-jin",
         "로버트 루트번스타인": "Robert Root-Bernstein",
         "스티븐 핑커": "Steven Pinker",
         "미치 앨봄": "Mitch Albom",
