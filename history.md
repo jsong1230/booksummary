@@ -4731,6 +4731,13 @@
 - [2] [일당백] 바보 이반등 단편선 (Ivan the Fool and Other Stories · 배경지식·인포그래픽·책 분석)
   - URL: https://www.youtube.com/watch?v=DdqnJZwQylk
 
+## 2026-03-24
+
+### 일당백 96화 제작 및 업로드
+- EP 96: 관부연락선 (이병주) — KO/EN 2편
+- 4/1: KO (-BY6bEbpwDM) / EN (bnTNcpgg5i4) 예약 공개
+- translations.py: 관부연락선 + 이병주 매핑 추가
+
 ## 2026-03-21
 
 ### 예약 공개 일정 조정 (16편)
