@@ -73,6 +73,19 @@
 
 ---
 
+## 2026-03-27
+
+### Summary+Video 3권 제작 및 업로드
+- 습관의 힘 (찰스 두히그) — KO/EN 2편
+- 넛지 (리처드 탈러) — KO/EN 2편
+- 클루지 (게리 마커스) — KO/EN 2편
+- TTS: 한국어=OpenAI TTS-HD, 영문=Replicate xtts-v2
+- 총 6편 비공개 업로드, 예약 공개 설정:
+  - 4/2: 습관의 힘 KO (Cabebthj9jY) / EN (XGwirheIV24)
+  - 4/3: 넛지 KO (P-Wy4YEuS3Y) / EN (xG0Z246xVe0)
+  - 4/4: 클루지 KO (XWfaKx6d_oY) / EN (ZBS19tcZ9zI)
+- translations.py: 습관의 힘/넛지/클루지 + 찰스 두히그/리처드 탈러/게리 마커스 매핑 추가
+
 ## 2026-03-26
 
 ### 일당백 97~98화 제작 및 업로드 (GPU-151 원격 렌더링)
