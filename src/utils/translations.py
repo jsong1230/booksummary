@@ -7,7 +7,10 @@ def translate_book_title(book_title: str) -> str:
     """책 제목을 영어로 변환"""
     # 알려진 책 제목 매핑 (한글 -> 영어)
     title_map = {
-        "관부연락선": "The Busan-Shimonoseki Ferry",
+        "조선왕조실록": "The Annals of the Joseon Dynasty",
+        "조선왕조실록": "The Annals of the Joseon Dynasty",
+        "마담 보바리": "Madame Bovary",
+        "마담_보바리": "Madame Bovary",
         "관부연락선": "The Busan-Shimonoseki Ferry",
         "그리스 로마 신화": "Greek and Roman Mythology",
         "그리스_로마_신화": "Greek and Roman Mythology",
@@ -924,6 +927,8 @@ def remove_korean_from_text(text: str) -> str:
 def translate_author_name(author: str) -> str:
     """작가 이름을 영어로 변환"""
     author_map = {
+        "실록청": "Sillokcheong",
+        "구스타브 플로베르": "Gustave Flaubert",
         "이병주": "Lee Byung-ju",
         "강대진": "Kang Dae-jin",
         "로버트 루트번스타인": "Robert Root-Bernstein",
