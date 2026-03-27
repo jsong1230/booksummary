@@ -4981,3 +4981,33 @@
   - URL: https://www.youtube.com/watch?v=N3tdjPxpSXI
 - [4] [일당백] 그리스인 조르바 (Zorba the Greek · 배경지식·인포그래픽·책 분석)
   - URL: https://www.youtube.com/watch?v=X0Yabczy3e8
+
+## 2026-03-27
+
+### YouTube 업로드 완료
+- 업로드된 책: Discipline_and_Punish_full_episode_ko, The_Power_of_Contemplation_full_episode_ko, The_Regime_of_Permanent_Defeat_full_episode_ko, Discipline_and_Punish_full_episode, The_Power_of_Contemplation_full_episode, The_Regime_of_Permanent_Defeat_full_episode
+- 업로드된 영상 수: 6개
+- [1] [1DANG100] Discipline and Punish (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=gHLf_G7zx1U
+- [2] [일당백] 감시와 처벌 (Discipline and Punish · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=YsW1zW7HWRc
+- [3] [1DANG100] The Power of Contemplation (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=C5_JoNkukGU
+- [4] [일당백] 고민하는 힘 (The Power of Contemplation · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=54sBt4kYJNg
+- [5] [1DANG100] The Regime of Permanent Defeat (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=A5YGmObye9s
+- [6] [일당백] 영속패전론 (The Regime of Permanent Defeat · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=kYja68ZNnx8
+
+## 2026-03-27
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Man_Standing_Next_full_episode_ko, Wings_and_Crows_Eye_View_full_episode_ko, Wings_and_Crows_Eye_View_full_episode
+- 업로드된 영상 수: 3개
+- [1] [일당백] 남산의 부장들 (The Man Standing Next · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=QzZxnPW9ZPE
+- [2] [1DANG100] Wings and Crow's Eye View (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=7Vx32vWFNRA
+- [3] [일당백] 날개 오감도 (Wings and Crow's Eye View · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=p6fitwv4HcM
