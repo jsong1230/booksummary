@@ -75,6 +75,16 @@
 
 ## 2026-03-27
 
+### 일당백 99~100화 제작 및 업로드 (시즌1 완결!)
+- EP 99: 한국 현대시 (서정주/박노해) — KO/EN 2편
+- EP 100: 사마천의 사기 (사마천) — KO/EN 2편
+- NLM rate limit → release@metadium.com 계정 전환으로 해결
+- GPU-151 원격 렌더링 (KO/EN 4편)
+- 총 4편 비공개 업로드, 예약 공개 설정:
+  - 4/4: 한국 현대시 KO (1xgynwfotkw) / EN (efERy1uDPck)
+  - 4/5: 사마천의 사기 KO (bjI6VvGPeSk) / EN (idK98gS35EU)
+- translations.py: 한국 현대시/사마천의 사기 + 서정주/박노해/사마천 매핑 추가
+
 ### Summary+Video 3권 제작 및 업로드
 - 습관의 힘 (찰스 두히그) — KO/EN 2편
 - 넛지 (리처드 탈러) — KO/EN 2편

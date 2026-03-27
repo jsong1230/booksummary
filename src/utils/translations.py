@@ -7,6 +7,10 @@ def translate_book_title(book_title: str) -> str:
     """책 제목을 영어로 변환"""
     # 알려진 책 제목 매핑 (한글 -> 영어)
     title_map = {
+        "한국 현대시": "Modern Korean Poetry",
+        "한국_현대시": "Modern Korean Poetry",
+        "사마천의 사기": "Records of the Grand Historian",
+        "사마천의_사기": "Records of the Grand Historian",
         "습관의 힘": "The Power of Habit",
         "습관의_힘": "The Power of Habit",
         "넛지": "Nudge",
@@ -931,6 +935,10 @@ def remove_korean_from_text(text: str) -> str:
 def translate_author_name(author: str) -> str:
     """작가 이름을 영어로 변환"""
     author_map = {
+        "서정주": "Seo Jeong-ju",
+        "박노해": "Park No-hae",
+        "서정주/박노해": "Seo Jeong-ju / Park No-hae",
+        "사마천": "Sima Qian",
         "찰스 두히그": "Charles Duhigg",
         "리처드 탈러": "Richard Thaler",
         "게리 마커스": "Gary Marcus",
