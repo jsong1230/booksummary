@@ -4967,3 +4967,17 @@
   - URL: https://www.youtube.com/watch?v=BHbmdGaK80E
 - [12] [핵심 요약] 소크라테스 익스프레스 (The Socrates Express · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
   - URL: https://www.youtube.com/watch?v=0XnaKkxCMrU
+
+## 2026-03-27
+
+### YouTube 업로드 완료
+- 업로드된 책: Aesops_Fables_full_episode_ko, Aesops_Fables_full_episode, Zorba_the_Greek_full_episode, Zorba_the_Greek_full_episode_ko
+- 업로드된 영상 수: 4개
+- [1] [1DANG100] Aesop's Fables (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=9tIVKPdMq2g
+- [2] [일당백] 이솝우화 (Aesop's Fables · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=Qi4wyFH37R8
+- [3] [1DANG100] Zorba the Greek (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=N3tdjPxpSXI
+- [4] [일당백] 그리스인 조르바 (Zorba the Greek · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=X0Yabczy3e8
