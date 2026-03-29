@@ -5047,3 +5047,51 @@
   - URL: https://www.youtube.com/watch?v=PTAa9d7aJL4
 - [10] [핵심 요약] 작별하지 않는다 (We Do Not Part · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
   - URL: https://www.youtube.com/watch?v=DW5YsfugYGQ
+
+## 2026-03-29
+
+### YouTube 업로드 완료
+- 업로드된 책: Justice_Whats_the_Right_Thing_to_Do, The_Temperature_of_Language, The_Tyranny_of_Merit, Guns_Germs_and_Steel
+- 업로드된 영상 수: 8개
+- [1] [Summary] Guns, Germs, and Steel (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=fX7GcbeW1jY
+- [2] [핵심 요약] 총, 균, 쇠 (Guns, Germs, and Steel · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=cnwyg8AylSQ
+- [3] [Summary] Justice: What's the Right Thing to Do? (5-min Summary · AI Deep Dive)
+  - URL: https://www.youtube.com/watch?v=mGqflFuh920
+- [4] [핵심 요약] 정의란 무엇인가 (Justice: What's the Right Thing to Do? · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=50lCDskCMv4
+- [5] [Summary] The Temperature of Language (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=zF8667IV7-U
+- [6] [핵심 요약] 언어의 온도 (The Temperature of Language · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=RzOy76i2z0I
+- [7] [Summary] The Tyranny of Merit (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=PewSr5VkOCE
+- [8] [핵심 요약] 공정하다는 착각 (The Tyranny of Merit · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=3EMHdOILWLM
+
+## 2026-03-29
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Vegetarian, The_Uncomfortable_Convenience_Store, We_Do_Not_Part, Almond, The_Greenhouse_at_the_End_of_the_Earth
+- 업로드된 영상 수: 10개
+- [1] [Summary] Almond (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=wPkFMIhOM3M
+- [2] [핵심 요약] 아몬드 (Almond · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=X14I-2K0cb8
+- [3] [Summary] The Greenhouse at the End of the Earth (5-min Summary · AI Deep Dive)
+  - URL: https://www.youtube.com/watch?v=ohJTYE4mCeg
+- [4] [핵심 요약] 지구 끝의 온실 (The Greenhouse at the End of the Earth · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=5NrWIRndg2k
+- [5] [Summary] The Uncomfortable Convenience Store (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=6nDemChtzMM
+- [6] [핵심 요약] 불편한 편의점 (The Uncomfortable Convenience Store · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=qXnsKHeGdWk
+- [7] [Summary] The Vegetarian (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=Bs3JBHUeo6Q
+- [8] [핵심 요약] 채식주의자 (The Vegetarian · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=sWDdxsdK_-Q
+- [9] [Summary] We Do Not Part (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=QGM_qcPWi7I
+- [10] [핵심 요약] 작별하지 않는다 (We Do Not Part · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=zaeMXJEXA_o
