@@ -5021,3 +5021,29 @@
   - URL: https://www.youtube.com/watch?v=aRYA4ohyY00
 - [2] [1DANG100] The Man Standing Next (Background · Infographics · Analysis)
   - URL: https://www.youtube.com/watch?v=YNbICpeOZt0
+
+## 2026-03-29
+
+### YouTube 업로드 완료
+- 업로드된 책: We_Do_Not_Part, The_Greenhouse_at_the_End_of_the_Earth, Almond, The_Vegetarian, The_Uncomfortable_Convenience_Store
+- 업로드된 영상 수: 10개
+- [1] [Summary] Almond (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=W9ZyDF_UT5A
+- [2] [핵심 요약] 아몬드 (Almond · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=RBNTPmrNuS4
+- [3] [Summary] The Greenhouse at the End of the Earth (5-min Summary · AI Deep Dive)
+  - URL: https://www.youtube.com/watch?v=Y4bsGemsbVo
+- [4] [핵심 요약] 지구 끝의 온실 (The Greenhouse at the End of the Earth · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=58tUM9h2fuI
+- [5] [Summary] The Uncomfortable Convenience Store (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=86dqrga4fYs
+- [6] [핵심 요약] 불편한 편의점 (The Uncomfortable Convenience Store · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=5F4dD595EZo
+- [7] [Summary] The Vegetarian (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=uN9Glvy2F7A
+- [8] [핵심 요약] 채식주의자 (The Vegetarian · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=QLeSROFWgp4
+- [9] [Summary] We Do Not Part (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=PTAa9d7aJL4
+- [10] [핵심 요약] 작별하지 않는다 (We Do Not Part · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=DW5YsfugYGQ
