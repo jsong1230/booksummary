@@ -5011,3 +5011,13 @@
   - URL: https://www.youtube.com/watch?v=7Vx32vWFNRA
 - [3] [일당백] 날개 오감도 (Wings and Crow's Eye View · 배경지식·인포그래픽·책 분석)
   - URL: https://www.youtube.com/watch?v=p6fitwv4HcM
+
+## 2026-03-29
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Man_Standing_Next_full_episode, Records_of_the_Grand_Historian_full_episode_ko
+- 업로드된 영상 수: 2개
+- [1] [일당백] 사마천의 사기 (Records of the Grand Historian · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=aRYA4ohyY00
+- [2] [1DANG100] The Man Standing Next (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=YNbICpeOZt0
