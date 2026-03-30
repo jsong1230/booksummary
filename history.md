@@ -5095,3 +5095,47 @@
   - URL: https://www.youtube.com/watch?v=QGM_qcPWi7I
 - [10] [핵심 요약] 작별하지 않는다 (We Do Not Part · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
   - URL: https://www.youtube.com/watch?v=zaeMXJEXA_o
+
+## 2026-03-30
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Temperature_of_Language, Justice_Whats_the_Right_Thing_to_Do, Guns_Germs_and_Steel, The_Tyranny_of_Merit
+- 업로드된 영상 수: 8개
+- [1] [Summary] Guns, Germs, and Steel (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=kT5N0Jciu5Y
+- [2] [핵심 요약] 총, 균, 쇠 (Guns, Germs, and Steel · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=d7cEEIBHqvc
+- [3] [Summary] Justice: What's the Right Thing to Do? (5-min Summary · AI Deep Dive)
+  - URL: https://www.youtube.com/watch?v=U0eR_UL6DIU
+- [4] [핵심 요약] 정의란 무엇인가 (Justice: What's the Right Thing to Do? · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=CVgkEtSMiU8
+- [5] [Summary] The Temperature of Language (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=SB31MB-0IdQ
+- [6] [핵심 요약] 언어의 온도 (The Temperature of Language · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=ekGyiPhQmWs
+- [7] [Summary] The Tyranny of Merit (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=0yFcbonJ7M4
+- [8] [핵심 요약] 공정하다는 착각 (The Tyranny of Merit · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=tlGKPu-9nHM
+
+## 2026-03-30
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Tyranny_of_Merit, Guns_Germs_and_Steel, Justice_Whats_the_Right_Thing_to_Do, The_Temperature_of_Language
+- 업로드된 영상 수: 8개
+- [1] [Summary] Guns, Germs, and Steel (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=llI-1PwlRS8
+- [2] [핵심 요약] 총, 균, 쇠 (Guns, Germs, and Steel · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=J94267hgwtc
+- [3] [Summary] Justice: What's the Right Thing to Do? (5-min Summary · AI Deep Dive)
+  - URL: https://www.youtube.com/watch?v=JJvmGHKibvw
+- [4] [핵심 요약] 정의란 무엇인가 (Justice: What's the Right Thing to Do? · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=_yHr879sxvk
+- [5] [Summary] The Temperature of Language (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=ZaNoPCi9IQE
+- [6] [핵심 요약] 언어의 온도 (The Temperature of Language · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=qyByuJmn0Zk
+- [7] [Summary] The Tyranny of Merit (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=h66zbDQQLCI
+- [8] [핵심 요약] 공정하다는 착각 (The Tyranny of Merit · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=IW-UeQ0Kc3Y
