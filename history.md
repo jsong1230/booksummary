@@ -5139,3 +5139,29 @@
   - URL: https://www.youtube.com/watch?v=h66zbDQQLCI
 - [8] [핵심 요약] 공정하다는 착각 (The Tyranny of Merit · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
   - URL: https://www.youtube.com/watch?v=IW-UeQ0Kc3Y
+
+## 2026-04-02
+
+### YouTube 업로드 완료
+- 업로드된 책: The_Plague_full_episode, The_Origin_of_Religion_full_episode_ko, The_Unbearable_Lightness_of_Being_full_episode, The_Unbearable_Lightness_of_Being_full_episode_ko, Lady_Chatterleys_Lover_full_episode, The_Plague_full_episode_ko, Plagues_That_Changed_History_full_episode_ko, Lady_Chatterleys_Lover_full_episode_ko, Plagues_That_Changed_History_full_episode, The_Origin_of_Religion_full_episode
+- 업로드된 영상 수: 10개
+- [1] [1DANG100] Lady Chatterley's Lover: D.H. Lawrence (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=vJbROFQEwh4
+- [2] [일당백] 채털리 부인의 연인: D. H. 로렌스 (Lady Chatterley's Lover · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=pvzbAuZu-mM
+- [3] [1DANG100] Plagues That Changed History (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=pGqTnc5ejHc
+- [4] [일당백] 세계사를 바꾼 전염병들 (Plagues That Changed History · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=Pit4tJoI7KI
+- [5] [1DANG100] The Origin of Religion: Sigmund Freud (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=UitDoh67v7s
+- [6] [일당백] 프로이트 종교의 기원: 지크문트 프로이트 (The Origin of Religion · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=QKayRx-tpaM
+- [7] [1DANG100] The Plague: Albert Camus (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=r3JS_NgJjME
+- [8] [일당백] 페스트: 알베르 카뮈 (The Plague · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=p_meQ5CQ-bI
+- [9] [1DANG100] The Unbearable Lightness of Being: Milan Kundera (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=cTeiIJgi-5Q
+- [10] [일당백] 참을 수 없는 존재의 가벼움: 밀란 쿤데라 (The Unbearable Lightness of Being · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=q1Whsb38vQ4
