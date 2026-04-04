@@ -228,30 +228,31 @@ class VideoWithSummaryPipeline:
         if existing_summary_text:
             # 요약 오디오가 이미 있는지 확인 (summary 또는 longform 파일 모두 확인)
             summary_audio_path = None
+            project_root = Path(__file__).parent.parent
             possible_paths = [
-                f"assets/audio/{safe_title_str}_summary_{lang_suffix}.mp3",
-                f"assets/audio/{safe_title_str}_longform_{lang_suffix}.mp3",
+                str(project_root / "assets" / "audio" / f"{safe_title_str}_summary_{lang_suffix}.mp3"),
+                str(project_root / "assets" / "audio" / f"{safe_title_str}_longform_{lang_suffix}.mp3"),
                 # 호환성을 위해 _ko.mp3도 확인
-                f"assets/audio/{safe_title_str}_summary_ko.mp3" if lang_suffix == "kr" else None,
-                f"assets/audio/{safe_title_str}_longform_ko.mp3" if lang_suffix == "kr" else None,
+                str(project_root / "assets" / "audio" / f"{safe_title_str}_summary_ko.mp3") if lang_suffix == "kr" else None,
+                str(project_root / "assets" / "audio" / f"{safe_title_str}_longform_ko.mp3") if lang_suffix == "kr" else None,
             ]
-            
+
             # None 제거
             possible_paths = [p for p in possible_paths if p is not None]
-            
+
             for path in possible_paths:
                 if Path(path).exists():
                     summary_audio_path = path
                     break
-            
+
             if summary_audio_path is None:
                 print("=" * 60)
                 print("🎤 2단계: TTS 요약 음성 생성")
                 print("=" * 60)
                 print()
-                
-                # 출력 경로 설정
-                summary_audio_path = f"assets/audio/{safe_title_str}_summary_{lang_suffix}.mp3"
+
+                # 출력 경로 설정 (절대 경로)
+                summary_audio_path = str(project_root / "assets" / "audio" / f"{safe_title_str}_summary_{lang_suffix}.mp3")
                 
                 # summary 파일은 이미 정리되었으므로 그대로 사용
                 # TTS 음성 설정: tts_voice가 있으면 사용, 없으면 기본값
@@ -310,7 +311,9 @@ class VideoWithSummaryPipeline:
         
         # 4. 이미지 디렉토리 확인 (선택사항)
         if image_dir is None:
-            image_dir = f"assets/images/{safe_title_str}"
+            # 절대 경로로 설정 (작업 디렉토리와 무관하게 이미지 찾기)
+            project_root = Path(__file__).parent.parent
+            image_dir = str(project_root / "assets" / "images" / safe_title_str)
 
         # 이미지 디렉토리가 없으면 경고만 표시 (오류 없이 계속 진행)
         if not Path(image_dir).exists():
@@ -318,33 +321,25 @@ class VideoWithSummaryPipeline:
             print("→ 단색 배경을 사용합니다.")
             image_dir = None
         
-        # 5. NotebookLM 비디오 파일 찾기 (일관된 네이밍 규칙 사용)
+        # 5. NotebookLM 비디오 파일 찾기 (영문 제목 기반)
         if notebooklm_video_path is None:
+            from utils.translations import translate_book_title
+
             lang_suffix = "kr" if language == "ko" else "en"
             video_dir = Path("assets/video")
-            
+
             if video_dir.exists():
-                # 여러 패턴 시도 (영문 제목, 한글 제목 모두 확인)
-                from src.utils.file_utils import safe_title
-                korean_safe_title = safe_title(book_title)
+                # 영문 제목으로 변환 (한글 제목 자동 처리)
+                english_title = translate_book_title(book_title)
                 possible_paths = []
-                
-                # 영문 제목으로 시도
+
+                # 영문 제목으로 파일 찾기 (안정적)
                 for ext in ['.mp4', '.mov', '.avi', '.mkv']:
-                    possible_paths.append(video_dir / f"{safe_title_str}_notebooklm_{lang_suffix}{ext}")
-                    possible_paths.append(video_dir / f"{safe_title_str}_notebooklm_ko.mp4" if lang_suffix == "kr" else None)
-                    possible_paths.append(video_dir / f"{safe_title_str}_notebooklm_en.mp4" if lang_suffix == "en" else None)
-                
-                # 한글 제목으로도 시도
-                if korean_safe_title != safe_title_str:
-                    for ext in ['.mp4', '.mov', '.avi', '.mkv']:
-                        possible_paths.append(video_dir / f"{korean_safe_title}_notebooklm_{lang_suffix}{ext}")
-                        possible_paths.append(video_dir / f"{korean_safe_title}_notebooklm_ko.mp4" if lang_suffix == "kr" else None)
-                        possible_paths.append(video_dir / f"{korean_safe_title}_notebooklm_en.mp4" if lang_suffix == "en" else None)
-                
+                    possible_paths.append(video_dir / f"{english_title}_notebooklm_{lang_suffix}{ext}")
+
                 # None 제거
                 possible_paths = [p for p in possible_paths if p is not None]
-                
+
                 # 존재하는 파일 찾기
                 for test_path in possible_paths:
                     if test_path.exists():
@@ -403,7 +398,7 @@ class VideoWithSummaryPipeline:
         print("=" * 60)
         print(f"📁 저장 위치: {final_video_path}")
         print()
-        
+
         return final_video_path
     
     def _clean_markdown_for_tts(self, text: str) -> str:

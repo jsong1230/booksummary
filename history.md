@@ -2,6 +2,31 @@
 
 ---
 
+## 2026-04-05
+
+### 썸네일 자동화 (Flux.1-schnell) + 책 선정 자동화
+
+#### 새 파일
+- `scripts/flux_server.py`: GPU 서버(192.168.0.151:9001)에서 실행하는 Flux 이미지 생성 API 서버
+  - `POST /generate` → base64 JPEG 반환
+  - `GET /health` → 서버 상태 확인
+  - FLUX.1-schnell 모델, H100 GPU, ~23초/장(1920x1080)
+- `scripts/book_recommender.py`: 주간 책 선정 자동화
+  - 알라딘 베스트셀러 크롤링 (API 또는 HTML 스크래핑, 교보문고 백업)
+  - `data/uploaded_books.csv` 중복 제거
+  - Claude 추천 Top 5 → `data/book_recommendations.md` 저장
+- `src/utils/thumbnail_generator.py`: Flux 기반 썸네일 생성 클라이언트
+  - `generate_thumbnail(book_title, author, language, hook, image_prompt)` — Claude Code가 hook/image_prompt 직접 생성
+  - PIL로 한글/영문 텍스트 오버레이 (Noto CJK 폰트)
+  - 저자명(금색) + 책제목 + 파란 구분선 + 훅 문장(흰색, 그림자) + 채널 태그
+
+#### 변경 사항
+- HuggingFace 토큰 GPU 151 서버에 설정 (FLUX.1-schnell gated repo 접근)
+- 썸네일 생성 방식: Gems 수동 → Flux 자동 (무료, H100 활용)
+- Claude API 키 미사용 — Claude Code 대화에서 직접 hook/image_prompt 생성 후 스크립트 호출
+
+---
+
 ## ⚡ 다음 작업 세션 체크리스트 (2026-03-02 기준)
 
 > **코드 개선/기능 추가 요청 시 → 아래 항목부터 먼저 확인할 것**
@@ -5165,3 +5190,29 @@
   - URL: https://www.youtube.com/watch?v=cTeiIJgi-5Q
 - [10] [일당백] 참을 수 없는 존재의 가벼움: 밀란 쿤데라 (The Unbearable Lightness of Being · 배경지식·인포그래픽·책 분석)
   - URL: https://www.youtube.com/watch?v=q1Whsb38vQ4
+
+## 2026-04-03
+
+### YouTube 업로드 완료
+- 업로드된 책: 살인자의_기억법, 틸팅, 흰, 북_오브_러브, 파이프_이야기
+- 업로드된 영상 수: 10개
+- [1] [Summary] The Book of Love: Neil Gaiman (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=je6z5le4f_I
+- [2] [핵심 요약] 북 오브 러브: 닐 게이먼 (The Book of Love · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=klPJWCKc87k
+- [3] [Summary] The Killer's Memorandum: Youngha Kim (5-min Summary · AI Deep Dive)
+  - URL: https://www.youtube.com/watch?v=gSlOyvNaI_E
+- [4] [핵심 요약] 살인자의 기억법: 김영하 (The Killer's Memorandum · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=2LDDVomGIXk
+- [5] [Summary] The Pipe Stories: Woody Allen (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=7eBIyk-AFP8
+- [6] [핵심 요약] 파이프 이야기: 우디 앨런 (The Pipe Stories · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=QN2tIadF90o
+- [7] [Summary] The White Book: Han Kang (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=hRqpWu8_q2I
+- [8] [핵심 요약] 흰: 한강 (The White Book · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=kAQoG6AiLS0
+- [9] [Summary] Tilting: Youngha Kim (5-min Summary · AI Deep Dive · Key Ideas & Takeaways)
+  - URL: https://www.youtube.com/watch?v=v5atiLNBuMI
+- [10] [핵심 요약] 틸팅: 김영하 (Tilting · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
+  - URL: https://www.youtube.com/watch?v=YqJ0ZC43FdM
