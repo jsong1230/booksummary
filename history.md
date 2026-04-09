@@ -5216,3 +5216,21 @@
   - URL: https://www.youtube.com/watch?v=v5atiLNBuMI
 - [10] [핵심 요약] 틸팅: 김영하 (Tilting · 5분 핵심 요약·AI 심층 분석 · 핵심 주제·인사이트·정리)
   - URL: https://www.youtube.com/watch?v=YqJ0ZC43FdM
+
+## 2026-04-09
+
+### YouTube 업로드 완료
+- 업로드된 책: Metamorphoses_full_episode_ko, Metamorphoses_full_episode, Good_to_Eat_full_episode_ko, Ulleungdo_Odyssey_full_episode_ko, Good_to_Eat_full_episode, Ulleungdo_Odyssey_full_episode
+- 업로드된 영상 수: 6개
+- [1] [일당백] 울릉도 오딧세이 (Ulleungdo Odyssey · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=6EAnLOh2WxA
+- [2] [1DANG100] Ulleungdo Odyssey (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=OyAKmN4pUSI
+- [3] [일당백] 음식문화의 수수께끼 (Good to Eat · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=1jswY1Y8Wpg
+- [4] [1DANG100] Good to Eat (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=0fnA5mWEmqQ
+- [5] [일당백] 변신 이야기 (Metamorphoses · 배경지식·인포그래픽·책 분석)
+  - URL: https://www.youtube.com/watch?v=V1mXvdSJC7Q
+- [6] [1DANG100] Metamorphoses (Background · Infographics · Analysis)
+  - URL: https://www.youtube.com/watch?v=eSBsXCVm-SM
