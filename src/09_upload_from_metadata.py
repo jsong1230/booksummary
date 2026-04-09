@@ -135,7 +135,8 @@ class YouTubeUploader:
         thumbnail_path: Optional[str] = None,
         channel_id: Optional[str] = None,
         localizations: Optional[Dict] = None,
-        pinned_comment: Optional[str] = None
+        pinned_comment: Optional[str] = None,
+        publish_at: Optional[str] = None
     ) -> Optional[Dict]:
         """영상 업로드"""
         if not os.path.exists(video_path):
@@ -267,7 +268,8 @@ class YouTubeUploader:
             },
             'status': {
                 'privacyStatus': privacy_status,
-                'selfDeclaredMadeForKids': False
+                'selfDeclaredMadeForKids': False,
+                **({"publishAt": publish_at} if publish_at else {})
             }
         }
         

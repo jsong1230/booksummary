@@ -333,9 +333,13 @@ class VideoWithSummaryPipeline:
                 english_title = translate_book_title(book_title)
                 possible_paths = []
 
-                # 영문 제목으로 파일 찾기 (안정적)
+                # 영문 제목으로 파일 찾기 (공백/언더스코어 모두 시도)
+                safe_en_title = english_title.replace(" ", "_")
                 for ext in ['.mp4', '.mov', '.avi', '.mkv']:
+                    possible_paths.append(video_dir / f"{safe_en_title}_notebooklm_{lang_suffix}{ext}")
                     possible_paths.append(video_dir / f"{english_title}_notebooklm_{lang_suffix}{ext}")
+                    possible_paths.append(video_dir / f"{safe_en_title}_video_{lang_suffix}{ext}")
+                    possible_paths.append(video_dir / f"{english_title}_video_{lang_suffix}{ext}")
 
                 # None 제거
                 possible_paths = [p for p in possible_paths if p is not None]

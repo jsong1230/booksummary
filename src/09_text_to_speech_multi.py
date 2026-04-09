@@ -519,6 +519,11 @@ def main():
         if args.text_file:
             with open(args.text_file, 'r', encoding='utf-8') as f:
                 text = f.read()
+            # Remove HTML comments and section markers
+            import re
+            text = re.sub(r'<!--.*?-->', '', text, flags=re.DOTALL)
+            text = re.sub(r'\[HOOK[^\]]*\]|\[BODY[^\]]*\]|\[BRIDGE[^\]]*\]', '', text)
+            text = text.strip()
         else:
             text = args.text
         

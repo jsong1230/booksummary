@@ -36,7 +36,12 @@ STATE_DIR = Path(__file__).parent.parent / ".pipeline_state"
 # ─────────────────────────────────────────────────────────────
 
 def _notify(msg: str, title: str = "NotebookLM 자동화", success: bool = True):
-    """macOS 알림 + 소리"""
+    """알림 (macOS: osascript, Linux: print)"""
+    import platform
+    status = "✅" if success else "❌"
+    print(f"{status} [{title}] {msg}")
+    if platform.system() != "Darwin":
+        return
     import subprocess
     sound = "Glass" if success else "Basso"
     script = f'display notification "{msg}" with title "{title}" sound name "{sound}"'
@@ -266,6 +271,19 @@ def login(headless: bool = False):
 # Step 1: 페이지 접속 + 로드 대기
 # ─────────────────────────────────────────────────────────────
 
+async def _dismiss_welcome_dialog(page) -> None:
+    """환영 다이얼로그 닫기 (있을 경우)"""
+    try:
+        clicked = await _js_find_and_click(page, "확인", "button")
+        if not clicked:
+            clicked = await _js_find_and_click(page, "Got it", "button")
+        if clicked:
+            print("   ✅ 환영 다이얼로그 닫음")
+            await page.wait_for_timeout(1500)
+    except Exception:
+        pass
+
+
 async def _wait_for_page_ready(page, timeout_ms: int = 60000) -> bool:
     """메인 페이지 로드 완료 대기"""
     print("   ⏳ 페이지 로드 대기 중...")
@@ -273,11 +291,18 @@ async def _wait_for_page_ready(page, timeout_ms: int = 60000) -> bool:
     while time.time() < deadline:
         ready = await page.evaluate("""
             (() => {
-                // "새로 만들기" 버튼이나 노트북 카드가 있으면 준비됨
+                // 노트북 생성 버튼 또는 소스 추가 버튼이 있으면 준비됨
+                const keywords = [
+                    '새로 만들기', 'Create new',
+                    '노트북 만들기', 'New notebook',
+                    '소스 추가', 'Add source'
+                ];
                 const btns = document.querySelectorAll('button');
                 for (const b of btns) {
-                    if (b.innerText && (b.innerText.includes('새로 만들기') || b.innerText.includes('Create new'))) {
-                        return true;
+                    if (b.innerText) {
+                        for (const kw of keywords) {
+                            if (b.innerText.includes(kw)) return true;
+                        }
                     }
                 }
                 return false;
@@ -285,6 +310,7 @@ async def _wait_for_page_ready(page, timeout_ms: int = 60000) -> bool:
         """)
         if ready:
             print("   ✅ 페이지 준비됨")
+            await _dismiss_welcome_dialog(page)
             await page.wait_for_timeout(1000)
             return True
         await page.wait_for_timeout(2000)
@@ -298,17 +324,35 @@ async def _wait_for_page_ready(page, timeout_ms: int = 60000) -> bool:
 # ─────────────────────────────────────────────────────────────
 
 async def _click_new_notebook(page) -> bool:
-    """새 노트북 생성 → JS 클릭"""
+    """새 노트북 생성 → JS 클릭. 이미 빈 노트북 페이지라면 그냥 사용."""
     await _clear_overlays(page)
+
+    # 이미 노트북 내부에 있고 소스가 0개면 그대로 사용
+    already_in_notebook = await page.evaluate("""
+        (() => {
+            const addSource = document.querySelector('button');
+            if (!addSource) return false;
+            const btns = Array.from(document.querySelectorAll('button'));
+            return btns.some(b => b.innerText && (b.innerText.includes('소스 추가') || b.innerText.includes('Add source')));
+        })()
+    """)
+    if already_in_notebook:
+        print("   ✅ 이미 노트북 페이지에 있음 (새 노트북 생성 생략)")
+        return True
 
     clicked = await _js_find_and_click(page, "새로 만들기", "button")
     if not clicked:
         clicked = await _js_find_and_click(page, "Create new", "button")
     if not clicked:
+        clicked = await _js_find_and_click(page, "노트북 만들기", "button")
+    if not clicked:
+        clicked = await _js_find_and_click(page, "New notebook", "button")
+    if not clicked:
         # CSS 셀렉터 폴백
         btn = await _find_button(page, [
             "button:has-text('새로 만들기')",
             "button:has-text('Create new')",
+            "button:has-text('노트북 만들기')",
             "button.create-new-button",
         ], timeout=5000)
         if btn:
@@ -1079,9 +1123,24 @@ async def create_notebooklm_video(
     if notebook_url:
         print(f"   기존 노트북: {notebook_url}")
 
+    PROFILE_DIR = Path.home() / ".notebooklm_chrome_profile"
+    PROFILE_DIR.mkdir(exist_ok=True)
+
+    # Seed profile with session cookies on first use
+    if SESSION_FILE.exists() and not (PROFILE_DIR / ".seeded").exists():
+        import json as _json
+        seed_state = _json.loads(SESSION_FILE.read_text())
+        seed_path = PROFILE_DIR / "seed_state.json"
+        seed_path.write_text(_json.dumps(seed_state))
+        (PROFILE_DIR / ".seeded").touch()
+
     async with async_playwright() as p:
-        browser = await p.chromium.launch(
+        # Use persistent context so Google session cookies survive across runs
+        context = await p.chromium.launch_persistent_context(
+            user_data_dir=str(PROFILE_DIR),
             headless=headless,
+            viewport={"width": 1280, "height": 900},
+            accept_downloads=True,
             args=[
                 "--disable-dev-shm-usage",
                 "--disable-gpu",
@@ -1091,11 +1150,14 @@ async def create_notebooklm_video(
                 "--disable-renderer-backgrounding",
             ],
         )
-        context = await browser.new_context(
-            storage_state=str(SESSION_FILE),
-            viewport={"width": 1280, "height": 900},
-            accept_downloads=True,
-        )
+        # Inject cookies from session file if profile is fresh (first run)
+        seed_path = PROFILE_DIR / "seed_state.json"
+        if seed_path.exists():
+            import json as _json
+            seed = _json.loads(seed_path.read_text())
+            await context.add_cookies(seed.get("cookies", []))
+            seed_path.unlink()
+
         page = await context.new_page()
 
         try:
@@ -1178,7 +1240,7 @@ async def create_notebooklm_video(
             raise
         finally:
             try:
-                await browser.close()
+                await context.close()
             except Exception:
                 pass
 

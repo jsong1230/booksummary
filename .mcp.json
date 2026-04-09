@@ -20,6 +20,14 @@
       "$comment": "Gemini CLI - Google 계정 로그인 기반. Summary 생성, 프롬프트 작성 담당",
       "command": "/bin/bash",
       "args": ["-l", "-c", "exec npx -y gemini-mcp-tool"]
+    },
+    "notebooklm-mcp": {
+      "$comment": "NotebookLM MCP - 노트북 생성, 오디오/비디오 생성 자동화",
+      "command": "/bin/bash",
+      "args": ["-l", "-c", "DISPLAY=:99 exec npx -y notebooklm-mcp"],
+      "env": {
+        "DISPLAY": ":99"
+      }
     }
   },
   "staggeredStartup": {

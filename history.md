@@ -2,6 +2,24 @@
 
 ---
 
+## 2026-04-09
+
+### 코드 개선 및 신규 스크립트 추가
+
+#### 변경 파일
+- `.mcp.json`: notebooklm-mcp 서버 추가 (DISPLAY=:99, Linux headless 환경)
+- `scripts/notebooklm_automator.py`: Linux 호환 알림, 환영 다이얼로그 자동 닫기, 페이지 준비 감지 키워드 확장, 영구 Chrome 프로파일(`~/.notebooklm_chrome_profile`) 사용으로 세션 안정성 향상
+- `src/09_text_to_speech_multi.py`: TTS 전 HTML 주석(`<!-- -->`) 및 섹션 마커(`[HOOK]`, `[BODY]`, `[BRIDGE]`) 자동 제거
+- `src/09_upload_from_metadata.py`: `publish_at` 파라미터 추가 → 예약 업로드 지원
+- `src/10_create_video_with_summary.py`: 영문 제목 파일 탐색 시 공백/언더스코어 모두 시도 (`_video_` 패턴도 추가)
+- `src/utils/translations.py`: 아주 작은 습관의 힘 → Atomic Habits, 이기적 유전자 → The Selfish Gene 매핑 추가
+
+#### 신규 파일
+- `gen_en_tts_local.py`: GPU 서버(192.168.0.151) qwen3tts API로 영문 TTS WAV 청크 생성
+- `scripts/upload_scheduled.py`: metadata.json의 `publish_at` 필드 기반 YouTube 예약 업로드 스크립트
+
+---
+
 ## 2026-04-05
 
 ### 썸네일 자동화 (Flux.1-schnell) + 책 선정 자동화
