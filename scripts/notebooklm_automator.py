@@ -238,16 +238,28 @@ async def _find_button(page, selectors: list[str], timeout: int = 2000):
 # ─────────────────────────────────────────────────────────────
 
 def login(headless: bool = False):
-    """최초 1회 Google 로그인 → session 파일 저장"""
+    """최초 1회 Google 로그인 → Chrome 프로필 + session 파일 저장"""
     from playwright.sync_api import sync_playwright
 
     print("🔐 Google 로그인 세션 생성 중...")
     print("   브라우저에서 Google 계정으로 로그인하세요.")
     print("   NotebookLM 메인 페이지가 열리면 자동으로 세션이 저장됩니다. (최대 3분)")
 
+    PROFILE_DIR = Path.home() / ".notebooklm_chrome_profile"
+    PROFILE_DIR.mkdir(exist_ok=True)
+    # 이전 seed 마커 제거해서 다음 실행 시 재seed 방지
+    seeded = PROFILE_DIR / ".seeded"
+    if seeded.exists():
+        seeded.unlink()
+
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=headless)
-        context = browser.new_context(viewport={"width": 1280, "height": 900})
+        # Chrome 프로필을 사용해서 로그인 — 이후 자동화와 동일한 프로필 사용
+        context = p.chromium.launch_persistent_context(
+            user_data_dir=str(PROFILE_DIR),
+            headless=headless,
+            viewport={"width": 1280, "height": 900},
+            args=["--disable-dev-shm-usage", "--no-sandbox"],
+        )
         page = context.new_page()
         page.goto(NOTEBOOKLM_URL)
 
@@ -261,10 +273,14 @@ def login(headless: bool = False):
         except Exception:
             print("⚠️  3분 내 로그인 미감지. 현재 상태로 세션 저장.")
 
+        # Chrome 프로필에 이미 세션이 저장됨. 쿠키도 파일로 백업
         context.storage_state(path=str(SESSION_FILE))
-        browser.close()
+        # seed 완료 마커
+        (PROFILE_DIR / ".seeded").touch()
+        context.close()
 
     print(f"✅ 세션 저장 완료: {SESSION_FILE}")
+    print(f"✅ Chrome 프로필 저장 완료: {PROFILE_DIR}")
 
 
 # ─────────────────────────────────────────────────────────────
