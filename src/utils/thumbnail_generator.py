@@ -1,6 +1,6 @@
 """
 Flux 기반 썸네일 자동 생성 유틸리티
-GPU 서버(192.168.0.151:9001)의 Flux API 호출
+GPU 서버(192.168.0.150:9001)의 Flux API 호출
 텍스트 오버레이는 PIL로 처리 (Flux는 한글 렌더링 불가)
 프롬프트/훅 생성은 외부(Claude Code)에서 받아서 처리
 
@@ -38,7 +38,7 @@ import requests
 from PIL import Image, ImageDraw, ImageFont
 import io
 
-FLUX_SERVER = os.getenv("FLUX_SERVER_URL", "http://192.168.0.151:9001")
+FLUX_SERVER = os.getenv("FLUX_SERVER_URL", "http://192.168.0.150:9001")
 FLUX_TIMEOUT = int(os.getenv("FLUX_TIMEOUT", "120"))
 
 # 폰트 경로 (우선순위 순)
@@ -85,64 +85,116 @@ def overlay_text(
     book_title: str,
     language: str,
 ) -> Image.Image:
-    """PIL로 이미지 위에 텍스트 오버레이"""
+    """PIL로 이미지 위에 텍스트 오버레이 — 크고 임팩트 있는 레이아웃"""
     W, H = img.size
     is_ko = language in ("ko", "kr")
 
-    font_hook = _load_font(FONT_PATHS_BOLD, int(H * 0.088))
-    font_author = _load_font(FONT_PATHS_BOLD, int(H * 0.050))
-    font_title = _load_font(FONT_PATHS_REGULAR, int(H * 0.038))
-    font_tag = _load_font(FONT_PATHS_BOLD, int(H * 0.030))
+    # 폰트 크기: 더 크게
+    font_hook = _load_font(FONT_PATHS_BOLD, int(H * 0.115))   # 메인 훅: 크게
+    font_title = _load_font(FONT_PATHS_BOLD, int(H * 0.060))  # 책 제목: 굵게
+    font_author = _load_font(FONT_PATHS_REGULAR, int(H * 0.044))  # 저자명
+    font_tag = _load_font(FONT_PATHS_BOLD, int(H * 0.032))    # 채널 태그
 
-    # 좌측 그라데이션 어두운 오버레이
+    # 전체 어두운 오버레이 (가독성 확보)
     overlay = Image.new("RGBA", img.size, (0, 0, 0, 0))
     ov_draw = ImageDraw.Draw(overlay)
-    # 좌측 60%를 점진적으로 어둡게
-    for x in range(int(W * 0.60)):
-        alpha = int(170 * (1 - x / (W * 0.60)))
+    # 전체에 반투명 어두운 레이어
+    for x in range(W):
+        # 좌측 70%는 강하게, 우측은 약하게
+        if x < int(W * 0.70):
+            alpha = int(195 * (1 - x / (W * 0.85)))
+        else:
+            alpha = int(80 * (1 - (x - W * 0.70) / (W * 0.30)))
+        alpha = max(0, min(255, alpha))
         ov_draw.line([(x, 0), (x, H)], fill=(0, 0, 0, alpha))
     img = img.convert("RGBA")
     img = Image.alpha_composite(img, overlay).convert("RGB")
     draw = ImageDraw.Draw(img)
 
-    # 파란 강조선
-    accent = "#1A73E8"
-    draw.rectangle([(0, 0), (W, int(H * 0.007))], fill=accent)
-    draw.rectangle([(0, H - int(H * 0.007)), (W, H)], fill=accent)
-    draw.rectangle([(0, 0), (int(W * 0.005), H)], fill=accent)
+    accent = "#FFD700"     # 골드 강조색
+    blue = "#1A73E8"       # 파란 보조색
 
-    pad_x = int(W * 0.045)
-    pad_y = int(H * 0.07)
+    # 상단/하단 강조선
+    draw.rectangle([(0, 0), (W, int(H * 0.008))], fill=accent)
+    draw.rectangle([(0, H - int(H * 0.008)), (W, H)], fill=accent)
+    draw.rectangle([(0, 0), (int(W * 0.006), H)], fill=accent)
 
-    def draw_text_shadow(pos, text, font, fill, shadow_offset=3):
+    pad_x = int(W * 0.05)
+    text_w = int(W * 0.60)  # 텍스트 영역 최대 너비
+
+    def draw_text_outline(pos, text, font, fill, outline_width=4):
+        """텍스트 외곽선(stroke) 효과로 가독성 향상"""
         x, y = pos
-        draw.text((x + shadow_offset, y + shadow_offset), text, font=font, fill="#000000AA")
+        # 외곽선 (검정)
+        for dx in range(-outline_width, outline_width + 1, 2):
+            for dy in range(-outline_width, outline_width + 1, 2):
+                if dx != 0 or dy != 0:
+                    draw.text((x + dx, y + dy), text, font=font, fill="#000000EE")
         draw.text((x, y), text, font=font, fill=fill)
 
-    # 저자명
-    draw_text_shadow((pad_x, pad_y), author, font_author, "#FFD700")
+    def get_text_width(text, font):
+        bbox = draw.textbbox((0, 0), text, font=font)
+        return bbox[2] - bbox[0]
 
-    # 책 제목
-    title_y = pad_y + int(H * 0.068)
-    draw_text_shadow((pad_x, title_y), book_title, font_title, "#DDDDDD")
+    def wrap_text_by_width(text, font, max_w):
+        """너비 기준 텍스트 줄바꿈"""
+        words = list(text) if is_ko else text.split()
+        lines = []
+        cur = ""
+        for w in words:
+            test = cur + w if is_ko else (cur + " " + w if cur else w)
+            if get_text_width(test, font) <= max_w:
+                cur = test
+            else:
+                if cur:
+                    lines.append(cur)
+                cur = w
+        if cur:
+            lines.append(cur)
+        return lines
 
-    # 구분선
-    sep_y = title_y + int(H * 0.058)
-    draw.rectangle([(pad_x, sep_y), (pad_x + int(W * 0.12), sep_y + 3)], fill=accent)
+    # ── 훅 문장 (메인 카피) — 중앙 상단 배치 ──
+    hook_max_w = int(W * 0.58)
+    hook_lines = wrap_text_by_width(hook, font_hook, hook_max_w)[:3]
+    line_h = int(H * 0.128)
+    total_hook_h = len(hook_lines) * line_h
+    hook_start_y = int(H * 0.10)
 
-    # 훅 문장 (메인 카피)
-    max_chars = 10 if is_ko else 16
-    lines = textwrap.wrap(hook, width=max_chars)
-    hook_y = int(H * 0.42)
-    line_h = int(H * 0.108)
+    # 훅 배경 박스 (반투명)
+    box_pad = int(H * 0.018)
+    box_x1 = pad_x - box_pad
+    box_y1 = hook_start_y - box_pad
+    box_x2 = pad_x + hook_max_w + box_pad
+    box_y2 = hook_start_y + total_hook_h + box_pad
+    box_overlay = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    box_draw = ImageDraw.Draw(box_overlay)
+    box_draw.rectangle([(box_x1, box_y1), (box_x2, box_y2)], fill=(0, 0, 0, 110))
+    img = Image.alpha_composite(img.convert("RGBA"), box_overlay).convert("RGB")
+    draw = ImageDraw.Draw(img)
 
-    for line in lines[:3]:
-        draw_text_shadow((pad_x, hook_y), line, font_hook, "#FFFFFF", shadow_offset=4)
+    hook_y = hook_start_y
+    for line in hook_lines:
+        draw_text_outline((pad_x, hook_y), line, font_hook, "#FFFFFF", outline_width=4)
         hook_y += line_h
 
-    # 채널 태그
-    tag = "[일당백]" if is_ko else "[1DANG100]"
-    draw_text_shadow((pad_x, H - int(H * 0.072)), tag, font_tag, accent)
+    # ── 구분선 ──
+    sep_y = hook_y + int(H * 0.020)
+    draw.rectangle([(pad_x, sep_y), (pad_x + int(W * 0.18), sep_y + 5)], fill=accent)
+
+    # ── 책 제목 ──
+    title_y = sep_y + int(H * 0.035)
+    title_lines = wrap_text_by_width(book_title, font_title, int(W * 0.58))[:2]
+    for line in title_lines:
+        draw_text_outline((pad_x, title_y), line, font_title, "#FFD700", outline_width=3)
+        title_y += int(H * 0.072)
+
+    # ── 저자명 ──
+    author_y = title_y + int(H * 0.010)
+    draw_text_outline((pad_x, author_y), author, font_author, "#CCCCCC", outline_width=2)
+
+    # ── 채널 태그 (하단) ──
+    tag = "핵심요약" if is_ko else "Book Summary"
+    draw_text_outline((pad_x, H - int(H * 0.085)), tag, font_tag, accent, outline_width=2)
 
     return img
 

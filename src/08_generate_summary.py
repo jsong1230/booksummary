@@ -289,8 +289,11 @@ class SummaryGenerator:
                         max_tokens=4000  # 최대 요약 길이 (약 15-20분 분량 가능)
                     )
                     summary = response.choices[0].message.content
-                    # 인트로/아웃트로 확인 및 추가
-                    summary = self._ensure_intro_outro(summary, intro_text, outro_text, language)
+                    # 템플릿 형식 사용 시 인트로/아웃트로 추가하지 않음
+                    if intro_text is None and outro_text is None:
+                        summary = self._clean_template_format(summary, language)
+                    else:
+                        summary = self._ensure_intro_outro(summary, intro_text, outro_text, language)
                 except Exception as openai_error:
                     self.logger.error(f"OpenAI API 오류: {openai_error}")
                     if GEMINI_AVAILABLE and self.gemini_api_key:

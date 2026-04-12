@@ -46,13 +46,14 @@ TIMEOUTS = {
     "collect_urls": 600,      # 10분
     "notebooklm": 2100,       # 35분 (NotebookLM 생성에 30분+ 소요 가능)
     "images": 600,            # 10분
-    "video_creation": 1200,   # 20분
+    "video_creation": 7200,   # 120분 (1080p 12분 영상 렌더링에 최대 2시간 소요)
     "metadata": 300,          # 5분
     "upload": 600,            # 10분/영상
 }
 
-# Python 실행 경로 (pyenv 사용)
-PYTHON_PATH = "/Users/jsong/.pyenv/versions/3.11.10/bin/python"
+# Python 실행 경로 (환경에 맞게 자동 선택)
+import shutil as _shutil
+PYTHON_PATH = _shutil.which("python3") or "/usr/bin/python3"
 
 
 class StepStatus(str, Enum):
@@ -140,8 +141,13 @@ def is_step_completed(state: PipelineState, step_name: str) -> bool:
     return state.steps.get(step_name, {}).get("status") == StepStatus.COMPLETED.value
 
 
-def run_subprocess(cmd: List[str], timeout: int, _step_name: str) -> Tuple[bool, str]:
+def run_subprocess(cmd: List[str], timeout: int, _step_name: str,
+                   env: Optional[Dict[str, str]] = None) -> Tuple[bool, str]:
     """서브프로세스 실행"""
+    import os
+    run_env = os.environ.copy()
+    if env:
+        run_env.update(env)
     print(f"   ▶ 실행: {' '.join(cmd[:3])}...")
     try:
         result = subprocess.run(
@@ -149,7 +155,8 @@ def run_subprocess(cmd: List[str], timeout: int, _step_name: str) -> Tuple[bool,
             capture_output=True,
             text=True,
             timeout=timeout,
-            cwd=str(PROJECT_ROOT)
+            cwd=str(PROJECT_ROOT),
+            env=run_env,
         )
         if result.returncode == 0:
             return True, result.stdout
@@ -160,6 +167,18 @@ def run_subprocess(cmd: List[str], timeout: int, _step_name: str) -> Tuple[bool,
         return False, f"Timeout after {timeout} seconds"
     except Exception as e:
         return False, str(e)
+
+
+def _xvfb_wrap(cmd: List[str]) -> List[str]:
+    """xvfb-run 래퍼 — DISPLAY가 없을 때 가상 디스플레이 사용"""
+    import os
+    import shutil
+    if os.environ.get("DISPLAY"):
+        return cmd
+    xvfb = shutil.which("xvfb-run")
+    if xvfb:
+        return [xvfb, "--auto-servernum", "--server-args=-screen 0 1280x960x24"] + cmd
+    return cmd
 
 
 def step_collect_urls(state: PipelineState, lang: str) -> Tuple[bool, Optional[str]]:
@@ -273,7 +292,32 @@ def step_notebooklm(state: PipelineState, lang: str) -> Tuple[bool, Optional[str
     if state.args.get("headless"):
         cmd.append("--headless")
 
-    success, output = run_subprocess(cmd, TIMEOUTS["notebooklm"], step_name)
+    # xvfb-run 래퍼 (DISPLAY 없는 서버 환경)
+    cmd = _xvfb_wrap(cmd)
+
+    # NOTEBOOKLM_PROFILE_DIR / SESSION_FILE 환경변수 전달 (병렬 실행 시 계정별 분리)
+    nlm_env = {}
+    profile_dir = state.args.get("profile_dir")
+    if profile_dir:
+        nlm_env["NOTEBOOKLM_PROFILE_DIR"] = profile_dir
+        # 프로필 번호 추출해서 대응하는 세션 파일 자동 지정
+        # e.g. ~/.notebooklm_chrome_profile_3 → ~/.notebooklm_session_3.json
+        import re as _re
+        import os as _os
+        m = _re.search(r"_(\d+)$", profile_dir)
+        if m:
+            n = m.group(1)
+            # 새 세션 파일 우선, 없으면 기존 세션 파일 사용
+            for candidate in [
+                f"~/.nlm_session_new_{n}.json",
+                f"~/.notebooklm_session_{n}.json",
+            ]:
+                session_path = _os.path.expanduser(candidate)
+                if _os.path.exists(session_path):
+                    nlm_env["NOTEBOOKLM_SESSION_FILE"] = session_path
+                    break
+
+    success, output = run_subprocess(cmd, TIMEOUTS["notebooklm"], step_name, env=nlm_env or None)
 
     if success and output_path.exists():
         update_step(state, step_name, StepStatus.COMPLETED.value, str(output_path))
@@ -343,8 +387,14 @@ def step_video_creation(state: PipelineState, lang: str) -> Tuple[bool, Optional
     update_step(state, step_name, StepStatus.RUNNING.value)
 
     # 출력 경로
-    safe_title = "".join(c if c.isalnum() or c in "-_" else "_" for c in state.book_title)
     lang_suffix = "kr" if lang == "ko" else "en"
+    # Use the same translated title that 10_create_video_with_summary.py uses
+    try:
+        sys.path.insert(0, str(PROJECT_ROOT / "src"))
+        from utils.file_utils import get_standard_safe_title
+        safe_title = get_standard_safe_title(state.book_title)
+    except Exception:
+        safe_title = "".join(c if c.isalnum() or c in "-_" else "_" for c in state.book_title)
     output_path = PROJECT_ROOT / "output" / f"{safe_title}_{lang_suffix}.mp4"
 
     cmd = [
@@ -366,6 +416,12 @@ def step_video_creation(state: PipelineState, lang: str) -> Tuple[bool, Optional
     tts_voice = state.args.get("tts_voice")
     if tts_voice:
         cmd.extend(["--tts-voice", str(tts_voice)])
+
+    # Pass NLM video path directly if available from previous step
+    nlm_step = f"notebooklm_{lang}"
+    nlm_video_path = state.steps.get(nlm_step, {}).get("output_path") if hasattr(state, "steps") else None
+    if nlm_video_path and Path(nlm_video_path).exists():
+        cmd.extend(["--notebooklm-video", str(nlm_video_path)])
 
     success, output = run_subprocess(cmd, TIMEOUTS["video_creation"], step_name)
 
@@ -494,6 +550,9 @@ async def run_pipeline(args: argparse.Namespace) -> bool:
     if args.resume and state:
         print(f"📂 이전 상태 로드: {get_state_path(book_title)}")
         print(f"   시작 시간: {state.started_at}")
+        # CLI에서 profile_dir가 명시된 경우 기존 state 덮어쓰기
+        if args.profile_dir:
+            state.args["profile_dir"] = args.profile_dir
     elif args.retry_step and state:
         print(f"🔄 단계 재시도: {args.retry_step}")
         # 해당 단계 상태를 pending으로 리셋
@@ -516,6 +575,7 @@ async def run_pipeline(args: argparse.Namespace) -> bool:
                 "tts_provider": args.tts_provider,
                 "tts_voice": args.tts_voice,
                 "skip_validation": args.skip_validation,
+                "profile_dir": args.profile_dir,
             }
         )
         save_state(state)
@@ -694,6 +754,8 @@ def main():
                         help="브라우저 숨김 모드")
     parser.add_argument("--num-urls", type=int, default=30,
                         help="수집할 URL 개수 (기본값: 30)")
+    parser.add_argument("--profile-dir",
+                        help="Chrome 프로필 디렉토리 (병렬 실행 시 계정별 분리, 기본: ~/.notebooklm_chrome_profile)")
 
     # 영상 제작 옵션
     parser.add_argument("--summary-duration", type=float, default=5.0,
