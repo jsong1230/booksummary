@@ -1309,13 +1309,21 @@ def save_metadata(video_path: Path, title: str, description: str, tags: list, la
         book_info_copy['authors'] = [translate_author_name(author) for author in book_info['authors']]
         book_info = book_info_copy
     
+    # 다음 날 19:00 KST (= 10:00 UTC) 예약 업로드
+    from datetime import timezone, timedelta
+    kst = timezone(timedelta(hours=9))
+    now_kst = datetime.now(kst)
+    publish_kst = (now_kst + timedelta(days=1)).replace(hour=19, minute=0, second=0, microsecond=0)
+    publish_utc = publish_kst.astimezone(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+
     metadata = {
         'video_path': str(video_path),
         'title': title,
         'description': description,
         'tags': tags,
         'language': lang,
-        'book_info': book_info
+        'book_info': book_info,
+        'publish_at': publish_utc
     }
     
     # 썸네일 경로 찾기 (제공되지 않았으면 자동으로 찾기)

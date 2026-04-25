@@ -267,7 +267,8 @@ class YouTubeUploader:
                 'categoryId': '22'  # People & Blogs
             },
             'status': {
-                'privacyStatus': privacy_status,
+                # publishAt 사용 시 YouTube API는 privacyStatus가 "private"이어야 함
+                'privacyStatus': 'private' if publish_at else privacy_status,
                 'selfDeclaredMadeForKids': False,
                 **({"publishAt": publish_at} if publish_at else {})
             }
@@ -1247,6 +1248,9 @@ def main():
         print()
         
         # 업로드
+        publish_at = metadata.get('publish_at')
+        if publish_at:
+            print(f"   📅 예약 업로드: {publish_at} (KST 기준 다음 날 19:00)")
         result = uploader.upload_video(
             channel_id=channel_id,
             video_path=str(video_path),
@@ -1256,7 +1260,8 @@ def main():
             privacy_status=privacy,
             thumbnail_path=thumbnail,
             localizations=localizations,
-            pinned_comment=pinned_comment
+            pinned_comment=pinned_comment,
+            publish_at=publish_at
         )
         
         if result:

@@ -1236,6 +1236,13 @@ def create_episode_metadata(
                     cleaned_lines.append(line)
             description_other = '\n'.join(cleaned_lines)
     
+    # 다음 날 19:00 KST (= 10:00 UTC) 예약 업로드
+    from datetime import timezone, timedelta
+    kst = timezone(timedelta(hours=9))
+    now_kst = datetime.now(kst)
+    publish_kst = (now_kst + timedelta(days=1)).replace(hour=19, minute=0, second=0, microsecond=0)
+    publish_utc = publish_kst.astimezone(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+
     metadata = {
         'video_path': str(video_path_obj),
         'title': title,
@@ -1244,6 +1251,7 @@ def create_episode_metadata(
         'language': normalized_language,
         'book_title': book_title,
         'video_duration': video_duration,
+        'publish_at': publish_utc,
         # 다국어 메타데이터 (YouTube localizations용)
         # 해당 영상의 언어만 포함 (다른 언어 포함 시 뷰어 언어 설정에 따라 제목이 바뀜)
         'localizations': {
