@@ -86,7 +86,41 @@ pip install -r requirements.txt
 .venv/bin/python scripts/measure_search_supply.py --titles "화씨 451|브래드버리" "부분과 전체|하이젠베르크"
 .venv/bin/python scripts/measure_search_supply.py --file candidates.txt --limit 20
 .venv/bin/python scripts/measure_search_supply.py --validate   # 기존 업로드분으로 지표 점검
+
+# 3) 후보의 '수요'를 계량 (2026-09-08 추가 — 공급만 재던 문제 보완)
+.venv/bin/python scripts/measure_search_demand.py --provider naver --file candidates.txt
+.venv/bin/python scripts/measure_search_demand.py --titles "만세전" "수난이대"   # trends(키 불필요)
+.venv/bin/python scripts/measure_search_demand.py --validate   # 성숙 표본으로 지표 검증
 ```
+
+### 수요 축 (`measure_search_demand.py`)
+
+공급(경쟁)만으로는 **"공급이 적어서 경쟁이 낮은 것"과 "아무도 안 찾아서 경쟁이 낮은 것"** 을
+가르지 못합니다. 실제로 「파이프 이야기」는 경쟁 0으로 '경쟁낮음' 판정을 받고도 조회 꼴찌(11회)였습니다.
+
+같은 성숙 표본(n=20)에서 두 지표를 비교한 결과입니다.
+
+| 지표 | Spearman ρ |
+|---|---:|
+| 경쟁 중간값 (공급) | **−0.171** |
+| 검색 수요 (Google Trends) | **+0.391** |
+
+**제공자 두 가지:**
+
+| | 키 | 값 | 한계 |
+|---|---|---|---|
+| `--provider naver` (권장) | 필요(무료) | **월간 절대 검색수** | 발급 필요 |
+| `--provider trends` (기본) | 불필요 | 앵커 대비 상대값 | 아래 두 가지 |
+
+> ⚠️ **Google Trends 의 실측 한계 (2026-09-08)**
+> 1. 앵커보다 훨씬 작은 키워드는 **0으로 반올림**됩니다. 「노인과 바다」를 앵커로 쓰자
+>    20편 중 9편이 0이 됐고 그 안에 조회 11회와 297회가 섞여 구분되지 않았습니다.
+>    → 우리 구간에 맞는 **작은 앵커**(`ANCHOR = "물고기는 존재하지 않는다"`)를 기본값으로 씁니다
+> 2. **20~30건이면 429로 IP가 몇 시간 막힙니다.** 요청 간 45초를 둬도 마찬가지입니다.
+>    후보 수십 건을 계량하려면 `--provider naver` 가 필요합니다
+>
+> 네이버 키 발급: https://searchad.naver.com → 도구 > API 사용 관리 (무료).
+> `.env` 에 `NAVER_AD_API_KEY` / `NAVER_AD_SECRET_KEY` / `NAVER_AD_CUSTOMER_ID`
 
 판정 기준:
 
