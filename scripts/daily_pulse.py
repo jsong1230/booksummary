@@ -33,6 +33,19 @@ CONTROL = {
     "nHs48G5txbk": "죄와 벌 (경쟁 98,243)",
     "_GIZV21TV1I": "동물농장 (경쟁 344,595)",
 }
+# 새 선정 기준(한국 근현대문학 + 교과서 수록) 9편 — 9/07~10/02 순차 공개.
+# 표기는 수요/경쟁 (2026-09-09 계량). 판정은 12월 초(공개 후 90일).
+NEW_CRITERIA = {
+    "YhBewX4kj-g": "만세전 (540/2,632 = 0.21)",
+    "dqc8CnTIEbc": "우상의 눈물 (900/1,408 = 0.64)",
+    "hsItetT2Ntk": "★수난이대 (5,190/747 = 6.95)",
+    "23WgiKeuLsQ": "유자소전 (400/950 = 0.42)",
+    "41uMkywCzGQ": "만무방 (960/499 = 1.92)",
+    "KeWoDPb-Cd8": "기억 속의 들꽃 (1,630/1,496 = 1.09)",
+    "8UA95iAOJ48": "레디메이드 인생 (510/1,119 = 0.46)",
+    "qhsDCfqoXJc": "니코마코스 윤리학 (1,530/872 = 1.75)",
+    "Nf9mDPedLq8": "B사감과 러브레터 (800/851 = 0.94)",
+}
 
 
 def clients():
@@ -125,7 +138,7 @@ def search_terms(ya, out, today, days, label):
 
 def tracked(ya, yt, out, today):
     """실험 편 / 대조군 추적 — 공개된 것만 나온다."""
-    ids = {**EXPERIMENT, **CONTROL}
+    ids = {**EXPERIMENT, **CONTROL, **NEW_CRITERIA}
     meta = {}
     out.append("## 선정 기준 실험 추적\n")
     try:
@@ -138,7 +151,7 @@ def tracked(ya, yt, out, today):
 
     out.append("| 편 | 상태 | 조회 | 좋아요 | 댓글 | 평균 시청률 |")
     out.append("|---|---|---:|---:|---:|---:|")
-    for group, label in ((EXPERIMENT, "실험"), (CONTROL, "대조")):
+    for group, label in ((NEW_CRITERIA, "새기준"), (EXPERIMENT, "실험"), (CONTROL, "대조")):
         for vid, name in group.items():
             m = meta.get(vid)
             if not m:
